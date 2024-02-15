@@ -7,19 +7,13 @@ import { useStore } from 'vuex'
 
 const store = useStore()
 
-onMounted(() => {
-  const urlParams = new URLSearchParams(window.location.search)
-  const token = urlParams.get('token')
+onMounted(async () => {
+  
+  await store.dispatch('getToken')
+  store.dispatch('saveToken')
 
-  if (token) {
-    store.dispatch('saveToken', token)
-
-    
-    // 로컬 스토리지에 저장된 토큰을 이용해 사용자 정보를 가져옴
-    
-
-    
-  }
+  // 토큰을 이용해 사용자 정보를 가져옴
+  store.dispatch('getMemberInfo')
 })
 
 

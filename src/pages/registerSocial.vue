@@ -1,5 +1,23 @@
 <script setup>
 import TermsAndConditions from '@/views/demos/register/TermsAndConditions.vue'
+import axios from '@axios'
+import { onMounted } from 'vue'
+import { useStore } from 'vuex'
+
+const store = useStore()
+
+onMounted(async () => {
+  // 서버에서 토큰을 가져와 로컬 스토리지에 저장
+  const response = await axios.post('http://localhost:4000/user/getToken', {}, { withCredentials: true })
+  const token = response.data
+
+  localStorage.setItem('access_token', token)
+
+  // 토큰을 이용해 사용자 정보를 가져옴
+  store.dispatch('getMemberInfo')
+})
+
+
 
 const iconsSteps = [
   {

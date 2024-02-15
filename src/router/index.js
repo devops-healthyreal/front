@@ -22,6 +22,8 @@ const router = createRouter({
       beforeEnter: (to, from, next) => {
         if (store.state.loginStore.isLogin) {
           console.log('로그인 된 상태')
+
+          
           next()
         } else {
           console.log('로그인 안 된 상태')

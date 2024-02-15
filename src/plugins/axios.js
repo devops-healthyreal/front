@@ -33,14 +33,28 @@ axiosIns.interceptors.request.use(config => {
 
 
 
-// ℹ️ Add response interceptor to handle 401 response
 axiosIns.interceptors.response.use(response => {
+  // 응답 헤더에서 메세지 확인
+  const message = response.headers['X-Message']
+
+  console.log("중요 이거 실행돼?")
+  if (message === 'Token') {
+    // 토큰 추출
+    
+    const token = response.headers['Authorization']
+    
+    console.log(token,'access_token')
+    if (token) {
+      // 토큰을 로컬 스토리지에 저장
+      localStorage.setItem('access_token', token)
+      console.log('토큰 저장 성공')
+    }
+  }
+
   // 서버에서 message와 redirectUrl을 보낼 경우 이를 처리
   if (response.data.message && response.data.redirectUrl) {
     alert(response.data.message)
     router.push(response.data.redirectUrl)
-    
-    return response
   }
   
   return response
@@ -57,7 +71,7 @@ axiosIns.interceptors.response.use(response => {
     
     alert(" 로그인 후 이용가능합니다")
     router.push('/login')
-  } else if (error.response.status === 403) {
+  }else if (error.response.status === 403) {
     // If 403 response returned from api
     alert("접근 권한이 없습니다.")
     router.push('/main') // or redirect to any other page as per your requirement

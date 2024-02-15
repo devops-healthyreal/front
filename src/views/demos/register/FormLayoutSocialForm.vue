@@ -4,6 +4,7 @@ import Sub from '@/views/demos/register/DemoSelectCustomTextAndValue.vue'
 import axios from '@axios'
 import { onBeforeUnmount, onMounted, provide, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 
 
 const emits = defineEmits({
@@ -28,6 +29,19 @@ const emits = defineEmits({
     required: true,
   },
 
+})
+
+const store = useStore()
+const memberInfo = computed(() => store.state.userStore.userInfo)
+
+const userInfo = ref({
+  id: memberInfo.value.id || '',
+  gender: memberInfo.value.gender || '',
+  tel: memberInfo.value.tel || '',
+  height: memberInfo.value.height || '',
+  weight: memberInfo.value.weight || '',
+  goal_No: memberInfo.value.goal_No || '',
+  userAddress: memberInfo.value.userAddress || '',
 })
 
 
@@ -218,6 +232,20 @@ const isButtonDisabled = computed(() => {
     
 }) */
 
+const validateId = () => {
+  const regex = /^[a-zA-Z0-9]{4,10}$/
+  if (!regex.test(id.value)){
+    idError.value = '아이디는 4~10자의 영문과 숫자 조합이어야 합니다.'
+    idSuccess.value = ''
+
+  }
+  else{
+    idError.value = ''
+    idSuccess.value = '사용가능!'
+  }
+}
+
+
 const CertiPN = () => {
   const regex = /^[0-9]{6}$/ // 6자리 숫자만 허용하는 정규식
 
@@ -233,6 +261,8 @@ watch(certifiedPN, newValue => {
 
   isValidCertifiedPN.value = regex.test(newValue)
 })
+
+
 
 
 
@@ -291,31 +321,27 @@ const validatePNCK = () => {
 
 const handleCertification = async () => {
   // 유효성 검사 함수 호출
-  validatenameCK()
+
   validateHeight()
   validateWeight()
   validatePNCK()
 
   // 모든 유효성 검사를 통과했을 때
-  if (idError.value === '' &&
-      passwordError.value === '' &&
-      passwordCKError.value === '' &&
-      nameError.value === '' &&
-      heightError.value === '' &&
+  if (
+    idError.value === '' &&
+    heightError.value === '' &&
       weightError.value === '' &&
       PNError.value === '') {
 
     const data = {
-      id: id.value,
-      pwd: pwd.value,
-      name: name.value,
-      gender: gender.value,
-      b_day: b_day.value,
-      tel: tel.value,
-      height: height.value,
-      weight: weight.value,
-      goal_No: goal_No.value.value,
-      userAddress: `${userAddress.postcode} ${userAddress.address}`,
+      id: userInfo.value.id.value,
+      gender: userInfo.value.gender.value,
+      b_day: userInfo.value.b_day.value,
+      tel: userInfo.value.tel.value,
+      height: userInfo.value.height.value,
+      weight: userInfo.value.weight.value,
+      goal_No: userInfo.value.goal_No.value.value,
+      userAddress: `${userInfo.value.userAddress.postcode} ${userInfo.value.userAddress.address}`,
     }
 
     console.log("유저데이터,수정이?", data)
@@ -398,7 +424,7 @@ const verifyCertification = async() => {
       const data = await handleCertification()
 
       // 회원가입 함수를 호출하며, data를 인자로 전달합니다.
-      await registerUser(data, isValidCertifiedPN)
+      await updateSocialUser(data, isValidCertifiedPN)
     }
   } 
   catch (error) {
@@ -434,20 +460,27 @@ const resendVerificationCode = async () => {
 
 provide('isSnackbarVisible', isSnackbarVisible)
 
-const registerUser = async (data, isValidCertifiedPN) => {
+const updateSocialUser = async (data, isValidCertifiedPN) => {
   try {
     if (isValidCertifiedPN.value) {
-      const registerResponse = await axios.post('http://localhost:4000/register', data)
+      const updateResponse = await axios.put('http://localhost:4000/user/updateSocialUser', data, { withCredentials: true })
 
-      console.log(registerResponse.data, '회원가입 성공')
+      console.log('data', data)
+      console.log(updateResponse.data, '회원정보 수정 성공')
 
-      // 회원가입 성공 시 Snackbar를 보여줍니다.
+      // 스토어의 사용자 정보를 업데이트합니다.
+      store.commit('updateUserInfo', data)
+
+      // 서버로부터 받은 응답을 로그로 출력
+      console.log("response data", updateResponse.data)
+
+      // 회원정보 수정 성공 시 Snackbar를 보여줍니다.
       isSnackbarVisible.value = true
 
-      // 회원가입 요청의 응답이 성공적으로 수신된 경우에만 페이지 이동을 실행합니다.
-      if (registerResponse.status === 200) {
+      // 회원정보 수정 요청의 응답이 성공적으로 수신된 경우에만 페이지 이동을 실행합니다.
+      if (updateResponse.status === 200) {
         setTimeout(() => {
-          router.replace({ name: 'login' })
+          router.replace({ name: 'main' })  // 수정된 페이지로 이동
         }, 3000)
       }
     } else {
@@ -455,8 +488,8 @@ const registerUser = async (data, isValidCertifiedPN) => {
       alert('인증번호를 확인해주세요.')
     }
   } catch (error) {
-    console.log('회원가입 실패', error.response?.data || error.message)
-    alert('회원가입에 실패하였습니다. 다시 시도해주세요.')
+    console.log('회원정보 수정 실패', error.response?.data || error.message)
+    alert('회원정보 수정에 실패하였습니다. 다시 시도해주세요.')
   }
 }
 
@@ -464,10 +497,7 @@ const registerUser = async (data, isValidCertifiedPN) => {
 
 // 유효성 검사 에러 메시지 초기화 함수
 const clearValidationErrors = () => {
-  idError.value = ''
-  passwordError.value = ''
-  passwordCKError.value = ''
-  nameError.value = ''
+
   heightError.value = ''
   weightError.value = ''
   PNError.value = ''
@@ -475,36 +505,6 @@ const clearValidationErrors = () => {
 
 clearValidationErrors() // 유효성 검사 에러 메시지를 초기화합니다.
 //handleCertification() // 인증 및 데이터 전송을 위한 함수를 호출합니다.
-
-
-
-/* axios 설치 
-npm install axios
-, import 구문 추가 
-,import axios from '@axios'; */
-
-/*
-const onSubmitIdCK = () => {
-  validateId(); // 아이디 유효성 검사 함수 호출
-  console.log('서브밋');
-
-  // 서버 연결시 아이디 중복확인 주석 풀어야함
-  if (!idError.value) {
-    axios.post('/checkDuplicateId', { data: id.value })
-      .then(response => {
-        if (response.data) {
-          idError.value = '이미 사용중인 아이디입니다';
-        } else {
-          regiter(); // 데이터를 백엔드로 전송하는 함수 호출
-        }
-      })
-      .catch(error => {
-        console.error('서버 요청 실패:', error);
-      });
-  }
-}; 
-onSubmitIdCK() 
-*/
 </script>
 
 
@@ -517,6 +517,46 @@ onSubmitIdCK()
       <VCol cols="12">
         <VRow no-gutters>
           <VCol cols="12">
+            <VRow no-gutters>
+              <!-- 👉 ID -->
+              <VCol
+                cols="12"
+                md="3"
+              />
+
+              <VCol
+                cols="12"
+                md="1"
+              />
+          
+              <VCol
+                cols="12"
+                md="4"
+              >
+                <VTextField
+                  id="id"
+                  ref="idText"
+                  v-model="id"
+                  placeholder="아이디"
+                  persistent-placeholder
+                  @input="validateId"
+                />
+                <!-- 입력 변경시 마다 아이디 유효성 검사 호출 -->
+                <div
+                  v-if="idError"
+                  :style="{ color: 'red' }"
+                >
+                  {{ idError }}
+                </div> <!-- 아이디 오류 메세지 -->
+
+                <div
+                  v-if="idSuccess"
+                  :style="{ color: 'greenyellow' }"
+                >
+                  {{ idSuccess }}
+                </div> <!-- 아이디 성공 메세지 -->
+              </VCol>
+            </VRow>
             <VRow
               no-gutters
               class="my-3"

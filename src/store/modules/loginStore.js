@@ -1,9 +1,9 @@
 
 
-
 import axiosIns from '@/plugins/axios'
 import router from '@/router'
 import axios from '@axios'
+
 
 
 
@@ -19,6 +19,7 @@ const loginStore = {
     loginSuccess: function (state, payload) {
       state.userInfo = payload
       state.isLogin = true
+      
       
       
 
@@ -41,7 +42,7 @@ const loginStore = {
       formdata.append("id", loginObj['id'])
       formdata.append("pwd", loginObj['pwd'])
     
-      await axios.post('http://localhost:4000/login', formdata, {
+      await axiosIns.post('http://localhost:4000/login', formdata, {
         headers: {
           'X-SKIP-INTERCEPTOR': true,
           'Content-Type': 'multipart/form-data',
@@ -62,7 +63,8 @@ const loginStore = {
     
           console.log(token)
           context.dispatch('saveToken', token)
-          router.push('/main')
+
+          //router.push('/main')
         })
         .catch(error => {
           console.log(error)
@@ -77,11 +79,11 @@ const loginStore = {
 
 
     socialLogin(context, url) {
-
-      window.location.href = url // 백엔드 서버로 리다이렉트
-      
-
+      window.location.href = url
     },
+
+   
+  
     
     // isSocialLogin(context) {
     //   axios.get('http://localhost:4000/user/isSocialLogin', {
