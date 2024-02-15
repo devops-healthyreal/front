@@ -23,15 +23,28 @@ const { chatsContacts, activeChat } = useDatabase()
 
 const { resolveAvatarBadgeVariant } = useChat()
 
+console.log("--------------props.user-------------")
+console.log(props.user)
+console.log("--------------props.isChatContact-------------")
+console.log(props.isChatContact)
+console.log("--------------activeChat-------------")
+console.log(activeChat)
+console.log("--------------chatsContacts-------------")
+console.log(chatsContacts)
 
-
+/*
 const isChatContactActive = computed(() => {
-  const isActive = activeChat?.contact?.id === props.user?.id
+  const isActive = chatsContacts?.value.some(contact => contact.id === props.user?.id)
+
+  console.log("--------------props.user?.id-------------")
+  console.log(props.user?.id)
+  console.log("--------------chatsContacts?.value?.id-------------")
+  console.log(chatsContacts?.value?.id)
   if (!props.isChatContact)
     return !activeChat?.chat && isActive
   
   return isActive
-})
+})*/
 </script>
 
 <template>

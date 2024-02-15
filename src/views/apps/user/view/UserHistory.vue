@@ -1,50 +1,45 @@
 <script setup>
-import { VDataTable } from 'vuetify/labs/VDataTable'
-import UserInvoiceTable from './UserInvoiceTable.vue'
 import axios from '@axios'
 
 // Images
-import avatar2 from '@images/avatars/avatar-2.png'
-import figma from '@images/icons/project-icons/figma.png'
-import html5 from '@images/icons/project-icons/html5.png'
-import python from '@images/icons/project-icons/python.png'
-import react from '@images/icons/project-icons/react.png'
-import sketch from '@images/icons/project-icons/sketch.png'
-import vue from '@images/icons/project-icons/vue.png'
-import xamarin from '@images/icons/project-icons/xamarin.png'
+import { useStore } from 'vuex'
 
+const store = useStore()
 
-const getDotColor = (index) => {
-  const colors = ['primary', 'info', 'success', 'error'];
-  return colors[index % colors.length];
+// 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=userInfo.value.id
+
+const getDotColor = index => {
+  const colors = ['primary', 'info', 'success', 'error']
+  
+  return colors[index % colors.length]
 }
 
 // mh는 Member_History 테이블을 뜻하는 약자
-const mhdate = ref([]);
-const searchuser = 'HMC' //접속중인 유저 아이디값 받아넣기
+const mhdate = ref([])
 const form = ref('')
 
 const fetchData = async () => {
   axios
-    .get('http://localhost:4000/memberhistory/View.do',{
+    .get('http://localhost:4000/memberhistory/View.do', {
       params: {
-        id: searchuser,
+        id: connetId,
       },
     })
-    .then((response) => {
+    .then(response => {
       if (response.status === 200) {
-        mhdate.value = response.data;
+        mhdate.value = response.data
       } else {
-        console.log('데이터 가져오기 실패');
+        console.log('데이터 가져오기 실패')
       }
     })
-    .catch((error) => {
-      console.error(error);
-   });
-};
+    .catch(error => {
+      console.error(error)
+    })
+}
 
-onMounted(fetchData);
-
+onMounted(fetchData)
 </script>
 
 <template>
@@ -54,11 +49,11 @@ onMounted(fetchData);
       <VCard title="히스토리">
         <VCardText>
           <VTimeline
+            v-if="mhdate.length > 0"
             density="compact"
             align="start"
             truncate-line="both"
             class="v-timeline-density-compact"
-            v-if="mhdate.length > 0"
           >
             <VTimelineItem
               v-for="(data, index) in mhdate"
@@ -68,16 +63,16 @@ onMounted(fetchData);
             >
               <div class="d-flex justify-space-between align-center flex-wrap gap-2 mb-3">
                 <span class="app-timeline-title">
-                  {{data.mem_colname == 'NAME' ? '이름을' :
+                  {{ data.mem_colname == 'NAME' ? '이름을' :
                     data.mem_colname == 'GENDER' ? '성별을' :
                     data.mem_colname == 'B_DAY' ? '생일을' :
                     data.mem_colname == 'TEL' ? '번호를' :
                     data.mem_colname == 'USERADDRESS' ? '주소를' :
                     data.mem_colname == 'HEIGHT' ? '키를' :
                     data.mem_colname == 'WEIGHT' ? '몸무게를' :
-                    data.mem_colname == 'GOAL_NO' ? '목표를' : ''}} '{{data.before_value}}'에서 '{{data.after_value}}'로 수정하셨습니다.
+                    data.mem_colname == 'GOAL_NO' ? '목표를' : '' }} '{{ data.before_value }}'에서 '{{ data.after_value }}'로 수정하셨습니다.
                 </span>
-                <span class="app-timeline-meta">{{data.update_day}}</span>
+                <span class="app-timeline-meta">{{ data.update_day }}</span>
               </div>
             </VTimelineItem>
           </VTimeline>

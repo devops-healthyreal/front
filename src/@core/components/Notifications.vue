@@ -97,7 +97,7 @@ const updatenotic = async (notification, trigger_pk, index) => {
         <!-- 👉 Header -->
         <VCardItem class="notification-section">
           <VCardTitle class="text-lg">
-            '{{ connetId }}'님 알림 현황
+            '{{ name }}'님 알림 현황
           </VCardTitle>
 
           <template #append>

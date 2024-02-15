@@ -72,7 +72,7 @@ const showDiary = diaryId => { //다이어리 내용 불러오는 함수
 
 //날짜에 맞는 데이터를 가져오기 위한 코드
 
-const userId = ref('HMC')
+const userId = ref('hmc0110')
 
 const dateVal = todayLabel.value.replace(/-/g, '')+'-'+userId.value
 

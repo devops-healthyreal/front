@@ -99,7 +99,7 @@ const getData = async function() {
       temp의 앞에 현재 서비스를 이용 중인 유저의 아이디가 들어가야 함.
       뿌려주는 게시글 작성자들의 목록을 불러옴.
       */
-      temp.unshift('HMC')
+      temp.unshift('hmc0110')
       console.log(temp)
       axios.post("http://localhost:4000/bbs/userProfile", JSON.stringify ({
         ids: temp,
@@ -481,7 +481,7 @@ const toggleLike = async bno => {
 
   try {
     const response = await axios.post('http://localhost:4000/bbs/likes.do', {
-      id: "HMC",
+      id: connetId,
       bno: bno,
       cno: "",
       isLiked: isLiked.value,

@@ -1,5 +1,5 @@
-import firebase from 'firebase/app'
-import { getMessaging, getToken } from 'firebase/messaging'
+importScripts('https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js')
+importScripts('https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js')
 
 const firebaseConfig = {
   apiKey: "AIzaSyDaoRQlGo6oghhkTmRIqrqEPWofr1BSm9E",
@@ -11,20 +11,30 @@ const firebaseConfig = {
   measurementId: "G-N7SX341HTV",
 }
 
-const app = firebase.initializeApp
-(firebaseConfig)
+const app = firebase.initializeApp(firebaseConfig)
 
-const messaging = getMessaging(app)
+const messaging = firebase.messaging()
 
-getToken(messaging, { vapidKey: "BIa23R2xZe0qRZYDcY5aXlxcBOFiujw7Vs-RLTPwEjQqmXAFgXNjRfWjBrjN_E0WWg6yUMmXncdutQN8zmbHqpmIATT7U66CLC5vc6J9T5dGEE1hDYyZSK1I27A0" })
-  .then(currToken => {
-    localStorage.setItem("pushtoken", currToken)
-    if (currToken) {
-      Notification.requestPermission().then(permission=>{
-        if (permission === 'granted') { //알림 권한이 승인됨
-            
-        }
-      })
-      
-    }
-  })
+
+messaging.onBackgroundMessage(payload => {
+  console.log("Message background received. ", payload)
+  console.log(self.ServiceWorkerRegistration.showNotification("알림", {
+    body: "블라블라",
+    icon: "favicon.ico",
+    vibrate: [200, 100, 200, 100, 200, 100, 200],
+    tag: "vibration-sample",
+  }))
+})
+
+//웹 페이지가 열려있지 않을 때만 호출됨
+// messaging.onBackgroundMessage(payload=>{
+//   console.log('[firebase-messaging-sw.js] Received background message ', payload)
+
+//   const notificationTitle = payload.notification.title
+
+//   const notificationOptions = { body: payload, icon: payload.notification.icon }
+
+//   return self.registration.showNotification(notificationTitle, notificationOptions)
+
+// })
+
