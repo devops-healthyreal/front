@@ -1,4 +1,14 @@
 <script setup>
+import axios from '@axios'
+import { useStore } from 'vuex'
+
+
+// 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=computed(() => userInfo.value.id)
+const name = computed(() => store.state.userStore.userInfo ? store.state.userStore.userInfo.name : null)
+
 const props = defineProps({
   selectedCheckbox: {
     type: Array,
@@ -23,16 +33,16 @@ watch(selectedOption, () => {
 })
 
 const hateFoodchk = ref([])
+const gethatefoodList = ref([])
 
 const checkval = (item) => {
   console.log('값:', item.value, '이름:', item.name);
-  if (!hateFoodchk.value.includes(item.name)) {
+  console.log('밀어넣은 옵션?:',selectedOption._rawValue);
+  const existingIndex = hateFoodchk.value.findIndex((element) => element.hasOwnProperty(item.value) && element[item.value] === item.name);
+  if (existingIndex === -1) {
     hateFoodchk.value.push({ [item.value]: item.name });
   } else {
-    const index = hateFoodchk.value.findIndex((element) => element[item.value] === item.name);
-    if (index !== -1) {
-      hateFoodchk.value.splice(index, 1);
-    }
+    hateFoodchk.value = hateFoodchk.value.filter((element, index) => index !== existingIndex);
   }
   hateFoodchk.value.sort((a, b) => {
     const valueA = Object.keys(a)[0];
@@ -46,6 +56,33 @@ const checkval = (item) => {
 const sendHateFoodList = (val) => {
   emit('HateFoodList', val)
 }
+
+const getuserHateFood = async() =>{
+  await axios.get('http://localhost:4000/GetMember/HateFood', { params: { id: connetId.value} })
+  .then(response => {
+    console.log(response.data)
+    if(response.data !== null){
+      gethatefoodList.value = response.data.map((item) => ({
+        value:item.hatefood_no,
+        name:item.hatefood_name
+      }))
+      console.log('여기까지 들어왔음', gethatefoodList._rawValue)
+      for (let i = 0; i < gethatefoodList._rawValue.length; i++) {
+        const selectedHateFood = gethatefoodList._rawValue[i];
+        // 기존에 체크한 알러지 정보를 selectedOption에 추가
+        // selectedOption.value.push(selectedHateFood.value);
+        selectedOption.value.push(String(selectedHateFood.value)); //selfTest에서 checkboxContent2의 value를 String으로 해놓아서 앞에 String으로 감싼 값으로 밀어넣음
+        console.log('밀어넣은 옵션?:',selectedOption._rawValue);
+        // 추출한 값으로 원하는 작업 수행
+        console.log(selectedHateFood);
+        checkval(selectedHateFood)  
+      }
+    }
+  }).catch(error => {
+      console.log('실패', error)
+  })
+}
+onMounted(getuserHateFood)
 </script>
 
 <template>
@@ -68,7 +105,6 @@ const sendHateFoodList = (val) => {
             :value="item.value"
             @click="checkval(item)"
           />
-
         </div>
         <img
           :src="item.bgImage"

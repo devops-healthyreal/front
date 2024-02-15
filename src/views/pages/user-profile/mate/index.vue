@@ -10,7 +10,7 @@ const router = useRoute()
 const connectionData = ref([])
 const isMateExist = ref(true)
 
-const userId = ref('HMC') //접속한 유저 아이디
+const userId = ref('hmc0110') //접속한 유저 아이디
 
 const rating = reactive({}) //호감도 뿌려주기 위한 변수
 const beforeRating = {}

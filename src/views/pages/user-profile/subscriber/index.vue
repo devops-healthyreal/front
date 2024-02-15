@@ -57,7 +57,7 @@ window.addEventListener('click', ()=>{ //beforeunload
         console.log('axios delete 안으로 들어옴', userid)
         axios.delete("http://127.0.0.1:4000/comm/subscribe/delete", {
           data: {
-            userId: 'HMC',
+            userId: 'hmc0110',
             subToId: userid,
           },
         }, { headers: { "Content-Type": `application/json` } })
@@ -88,7 +88,7 @@ const deleteMySub = id => { //api 요청
   console.log(id, '삭제됨')
   axios.delete("http://127.0.0.1:4000/comm/subscribe/deleteSubscriber", { data: {
     subId: id,
-    userId: 'HMC',
+    userId: 'hmc0110',
   } })
     .then(()=>{
       fetchProjectData()

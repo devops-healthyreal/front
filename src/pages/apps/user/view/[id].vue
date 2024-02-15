@@ -4,9 +4,15 @@ import { useUserListStore } from '@/views/apps/user/useUserListStore'
 import UserBioPanel from '@/views/apps/user/view/UserBioPanel.vue'
 import UserEdit from '@/views/apps/user/view/UserEdit.vue'
 import UserHistory from '@/views/apps/user/view/UserHistory.vue'
-import UserTabBillingsPlans from '@/views/apps/user/view/UserTabBillingsPlans.vue'
 import UserPaymentList from '@/views/apps/user/view/UserPaymentList.vue'
+import UserTabBillingsPlans from '@/views/apps/user/view/UserTabBillingsPlans.vue'
+import { useStore } from 'vuex'
 
+const store = useStore()
+
+// 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=userInfo.value.id
 
 const userListStore = useUserListStore()
 const route = useRoute()
@@ -83,7 +89,7 @@ userListStore.fetchUser(Number(route.params.id)).then(response => {
         </VWindowItem>
 
         <VWindowItem>
-          <MyList id="HMC" />
+          <MyList id="connetId" />
         </VWindowItem>
 
         <VWindowItem>

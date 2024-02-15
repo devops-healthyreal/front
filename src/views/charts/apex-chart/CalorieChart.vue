@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { getBarChartConfig } from '@core/libs/apex-chart/lsyApexCharConfig';
-import { computed } from 'vue';
-import VueApexCharts from 'vue3-apexcharts';
-import { useTheme } from 'vuetify';
+import { getBarChartConfig } from '@core/libs/apex-chart/lsyApexCharConfig'
+import { computed } from 'vue'
+import VueApexCharts from 'vue3-apexcharts'
+import { useTheme } from 'vuetify'
 
 const vuetifyTheme = useTheme()
 

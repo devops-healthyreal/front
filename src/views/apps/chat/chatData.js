@@ -6,6 +6,7 @@ export default function useDatabase() {
   const store = useStore()
   const userInfo = computed(() => store.state.userStore.userInfo)
   const connetId = userInfo.value.id
+  
 
 
   const database = ref({
@@ -41,29 +42,25 @@ export default function useDatabase() {
   })
   
 
-
-  
   let activeChat = computed(() => 
     database.value.chats.find(chat => chat.userId === connetId),
   )
 
-  console.log("activeChat--------", activeChat)
 
   async function fetchDatabase(userId) {
     try {
-      console.log("userId:", userId)
   
       const response = await axios.get("http://localhost:4000/comm/profile", { params: { id: userId } })
   
       if (response.data) {
-        console.log("response.data:", response.data)
         database.value.profileUser.id = userId
         database.value.profileUser.avatar = response.data.profilePath
         database.value.profileUser.fullName = response.data.name
         database.value.profileUser.status = 'online'
-        console.log("database.profileUser.id", database.value.profileUser.id)
-        console.log("database.profileUser.avatar", database.value.profileUser.avatar)
-        console.log("database.profileUser.fullName", database.value.profileUser.fullName)
+
+        //console.log("database.profileUser.id", database.value.profileUser.id)
+        //console.log("database.profileUser.avatar", database.value.profileUser.avatar)
+        //console.log("database.profileUser.fullName", database.value.profileUser.fullName)
       }
     } catch (error) {
       console.error(`데이터를 가져오는데 실패했습니다: ${error}`)
@@ -73,15 +70,10 @@ export default function useDatabase() {
 
   async function allData(userId) {
     try {
-      console.log("userId:", userId)
   
       const response = await axios.get("http://localhost:4000/chat/allChating.do", { params: { id: userId } })
   
-      console.log("response:", response.data)
-      
-  
       if (response.data && Array.isArray(response.data)) {
-        console.log("response.data:", response.data)
   
         const newChats = [...database.value.chats]
   
@@ -94,7 +86,7 @@ export default function useDatabase() {
             chat.messages.push({
               message: item.content,
               time: item.sendDate,
-              senderId: userId,
+              senderId: item.id,
               feedback: {
                 isSent: true,
                 isDelivered: true,
@@ -111,7 +103,7 @@ export default function useDatabase() {
                 {
                   message: item.content,
                   time: item.sendDate,
-                  senderId: userId,
+                  senderId: item.id,
                   feedback: {
                     isSent: true,
                     isDelivered: true,
@@ -134,12 +126,9 @@ export default function useDatabase() {
 
   async function fetchFriendDatabase(userId) {
     try {
-      console.log("userId:", userId)
-      
       const response = await axios.get("http://localhost:4000/comm/friend", { params: { id: userId } })
       
       if (response.data && Array.isArray(response.data)) {
-        console.log("response.data:", response.data)
 
         const newContacts = [...database.value.contacts]
 
