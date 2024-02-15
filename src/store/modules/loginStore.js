@@ -21,6 +21,7 @@ const loginStore = {
       state.isLogin = true
       
       
+      
 
     },
     logoutTest: function (state) {
