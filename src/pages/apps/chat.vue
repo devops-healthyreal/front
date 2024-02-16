@@ -6,6 +6,7 @@ import { useChat } from '@/views/apps/chat/useChat'
 import axios from '@axios'
 import { useResponsiveLeftSidebar } from '@core/composable/useResponsiveSidebar'
 import { avatarText } from '@core/utils/formatters'
+import { ref } from 'vue'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { useDisplay } from 'vuetify'
 
@@ -124,8 +125,8 @@ socket.addEventListener('open', async function (event) {
           ...newchatContact,
           chat: newchat,
         })
-        if (newchat) {
-          newchat.chat = newchat
+        if (newchat.value) {
+          newchat.value.chat = newchat
         }
       }
       else {
