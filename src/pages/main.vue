@@ -8,12 +8,14 @@ import { useStore } from 'vuex'
 const store = useStore()
 
 onMounted(async () => {
-  store.dispatch('saveToken')
-  await store.dispatch('getToken')
+  // 로그인하지 않았을 경우에만 실행
+  if (!store.state.isLogin) {
+    await store.dispatch('getToken')
+    store.dispatch('saveToken')
 
-
-  // 토큰을 이용해 사용자 정보를 가져옴
-  store.dispatch('getMemberInfo')
+    // 토큰을 이용해 사용자 정보를 가져옴
+    store.dispatch('getMemberInfo')
+  }
 })
 
 

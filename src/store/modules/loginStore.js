@@ -129,7 +129,7 @@ const loginStore = {
           const userInfo = {
             name: res.data.name,
             id: res.data.id,
-            pro_filepath: res.data.pro_filepath,
+            pro_filepath: res.data.profileimage,
           }
 
           console.log('소셜2')
