@@ -6,7 +6,6 @@ const props = defineProps(["result", "diary", "urls"])
 const emit = defineEmits(['update:submitEvent'])
 
 const isDialogVisible = defineModel()
-const result = ref()
 
 console.log('자식 컴포넌트:', isDialogVisible)
 console.log('부모 컴포넌트의 값 확인:', typeof props.result.score)
@@ -69,22 +68,27 @@ const getButtonColor = value => {
 onUpdated(()=>{
   const score = props.result.score
 
-  console.log('score', score)
-  console.log('전체 값:', props.result)
+  console.log('일기장 값:', props.diary)
+  console.log('사진값:', props.urls)
+  console.log(score)
   if (typeof score != 'undefined') {
     if (-1 <= score && score <=-0.6) {
+      console.log('score:', score)
       selectButton(btnIcons[0].value)
       getButtonColor(btnIcons[0].value)
     }
     else if (-0.6 < score && score <=-0.2) {
+      console.log('score:', score)
       selectButton(btnIcons[1].value)
       getButtonColor(btnIcons[1].value)
     }
     else if (-0.2 < score && score <=0.2) {
+      console.log('score:', score)
       selectButton(btnIcons[2].value)
       getButtonColor(btnIcons[2].value)
     }
     else if (0.2 < score && score <=0.6) {
+      console.log('score:', score)
       selectButton(btnIcons[3].value)
       getButtonColor(btnIcons[3].value)
     }
@@ -115,33 +119,12 @@ const buttonController = isSubmit => {
       <VCardText class="text-h6">
         <VIcon icon="mdi-chart-tree" />
         감정 분석 결과입니다
-        <VCardText>
-          <VChip
-            label
-            color="success"
-            style="margin-right: 10px;"
-          >
-            SCORE {{ props.result.score.toFixed(2) }}
-            <VTooltip
-              location="right"
-              activator="parent"
-            >
-              <span>score값이 1에 가까울수록 긍정적이며 <br>-1에 가까울수록 부정적인 감정을 의미합니다<br></span>
-            </VTooltip>
-          </VChip>
-          <VChip
-            label
-            color="info"
-          >
-            COMPLEXITY: {{ props.result.mag.toFixed(2) }}
-            <VTooltip
-              location="right"
-              activator="parent"
-            >
-              <span>complexity값이 0에 가까울수록 <br>느끼는 감정이 통일되어 있음을 의미합니다</span>
-            </VTooltip>
-          </VChip>
-        </VCardText>
+        <VTooltip
+          location="top"
+          activator="parent"
+        >
+          <span>결과가 느끼는 감정과 다르다면 수정할 수 있습니다</span>
+        </VTooltip>
       </VCardText>
       
       <DialogCloseBtn
@@ -149,7 +132,6 @@ const buttonController = isSubmit => {
         size="small"
         @click="isDialogVisible = false"
       />
-      <!-- 감정 이모지 선택하는 부분 -->
       <VRow :style="{'display':'flex', 'justify-content':'center'}">
         <VCol 
           v-for="(icon, index) in btnIcons" 
@@ -164,14 +146,7 @@ const buttonController = isSubmit => {
             @click="selectButton(icon.value)"
           />
         </VCol>
-        <VTooltip
-          location="left"
-          activator="parent"
-        >
-          <span>결과가 느끼는 감정과 다르다면 수정할 수 있습니다</span>
-        </VTooltip>
       </VRow>
-      <!-- 감정 이모지 선택하는 부분 end -->
       <VCol>
         <VCardText>
           {{ props.result.answer }}

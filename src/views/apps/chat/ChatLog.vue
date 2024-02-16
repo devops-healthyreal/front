@@ -9,10 +9,6 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  socket: {
-    type: Object,
-    required: true,
-  },
 })
 
 const { activeChat, database, connetId, connetAv } = useDatabase()
@@ -23,12 +19,6 @@ console.log("datavbase------------")
 console.log(database)
 console.log("props.newChat------------------")
 console.log(props.newChat) //내가 보낸 메세지
-console.log("props.messages------------------")
-console.log(props.messages) 
-console.log("props.connetAv------------------")
-console.log(props.connetAv)
-console.log("props.socket------------------")
-console.log(props.socket)
 
 const contact = computed(() => {
   if (activeChat.value) {
@@ -128,49 +118,6 @@ const msgGroups = computed(() => {
 })
 
 
-props.socket.addEventListener('message', async event => {
-  // JSON 형태의 메시지를 파싱
-  console.log("Received event:", event) // 이벤트 로깅
-
-  const { senderId, message } = JSON.parse(event.data)
-
-  console.log("Parsed message:", { senderId, message }) // 파싱된 메시지 로깅
-
-
-  // 동일한 형태의 메시지 객체를 생성
-  const receivedMessage = {
-    message,
-    senderId,
-    time: String(new Date()),
-    feedback: {
-      isSent: true,
-      isDelivered: true,
-      isSeen: false,
-    },
-  }
-
-  // props.newChat이 undefined가 아닌 경우에만 메시지 처리 진행
-  if (props.newChat) {
-    console.log("props.newChat exists:", props.newChat) // props.newChat의 상태 로깅
-
-    // props.newChat.value가 undefined인 경우 초기화
-    if(!props.newChat.value) {
-      props.newChat.value = {
-        messages: [],
-      }
-    }
-
-    // props.newChat.value.messages가 배열인지 확인하고, 배열이 아니면 빈 배열로 초기화
-    if (!Array.isArray(props.newChat.value.messages)) {
-      props.newChat.value.messages = []
-    }
-
-    // 파싱한 메시지를 props.newChat.value.messages 배열에 추가
-    props.newChat.value.messages.push(receivedMessage)
-
-    console.log("Updated messages:", props.newChat.value.messages) // 업데이트된 메시지 배열 로깅
-  }
-})
 </script>
 
 <template>

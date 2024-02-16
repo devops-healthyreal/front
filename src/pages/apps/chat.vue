@@ -218,6 +218,50 @@ const openChatOfContact = async userId => {
   scrollToBottomInChatLog()
 }
 
+socket.addEventListener('message', async event => {
+  // JSON 형태의 메시지를 파싱
+  console.log("Received event:", event) // 이벤트 로깅
+
+  const { senderId, message } = JSON.parse(event.data)
+
+  console.log("Parsed message:", { senderId, message }) // 파싱된 메시지 로깅
+
+
+  // 동일한 형태의 메시지 객체를 생성
+  const receivedMessage = {
+    message,
+    senderId,
+    time: String(new Date()),
+    feedback: {
+      isSent: true,
+      isDelivered: true,
+      isSeen: false,
+    },
+  }
+
+  // props.newChat이 undefined가 아닌 경우에만 메시지 처리 진행
+  if (newchat.value) {
+    console.log("props.newChat exists:", newchat) // props.newChat의 상태 로깅
+
+    // props.newChat.value가 undefined인 경우 초기화
+    if(!newchat.value) {
+      newchat.value = {
+        messages: [],
+      }
+    }
+
+    // props.newChat.value.messages가 배열인지 확인하고, 배열이 아니면 빈 배열로 초기화
+    if (!Array.isArray(newchat.value.messages)) {
+      newchat.value.messages = []
+    }
+
+    // 파싱한 메시지를 props.newChat.value.messages 배열에 추가
+    newchat.value.messages.push(receivedMessage)
+
+    console.log("Updated messages:", newchat.value.messages) // 업데이트된 메시지 배열 로깅
+  }
+})
+
 // file input
 const refInputEl = ref()
 </script>
@@ -301,10 +345,7 @@ const refInputEl = ref()
           :options="{ wheelPropagation: false }"
           class="flex-grow-1"
         >
-          <ChatLog
-            :new-chat="newchat"
-            :socket="socket"
-          />
+          <ChatLog :new-chat="newchat" />
         </PerfectScrollbar>
 
         <!-- Message form -->
