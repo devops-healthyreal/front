@@ -1,7 +1,7 @@
 <script setup>
-import useDatabase from '@/views/apps/chat/chatData.js';
-import { formatDate } from '@core/utils/formatters';
-import { computed, defineProps } from 'vue';
+import useDatabase from '@/views/apps/chat/chatData.js'
+import { formatDate } from '@core/utils/formatters'
+import { computed, defineProps } from 'vue'
 
 
 const props = defineProps({
@@ -66,6 +66,8 @@ const resolveFeedbackIcon = feedback => {
 
 function computeMsgGroups(messages) {
   const _msgGroups = []
+
+
   // 메시지 그룹 합치기 및 정렬
   messages.sort((a, b) => new Date(a.time) - new Date(b.time))
   messages = messages
@@ -94,6 +96,7 @@ function computeMsgGroups(messages) {
         messages: [msg], // 현재 메시지를 새로운 그룹에 추가
       }
     }
+
     // 마지막 메시지인 경우, 현재 그룹을 _msgGroups에 추가
     if (index === messages.length - 1) {
       _msgGroups.push(msgGroup)
@@ -144,6 +147,13 @@ props.socket.addEventListener('message', async event => {
 
   // props.newChat이 undefined가 아닌 경우에만 메시지 처리 진행
   if (props.newChat) {
+    // props.newChat.value가 undefined인 경우 초기화
+    if(!props.newChat.value) {
+      props.newChat.value = {
+        messages: [],
+      }
+    }
+
     // props.newChat.value.messages가 배열인지 확인하고, 배열이 아니면 빈 배열로 초기화
     if (!Array.isArray(props.newChat.value.messages)) {
       props.newChat.value.messages = []
@@ -152,8 +162,8 @@ props.socket.addEventListener('message', async event => {
     // 파싱한 메시지를 props.newChat.value.messages 배열에 추가
     props.newChat.value.messages.push(receivedMessage)
 
-    // msgGroups 업데이트
-    msgGroups.value = computeMsgGroups(props.newChat.value.messages)
+    // msgGroups 업데이트를 직접 하려고 하지 말고,
+    // props.newChat.value.messages를 변경하면 msgGroups는 자동으로 업데이트됩니다.
   }
 })
 </script>

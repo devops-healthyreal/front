@@ -87,6 +87,81 @@ const submitEdit = async bno => {
   }
 }
 
+//////////////////////////////////////
+/* 댓글 */
+let group = ref([])
+let Allgroupbbs = ref([])
+
+//댓글 목록 가져오기
+let groupedDataAll = ref({})
+let groupedData = ref({})
+
+const statecomm = ref({
+  comment: [],
+})
+
+const getComment = async function() {
+
+  try {
+    const response = await axios.get('http://localhost:4000/commentline/View.do', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    // 응답 처리
+    if (response.status === 200) {
+      console.log('가져온 댓글 데이터 체크', response.data)
+
+      // BBS_NO 값을 기준으로 데이터 묶기
+      groupedDataAll.value = response.data.reduce((acc, curr) => {
+        const bbsNoAll = curr.BBS_NO
+        if (acc[bbsNoAll]) {
+          acc[bbsNoAll].push(curr)
+        } else {
+          acc[bbsNoAll] = [curr]
+        }
+        
+        return acc
+      }, {})
+
+      groupedData.value = {}
+      response.data.forEach(comment => {
+        const bbsNo = comment.BBS_NO
+
+        // 해당 BBS_NO에 대한 댓글이 이미 있는 경우
+        if (groupedData.value[bbsNo]) {
+          const existingComment = groupedData.value[bbsNo]
+
+          // C_NO가 가장 큰 댓글인지 확인
+          if (comment.C_NO > existingComment.C_NO) {
+            groupedData.value[bbsNo] = comment
+          }
+        } else {
+          // 해당 BBS_NO에 대한 댓글이 없는 경우
+          groupedData.value[bbsNo] = comment
+        }
+      })
+
+      console.log('전체 데이타', groupedDataAll)
+      console.log('특정 게시물 데이타', groupedDataAll.value)
+
+      // postmodalData.value = {
+      //   comments: groupedDataAll.value[postbbsno.value],    
+      // }
+
+      // Allgroupbbs.value = groupedDataAll._rawValue[17]
+      statecomm.value.comment = toRaw(groupedData)
+      group.value = toRaw(statecomm.value.comment)
+      console.log('그룹 데이터 확인', group.value)      
+
+    } else {
+      console.log('데이터 전송 실패')
+    }
+  } catch (error) {
+    console.error(`데이터 전송 실패: ${error}`)
+  }
+}
 
 //스크롤 이벤트 리스터 추가 - 화면 하단에 스크롤 도착 시 loadMore()함수 호출
 const scrollTimeout = ref(null)
@@ -105,7 +180,8 @@ const handleScroll = () => {
 
 //이벤트 리스터 추가 
 onMounted(() => {
-  getData() // 컴포넌트가 마운트될 때 getData 함수 실행
+  getData(), // 컴포넌트가 마운트될 때 getData 함수 실행
+  getComment()
 
   // 그 후 매 5초마다 getData 함수를 반복해서 실행
   //setInterval(getData, 5000)
@@ -265,7 +341,9 @@ const loadMore = () => {
                       </VCardItem>
 
                       <VCardText>
-                        여기엔 댓글 넣을거지롱
+                        <VCol v-if="group[item.bno]">
+                          <strong>{{ group[item.bno].C_NO }}번 {{ group[item.bno].ID }}</strong> {{ group[item.bno].CCOMMENT }}
+                        </VCol>  
                       </VCardText>
                     </VCard>
                   </VCol> 
