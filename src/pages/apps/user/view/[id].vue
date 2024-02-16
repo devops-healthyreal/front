@@ -42,10 +42,6 @@ const tabs = [
   },
   {
     icon: 'mdi-credit-card-plus',
-    title: '결제등록',
-  },
-  {
-    icon: 'mdi-credit-card-plus',
     title: '결제내역',
   },
 ]
@@ -89,7 +85,7 @@ userListStore.fetchUser(Number(route.params.id)).then(response => {
         </VWindowItem>
 
         <VWindowItem>
-          <MyList id="connetId" />
+          <MyList :id="connetId" />
         </VWindowItem>
 
         <VWindowItem>
@@ -102,10 +98,6 @@ userListStore.fetchUser(Number(route.params.id)).then(response => {
 
         <VWindowItem>
           제목에 맞는
-        </VWindowItem>
-
-        <VWindowItem>
-          <UserTabBillingsPlans />
         </VWindowItem>
 
         <VWindowItem>

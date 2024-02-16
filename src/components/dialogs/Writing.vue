@@ -46,6 +46,7 @@ const { files } = toRefs(images)
 let fileInput = ref(null)  // 파일 입력을 위한 ref 생성
 let isLoading = ref(false)  // 로딩 상태를 나타내는 데이터 추가
 const ciu = ref([])
+const connetAv = userInfo.value.pro_filepath
 
 // 해시태그를 저장하는 ref
 const hashtags = ref([])
@@ -61,7 +62,7 @@ const isButtonDisabled = computed(() => {
 
 const members = [
   {
-    avatar: avatar1,
+    avatar: connetAv,
     name: connetId,
   },
 ]
