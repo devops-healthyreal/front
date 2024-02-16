@@ -1,5 +1,4 @@
 <script setup>
-
 import ht1 from '@images/Unbalanced/1.jpg'
 import ht10 from '@images/Unbalanced/10.jpg'
 import ht11 from '@images/Unbalanced/11.jpg'
@@ -23,11 +22,12 @@ import ht7 from '@images/Unbalanced/7.jpg'
 import ht8 from '@images/Unbalanced/8.jpg'
 import ht9 from '@images/Unbalanced/9.jpg'
 
+import axios from '@axios'
 import { onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
-import axios from '@axios'
 
 const store = useStore()
+
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId=computed(() => userInfo.value.id)
@@ -64,32 +64,35 @@ const formData = ref({
 // Key : {key : Value} 구조의 값을 풀어서 DB에 {} 안에 Key값만 넘기기
 function extractNumbers(obj) {
   return Object.values(obj)
-    .map(value => parseInt(Object.keys(value)[0]));
+    .map(value => parseInt(Object.keys(value)[0]))
 }
+
 /* ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ알러지ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
 // 알러지 음식 정보 DB에서 가져오기
 const checkboxContent = ref([])
+
 const getallergyInfo = async() => {
   await axios.get('http://localhost:4000/Allergy/ListView.do')
-  .then(response => {
-    console.log('성공', response.data)
-    checkboxContent.value = response.data.map((item) => ({
-      bgImage:item.allergy_imagepath,
-      value:item.allergy_no,
-      name:item.allergy_name
-    }))
-  })
-  .catch(error => {
-    console.log('실패', error)
-  })
+    .then(response => {
+      console.log('성공', response.data)
+      checkboxContent.value = response.data.map(item => ({
+        bgImage: item.allergy_imagepath,
+        value: item.allergy_no,
+        name: item.allergy_name,
+      }))
+    })
+    .catch(error => {
+      console.log('실패', error)
+    })
 }
 
-const receivedAllergyList = ref('');
+const receivedAllergyList = ref('')
 
-const handleAllergyList = (AllergyList) => {
-  receivedAllergyList.value = AllergyList;
+const handleAllergyList = AllergyList => {
+  receivedAllergyList.value = AllergyList
   console.log('선택한 알러지 목록 :', receivedAllergyList.value._rawValue)
-};
+}
+
 /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
 
 // 싫어하는 음식 정보 DB에서 가져오기
@@ -111,28 +114,28 @@ const handleAllergyList = (AllergyList) => {
 
 // 탭에다 뿌려줄 사진 및 밸류
 const checkboxContent2 = [
-  {bgImage: ht1, value: '19',name:'오이'},
-  {bgImage: ht2,value: '20',name:'버섯'},
-  {bgImage: ht3,value: '21',name:'파프리카'},
-  {bgImage: ht4,value: '22',name:'생선'},
-  {bgImage: ht5,value: '23',name:'굴'},
-  {bgImage: ht6,value: '24',name:'딸기'},
-  {bgImage: ht7,value: '25',name:'당근'},
-  {bgImage: ht8,value: '26',name:'치즈'},
-  {bgImage: ht9,value: '27',name:'가지'},
-  {bgImage: ht10,value: '28',name:'애호박'},
-  {bgImage: ht11,value: '29',name:'브로콜리'},
-  {bgImage: ht12,value: '30',name:'김치'},
-  {bgImage: ht13,value: '31',name:'고구마'},
-  {bgImage: ht14,value: '32',name:'감자'},
-  {bgImage: ht15,value: '33',name:'양배추'},  
-  {bgImage: ht16,value: '34',name:'양상추'},
-  {bgImage: ht17,value: '35',name:'비트'},
-  {bgImage: ht18,value: '36',name:'닭고기'},  
-  {bgImage: ht19,value: '37',name:'돼지고기'},
-  {bgImage: ht20,value: '38',name:'소고기'},
-  {bgImage: ht21,value: '39',name:'양갈비'},
-  {bgImage: ht22,value: '40',name:'해산물'},
+  { bgImage: ht1, value: '19', name: '오이' },
+  { bgImage: ht2, value: '20', name: '버섯' },
+  { bgImage: ht3, value: '21', name: '파프리카' },
+  { bgImage: ht4, value: '22', name: '생선' },
+  { bgImage: ht5, value: '23', name: '굴' },
+  { bgImage: ht6, value: '24', name: '딸기' },
+  { bgImage: ht7, value: '25', name: '당근' },
+  { bgImage: ht8, value: '26', name: '치즈' },
+  { bgImage: ht9, value: '27', name: '가지' },
+  { bgImage: ht10, value: '28', name: '애호박' },
+  { bgImage: ht11, value: '29', name: '브로콜리' },
+  { bgImage: ht12, value: '30', name: '김치' },
+  { bgImage: ht13, value: '31', name: '고구마' },
+  { bgImage: ht14, value: '32', name: '감자' },
+  { bgImage: ht15, value: '33', name: '양배추' },  
+  { bgImage: ht16, value: '34', name: '양상추' },
+  { bgImage: ht17, value: '35', name: '비트' },
+  { bgImage: ht18, value: '36', name: '닭고기' },  
+  { bgImage: ht19, value: '37', name: '돼지고기' },
+  { bgImage: ht20, value: '38', name: '소고기' },
+  { bgImage: ht21, value: '39', name: '양갈비' },
+  { bgImage: ht22, value: '40', name: '해산물' },
 ]
 
 const selectedCheckbox = ref(['basic'])
@@ -164,51 +167,61 @@ const isSelected = value => {
 }
 
 
-const receivedHateFoodList = ref('');
-const handleHateFoodList = (HateFoodList) => {
-  receivedHateFoodList.value = HateFoodList;
+const receivedHateFoodList = ref('')
+
+const handleHateFoodList = HateFoodList => {
+  receivedHateFoodList.value = HateFoodList
   console.log('선택한 싫은 음식 목록 :', receivedHateFoodList.value._rawValue)
-};
+}
+
+
 /* ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ */
 const saveMemberAllergy = async (receivedList, type) => {
-  const formData = new FormData();
-  console.log('목록', receivedList._rawValue._rawValue);
+  const formData = new FormData()
 
-  const receivedArray = extractNumbers(receivedList._rawValue._rawValue);
-  let endpoint = '';
-  formData.append('id', connetId.value);
+  console.log('목록', receivedList._rawValue._rawValue)
+
+  const receivedArray = extractNumbers(receivedList._rawValue._rawValue)
+  let endpoint = ''
+  formData.append('id', connetId.value)
   if(type == 1){
-    formData.append('allergies', receivedArray);
-    endpoint = 'Allergy';
+    formData.append('allergies', receivedArray)
+    endpoint = 'Allergy'
   }else if(type == 2){
-    formData.append('hatefoods', receivedArray);
-    endpoint = 'HateFood';
+    formData.append('hatefoods', receivedArray)
+    endpoint = 'HateFood'
   }
   
   await axios.post(`http://localhost:4000/SaveMember/${endpoint}`, formData, {
     headers: {
       'Content-Type': 'application/json',
-    }
+    },
   })
     .catch(error => {
-      console.log(error);
-    });
+      console.log(error)
+    })
 }
 
-const sendchkList = (currentStep) => {
+const sendchkList = currentStep => {
   if(currentStep == 1){
-    const allergyNames = receivedAllergyList.value._rawValue.map(obj => Object.values(obj)[0]);
-    alert('[알러지 정보를 저장합니다.]\n\n\t선택한 알러지 목록 : ' + allergyNames.join(', '));
-    saveMemberAllergy(receivedAllergyList, 1);
+    const allergyNames = receivedAllergyList.value._rawValue.map(obj => Object.values(obj)[0])
+
+    alert('[알러지 정보를 저장합니다.]\n\n\t선택한 알러지 목록 : ' + allergyNames.join(', '))
+    saveMemberAllergy(receivedAllergyList, 1)
+
     // gethatefoodInfo()
   }else if(currentStep == 2){
     console.log('[선택하신 알러지 정보를 저장합니다.]')
-    const hateFoodNames = receivedHateFoodList.value._rawValue.map(obj => Object.values(obj)[0]);
-    alert('[싫어하는 음식 정보를 저장합니다.]\n\n\t선택한 음식 목록 : ' + hateFoodNames.join(', '));
+
+    const hateFoodNames = receivedHateFoodList.value._rawValue.map(obj => Object.values(obj)[0])
+
+    alert('[싫어하는 음식 정보를 저장합니다.]\n\n\t선택한 음식 목록 : ' + hateFoodNames.join(', '))
     saveMemberAllergy(receivedHateFoodList, 2)
   }
 }
-onMounted(getallergyInfo);
+
+onMounted(getallergyInfo)
+
 // onMounted(getallergyInfo(), gethatefoodInfo());
 </script>
 
@@ -235,12 +248,12 @@ onMounted(getallergyInfo);
           <VWindowItem>
             <VRow>
               <div>
-              <CustomCheckboxesWithImage
-                v-model:selected-checkbox="selectedCheckbox"
-                :checkbox-content="checkboxContent"
-                :grid-column="{ sm: '3', cols: '12' }"
-                @AllergyList="handleAllergyList" />
-                <p>받은 데이터: {{ receivedAllergyList }}</p>                
+                <CustomCheckboxesWithImage
+                  v-model:selected-checkbox="selectedCheckbox"
+                  :checkbox-content="checkboxContent"
+                  :grid-column="{ sm: '3', cols: '12' }"
+                  @AllergyList="handleAllergyList"
+                />
               </div>              
             </VRow>
           </VWindowItem>
@@ -249,12 +262,12 @@ onMounted(getallergyInfo);
           <VWindowItem>
             <VRow>
               <div>
-              <CustomCheckboxesWithImageIcon
-                v-model:selected-checkbox="selectedCheckbox"
-                :checkbox-content="checkboxContent2"
-                :grid-column="{ sm: '3', cols: '12' }"
-                @HateFoodList="handleHateFoodList" />
-                <p>받은 데이터: {{ receivedHateFoodList }}</p>
+                <CustomCheckboxesWithImageIcon
+                  v-model:selected-checkbox="selectedCheckbox"
+                  :checkbox-content="checkboxContent2"
+                  :grid-column="{ sm: '3', cols: '12' }"
+                  @HateFoodList="handleHateFoodList"
+                />
               </div>
             </VRow>
           </VWindowItem>
