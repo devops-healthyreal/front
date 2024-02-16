@@ -1,4 +1,5 @@
 <script setup>
+import CustomRadios from '@/@core/components/app-form-elements/CustomRadios.vue'
 import { defineEmits, defineProps, ref, toRaw } from 'vue'
 
 const props = defineProps({

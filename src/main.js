@@ -71,7 +71,7 @@ console.log('firebase.messaging(firebaseApp):', messaging)
 
 if('serviceWorker' in navigator) {
   window.addEventListener('load', ()=>{
-    return navigator.serviceWorker.register('/sw.js')
+    return navigator.serviceWorker.register('sw.js') //포그라운드에서 실행될 파일
       .then(registration=>{
         console.log('등록 완료', registration)
         

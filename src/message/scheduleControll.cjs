@@ -12,7 +12,7 @@ const cron = require('node-cron')
 const MESSAGING_SCOPE = 'https://www.googleapis.com/auth/firebase.messaging'
 const SCOPES = [MESSAGING_SCOPE]
 
-const getAccessToken = () => {
+const getAccessToken = () => { //구글 api 사용을 위한 토큰
   return new Promise((resolve, reject)=>{
     //const key = JSON.parse(data)
     const key = require('../@core/service-account.json')
@@ -40,7 +40,8 @@ getAccessToken().then(token=>{
 
   const FCM_API_URL = 'https://fcm.googleapis.com//v1/projects/webpushtest-c99b3/messages:send'
   const SERVER_KEY = `Bearer ${token}`//`bearer ${token}`
-  
+
+
   const message = {
     "message": {
       "token": "fDni_0x04LO00lyLpYLmmq:APA91bFRs3mUBULXYoDQNKxKiks4gaj8xHgVhecJx2QM3lxgShP6H0fWtBjmRGY3DID5DRtm_IjvzXDpG4EKoLCjDCXI_hhUFj7ktYQwxXzPqxWJqJUASMB465PCZm71nPOd9Bc_e-7_",
@@ -62,7 +63,7 @@ getAccessToken().then(token=>{
     },
   }
   
-  const sendMessage = () => {
+  const sendMessage = () => { //알림 요청 보내는 부분
     axios.post(FCM_API_URL, message, {
       headers: {
         'Content-Type': 'application/json',

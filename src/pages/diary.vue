@@ -10,7 +10,10 @@ import '@vueup/vue-quill/dist/vue-quill.bubble.css'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import * as Emoji from "quill-emoji"
 import { createApp, ref } from 'vue'
+import { useStore } from 'vuex'
 import SubmitConfirmModal from './components/diaryModal/SubmitConfirmModal.vue'
+
+const store = useStore()
 
 
 const app = createApp()
@@ -45,7 +48,9 @@ const isEmotionDetectDialogVisible = ref(false) //감정분석 api 요청 중일
 const isResultDialogVisible = ref(false) //감정 분석 결과 보여주는 창
 const result = ref({}) //텍스트 감정 분석 결과값
 const diary = ref('') //다이어리 콘텐츠 저장용
-const userId = ref('hmc0110')
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=computed(() => userInfo.value.id)
+const userId = ref(connetId)
 var files = [] //파일 리스트
 
 //사용자가 작성한 글을 html요소와 함께 저장 (view 용)

@@ -18,23 +18,11 @@ const messaging = firebase.messaging()
 
 messaging.onBackgroundMessage(payload => {
   console.log("Message background received. ", payload)
-  console.log(self.ServiceWorkerRegistration.showNotification("알림", {
+  self.registration.showNotification("알림", {
     body: "블라블라",
     icon: "favicon.ico",
     vibrate: [200, 100, 200, 100, 200, 100, 200],
     tag: "vibration-sample",
-  }))
+  })
 })
-
-//웹 페이지가 열려있지 않을 때만 호출됨
-// messaging.onBackgroundMessage(payload=>{
-//   console.log('[firebase-messaging-sw.js] Received background message ', payload)
-
-//   const notificationTitle = payload.notification.title
-
-//   const notificationOptions = { body: payload, icon: payload.notification.icon }
-
-//   return self.registration.showNotification(notificationTitle, notificationOptions)
-
-// })
 
