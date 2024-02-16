@@ -30,8 +30,6 @@ console.log(props.connetAv)
 console.log("props.socket------------------")
 console.log(props.socket)
 
-
-
 const contact = computed(() => {
   if (activeChat.value) {
     return {
@@ -129,9 +127,15 @@ const msgGroups = computed(() => {
   return computeMsgGroups(messages)
 })
 
+
 props.socket.addEventListener('message', async event => {
   // JSON 형태의 메시지를 파싱
+  console.log("Received event:", event) // 이벤트 로깅
+
   const { senderId, message } = JSON.parse(event.data)
+
+  console.log("Parsed message:", { senderId, message }) // 파싱된 메시지 로깅
+
 
   // 동일한 형태의 메시지 객체를 생성
   const receivedMessage = {
@@ -147,6 +151,8 @@ props.socket.addEventListener('message', async event => {
 
   // props.newChat이 undefined가 아닌 경우에만 메시지 처리 진행
   if (props.newChat) {
+    console.log("props.newChat exists:", props.newChat) // props.newChat의 상태 로깅
+
     // props.newChat.value가 undefined인 경우 초기화
     if(!props.newChat.value) {
       props.newChat.value = {
@@ -162,8 +168,7 @@ props.socket.addEventListener('message', async event => {
     // 파싱한 메시지를 props.newChat.value.messages 배열에 추가
     props.newChat.value.messages.push(receivedMessage)
 
-    // msgGroups 업데이트를 직접 하려고 하지 말고,
-    // props.newChat.value.messages를 변경하면 msgGroups는 자동으로 업데이트됩니다.
+    console.log("Updated messages:", props.newChat.value.messages) // 업데이트된 메시지 배열 로깅
   }
 })
 </script>

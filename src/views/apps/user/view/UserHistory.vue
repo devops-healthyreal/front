@@ -7,7 +7,7 @@ import { useStore } from 'vuex'
 const store = useStore()
 
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
-const userInfo = computed(() => store.state.userStore.userInfo)
+const userInfo = computed(() => store.state.userStore.userInfo) 
 const connetId=userInfo.value.id
 
 const getDotColor = index => {
