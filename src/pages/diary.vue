@@ -257,14 +257,10 @@ const postDiary = score => {
 
   axios.post("http://localhost:4000/manage/diary/upload", formData, { headers: { 'Content-Type': 'multipart/form-data' } })
     .then(resp => {
-      console.log('확인:', resp.data)
-      if(resp.data==1) {
-        alert('글이 성공적으로 등록되었습니다.')
-        window.location.href = 'http://localhost:3333/diary'
-      }
-      else alert('글 등록에 실패했습니다. 관리자에게 문의하세요.')
+      alert('글이 성공적으로 등록되었습니다.')
+      window.location.href = 'http://localhost:3333/diary'
     })
-    .catch(err=>console.error(err))
+    .catch(()=>alert('글 등록에 실패했습니다. 관리자에게 문의하세요.'))
 }
 </script>
 
@@ -552,14 +548,14 @@ const postDiary = score => {
 
 <style lang="scss">
 @font-face {
-    font-family: 'seolleimcool-SemiBold';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/seolleimcool-SemiBold.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
+  font-family: seolleimcool-SemiBold;
+  font-style: normal;
+  font-weight: normal;
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/seolleimcool-SemiBold.woff2") format("woff2");
 }
 
 .ql-font-seolleimcool-SemiBold {
-    font-family: seolleimcool-SemiBold;
+  font-family: seolleimcool-SemiBold;
 }
 
 .fade-enter,

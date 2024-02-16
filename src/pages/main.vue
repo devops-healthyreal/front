@@ -2,7 +2,6 @@
 import Calendar from '@/pages/apps/calendar.vue'
 import Timeline from '@/pages/components/timeline.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
-import { onMounted } from 'vue'
 import { useStore } from 'vuex'
 
 const store = useStore()
