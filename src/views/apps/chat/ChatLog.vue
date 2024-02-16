@@ -1,11 +1,15 @@
 <script setup>
-import useDatabase from '@/views/apps/chat/chatData.js'
-import { formatDate } from '@core/utils/formatters'
-import { computed, defineProps } from 'vue'
+import useDatabase from '@/views/apps/chat/chatData.js';
+import { formatDate } from '@core/utils/formatters';
+import { computed, defineProps } from 'vue';
 
 
 const props = defineProps({
   newChat: {
+    type: Object,
+    required: true,
+  },
+  receivedMessage: {
     type: Object,
     required: true,
   },
@@ -19,6 +23,8 @@ console.log("datavbase------------")
 console.log(database)
 console.log("props.newChat------------------")
 console.log(props.newChat) //내가 보낸 메세지
+console.log("props.receivedMessage------------------")
+console.log(props.receivedMessage) //내가 보낸 메세지
 
 const contact = computed(() => {
   if (activeChat.value) {
@@ -97,6 +103,7 @@ function computeMsgGroups(messages) {
 const msgGroups = computed(() => {
   let activeMessages = []
   let newMessages = []
+  let reMessages = []
 
   if (activeChat.value && activeChat.value.messages) {
     activeMessages = activeChat.value.messages.map(msg => ({
@@ -111,12 +118,19 @@ const msgGroups = computed(() => {
       senderId: msg.senderId,
     }))
   }
+  if (props.receivedMessage) {
+    reMessages = props.receivedMessage.map(msg => ({
+      ...msg,
+      senderId: msg.senderId,
+    }))
+  }
 
-  let messages = [...activeMessages, ...newMessages]
+  let messages = [...activeMessages, ...newMessages, ...reMessages]
+
+  console.log(JSON.stringify(messages, null, 2));
 
   return computeMsgGroups(messages)
 })
-
 
 </script>
 
