@@ -100,7 +100,7 @@ const showDiary = diaryId => { //다이어리 내용 불러오는 함수
       score.value = resp.data.stress
       emoji.value = emojiResult(score.value)
       if (typeof resp.data == 'string') {
-        diaryShowTag.innerHTML = `<button onclick="${moveToWritePage}" class="action-button shadow animate green">일기 작성하러 가기</button>`
+        diaryShowTag.innerHTML = `<button onclick="${moveToWritePage}" class="v-btn v-theme--light text-success v-btn--density-default v-btn--size-default v-btn--variant-plain">작성된 내용이 없습니다.</button>`
         emotionTooltip.value = '작성된 내용이 없습니다'
       }
       else {
@@ -271,8 +271,6 @@ onMounted(()=>{ //처음 다이어리 상세보기 페이지 들어갔을 때 �
 
 .green
 {
-	border-radius: 30px;
-  border-style: solid;
 	border-bottom: 5px solid #439b00;
 	text-shadow: 0px -2px #439b00;
 }

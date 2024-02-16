@@ -24,7 +24,7 @@ app.component('QuillEditor', QuillEditor)
 
 import timelineCardHeader from '@images/cards/timeline-card-header.png'
 import {
-  requiredValidatorDiaryPassword,
+requiredValidatorDiaryPassword,
 } from '@validators'
 
 
@@ -257,14 +257,10 @@ const postDiary = score => {
 
   axios.post("http://localhost:4000/manage/diary/upload", formData, { headers: { 'Content-Type': 'multipart/form-data' } })
     .then(resp => {
-      console.log('확인:', resp.data)
-      if(resp.data==1) {
-        alert('글이 성공적으로 등록되었습니다.')
-        window.location.href = 'http://localhost:3333/diary'
-      }
-      else alert('글 등록에 실패했습니다. 관리자에게 문의하세요.')
+      alert('글이 성공적으로 등록되었습니다.')
+      window.location.href = 'http://localhost:3333/diary'
     })
-    .catch(err=>console.error(err))
+    .catch(()=>alert('글 등록에 실패했습니다. 관리자에게 문의하세요.'))
 }
 </script>
 
