@@ -7,10 +7,15 @@ self.addEventListener("activate", function (event) {
   event.waitUntil(self.clients.claim())
 })
 self.addEventListener("push", function(event){
-  self.registration.showNotification("알림", {
-    body: "블라블라",
-    icon: "favicon.ico",
-    vibrate: [200, 100, 200, 100, 200, 100, 200],
-    tag: "vibration-sample",
-  })
+  const { title, body } = event.data.json()
+
+  console.log('title:', title)
+
+  const options = {
+    body,
+    icon: "./image/favicon-32x32.png",
+    badge: "./image/favicon-16x16.png",
+  }
+
+  event.waitUntil(self.registration.showNotification(title, options))
 })

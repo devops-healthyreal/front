@@ -1,4 +1,6 @@
 <script setup>
+import AppStepper from '@/@core/components/AppStepper.vue'
+import DemoFormLayoutHorizontalForm from '@/views/demos/register/DemoFormLayoutHorizontalForm.vue'
 import TermsAndConditions from '@/views/demos/register/TermsAndConditions.vue'
 
 const iconsSteps = [

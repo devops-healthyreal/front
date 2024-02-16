@@ -19,10 +19,6 @@ const loginStore = {
     loginSuccess: function (state, payload) {
       state.userInfo = payload
       state.isLogin = true
-      
-      
-      
-
     },
     logoutTest: function (state) {
       state.userInfo = null
