@@ -9,9 +9,13 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  socket: {
+    type: Object,
+    required: true,
+  },
 })
 
-const { activeChat, database, connetId } = useDatabase()
+const { activeChat, database, connetId, connetAv } = useDatabase()
 
 console.log("activeChat------------")
 console.log(activeChat) //내가 받은 메세지
@@ -20,8 +24,11 @@ console.log(database)
 console.log("props.newChat------------------")
 console.log(props.newChat) //내가 보낸 메세지
 console.log("props.messages------------------")
-console.log(props.messages) //내가 보낸 메세지
-
+console.log(props.messages) 
+console.log("props.connetAv------------------")
+console.log(props.connetAv)
+console.log("props.socket------------------")
+console.log(props.socket)
 
 
 
@@ -57,10 +64,48 @@ const resolveFeedbackIcon = feedback => {
     }
 }
 
+function computeMsgGroups(messages) {
+  const _msgGroups = []
+  // 메시지 그룹 합치기 및 정렬
+  messages.sort((a, b) => new Date(a.time) - new Date(b.time))
+  messages = messages
+    .filter(msg => msg.senderId === props.newChat?.contact?.id || msg.senderId === connetId)
+    .map(msg => ({ ...msg }))
+
+  let msgSenderId = messages[0]?.senderId
+  let msgGroup = {
+    senderId: msgSenderId,
+    messages: [],
+  }
+
+  messages.forEach((msg, index) => {
+    if (msg.message.trim() === '') {
+      return
+    }
+
+    if (msgSenderId === msg.senderId) {
+      msgGroup.messages.push(msg)
+    } else {
+      _msgGroups.push(msgGroup) // 이전 그룹을 _msgGroups에 추가
+      msgSenderId = msg.senderId // 새로운 그룹의 senderId를 설정
+      msgGroup = {
+        // 새로운 그룹을 시작
+        senderId: msgSenderId,
+        messages: [msg], // 현재 메시지를 새로운 그룹에 추가
+      }
+    }
+    // 마지막 메시지인 경우, 현재 그룹을 _msgGroups에 추가
+    if (index === messages.length - 1) {
+      _msgGroups.push(msgGroup)
+    }
+  })
+
+  return _msgGroups
+}
+
 const msgGroups = computed(() => {
   let activeMessages = []
   let newMessages = []
-  const _msgGroups = []
 
   if (activeChat.value && activeChat.value.messages) {
     activeMessages = activeChat.value.messages.map(msg => ({
@@ -68,7 +113,6 @@ const msgGroups = computed(() => {
       senderId: msg.senderId,
     }))
   }
-
 
   if (props.newChat?.chat && props.newChat.chat.messages) {
     newMessages = props.newChat.chat.messages.map(msg => ({
@@ -79,75 +123,38 @@ const msgGroups = computed(() => {
 
   let messages = [...activeMessages, ...newMessages]
 
-  messages.sort((a, b) => new Date(a.time) - new Date(b.time))
+  return computeMsgGroups(messages)
+})
 
+props.socket.addEventListener('message', async event => {
+  // JSON 형태의 메시지를 파싱
+  const { senderId, message } = JSON.parse(event.data)
 
-  console.log("activeMessages------1")
-  console.log(activeMessages)
-  console.log("newMessages------1")
-  console.log(newMessages)
-  console.log("messages------1")
-  console.log(messages)
-  console.log("props.newChat?.contact?.id---------1")
-  console.log(props.newChat?.contact?.id)
-  console.log("connetId---------1")
-  console.log(connetId)
-
-  messages = messages
-  .filter(msg => msg.senderId === props.newChat?.contact?.id || msg.senderId === connetId)
-  .map(msg => ({
-    ...msg,
-  }))
-
-  console.log("messages------2")
-  console.log(messages)
-
-  let msgSenderId = messages[0]?.senderId
-  let msgGroup = {
-    senderId: msgSenderId,
-    messages: [],
+  // 동일한 형태의 메시지 객체를 생성
+  const receivedMessage = {
+    message,
+    senderId,
+    time: String(new Date()),
+    feedback: {
+      isSent: true,
+      isDelivered: true,
+      isSeen: false,
+    },
   }
 
-  messages.forEach((msg,index) => {
-    if (msg.message.trim() === '') {
-      return
+  // props.newChat이 undefined가 아닌 경우에만 메시지 처리 진행
+  if (props.newChat) {
+    // props.newChat.value.messages가 배열인지 확인하고, 배열이 아니면 빈 배열로 초기화
+    if (!Array.isArray(props.newChat.value.messages)) {
+      props.newChat.value.messages = []
     }
 
-    
-    if (msgSenderId === msg.senderId) {
-      console.log("msgSenderId------"+index)
-      console.log(msgSenderId)
-      console.log("msg.senderId------"+index)
-      console.log(msg.senderId)
-      msgGroup.messages.push(msg)
-      console.log("msg------"+index)
-      console.log(msg)
-    } 
-    else {
-      console.log("msgSenderId------"+index)
-      console.log(msgSenderId)
-      console.log("msg.senderId------"+index)
-      console.log(msg.senderId)
-      console.log("msg------"+index)
-      console.log(msg)
-      _msgGroups.push(msgGroup) // 이전 그룹을 _msgGroups에 추가
-      msgSenderId = msg.senderId // 새로운 그룹의 senderId를 설정
-      msgGroup = { // 새로운 그룹을 시작
-      senderId: msgSenderId,
-      messages: [msg], // 현재 메시지를 새로운 그룹에 추가
-    }
-      console.log("msgGroup------"+index)
-      console.log(msgGroup)
-    }
-      // 마지막 메시지인 경우, 현재 그룹을 _msgGroups에 추가
-    if (index === messages.length - 1) {
-       _msgGroups.push(msgGroup)
-    }
-  })
-  console.log("점검!!!!!!")
-  console.log(_msgGroups)
-  
-  return _msgGroups
+    // 파싱한 메시지를 props.newChat.value.messages 배열에 추가
+    props.newChat.value.messages.push(receivedMessage)
+
+    // msgGroups 업데이트
+    msgGroups.value = computeMsgGroups(props.newChat.value.messages)
+  }
 })
 </script>
 
