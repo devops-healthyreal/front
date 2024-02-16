@@ -1,7 +1,7 @@
 <script setup>
 import axios from '@axios'
-import avatar1 from '@images/avatars/avatar-1.png'
 import { onMounted, onUnmounted, reactive, ref } from 'vue'
+import { useStore } from 'vuex'
 
 
 const props = defineProps({
@@ -16,6 +16,10 @@ const editingModal = ref(false)
 const viewPostPageModal = ref(false)
 let postToEdit = ref("")
 let q = ref('')
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId = userInfo.value.id
+const connetAv = userInfo.value.pro_filepath
 
 const state = reactive({
   items: [],
@@ -130,7 +134,6 @@ const loadMore = () => {
   items.value = items.value.concat(moreItems)
   console.log("leadMore..")
 }
-
 </script>
 
 
@@ -161,7 +164,8 @@ const loadMore = () => {
                           <VCol cols="1">
                             <VAvatar 
                               class="text-sm pointer-cursor"
-                              :image="avatar1"
+                              :image="connetAv"
+                              style=" margin-top: 10% ;margin-left: 10%;"
                               @click="userProfileModal=true"
                             />
                           </VCol>
@@ -169,7 +173,7 @@ const loadMore = () => {
                             <VCol cols="12">
                               <VCardSubtitle
                                 class="text-sm pointer-cursor"
-                                style="margin-left: -5%;"
+                                style="margin-left: -15%;"
                                 @click="userProfileModal=true"
                               >
                                 {{ item.id }}  <!-- 유저 닉네임 뿌려주기 -->
@@ -236,6 +240,8 @@ const loadMore = () => {
                         show-arrows-on-hover
                         color="success"
                         style="width: auto; height: auto;"
+                        cycle
+                        interval="2000"
                       >
                         <VCarouselItem
                           v-for="(image, i) in item.files" 
@@ -245,7 +251,6 @@ const loadMore = () => {
                           <VImg
                             :src="image"
                             class="pointer-cursor"
-                            
                             @click="viewPostPageModal=true;submitEdit(item.bno)"
                           />
                         </VCarouselItem>

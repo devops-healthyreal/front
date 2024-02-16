@@ -6,7 +6,11 @@ export default function useDatabase() {
   const store = useStore()
   const userInfo = computed(() => store.state.userStore.userInfo)
   const connetId = userInfo.value.id
-  
+  const connetAv = userInfo.value.pro_filepath
+
+  console.log("-----------------connetAv---------------------")
+
+  console.log(connetAv)
 
 
   const database = ref({
@@ -173,9 +177,10 @@ export default function useDatabase() {
     chatsContacts,
     connetId,
     activeChat,
+    connetAv,
   }
 }
 
 // 다른 컴포넌트에서 사용할 때
 //import useDatabase from '@/views/apps/chat/chatData.js'
-//const { database, fetchDatabase, fetchFriendDatabase, allData, chatsContacts, connetId, activeChat } = useDatabase()
+//const { database, fetchDatabase, fetchFriendDatabase, allData, chatsContacts, connetId, activeChat, connetAv } = useDatabase()

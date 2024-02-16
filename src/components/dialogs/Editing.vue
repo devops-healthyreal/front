@@ -25,9 +25,11 @@ const emit = defineEmits(['update:isDialogVisible', 'update-success'])
 
 const store = useStore()
 
+
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId=userInfo.value.id
+const connetAv = userInfo.value.pro_filepath
 const name = computed(() => store.state.userStore.userInfo ? store.state.userStore.userInfo.name : null)
 
 // switch2의 초기값은 postToEdit.disclosureYN의 값에 따라 결정됩니다.
@@ -184,7 +186,7 @@ const submitEdit = async function() {
                   <VCol cols="1">
                     <VAvatar 
                       class="text-sm pointer-cursor"
-                      :image="avatar1"
+                      :image="connetAv"
                       @click="userProfileModal=true"
                     />
                   </VCol>
