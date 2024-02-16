@@ -8,9 +8,9 @@ import { useStore } from 'vuex'
 const store = useStore()
 
 onMounted(async () => {
-  
-  await store.dispatch('getToken')
   store.dispatch('saveToken')
+  await store.dispatch('getToken')
+
 
   // 토큰을 이용해 사용자 정보를 가져옴
   store.dispatch('getMemberInfo')

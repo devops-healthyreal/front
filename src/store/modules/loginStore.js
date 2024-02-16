@@ -1,5 +1,5 @@
 
-
+// store/modules/loginStore.js
 import axiosIns from '@/plugins/axios'
 import router from '@/router'
 import axios from '@axios'
@@ -42,7 +42,7 @@ const loginStore = {
       formdata.append("id", loginObj['id'])
       formdata.append("pwd", loginObj['pwd'])
     
-      await axiosIns.post('http://localhost:4000/login', formdata, {
+      await axios.post('http://localhost:4000/login', formdata, {
         headers: {
           'X-SKIP-INTERCEPTOR': true,
           'Content-Type': 'multipart/form-data',
@@ -64,7 +64,7 @@ const loginStore = {
           console.log(token)
           context.dispatch('saveToken', token)
 
-          //router.push('/main')
+          router.push('/main')
         })
         .catch(error => {
           console.log(error)
@@ -103,13 +103,16 @@ const loginStore = {
 
 
     saveToken(context, token){
-      console.log('여기 와지니??')
-      localStorage.setItem('access_token', token) // 토큰을 저장함
-      console.log('소셜')
+      if (token) { // 토큰 값이 제공된 경우만 로컬 스토리지에 저장
+        console.log('access_token', token)
+        localStorage.setItem('access_token', token) // 토큰을 저장함
+      }
+          
       context.dispatch('getMemberInfo').catch(error => {
         console.log('회원 정보를 가져오는 데 실패했습니다:', error)
       })
     },
+
     getToken() {
       
       return axios.post('http://localhost:4000/user/getToken', null, {
@@ -132,10 +135,11 @@ const loginStore = {
           console.log('소셜2')
           console.log(res.data.pro_filepath)
           
-          commit('loginSuccess', userInfo)
+          
 
 
           dispatch('updateUserInfo', userInfo, { root: true })
+          commit('loginSuccess', userInfo)
         })
     },
     logout({ commit, dispatch }) {
