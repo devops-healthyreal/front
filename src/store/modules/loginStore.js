@@ -4,7 +4,20 @@ import axiosIns from '@/plugins/axios'
 import router from '@/router'
 import axios from '@axios'
 
+/*알림 test용 start*/
+import { config, firebaseConfig } from '@/config'
+import firebase from 'firebase/app'
+import 'firebase/messaging'
 
+
+//웹, 앱 알람 (서비스 워커 안에 파이어베이스 SDK 삽입)
+
+const firebaseApp = firebase.initializeApp(firebaseConfig)
+var messaging = firebase.messaging()
+messaging = firebase.messaging(firebaseApp)
+
+
+/*알림 test용 end*/
 
 
 const loginStore = {
@@ -47,7 +60,17 @@ const loginStore = {
       }) 
         .then(res => {
           console.log(res)
-        
+          console.log(formdata.get("id"))
+
+          //FMC 토큰 등록용 코드 start (로그인 한 사용자의 브라우저가 받은 FMC 토큰 값 저장)
+          messaging.getToken(messaging, { vapidKey: config.vapidKey })
+            .then(token=>axios.post("http://localhost:4000/fmctoken", JSON.stringify({ 
+              id: formdata.get("id"),
+              token: token,
+            }), { headers: { 'Content-Type': 'application/json' } }))
+            .catch(err=>console.log("[firebase]이미 등록된 사용자입니다"))
+
+          //FMC 토큰 등록용 코드 end
           if(res.status === 200) { // 로그인 요청이 성공했을 때만 토큰을 가져오는 요청을 실행
             return context.dispatch('getToken')
           } else {

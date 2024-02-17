@@ -17,6 +17,7 @@ import store from './store'
 //import { createPinia } from 'pinia'
 
 //알람용 firebase import
+import { config, firebaseConfig } from '@/config'
 import firebase from 'firebase/app'
 import 'firebase/messaging'
 
@@ -41,15 +42,6 @@ app.use(store)
 app.mount('#app')
 
 //웹, 앱 알람 (서비스 워커 안에 파이어베이스 SDK 삽입)
-const firebaseConfig = {
-  apiKey: "AIzaSyDaoRQlGo6oghhkTmRIqrqEPWofr1BSm9E",
-  authDomain: "webpushtest-c99b3.firebaseapp.com",
-  projectId: "webpushtest-c99b3",
-  storageBucket: "webpushtest-c99b3.appspot.com",
-  messagingSenderId: "992191789757",
-  appId: "1:992191789757:web:5c7cbed7fbfccf2355d5d4",
-  measurementId: "G-N7SX341HTV",
-}
 
 const firebaseApp = firebase.initializeApp(firebaseConfig)
 
@@ -73,7 +65,7 @@ if('serviceWorker' in navigator) {
       .then(registration=>{
         console.log('등록 완료', registration)
         
-        return messaging.getToken(messaging, { vapidKey: "BIa23R2xZe0qRZYDcY5aXlxcBOFiujw7Vs-RLTPwEjQqmXAFgXNjRfWjBrjN_E0WWg6yUMmXncdutQN8zG6x2wY" })
+        return messaging.getToken(messaging, { vapidKey: config.vapidKey })
       })
       .then(token=>{console.log(token)})
       .catch(err=>console.error(err))

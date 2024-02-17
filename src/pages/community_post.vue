@@ -3,6 +3,7 @@ import Editing from '@/components/dialogs/Editing.vue'
 import UserProfileCommunity from '@/components/dialogs/UserProfileCommunity.vue'
 import ViewPostPage from '@/components/dialogs/ViewPostPage.vue'
 import Writing from '@/components/dialogs/Writing.vue'
+import { sendCommReqMessage } from '@/message/requestComm'
 import InviteFriendConfirmModal from '@/pages/community/InviteFriendConfirmModal.vue'
 import Category from '@/pages/views/demos/forms/form-elements/select/category.vue'
 import axios from '@axios'
@@ -407,11 +408,12 @@ const subscribe = (name, check) => {
       userId: connetId,
       subToId: name,
     }), { headers: { 'Content-Type': 'application/json' } })
-      .then(navigator.serviceWorker.ready.catch.then(registration=>{
-        console.log(registration)
+      .then(
+        console.log('error'),
 
-        // registration.pushManager.subscribe(option)
-      }))
+        sendCommReqMessage(connetId, name),
+        
+      )
       .catch(err=>console.log(err))
   }
   else {
