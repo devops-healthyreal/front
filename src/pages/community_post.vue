@@ -87,8 +87,9 @@ const getData = async function() {
 
     // 응답 처리
     if (response.status === 200) {
-      console.log('데이터 받기 성공')
+      
       state.items = response.data // 데이터 저장
+      console.log('데이터 받기 성공', state.items)
 
       const tempUserKeys = []
       for(var i=0; i<state.items.length; i++){
@@ -496,8 +497,6 @@ const toggleLike = async bno => {
     })
 
     if (response.status === 200) {
-      console.log(response.data.likesId)
-      likesStatus[bno].value = response.data.likesId !== "OSH" //아이디 비교
       await getData() // 좋아요 상태 변경 후 데이터를 다시 가져오기
     } else {
       console.log('좋아요 상태 변경 실패')
@@ -777,7 +776,7 @@ const getMyList = async id => {
                       </VCardText>
                       <VCol>
                         <VBtn
-                          :icon="isLiked.value ? 'mdi-heart' : 'mdi-heart-outline'"
+                          :icon="item.likes == connetId ? 'mdi-heart' : 'mdi-heart-outline'"
                           variant="text"
                           color="success"
                           @click="toggleLike(item.bno)"
@@ -787,18 +786,8 @@ const getMyList = async id => {
                           variant="text"
                           color="success"
                         />
-                        <VBtn
-                          icon="mdi-send"
-                          variant="text"
-                          color="success"
-                        />
-                        <VBtn
-                          icon="mdi-bookmark-outline"
-                          variant="text"
-                          color="success"
-                        />
                         <VCol>
-                          좋아요 수
+                          좋아요 {{ item.likesnum }}개
                         </VCol>
                         <VCol v-if="group[item.bno]">
                           <strong>{{ group[item.bno].C_NO }}번 {{ group[item.bno].ID }}</strong> {{ group[item.bno].CCOMMENT }}
