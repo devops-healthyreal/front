@@ -8531,13 +8531,13 @@ pify@^3.0.0:
   resolved "https://registry.npmjs.org/pify/-/pify-3.0.0.tgz"
   integrity sha1-5aSs0sEB/fPZpNB/DbxNtJ3SgXY=
 
-pinia@^2.0.36:
-  version "2.0.36"
-  resolved "https://registry.npmjs.org/pinia/-/pinia-2.0.36.tgz"
-  integrity sha512-4UKApwjlmJH+VuHKgA+zQMddcCb3ezYnyewQ9NVrsDqZ/j9dMv5+rh+1r48whKNdpFkZAWVxhBp5ewYaYX9JcQ==
+pinia@^2.1.7:
+  version "2.1.7"
+  resolved "https://registry.npmjs.org/pinia/-/pinia-2.1.7.tgz"
+  integrity sha512-+C2AHFtcFqjPih0zpYuvof37SFxMQ7OEG2zV9jRI12i9BOy3YQVAHwdKtyyc8pDcDyIc33WCIsZaCFWU7WWxGQ==
   dependencies:
     "@vue/devtools-api" "^6.5.0"
-    vue-demi "*"
+    vue-demi ">=0.14.5"
 
 pinkie-promise@^2.0.0:
   version "2.0.1"
@@ -11170,6 +11170,11 @@ vue-demi@>=0.14.0:
   resolved "https://registry.npmjs.org/vue-demi/-/vue-demi-0.14.6.tgz"
   integrity sha512-8QA7wrYSHKaYgUxDA5ZC24w+eHm3sYCbp0EzcDwKqN3p6HqtTCGR/GVsPyZW92unff4UlcSh++lmqDWN3ZIq4w==
 
+vue-demi@>=0.14.5:
+  version "0.14.6"
+  resolved "https://registry.npmjs.org/vue-demi/-/vue-demi-0.14.6.tgz"
+  integrity sha512-8QA7wrYSHKaYgUxDA5ZC24w+eHm3sYCbp0EzcDwKqN3p6HqtTCGR/GVsPyZW92unff4UlcSh++lmqDWN3ZIq4w==
+
 vue-eslint-parser@^9.0.1:
   version "9.3.2"
   resolved "https://registry.npmjs.org/vue-eslint-parser/-/vue-eslint-parser-9.3.2.tgz"
@@ -11224,7 +11229,7 @@ vue-shepherd@3.0.0:
   dependencies:
     shepherd.js "^11.1.0"
 
-"vue@^2.6.12 || ^3.2.4", "vue@^2.6.14 || ^3.2.0", "vue@^2.7.0 || ^3.2.25", vue@^3.0.0, "vue@^3.0.0-0 || ^2.6.0", "vue@^3.0.0-0 || ^2.7.0", vue@^3.0.11, vue@^3.2.0, vue@^3.2.25, vue@^3.2.41, vue@^3.2.45, vue@^3.3.2, "vue@> 3.0.0", "vue@>= 3.0.0 < 4", vue@>=3, vue@>=3.0.0, "vue@2 || 3", vue@3.4.5, vue@3.x:
+"vue@^2.6.12 || ^3.2.4", "vue@^2.6.14 || ^3.3.0", "vue@^2.7.0 || ^3.2.25", vue@^3.0.0, "vue@^3.0.0-0 || ^2.6.0", "vue@^3.0.0-0 || ^2.7.0", vue@^3.0.11, vue@^3.2.0, vue@^3.2.25, vue@^3.2.41, vue@^3.2.45, vue@^3.3.2, "vue@> 3.0.0", "vue@>= 3.0.0 < 4", vue@>=3, vue@>=3.0.0, "vue@2 || 3", vue@3.4.5, vue@3.x:
   version "3.4.5"
   resolved "https://registry.npmjs.org/vue/-/vue-3.4.5.tgz"
   integrity sha512-VH6nHFhLPjgu2oh5vEBXoNZxsGHuZNr3qf4PHClwJWw6IDqw6B3x+4J+ABdoZ0aJuT8Zi0zf3GpGlLQCrGWHrw==
