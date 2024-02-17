@@ -5,12 +5,18 @@ import { isMatescreenchanged } from '@/router/index'
 import axios from '@axios'
 import { reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
+
+const store = useStore()
+
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=computed(() => userInfo.value.id)
 
 const router = useRoute()
 const connectionData = ref([])
 const isMateExist = ref(true)
 
-const userId = ref('hmc0110') //접속한 유저 아이디
+const userId = ref(connetId) //접속한 유저 아이디
 
 const rating = reactive({}) //호감도 뿌려주기 위한 변수
 const beforeRating = {}
@@ -23,7 +29,6 @@ const isConnected = {}
 const isWarning = {}
 
 const fetchProjectData = () => { //유저 값 가져오기
-  console.log('아이디 확인:', userId.value)
   if (router.params.tab === 'mate') {
     axios.get('http://127.0.0.1:4000/comm/mate', {
       params: {

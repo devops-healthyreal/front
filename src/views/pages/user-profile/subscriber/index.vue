@@ -3,6 +3,13 @@ import DeletSubConfirmModal from '@/pages/community/DeletSubConfirmModal.vue'
 import { isSubscribesscreenchanged } from '@/router/index'
 import axios from '@axios'
 import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
+
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=computed(() => userInfo.value.id)
+
+console.log('구독자 쪽 connectId 체크', connetId.value, typeof connetId.value)
 
 const router = useRoute()
 const subscribeTo = ref([])
@@ -12,9 +19,9 @@ const isMySubExist = ref(true)
 const isDeleted = {}
 const isSubscribed = {}
 
-const fetchProjectData = ()=>{
+const fetchProjectData = () => {
   if (router.params.tab === 'subscriber') {
-    axios.get('http://127.0.0.1:4000/comm/subscribe', { params: { id: 'HMC' } }).then(response => {
+    axios.get('http://127.0.0.1:4000/comm/subscribe', { params: { id: connetId.value } }).then(response => {
       subscribeTo.value = response.data['subTo']
       subscribers.value = response.data['MySub']
       console.log(typeof subscribers.value)
@@ -57,7 +64,7 @@ window.addEventListener('click', ()=>{ //beforeunload
         console.log('axios delete 안으로 들어옴', userid)
         axios.delete("http://127.0.0.1:4000/comm/subscribe/delete", {
           data: {
-            userId: 'hmc0110',
+            userId: connetId.value,
             subToId: userid,
           },
         }, { headers: { "Content-Type": `application/json` } })
@@ -88,7 +95,7 @@ const deleteMySub = id => { //api 요청
   console.log(id, '삭제됨')
   axios.delete("http://127.0.0.1:4000/comm/subscribe/deleteSubscriber", { data: {
     subId: id,
-    userId: 'hmc0110',
+    userId: connetId.value,
   } })
     .then(()=>{
       fetchProjectData()

@@ -16,6 +16,8 @@ const store = useStore()
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId=userInfo.value.id
+
+
 const name = computed(() => store.state.userStore.userInfo ? store.state.userStore.userInfo.name : null)
 
 
@@ -99,7 +101,7 @@ const getData = async function() {
       temp의 앞에 현재 서비스를 이용 중인 유저의 아이디가 들어가야 함.
       뿌려주는 게시글 작성자들의 목록을 불러옴.
       */
-      temp.unshift('hmc0110')
+      temp.unshift(connetId)
       console.log(temp)
       axios.post("http://localhost:4000/bbs/userProfile", JSON.stringify ({
         ids: temp,
@@ -368,12 +370,13 @@ const loadMore = () => {
 
 const modalControll = ref(false)
 
+//메이트 및 친구 요청 
 const controllInviteFunc = (ans, id) => { //DB에 접근
   console.log('이벤트 발생')
   console.log(ans, id)
   isInvited[id] = ref(false)
   axios.post("http://localhost:4000/comm/request", JSON.stringify({
-    userId: 'OSH',
+    userId: connetId,
     reqId: id,
     type: '1',
   }), { headers: { 'Content-Type': 'application/json' } })
@@ -401,16 +404,21 @@ const subscribe = (name, check) => {
   if (check == 1) {
     message.value = "구독이 추가되었습니다"
     axios.post("http://localhost:4000/comm/subscribe/subscribing", JSON.stringify({
-      userId: 'OSH',
+      userId: connetId,
       subToId: name,
     }), { headers: { 'Content-Type': 'application/json' } })
+      .then(navigator.serviceWorker.ready.catch.then(registration=>{
+        console.log(registration)
+
+        // registration.pushManager.subscribe(option)
+      }))
       .catch(err=>console.log(err))
   }
   else {
     message.value = "구독이 취소되었습니다"
     axios.delete("http://127.0.0.1:4000/comm/subscribe/delete", {
       data: {
-        userId: 'OSH',
+        userId: connetId,
         subToId: name,
       },
     }, { headers: { "Content-Type": `application/json` } })
