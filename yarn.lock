@@ -889,7 +889,7 @@
   resolved "https://registry.npmjs.org/@intlify/shared/-/shared-9.3.0-beta.17.tgz"
   integrity sha512-mscf7RQsUTOil35jTij4KGW1RC9SWQjYScwLxP53Ns6g24iEd5HN7ksbt9O6FvTmlQuX77u+MXpBdfJsGqizLQ==
 
-"@intlify/unplugin-vue-i18n@0.10.0":
+"@intlify/unplugin-vue-i18n@^0.10.0":
   version "0.10.0"
   resolved "https://registry.npmjs.org/@intlify/unplugin-vue-i18n/-/unplugin-vue-i18n-0.10.0.tgz"
   integrity sha512-Sf8fe26/d8rBNcg+zBSb7RA1uyhrG9zhIM+CRX6lqcznMDjLRr/1tuVaJ9E6xqJkzjfPgRzNcCqwMt6rpNkL7Q==
