@@ -74,11 +74,10 @@ const loginStore = {
     },
 
 
+
     socialLogin(context, url) {
       window.location.href = url
     },
-
-   
   
     
     // isSocialLogin(context) {
@@ -110,32 +109,38 @@ const loginStore = {
     },
 
     getToken() {
-      
       return axios.post('http://localhost:4000/user/getToken', null, {
         withCredentials: true,
-        
       })
-      
+        .then(response => {
+          const token = response.data
+
+          localStorage.setItem('access_token', token) // 로컬 스토리지에 토큰 저장
+          
+          return token
+        })
     },
     getMemberInfo( { commit, dispatch } ){
-      axios.get('http://localhost:4000/user/getMemberInfo', { withCredentials: true })
-        .then( res => {
-          console.log("이게 실행돼?")
+      const token = localStorage.getItem('access_token') // 로컬 스토리지에서 토큰을 가져옴
 
+      axios.get('http://localhost:4000/user/getMemberInfo', { 
+        headers: {
+          'Authorization': `Bearer ${token}`, // 인증 헤더에 토큰을 포함함
+        },
+        withCredentials: true, 
+      })
+        .then( res => {
           const userInfo = {
             name: res.data.name,
             id: res.data.id,
             pro_filepath: res.data.pro_filepath,
           }
-
-          console.log('소셜2')
-          console.log(res.data.pro_filepath)
-          
-          
-
-
+    
           dispatch('updateUserInfo', userInfo, { root: true })
           commit('loginSuccess', userInfo)
+        })
+        .catch(error => {
+          console.log('회원 정보를 가져오는 데 실패했습니다:', error)
         })
     },
     logout({ commit, dispatch }) {

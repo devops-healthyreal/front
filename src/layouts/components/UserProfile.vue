@@ -104,7 +104,7 @@ const logout = async () => {
       color="primary"
       variant="tonal"
     >
-      <VImg :src="activePro_filepath" />
+      <VImg :src="pro_filepath" />
 
       <!-- SECTION Menu -->
       <VMenu
@@ -129,7 +129,7 @@ const logout = async () => {
                     color="primary"
                     variant="tonal"
                   >
-                    <VImg :src="activePro_filepath" />
+                    <VImg :src="pro_filepath" />
                   </VAvatar>
                 </VBadge>
               </VListItemAction>
