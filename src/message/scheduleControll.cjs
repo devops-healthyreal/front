@@ -41,21 +41,18 @@ getAccessToken().then(token=>{
   const FCM_API_URL = 'https://fcm.googleapis.com//v1/projects/webpushtest-c99b3/messages:send'
   const SERVER_KEY = `Bearer ${token}`//`bearer ${token}`
 
-
+  //백그라운드 상태에서 오는 알림
+  //onBackgroundMessage 함수를 이용해 백그라운드 메시지가 등록되는 것 같은데
+  //아래의 코드는 background Message로 등록되어 있지 않음에도 왜 백그라운드 상태일 때 호출되는 것인지
+  //이유는 아직 찾지 못함
   const message = {
     "message": {
-      "token": "fDni_0x04LO00lyLpYLmmq:APA91bFRs3mUBULXYoDQNKxKiks4gaj8xHgVhecJx2QM3lxgShP6H0fWtBjmRGY3DID5DRtm_IjvzXDpG4EKoLCjDCXI_hhUFj7ktYQwxXzPqxWJqJUASMB465PCZm71nPOd9Bc_e-7_",
-      "notification": {
+      "token": "e8GiH-XuS33mVAWgbK0O-A:APA91bFvh7dKjEAzxqdzdjr6xZBp3IaINrmEBU7y5C7A9-0UMdccwjTRZPaOBdAwDfGZgA0oZ4G0E1-G6f7B8iv6AbCA2BkC4Dn1x4ymnv0SwlX_xNRWPFtX0WRbaeRJnGdCvyndwN3z",
+      "notification": { 
         "title": "HelloWorld!!!",
         "body": "이제 쫌 돼라",
       },
-
-      //"to": "",
-      "data": {
-        "title": "background HelloWorld",
-        "body": "background도 오게 해주세요",
-      },
-      "webpush": {
+      "webpush": { 
         "fcm_options": {
           "link": "https://dummypage.com",
         },
