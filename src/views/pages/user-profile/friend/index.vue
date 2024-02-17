@@ -4,7 +4,7 @@ import { isfriendscreenchanged } from '@/router/index'
 import axios from '@axios'
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
-import {useStore} from 'vuex'
+import { useStore } from 'vuex'
 
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
@@ -19,7 +19,7 @@ const userId = ref(userInfo.value.id) //접속한 유저 아이디
 
 const fetchProjectData = () => {
   if (router.params.tab === 'friend') { //조회용
-    axios.get("http://127.0.0.1:4000/comm/friend", { params: { id: userInfo.value.id }})
+    axios.get("http://127.0.0.1:4000/comm/friend", { params: { id: userInfo.value.id } })
       .then(response=>{
         connectionData.value = response.data
         if(Object.keys(connectionData.value).length == 0) isFriendExist.value = true
@@ -57,10 +57,10 @@ const blockFriend = (bool, id) =>{
   if (bool) {
     console.log(id, '차단됨')
   }
-  axios.put("http://127.0.0.1:4000/comm/friend/block", JSON.stringify,({ //차단용
+  axios.put("http://127.0.0.1:4000/comm/friend/block", JSON.stringify({ //차단용
     userId: userId.value,
     id: id,
-  }), { headers: { "Content-Type": `application/json` }})
+  }), { headers: { "Content-Type": `application/json` } })
     .then(()=>{
       fetchProjectData()
     })
@@ -81,7 +81,7 @@ window.addEventListener('click', ()=>{ //친구 끊기용
             userId: userId.value,
             id: userid,
           },
-        }, { headers: { "Content-Type": `application/json` }})
+        }, { headers: { "Content-Type": `application/json` } })
           .then(()=>{
             fetchProjectData()
           })

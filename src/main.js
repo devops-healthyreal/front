@@ -55,7 +55,6 @@ const firebaseConfig = {
 const firebaseApp = firebase.initializeApp(firebaseConfig)
 
 var messaging = firebase.messaging()
-console.log('일반 messaging:', messaging)
 
 Notification.requestPermission().then(permission=>{
   if (permission=='granted') {
@@ -83,7 +82,7 @@ if('serviceWorker' in navigator) {
   
 }
 
-messaging.onMessage(payload => {
+messaging.onMessage(payload => { //알림을 보내는 웹 페이지가 띄워져 있을 때 보내지는 알림
   console.log("Message received. ", payload)
   if (Notification.permission === "granted") {
     navigator.serviceWorker.ready
