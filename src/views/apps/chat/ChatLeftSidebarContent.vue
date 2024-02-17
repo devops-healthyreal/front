@@ -21,6 +21,10 @@ const emit = defineEmits([
   'update:search',
 ])
 
+const online = {
+  status: 'online',
+}
+
 const { database, chatsContacts, connetId } = useDatabase()
 
 
@@ -39,7 +43,7 @@ const search = useVModel(props, 'search', emit)
       offset-x="3"
       offset-y="3"
       size="8"
-      :color="resolveAvatarBadgeVariant(online)"
+      :color="resolveAvatarBadgeVariant(online.status)"
       bordered
     >
       <VAvatar
