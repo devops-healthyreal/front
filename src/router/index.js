@@ -1,3 +1,4 @@
+import ChallengeList from '@/pages/apps/challengeList.vue'
 import store from '@/store'
 import axios from '@axios'
 import { setupLayouts } from 'virtual:generated-layouts'
@@ -46,21 +47,40 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/apps-challengeList',
+      path: '/apps/challengelist',
+      name: 'apps-challengelist',
+      component: ChallengeList,
       beforeEnter: async (to, from, next) => {
-        const store = useStore()
-        const userInfo = computed(() => store.state.userStore.userInfo)
-        const connetId = userInfo.value.id
-        const response = await axios.post('http://localhost:4000/croom/myRoomNum.do', { id: connetId }) // POST 요청
-        const data = response.data 
+        try {
+          const store = useStore()
     
-        if (data.length) { // 값이 있다면
-          next({ 
-            name: 'apps-user-id', 
-            params: { id: 21 }, 
-          })
-        } else { // 값이 없다면
-          next()
+          // 로그인 상태 확인
+          if (!store.state.loginStore.isLogin) {
+            next({ name: 'login' })
+            
+            return
+          }
+    
+          console.log("beforeEnter 가드 실행")
+    
+          const userInfo = computed(() => store.state.userStore.userInfo)
+          const connetId = userInfo.value.id
+          const response = await axios.post('http://localhost:4000/croom/myRoomNum.do', { id: connetId }) // POST 요청
+          const data = response.data
+    
+          console.log("너의 방번호는?", data.room)
+    
+          if (data.length) { // 값이 있다면
+            next({ 
+              name: 'apps-user-id', 
+              params: { id: 21 }, 
+            })
+          } else { // 값이 없다면
+            next()
+          }
+        } catch (error) {
+          console.error(error)
+          next() // 예외가 발생하면 라우트 이동을 계속 진행
         }
       },
       meta: { requiresAuth: true },
