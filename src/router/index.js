@@ -1,8 +1,9 @@
 import store from '@/store'
+import axios from '@axios'
 import { setupLayouts } from 'virtual:generated-layouts'
 import { createRouter, createWebHistory } from 'vue-router'
+import { useStore } from 'vuex'
 import routes from '~pages'
-
 
 export const isfriendscreenchanged = ref(false)
 export const isSubscribesscreenchanged = ref(false)
@@ -44,6 +45,26 @@ const router = createRouter({
       redirect: () => ({ name: 'pages-user-profile-tab', params: { tab: 'profile' } }),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/apps-challengeList',
+      beforeEnter: async (to, from, next) => {
+        const store = useStore()
+        const userInfo = computed(() => store.state.userStore.userInfo)
+        const connetId = userInfo.value.id
+        const response = await axios.post('http://localhost:4000/croom/myRoomNum.do', { id: connetId }) // POST 요청
+        const data = response.data 
+    
+        if (data.length) { // 값이 있다면
+          next({ 
+            name: 'apps-user-id', 
+            params: { id: 21 }, 
+          })
+        } else { // 값이 없다면
+          next()
+        }
+      },
+      meta: { requiresAuth: true },
+    },
 
     ...setupLayouts(routes),
   ],
@@ -66,7 +87,6 @@ router.beforeEach((to, from, next) => {
   }
   next()
 })
-
 
 // const publicPages = ['/login', '/main']  // 로그인이 필요하지 않은 페이지의 경로를 배열로 정의
 
