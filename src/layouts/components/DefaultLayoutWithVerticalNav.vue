@@ -11,11 +11,9 @@ import NavBarNotifications from '@/layouts/components/NavBarNotifications.vue'
 import NavbarShortcuts from '@/layouts/components/NavbarShortcuts.vue'
 import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue'
 import UserProfile from '@/layouts/components/UserProfile.vue'
-import weather from '@/pages/weather.vue'
 
 // @layouts plugin
 import { VerticalNavLayout } from '@layouts'
-import { useStore } from 'vuex'
 
 const { appRouteTransition, isLessThanOverlayNavBreakpoint } = useThemeConfig()
 const { width: windowWidth } = useWindowSize()
@@ -85,7 +83,7 @@ const stopDrag = event => {
 
         <VSpacer />
         
-        <weather class="me-2"/>
+        <Weather class="me-2" />
         <NavBarNotifications class="me-2" />
         <NavbarShortcuts />
         <NavbarThemeSwitcher />

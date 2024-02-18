@@ -6,14 +6,21 @@ import { useUserListStore } from '@/views/apps/user/useUserListStore'
 import UserProfileForChellenge from '@/views/apps/user/view/UserProfileForChellenge.vue'
 import AppDateTimePicker from '@core/components/app-form-elements/AppDateTimePicker.vue'
 import { getBarChartConfig } from '@core/libs/apex-chart/apexCharConfig' //차트 불러오기
+import axios from "axios"
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import VueApexCharts from 'vue3-apexcharts' //차트 불러오기
 import { useTheme } from 'vuetify' //차트 불러오기
+import { useStore } from 'vuex'
 
 const isShareProjectDialogVisible = ref(false)
 const userListStore = useUserListStore()
 const route = useRoute() //route객체
 const userData = ref()
 const userTab = ref(null)
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId = userInfo.value.id
 
 //차트 불러오기 용
 
@@ -25,11 +32,25 @@ console.log('test:', vuetifyTheme.current.value)
 
 const series = [{ data: [100] }]
 
+const router = useRouter()
+
 //차트 불러오기 용 end
 
 userListStore.fetchUser(Number(route.params.id)).then(response => {
   userData.value = response.data
 })
+
+const deleteData = async () => {
+
+  try {
+    const response = await axios.delete('http://localhost:4000/croom/deleteRoom.do', { data: { id: connetId } })
+
+    console.log("방 나가기 성공")
+    router.push({ name: 'apps-challengelist' }) //넘겨줄 Vue 경로 입력하기
+  } catch (error) {
+    console.error(error)
+  }
+}
 
 //참여비 변수
 const pay = ref("10000")
@@ -98,11 +119,14 @@ const pay = ref("10000")
               <Pricingtest :pay="parseInt(pay)" />
             </VCol>
             <VBtn @click="isShareProjectDialogVisible = !isShareProjectDialogVisible">
-              Invite
+              초대하기
             </VBtn>
             <ShareProjectDialogTemp v-model:isDialogVisible="isShareProjectDialogVisible" />
-            <VBtn :style="{'margin-left':'10px'}">
-              Exit
+            <VBtn
+              :style="{'margin-left':'10px'}"
+              @click="deleteData"
+            >
+              나가기
             </VBtn>
           </VCol>
         </VCard>

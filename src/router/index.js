@@ -1,4 +1,3 @@
-import ChallengeList from '@/pages/apps/challengeList.vue'
 import store from '@/store'
 import axios from '@axios'
 import { setupLayouts } from 'virtual:generated-layouts'
@@ -49,7 +48,10 @@ const router = createRouter({
     {
       path: '/apps/challengelist',
       name: 'apps-challengelist',
-      component: ChallengeList,
+      components: {
+        default: () => import('@/pages/apps/challengeList.vue'),
+        layout: () => import('@/layouts/components/DefaultLayoutWithVerticalNav.vue'),
+      },
       beforeEnter: async (to, from, next) => {
         try {
           const store = useStore()
@@ -68,9 +70,9 @@ const router = createRouter({
           const response = await axios.post('http://localhost:4000/croom/myRoomNum.do', { id: connetId }) // POST 요청
           const data = response.data
     
-          console.log("너의 방번호는?", data.room)
+          console.log("너의 방번호는?", data)
     
-          if (data.length) { // 값이 있다면
+          if (data) { // 값이 있다면
             next({ 
               name: 'apps-user-id', 
               params: { id: 21 }, 
