@@ -224,10 +224,12 @@ export const getCandlestickChartConfig = themeColors => {
     },
   }
 }
+
+// 차트 검색은 마이페이지 이행률로 검색하면 여기로 나오게 됩니다
 export const getRadialBarChartConfig = themeColors => {
   const radialBarColors = {
-    series1: '#fdd835',
-    series2: '#32baff',
+    series1: '#fdd835', //32baff
+    series2: '#32baff', //fdd835
     series3: '#00d4bd',
     series4: '#7367f0',
     series5: '#FFA1A1',
@@ -235,9 +237,10 @@ export const getRadialBarChartConfig = themeColors => {
 
   const { themeSecondaryTextColor, themePrimaryTextColor } = colorVariables(themeColors)
   
+
   return {
     stroke: { lineCap: 'round' },
-    labels: ['Comments', 'Replies', 'Shares'],
+    labels: ['식단', '운동'],
     legend: {
       show: true,
       position: 'bottom',
@@ -265,13 +268,13 @@ export const getRadialBarChartConfig = themeColors => {
             fontSize: '2rem',
           },
           value: {
-            fontSize: '1rem',
+            fontSize: '2rem',
             color: themeSecondaryTextColor,
           },
           total: {
             show: true,
             fontWeight: 400,
-            label: 'Comments',
+            label: 'total',
             fontSize: '1.125rem',
             color: themePrimaryTextColor,
             formatter(w) {
