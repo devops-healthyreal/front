@@ -1,40 +1,81 @@
-<script>
-export default {
-    data: function() {
-        return {
-        api_key: '56ce4888feecb9827e0e78ecdff1f09b',
-        url_base: 'https://api.openweathermap.org/data/2.5/',
-        weather: {},
-        code: '',
-        temp: 0,
-        location:'Guri-si',
-        // 날씨 표현 시 사용될 icon 배열
-        icons: [
-            'mdi-weather-lightning-rainy', // 2xx : Thunderstorm
-            'mdi-weather-rainy', // 3xx : Drizzle
-            'mdi-weather-pouring', // 5xx : Rain
-            'mdi-weather-snowy', // 6xx : Snow
-            'mdi-weather-fog', // 7xx : Atmosphere
-            'mdi-weather-sunny', // 800 : Clear
-            'mdi-weather-cloudy', // 8xx : Clouds
-        ],
+<script setup>
+import { ref, onMounted } from 'vue';
+import axios from '@axios'
+
+// 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
+import { useStore } from 'vuex'
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=ref(userInfo.value.id)
+
+const weather = ref({});
+const code = ref('');
+const temp = ref(0);
+const location = ref('');
+const userAddress = ref('')
+const getuseraddress = (store) => {
+  const params = new URLSearchParams();
+  params.append('id', connetId.value);
+
+  axios.get('http://localhost:4000/getUserAddress', { params })
+    .then((response) => {
+        console.log('받은 정보:', response.data);
+        userAddress.value = response.data.USERADDRESS
+        console.log('주소:',userAddress.value);
+        const addressArray = userAddress.value.split(' ');
+        if (addressArray.length === 0) {
+            location.value = '서울';
+        }        
+        else if (addressArray[1] === '서울' || addressArray[1] === '부산' || addressArray[1] === '울산') {
+            location.value = addressArray[1].trim();
         }
-    },
-    mounted() {
-        // API 요청 URL (지역 Seoul 고정)
-        let fetchUrl = `${this.url_base}weather?q=${this.location}&units=metric&APPID=${this.api_key}`
-        fetch(fetchUrl)
-        .then(response => {
-            return response.json()
-        })
-        .then(result => {
-            this.weather = result // 날씨 정보
-            this.temp = result.main.temp // 기온
-            this.code = result.weather[0].id.toString() // 날씨 코드
-        })
-    },
-}
+        else{
+            location.value = addressArray[2].trim();
+            // 시나 군으로 끝나면 맨 뒤 글자 제거
+            if (location.value.endsWith('시') || location.value.endsWith('군')) {
+                location.value = location.value.slice(0, -1);
+            }
+        }
+        console.log('추출된 값:', location.value);
+
+        const data = {
+            location: location.value,
+        };
+
+        axios.post('http://127.0.0.1:5000/weatherInfo', data)
+            .then((response) => {
+            const result = response.data;
+            console.log('날씨 정보:', result);
+            weather.value = result;
+            temp.value = result.main.temp;
+            code.value = result.weather[0].id.toString();
+        });
+    })
+    .catch((error) => {
+      console.error('오류 발생:', error);
+    });
+};
+// 날씨 표현 시 사용될 icon 배열
+const icons = [
+  'mdi-weather-lightning-rainy', // 2xx : Thunderstorm
+  'mdi-weather-rainy', // 3xx : Drizzle
+  'mdi-weather-pouring', // 5xx : Rain
+  'mdi-weather-snowy', // 6xx : Snow
+  'mdi-weather-fog', // 7xx : Atmosphere
+  'mdi-weather-sunny', // 800 : Clear
+  'mdi-weather-cloudy', // 8xx : Clouds
+];
+
+onMounted(() => {
+    getuseraddress(store);
+
+    // 10분마다 실행
+    setInterval(() => {
+        getuseraddress(store);
+    }, 60000); // 10분은 60000밀리초입니다.
+});
 </script>
+
     
 <style scoped>
 #weather {

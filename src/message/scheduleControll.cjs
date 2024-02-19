@@ -23,7 +23,8 @@ getAccessToken().then(token=>{
   //이유는 아직 찾지 못함
   const message = {
     "message": {
-      "token": "e8GiH-XuS33mVAWgbK0O-A:APA91bFvh7dKjEAzxqdzdjr6xZBp3IaINrmEBU7y5C7A9-0UMdccwjTRZPaOBdAwDfGZgA0oZ4G0E1-G6f7B8iv6AbCA2BkC4Dn1x4ymnv0SwlX_xNRWPFtX0WRbaeRJnGdCvyndwN3z",
+      //"token": "e8GiH-XuS33mVAWgbK0O-A:APA91bFvh7dKjEAzxqdzdjr6xZBp3IaINrmEBU7y5C7A9-0UMdccwjTRZPaOBdAwDfGZgA0oZ4G0E1-G6f7B8iv6AbCA2BkC4Dn1x4ymnv0SwlX_xNRWPFtX0WRbaeRJnGdCvyndwN3z",
+      "token":"ftOmOZOAqGa_DOsjwi-7yU:APA91bHu8vKiw2GzsA4S6pyiUkdHDGaNaMmse07Ck0ZsR7mCnTUthnFn1wSkCEslReSmmmRgyz-FzFKJF5dWq5fdFe6DW1CVPZ2sNKsF1mPNHXIKjP1ZDcwTGkZiSdv54kZQVoI1IELT",
       "notification": { 
         "title": "HelloWorld!!!",
         "body": "이제 쫌 돼라",

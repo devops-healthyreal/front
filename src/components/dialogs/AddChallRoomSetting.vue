@@ -1,5 +1,8 @@
 <script setup>
 import AddressApi from '@/components/dialogs/RoomSetAddressApi.vue'
+import axios from '@axios'
+import { ref } from 'vue'
+import { useStore } from 'vuex'
 
 const props = defineProps({
   isDialogVisible: {
@@ -14,23 +17,88 @@ const dialogVisibleUpdate = val => {
   emit('update:isDialogVisible', val)
 }
 
-
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId = userInfo.value.id
+  
 const userset = ref(4) //정원 수
+const achievementset = ref(50) //달성기준
+const areaSet = ref("") //장소
+const selectedCheckbox = ref([])
+
+const sliderValues = ref([
+  0,
+  100,
+])
+
+const selectedOption1 = ref('5,000원')
+const openRoomYN = ref(true) // 방공개여부
+const dateRange = ref('')
+const content = ref('')
+const id = connetId
+
+
+
+const createRoom = async () => {
+  console.log("userset---", userset)
+  console.log("achievementset---", achievementset)
+  console.log("areaSet---", areaSet)
+  console.log("selectedCheckbox---", selectedCheckbox)
+  console.log("sliderValues---", sliderValues)
+  console.log("selectedOption1---", selectedOption1)
+  console.log("openRoomYN---", openRoomYN)
+  console.log("dateRange---", dateRange)
+  console.log("connetId-----", connetId)
+  
+  try {
+    const response = await axios.post('http://localhost:4000/croom/createRoom.do', {
+      userset: userset.value,
+      achievementset: achievementset.value,
+      areaSet: areaSet.value,
+      selectedCheckbox: selectedCheckbox.value,
+      sliderValues: sliderValues.value,
+      selectedOption1: selectedOption1.value,
+      openRoomYN: openRoomYN.value,
+      dateRange: dateRange.value,
+      content: content.value,
+      id: connetId,
+    })
+
+
+
+    if (response.status === 200) {
+      console.log('방 생성이 완료되었습니다.')
+      router.push({ name: 'apps-user-id', params: { id: 21 } }) //넘겨줄 Vue 경로 입력하기
+    } else {
+      console.log('방 생성에 실패하였습니다.')
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+//유효성 검사
+const isValid = computed(() => {
+  if (toggleSwitch.value === true && selectedCheckbox.value.length === 0) {
+    return false
+  }
+  
+  return userset.value > 0 && achievementset.value > 0 && areaSet.value !== '' && selectedOption1.value !== '' && dateRange.value !== '' && content.value !== ''
+})
 
 const usersetlabel = { //정원Silder 초기값, 끝값 라벨 
   2: '2',
   8: '8',
 }
 
-const achievementset = ref(50) //달성기준
-
 const achievementlabel = { //달성기준Silder 초기값, 끝값 라벨 
   0: '0',
   100: '100',
 }
 
+
+
 const toggleSwitch = ref(true) // 참여자 제한 유무 
-const openRoomYN = ref(true) // 방공개여부
 
 const capitalizedLabel = label => {
   const convertLabelText = label.toString()
@@ -41,22 +109,13 @@ const capitalizedLabel = label => {
 const checkboxContent = [
   {
     title: '남자',
-    value: 'man',
+    value: 1,
   },
   {
     title: '여자',
-    value: 'woman',
+    value: 2,
   },
 ]
-
-const selectedCheckbox = ref(['man', 'woman'])
-
-const sliderValues = ref([
-  0,
-  100,
-])
-
-const selectedOption1 = ref('5,000원')
 
 const pay = [
   '5,000원',
@@ -66,12 +125,7 @@ const pay = [
   '50,000원',
 ]
 
-const dateRange = ref('')
 const router = useRouter()
-
-const createRoom = () => {
-  router.push({ name: 'apps-user-id', params: { id: 21 } }) //넘겨줄 Vue 경로 입력하기
-}
 </script>
 
 
@@ -246,10 +300,16 @@ const createRoom = () => {
           cols="12"
           rows="4"
         >
-          <VTextarea label="내용" />
+          <VTextarea
+            v-model="content"
+            label="내용"
+          />
         </VCol>
         <VCol style="text-align: center;">
-          <VBtn @click="createRoom">
+          <VBtn
+            :disabled="!isValid"
+            @click="createRoom"
+          >
             확인
           </VBtn>
         </VCol>

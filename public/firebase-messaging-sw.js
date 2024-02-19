@@ -17,13 +17,13 @@ if (typeof window !== 'undefined' && typeof window.navigator !== "undefined") {
 }
 
 
-// messaging.onBackgroundMessage(payload => { //화면이 같이 띄워져 있을 때 오는 알림
-//   console.log("Message background received. ", payload)
-//   self.registration.showNotification("알림", {
-//     body: "블라블라",
-//     icon: "favicon.ico",
-//     vibrate: [200, 100, 200, 100, 200, 100, 200],
-//     tag: "vibration-sample",
-//   })
-// })
+messaging.onBackgroundMessage(payload => { //화면이 같이 띄워져 있을 때 오는 알림
+  console.log("Message background received. ", payload)
+  self.registration.showNotification("알림", {
+    body: "블라블라",
+    icon: "favicon.ico",
+    vibrate: [200, 100, 200, 100, 200, 100, 200],
+    tag: "vibration-sample",
+  })
+})
 

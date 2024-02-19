@@ -37,14 +37,42 @@ const isDialogVisible = ref(false)
 
 const imageUrl = ref('') // 이미지 URL을 담을 변수 -- 사진 1개
 
+let fileToUpload = ref(null)
+
 const uploadImg = e => {
   const fileList = e.target.files
   if (fileList.length > 0) {
     const imgUrl = URL.createObjectURL(fileList[0])
 
     imageUrl.value = imgUrl
+    fileToUpload.value = fileList[0]
   } else {
-    // Handle the case where no file is selected
+    console.error('No file selected')
+  }
+}
+
+const upload = async () => {
+  console.log("fileToUpload--------------------------------",fileToUpload)
+  if (fileToUpload.value) {
+    const formData = new FormData()
+
+    formData.append('file', fileToUpload.value)
+
+    isDialogVisible.value=false
+
+    try {
+      const response = await axios.post('http://localhost:5000/ocr', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+
+      console.log(response.data)
+      fileToUpload.value = null
+    } catch (error) {
+      console.error(error)
+    }
+  } else {
     console.error('No file selected')
   }
 }
@@ -381,7 +409,7 @@ onMounted(getallergyInfo)
                     <VCol>
                       <VBtn 
                         block
-                        @click="isDialogVisible=false"
+                        @click="upload"
                       >
                         확인
                       </VBtn>
