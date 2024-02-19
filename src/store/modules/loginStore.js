@@ -5,16 +5,34 @@ import router from '@/router'
 import axios from '@axios'
 
 /*알림 test용 start*/
-import { config, firebaseConfig } from '@/config'
+import { config, firebaseConfig, getGoogleKey } from '@/config'
 import firebase from 'firebase/app'
 import 'firebase/messaging'
 
 
 //웹, 앱 알람 (서비스 워커 안에 파이어베이스 SDK 삽입)
-
 const firebaseApp = firebase.initializeApp(firebaseConfig)
-var messaging = firebase.messaging()
-messaging = firebase.messaging(firebaseApp)
+var messaging
+if('serviceWorker' in navigator) {
+  Notification.requestPermission().then(permission => {
+    if (permission === 'granted') {
+      window.addEventListener('load', ()=>{
+        return navigator.serviceWorker.register('sw.js') //포그라운드에서 실행될 파일
+          .then(registration=>{
+            console.log('등록 완료', registration)
+            messaging = firebase.messaging()
+            messaging = firebase.messaging(firebaseApp)
+            
+            return messaging.getToken(messaging, { vapidKey: config.vapidKey })
+          })
+          .then(token=>{console.log(token)})
+          .catch(err=>console.error(err))
+      })
+    }
+    else {console.log('알림이 차단됨')}
+  })
+}
+
 
 
 /*알림 test용 end*/
@@ -50,7 +68,7 @@ const loginStore = {
       
       formdata.append("id", loginObj['id'])
       formdata.append("pwd", loginObj['pwd'])
-    
+      console.log('formdata:', formdata)
       await axios.post('http://localhost:4000/login', formdata, {
         headers: {
           'X-SKIP-INTERCEPTOR': true,
@@ -59,16 +77,22 @@ const loginStore = {
         withCredentials: true,
       }) 
         .then(res => {
-          console.log(res)
+          console.log('여기까지는 들어옴?', res)
           console.log(formdata.get("id"))
 
           //FMC 토큰 등록용 코드 start (로그인 한 사용자의 브라우저가 받은 FMC 토큰 값 저장)
           messaging.getToken(messaging, { vapidKey: config.vapidKey })
-            .then(token=>axios.post("http://localhost:4000/fmctoken", JSON.stringify({ 
-              id: formdata.get("id"),
-              token: token,
-            }), { headers: { 'Content-Type': 'application/json' } }))
+            .then(token=>{
+              console.log('사용자의 firebase토큰:', token)
+              axios.post("http://localhost:4000/fmctoken", JSON.stringify({ 
+                id: formdata.get("id"),
+                token: token,
+              }), { headers: { 'Content-Type': 'application/json' } })
+            })
             .catch(err=>console.log("[firebase]이미 등록된 사용자입니다"))
+          
+          getGoogleKey()
+          
 
           //FMC 토큰 등록용 코드 end
           if(res.status === 200) { // 로그인 요청이 성공했을 때만 토큰을 가져오는 요청을 실행

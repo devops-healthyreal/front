@@ -12,8 +12,9 @@ const firebaseConfig = {
 }
 
 const app = firebase.initializeApp(firebaseConfig)
-
-const messaging = firebase.messaging()
+if (typeof window !== 'undefined' && typeof window.navigator !== "undefined") {
+  const messaging = firebase.messaging()
+}
 
 
 // messaging.onBackgroundMessage(payload => { //화면이 같이 띄워져 있을 때 오는 알림

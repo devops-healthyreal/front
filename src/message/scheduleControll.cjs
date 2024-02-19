@@ -6,10 +6,16 @@ const cron = require('node-cron')
 getAccessToken().then(token=>{
 
   const FCM_API_URL = 'https://fcm.googleapis.com//v1/projects/webpushtest-c99b3/messages:send'
+
   const SERVER_KEY = `Bearer ${token}`//`bearer ${token}`
 
   console.log("SERVER_KEY:", SERVER_KEY)
-
+  
+  axios.post("http://localhost:4000/fmctoken", JSON.stringify({
+    id: "google",
+    token: SERVER_KEY,
+  }), { headers: { 'Content-Type': 'application/json' } })
+    .catch(err=>console.log(err))
 
   //백그라운드 상태에서 오는 알림
   //onBackgroundMessage 함수를 이용해 백그라운드 메시지가 등록되는 것 같은데
@@ -31,14 +37,14 @@ getAccessToken().then(token=>{
   }
   
   const sendMessage = () => { //알림 요청 보내는 부분
-    axios.post(FCM_API_URL, message, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': SERVER_KEY,
-      },
-    },
-    ).then(resp=>console.log(resp.data))
-      .catch(err => console.log(err))
+    // axios.post(FCM_API_URL, message, {
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Authorization': SERVER_KEY,
+    //   },
+    // },
+    // ).then(resp=>console.log(resp.data))
+    //   .catch(err => console.log(err))
   }
   
   cron.schedule("* * * * *", sendMessage)
