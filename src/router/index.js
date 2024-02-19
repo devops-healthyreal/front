@@ -46,8 +46,8 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/apps/challengelist',
-      name: 'apps-challengelist',
+      path: '/apps/challengeList',
+      name: 'apps-challengeList',
       components: {
         default: () => import('@/pages/apps/challengeList.vue'),
         layout: () => import('@/layouts/components/DefaultLayoutWithVerticalNav.vue'),
