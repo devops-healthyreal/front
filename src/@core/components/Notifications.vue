@@ -68,6 +68,16 @@ const updatenotic = async (notification, trigger_pk, index) => {
       console.log('실패', error)
     })
 }
+const removenotic = async (trigger_pk) => {
+  console.log('지울 trigger_pk:',trigger_pk)
+  // await axios.get('http://localhost:4000/Notic/Delete.do', { params: { trigger_pk: trigger_pk } })
+  // .then(response => {
+  //   console.log('성공')
+  // })
+  // .catch(error => {
+  //   console.log('실패', error)
+  // })
+}
 </script>
 
 <template>
