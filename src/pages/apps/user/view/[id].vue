@@ -1,12 +1,16 @@
 <script setup>
+import TimelineBasicExercise from '@/components/dialogs/TimelineBasicExercise.vue'
+import ApexChartStatistics from '@/pages/components/ApexChartStatistics.vue'
+import TimelineBasic from '@/pages/components/TimelineBasic.vue'
 import MyList from '@/pages/myList.vue'
 import { useUserListStore } from '@/views/apps/user/useUserListStore'
 import UserBioPanel from '@/views/apps/user/view/UserBioPanel.vue'
 import UserEdit from '@/views/apps/user/view/UserEdit.vue'
 import UserHistory from '@/views/apps/user/view/UserHistory.vue'
 import UserPaymentList from '@/views/apps/user/view/UserPaymentList.vue'
-import UserTabBillingsPlans from '@/views/apps/user/view/UserTabBillingsPlans.vue'
 import { useStore } from 'vuex'
+
+const currentTab = ref('tab-1')
 
 const store = useStore()
 
@@ -97,7 +101,44 @@ userListStore.fetchUser(Number(route.params.id)).then(response => {
         </VWindowItem>
 
         <VWindowItem>
-          제목에 맞는
+          <VCard style="margin-bottom: 50px;">
+            <ApexChartStatistics style="margin: 50px 0;" /> <!-- 차트 -->
+          </VCard>
+          <VTabs
+            v-model="currentTab"
+            grow
+            stacked
+          >
+            <!-- 탭 목록 -->
+            <VTab value="tab-1"> 
+              <VIcon
+                icon="mdi-food-fork-drink"
+                class="mb-2"
+              />
+              <span>식단</span>
+            </VTab>
+
+            <VTab value="tab-2">
+              <VIcon
+                icon="mdi-dumbbell"
+                class="mb-2"
+              />
+              <span>운동</span>
+            </VTab>
+          </VTabs>
+          <VWindow
+            v-model="currentTab"
+            class="mt-5"
+          >
+            <!-- 식단쪽 이행률 체크 타임라인 -->
+            <VWindowItem value="tab-1">
+              <TimelineBasic />
+            </VWindowItem>
+            <!-- 운동쪽 이행률 체크 타임라인 -->
+            <VWindowItem value="tab-2">
+              <TimelineBasicExercise />
+            </VWindowItem>
+          </VWindow>
         </VWindowItem>
 
         <VWindowItem>

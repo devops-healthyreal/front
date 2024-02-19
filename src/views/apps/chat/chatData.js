@@ -1,5 +1,5 @@
 import axios from '@axios'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useStore } from 'vuex'
 
 export default function useDatabase() {
@@ -7,6 +7,7 @@ export default function useDatabase() {
   const userInfo = computed(() => store.state.userStore.userInfo)
   const connetId = userInfo.value.id
   const connetAv = userInfo.value.pro_filepath
+  const isLoggedIn = computed(() => store.state.loginStore.isLogin)
 
   console.log("-----------------connetAv---------------------")
 
@@ -60,7 +61,7 @@ export default function useDatabase() {
         database.value.profileUser.id = userId
         database.value.profileUser.avatar = response.data.profilePath
         database.value.profileUser.fullName = response.data.name
-        database.value.profileUser.status = 'online'
+        database.value.profileUser.status = isLoggedIn
 
         //console.log("database.profileUser.id", database.value.profileUser.id)
         //console.log("database.profileUser.avatar", database.value.profileUser.avatar)

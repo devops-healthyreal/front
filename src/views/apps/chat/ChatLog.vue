@@ -1,7 +1,7 @@
 <script setup>
-import useDatabase from '@/views/apps/chat/chatData.js';
-import { formatDate } from '@core/utils/formatters';
-import { computed, defineProps } from 'vue';
+import useDatabase from '@/views/apps/chat/chatData.js'
+import { formatDate } from '@core/utils/formatters'
+import { computed, defineProps } from 'vue'
 
 
 const props = defineProps({

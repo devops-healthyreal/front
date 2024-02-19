@@ -1,10 +1,8 @@
 <script setup>
 import axios from '@axios'
 import avatar1 from '@images/avatars/avatar-1.png'
-import avatar2 from '@images/avatars/avatar-2.png'
-import avatar3 from '@images/avatars/avatar-3.png'
-import avatar4 from '@images/avatars/avatar-4.png'
 import backgroundimg from '@images/pages/writing.jpg'
+import { ref } from 'vue'
 
 const props = defineProps({
   isDialogVisible: {
@@ -39,28 +37,30 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+  likespro: {
+    type: Array,
+    required: true,
+  },
+  likesuser: {
+    type: Array,
+    required: true,
+  },
 })
 
 const commentval = ref()
 let commentAddevent = ref(false)
 
 const commentAdd = (event, val) => {
-  commentAddevent = !commentAddevent
+  commentAddevent.value = !commentAddevent.value
 }
 
 const newcomment = ref()
 let parentcomm = ref(0)
 
-const avatars = [
-  avatar1,
-  avatar2,
-  avatar3,
-  avatar4,
-]
 
 const parent_comment = val => {
   console.log('클릭한 댓글:', val)
-  parentcomm = val
+  parentcomm.value = val
   console.log(parentcomm)
 }
 
@@ -430,14 +430,17 @@ const actionType = async (typeNo, C_NO, val) => {
                   style="margin-left: 2%;"                  
                 >
                   <VAvatar
-                    v-for="(avatar, index) in avatars"
+                    v-for="(avatar, index) in props.likespro"
                     :key="index"
                     :image="avatar"
                     size="30"
                   />
                 </VCol>
-                <VCol class="font-weight-medium">
-                  멋쟁이 승녕님 외 18명이 좋아합니다
+                <VCol
+                  v-if="props.likesuser && props.likesuser.length > 0"
+                  class="font-weight-medium"
+                >
+                  {{ props.likesuser[0] }}님 외 {{ postToEdit.likesnum }}명이 좋아합니다
                 </VCol>
               </VRow>
               <VRow style="margin-bottom: 5px;">
