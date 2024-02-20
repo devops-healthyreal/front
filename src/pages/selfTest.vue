@@ -38,6 +38,7 @@ const isDialogVisible = ref(false)
 const imageUrl = ref('') // 이미지 URL을 담을 변수 -- 사진 1개
 
 let fileToUpload = ref(null)
+let inbodysV = ref([])
 
 const uploadImg = e => {
   const fileList = e.target.files
@@ -69,6 +70,7 @@ const upload = async () => {
 
       console.log(response.data)
       fileToUpload.value = null
+      inbodysV.value=response.data
     } catch (error) {
       console.error(error)
     }
@@ -184,28 +186,28 @@ const iconsSteps = [
   
 ]
 
-const inbodydatas = [
+const inbodydatas = computed(() => [
   {
     title: '체중',
-    value: '',
+    value: inbodysV.value[0] ? inbodysV.value[0] + 'kg' : '',
   },
   {
     title: '골격근량',
-    value: '',
+    value: inbodysV.value[1] ? inbodysV.value[1] + 'kg' : '',
   },
   {
     title: '체지방량',
-    value: '',
+    value: inbodysV.value[2] ? inbodysV.value[2] + 'kg' : '',
   },
   {
     title: 'BMI',
-    value: '',
+    value: inbodysV.value[3] ? inbodysV.value[3] + 'kg/m2' : '',
   },
   {
     title: '체지방률',
-    value: '',
+    value: inbodysV.value[4] ? inbodysV.value[4] + '%' : '',
   },
-]
+])
 
 const currentStep = ref(0)
 
