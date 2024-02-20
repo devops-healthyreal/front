@@ -157,8 +157,23 @@ const getGenderCode = gender => {
 }
 
 //참여 유효성 검사
-const checkEntrance = () => {
-  if (myData.value && calculateAge(myData.value.B_DAY) >= challenge.value.ageMin && calculateAge(myData.value.B_DAY) <= challenge.value.ageMax && (getGenderCode(myData.value.GENDER)===challenge.value.glimit || challenge.value.glimit===0)) {
+const checkEntrance = async challNo => {
+  console.log("myData.value---", myData.value)
+  console.log("calculateAge(myData.value.B_DAY)---", calculateAge(myData.value.data.B_DAY))
+  console.log("challenge.value.ageMin---", challenge.value.ageMin)
+  console.log("challenge.value.ageMax---", challenge.value.ageMax)
+  console.log("getGenderCode(myData.value.GENDER)---", getGenderCode(myData.value.data.GENDER))
+  console.log("myData.value.data.GENDER---", myData.value.data.GENDER)
+  console.log("challenge.value.glimit---", challenge.value.glimit)
+  console.log("connetId---", connetId)
+  console.log("challNo---", challNo)
+
+  if (myData.value && calculateAge(myData.value.data.B_DAY) >= challenge.value.ageMin && calculateAge(myData.value.data.B_DAY) <= challenge.value.ageMax && (getGenderCode(myData.value.data.GENDER)===challenge.value.glimit || challenge.value.glimit===0)) {
+
+    const response = await axios.post('http://localhost:4000/croom/joinRoom.do', { id: connetId, challNo: challNo })
+
+    router.push({ name: 'apps-user-id', params: { id: 21 } }) //넘겨줄 Vue 경로 입력하기
+
   } else {
     alert('입장할 수 없습니다.')
   }
@@ -296,7 +311,7 @@ const checkEntrance = () => {
                 <span>
                   <VBtn 
                     v-if="participantsData.length <= challenge.challCapacity"
-                    @click="checkEntrance"
+                    @click="checkEntrance(challenge.challNo)"
                   >
                     입장
                   </VBtn>                  
