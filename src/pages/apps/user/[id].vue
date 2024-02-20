@@ -133,50 +133,56 @@ const pay = ref("10000")
           <!-- 참가비 끝 -->
           <!-- 유저 목록 -->
           <VCol>
-            <VRow style="padding: 80px 0px;">
-              <VCol cols="3">
-                <UserProfileForChellenge :participants-data="participantsData" />
-              </VCol>
-            </VRow>
-            
-            <!-- 유저 목록 -->
-            <!-- 운동량 시작 -->
-            <VRow>
+            <UserProfileForChellenge :participants-data="participantsData" />
+          </VCol>
+          <!-- 유저 목록 -->
+          <!-- 운동량 시작 -->
+          <VRow>
+            <VCol>
               <VCol>
-                <VCol>
-                  📌 {{ room.goal }} {{ room.implementation }}%
-                </VCol>
-                <VCol>
-                  <div style=" margin-bottom: 4px;">
-                    목표 기간
-                  </div>
-                  <div style=" margin-bottom: 4px;">
-                    <span style="font-weight: bold;">{{ formatDate(room.cstartDate) }} ~ 
-                      {{ formatDate(room.cendDate) }}</span>
-                  </div>
-                  <div style=" margin-bottom: 4px;">
-                    지역 : {{ room.challArea }}
-                  </div>
-                  <div style=" margin-bottom: 4px;">
-                    정원 : {{ participantsData.length }}/{{ room.challCapacity }}
-                  </div>
-                </VCol>
-              </VCol>
-              <!-- 운동량 끝 -->
-              <!-- 목표 달성률 시작 -->
-              <VCol>
-                <VueApexCharts
-                  type="bar"
-                  height="130"
-                  :options="horizontalBarChartConfig"
-                  :series="series"
-                  style="width:'100%'; margin-top':30px;"
+                <VIcon
+                  start
+                  size="20"
+                  icon="mdi-calendar"
+                  color="success"
                 />
+                <span style="font-weight: bold;">{{ formatDate(room.cstartDate) }} ~ 
+                  {{ formatDate(room.cendDate) }}</span>
+                  
+                <div style=" margin-bottom: 8px; margin-top: 20px;">
+                  <VIcon
+                    start
+                    size="20"
+                    icon="mdi-location"
+                    color="success"
+                  />
+                  {{ room.challArea }}
+                </div>
+                <div style=" margin-bottom: 4px;">
+                  <VIcon
+                    start
+                    size="20"
+                    icon="mdi-human-male-female"
+                    color="success"
+                  />
+                  {{ participantsData.length }}/{{ room.challCapacity }}
+                </div>
               </VCol>
-            </VRow>
+            </VCol>
+            <!-- 운동량 끝 -->
+            <!-- 목표 달성률 시작 -->
+            <VCol>
+              <VueApexCharts
+                type="bar"
+                height="130"
+                :options="horizontalBarChartConfig"
+                :series="series"
+                style="width:'100%'; margin-top':30px;"
+              />
+            </VCol>
+          </VRow>
         
           <!-- 목표 달성률 끝 -->
-          </VCol>
           <VCol align="center">
             <VCol class="d-flex justify-end">
               <Pricingtest :pay="parseInt(pay)" />

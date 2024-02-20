@@ -1,13 +1,13 @@
 <script setup>
-import AddChallRoomSetting from '@/components/dialogs/AddChallRoomSetting.vue'
 import axios from '@axios'
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
-const router = useRouter()
+const router = useRoute()
 const projectData = ref([])
 const isAddChallRoomSettingDialogVisible = ref(false)
+const isAddMateRoomSettingDialogVisible = ref(false)
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
@@ -100,6 +100,15 @@ const getHourDifference = (date1, date2) => {
   return diff / (1000 * 60 * 60)
 }
 
+const currentDate = (() => {
+  const today = new Date()
+  const year = today.getFullYear().toString().slice(-2)
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+  
+  return `${year}/${month}/${day}`
+})()
+
 //천 단위 형식
 const formatNumber = value => {
   if (!value) return ''
@@ -161,7 +170,7 @@ const checkEntrance = async challNo => {
 
     const response = await axios.post('http://localhost:4000/croom/joinRoom.do', { id: connetId, challNo: challNo })
 
-    router.push({ name: 'apps-user-id', params: { id: challNo } }) //넘겨줄 Vue 경로 입력하기
+    router.push({ name: 'apps-user-id', params: { id: 21 } }) //넘겨줄 Vue 경로 입력하기
 
   } else {
     alert('입장할 수 없습니다.')
@@ -182,97 +191,48 @@ const checkEntrance = async challNo => {
         >
           <VCard>
             <VCardItem>
-              <VCardTitle><span style="font-size: xx-large; font-weight: bold;">{{ challenge.challTitle }}</span></VCardTitle>
-              <div class="d-flex align-center flex-wrap justify-space-between mt-1 mb-0">
-                <span style="margin-top: 20px;color: rgb(112, 196, 230); font-weight: b;">
-                  <VIcon
-                    start
-                    size="30"
-                    icon="mdi-face-man-shimmer-outline"
-                    color="info"
+              <template #prepend>
+                <!--
+                  승환아 여기 이쁜 사진 넣어줘
+                  <VAvatar
+                  :image="data.avatar"
+                  size="38"
                   />
                 -->
               </template>
 
-              <VCardTitle><span style="font-size: xx-large; font-weight: bold;">{{ challenge.challTitle }}</span></VCardTitle>
+              <VCardTitle>{{ challenge.challNo }}. {{ challenge.challTitle }}</VCardTitle>
               <div class="d-flex align-center flex-wrap justify-space-between mt-1 mb-0">
-                <span style="margin-top: 20px;color: rgb(112, 196, 230); font-weight: b;">
-                  <VIcon
-                    start
-                    size="30"
-                    icon="mdi-face-man-shimmer-outline"
-                    color="info"
-                  />
-                  {{ challenge.manager }}
-                </span>
-                <span
-                  class="font-weight-medium me-1"
-                  style="margin-top: 20px;"
-                >정원: <span style="color: rgb(127, 153, 238); font-weight: bold;">{{ challenge.challCapacity }}</span>명</span>
+                <span class="font-weight-medium me-1">방장: <span style="color: black;">{{ challenge.manager }}</span></span>
+                <span class="font-weight-medium me-1">정원: <span style="color: black;">{{ challenge.challCapacity }}명</span></span>
               </div>
-              <div class="d-flex align-center flex-wrap  mt-1 mb-0">
-                <VIcon
-                  start
-                  size="18"
-                  icon="mdi-check-decagram"
-                  style="margin-top: 20px;"
-                  color="info"
-                /> 
-                <span style="margin-top: 20px;color: black;">
-                  {{ challenge.goal }}
-                </span>
+              <div class="d-flex align-center flex-wrap justify-space-between mt-1 mb-0">
+                <span class="font-weight-medium me-1">목표: <span style="color: black;">{{ challenge.goal }}</span></span>
               </div>
-              <div class="d-flex align-center flex-wrap mt-1 mb-0">
-                <VIcon
-                  start
-                  size="18"
-                  icon="mdi-map-marker"
-                  color="info"
-                /> 
-                <span style="color: black;">
-                  {{ challenge.challArea }}
-                </span>
+              <div class="d-flex align-center flex-wrap justify-space-between mt-1 mb-0">
+                <span class="font-weight-medium me-1">지역: <span style="color: black;">{{ challenge.challArea }}</span></span>
               </div>
             </VCardItem>
 
             <VCardText>
-              <div class="d-flex align-center justify-space-between flex-wrap">
-                <span style="font-weight: bold;">
-                  <VIcon
-                    start
-                    style="margin-left: 5px;"
-                    size="21"
-                    icon="mdi-credit-card-outline"
-                  />
-                  참가비 : <span> {{ formatNumber(challenge.pfee) }}원</span>
-                </span>
+              <div class="d-flex align-center justify-space-between flex-wrap gap-x-2 gap-y-4">
+                <div class="pa-2 bg-var-theme-background rounded">              
+                  <span class="text-base font-weight-medium">
+                    참가비 : <span class="text-body-1"> {{ formatNumber(challenge.pfee) }}원</span>
+                  </span>
+                </div>
 
                 <div>
-                  <div style=" margin-bottom: 4px;text-align: center;">
-                    <span style="font-weight: bold;">{{ formatDate(challenge.cstartDate) }} ~ 
-                      {{ formatDate(challenge.cendDate) }}</span>
-                  </div>
-                  <VChip
-                    color="info"
-                    density="compact"
-                  >
-                    <VIcon
-                      start
-                      size="18"
-                      icon="mdi-calendar"
-                    />
-                    <span class="text-xs">
-                      total : {{ getHourDifference(new Date(challenge.cendDate), new Date(challenge.cstartDate))/24 }}일    /       
-                      D-day : -{{ Math.floor((getHourDifference(new Date(challenge.cendDate), new Date())+9)/24) }}일
-                    </span>
-                  </VChip>
+                  <h6 class="text-base font-weight-medium">
+                    시작일: <span class="text-body-1">{{ formatDate(challenge.cstartDate) }}</span>
+                  </h6>
+                  <h6 class="text-base font-weight-medium mb-1">
+                    종료일: <span class="text-body-1">{{ formatDate(challenge.cendDate) }}</span>
+                  </h6>
                 </div>
               </div>
 
-              <p
-                class="mt-4 mb-0 clamp-text"
-                style="font-weight: bold;"
-              >
+              <p class="mt-4 mb-0 clamp-text">
                 {{ challenge.challContent }}
               </p>
             </VCardText>
@@ -282,18 +242,35 @@ const checkEntrance = async challNo => {
             <VCardText>
               <div class="d-flex align-center justify-end flex-wrap gap-2">
                 <VChip
+                  color="info"
+                  density="compact"
+                >
+                  <span class="text-xs">
+                    total : {{ getHourDifference(new Date(challenge.cendDate), new Date(challenge.cstartDate))/24 }}일                
+                  </span>
+                </VChip>
+                <VChip
+                  color="info"
+                  density="compact"
+                >
+                  <span class="text-xs">
+                    D-day : -{{ Math.floor((getHourDifference(new Date(challenge.cendDate), new Date())+9)/24) }}일
+                  </span>
+                </VChip>
+                <VChip
                   v-if="challenge.ageMin && challenge.ageMax"
                   color="success"
                   density="compact"
                 >
-                  <VIcon
-                    start
-                    size="18"
-                    icon="mdi-location-enter"
-                  />
                   <span class="text-xs">
-                    {{ challenge.ageMin }} ~ {{ challenge.ageMax }}세   / 
-
+                    나이제한 : {{ challenge.ageMin }} ~ {{ challenge.ageMax }}세
+                  </span>
+                </VChip>
+                <VChip
+                  color="success"
+                  density="compact"
+                >
+                  <span class="text-xs">
                     <span v-if="challenge.glimit === 0">모두 입장가능</span>
                     <span v-else-if="challenge.glimit === 1">남자만 입장가능</span>
                     <span v-else-if="challenge.glimit === 2">여자만 입장가능</span>
@@ -301,18 +278,19 @@ const checkEntrance = async challNo => {
                 </VChip>
               </div>
               <div class="d-flex align-center justify-space-between flex-wrap text-xs mt-4 mb-2">
-                <span style="font-weight: bold;">달성 기준 : {{ challenge.implementation }}%</span>
-                <span style="font-weight: bold;">{{ Math.round((challenge.implementation)) }}% 달성</span>
+                <span>달성 기준 : {{ challenge.implementation }}%</span>
+                <span>{{ Math.round((challenge.implementation) * 100) }}% 완료</span>
               </div>
-              <!-- model-value 이게 지금 기준 / max 퍼센트 최대 -->
-              <VProgressLinear
+              <!--
+                <VProgressLinear
                 rounded
                 rounded-bar
                 height="8"
-                :model-value="31"
-                :max="100"
+                :model-value="data.completedTask"
+                :max="data.totalTask"
                 color="primary"
-              />
+                />
+              -->
 
               <div class="d-flex align-center justify-space-between flex-wrap gap-2 mt-3">
                 <div class="d-flex align-center">
@@ -331,7 +309,7 @@ const checkEntrance = async challNo => {
                 <span>
                   <VBtn 
                     v-if="participantsData.length <= challenge.challCapacity"
-                    @click="checkEntrance"
+                    @click="checkEntrance(challenge.challNo)"
                   >
                     입장
                   </VBtn>                  
@@ -348,11 +326,8 @@ const checkEntrance = async challNo => {
       <VCol
         cols="4"
         class="align-self-center"
-      >    
-        <VBtn @click="isAddChallRoomSettingDialogVisible = !isAddChallRoomSettingDialogVisible">
-          챌린지방 생성
-        </VBtn>
-        <AddChallRoomSetting v-model:isDialogVisible="isAddChallRoomSettingDialogVisible" />
+      >
+        logVisible" />
       </VCol>
     </VRow>
   </section>

@@ -26,62 +26,65 @@ const resolveUserStatusVariant = stat => {
 </script>
 
 <template>
-  <VRow>
-    <!-- SECTION User Details -->
-    <VCol
-      v-for="participant in props.participantsData"
-      :key="participant.ID"
-      cols="12"
-    >
-      <VCard>
-        <VCardText class="text-center mt-12 mt-sm-0 pa-0">
-          <!-- 👉 Avatar -->
-          <VAvatar
-            rounded="sm"
-            :size="120"
-            :color="!participant.PRO_FILEPATH ? 'primary' : undefined"
-            :variant="!participant.PRO_FILEPATH ? 'tonal' : undefined"
-          >
-            <VImg
-              v-if="participant.PRO_FILEPATH"
-              :src="participant.PRO_FILEPATH"
-              style="margin-top: 15px;"
-            />
-            <span
-              v-else
-              class="text-5xl font-weight-medium"
+  <VCol>
+    <VRow>
+      <!-- SECTION User Details -->
+      <VCol
+        v-for="participant in props.participantsData"
+        :key="participant.ID"
+        cols="3"
+      >
+        <VCard>
+          <VCardText class="text-center mt-12 mt-sm-0 pa-0">
+            <!-- 👉 Avatar -->
+            <VAvatar
+              rounded="sm"
+              :size="120"
+              :color="!participant.PRO_FILEPATH ? 'primary' : undefined"
+              :variant="!participant.PRO_FILEPATH ? 'tonal' : undefined"
             >
-              {{ avatarText(participant.ID) }}
-            </span>
-          </VAvatar>
+              <VImg
+                v-if="participant.PRO_FILEPATH"
+                :src="participant.PRO_FILEPATH"
+                style="margin-top: 15px;"
+              />
+              <span
+                v-else
+                class="text-5xl font-weight-medium"
+              >
+                {{ avatarText(participant.ID) }}
+              </span>
+            </VAvatar>
 
-          <!-- 👉 User fullName -->
-          <h6 class="text-h6 mt-4">
-            {{ participant.ID }}
-          </h6>
+            <!-- 👉 User fullName -->
+            <h6 class="text-h6 mt-4">
+              {{ participant.ID }}
+            </h6>
 
-          <!-- 👉 이행률 -->
-          <VChip
-            density="comfortable"
-            class="text-capitalize mt-4"
-            style="margin-bottom: 15px;"
-          >
-            80%
-          </VChip>
-        </VCardText>
-      </VCard>
-    </VCol>
+            <!-- 👉 이행률 -->
+            <VChip
+              density="comfortable"
+              class="text-capitalize mt-4"
+              style="margin-bottom: 15px;"
+            >
+              80%
+            </VChip>
+          </VCardText>
+        </VCard>
+      </VCol>
     <!-- !SECTION -->
-  </VRow>
+    </VRow>
+  
 
-  <!-- 👉 Edit user info dialog -->
-  <UserInfoEditDialog
-    v-model:isDialogVisible="isUserInfoEditDialogVisible"
-    :user-data="props.userData"
-  />
+    <!-- 👉 Edit user info dialog -->
+    <UserInfoEditDialog
+      v-model:isDialogVisible="isUserInfoEditDialogVisible"
+      :user-data="props.userData"
+    />
 
-  <!-- 👉 Upgrade plan dialog -->
-  <UserUpgradePlanDialog v-model:isDialogVisible="isUpgradePlanDialogVisible" />
+    <!-- 👉 Upgrade plan dialog -->
+    <UserUpgradePlanDialog v-model:isDialogVisible="isUpgradePlanDialogVisible" />
+  </vcol>
 </template>
 
 <style lang="scss" scoped>
