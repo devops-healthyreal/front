@@ -1,5 +1,6 @@
 <script setup>
 import AddressApi from '@/components/dialogs/RoomSetAddressApi.vue'
+import Goal from '@/views/demos/register/goal.vue'
 import axios from '@axios'
 import { ref } from 'vue'
 import { useStore } from 'vuex'
@@ -30,16 +31,14 @@ const handleUpdateAddress = newAddress => {
   userAddress.address = newAddress.address
 }
 
-
-
-
-const store = useStore()
-const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId = userInfo.value.id
   
+const goal = ref("")
 const userset = ref(4) //정원 수
 const achievementset = ref(50) //달성기준
 let addressData = ref(null)
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId = userInfo.value.id
 
 const selectedCheckbox = ref([])
 
@@ -71,6 +70,7 @@ const createRoom = async () => {
     console.log("addressData---", userAddress.address)
 
     const response = await axios.post('http://localhost:4000/croom/createRoom.do', {
+      goal: goal.value,
       userset: userset.value,
       achievementset: achievementset.value,
       areaSet: userAddress.address,
@@ -97,6 +97,7 @@ const createRoom = async () => {
   }
 }
 
+
 //유효성 검사
 const isValid = computed(() => {
   if (toggleSwitch.value === true && selectedCheckbox.value.length === 0) {
@@ -116,6 +117,10 @@ const achievementlabel = { //달성기준Silder 초기값, 끝값 라벨
   100: '100',
 }
 
+const handleGoalNoChanged = newGoalNo => {
+  console.log('부모컴포넌트', goal_No) // 여기서 newGoalNo는 선택한 항목의 goal_No 값입니다.
+  goal.value = newGoalNo
+}
 
 
 const toggleSwitch = ref(true) // 참여자 제한 유무 
@@ -167,7 +172,7 @@ const router = useRouter()
       <VCardText>
         <VCardText style=" border-radius: 20px;background-color: #7ce626;">
           <div class="text-h5 mb-1 text-center">
-            <strong>목표 설정</strong>
+            <Goal @update:model-value="handleGoalNoChanged" />
           </div>
         </VCardText>
         <VCol
@@ -207,11 +212,6 @@ const router = useRouter()
               tick-size="4"
             />
           </VCol>
-          <!--
-            <VCol>
-            {{type}}
-            </VCol> 
-          -->
           <VCol
             class="fitem"
             cols="4"

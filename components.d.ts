@@ -60,6 +60,7 @@ declare module '@vue/runtime-core' {
     EnableOneTimePasswordDialog: typeof import('./src/components/dialogs/EnableOneTimePasswordDialog.vue')['default']
     ErrorHeader: typeof import('./src/components/ErrorHeader.vue')['default']
     FormLayoutSocialForm: typeof import('./src/views/demos/register/FormLayoutSocialForm.vue')['default']
+    Goal: typeof import('./src/views/demos/register/goal.vue')['default']
     I18n: typeof import('./src/@core/components/I18n.vue')['default']
     JoinSuccess: typeof import('./src/views/demos/register/JoinSuccess.vue')['default']
     KakaoMapLike: typeof import('./src/components/KakaoMapLike.vue')['default']
