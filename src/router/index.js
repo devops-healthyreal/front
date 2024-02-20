@@ -47,7 +47,7 @@ const router = createRouter({
     },
     {
       path: '/apps/challengeList',
-      name: 'apps-challengeList',
+      name: 'challengeList',
       components: {
         default: () => import('@/pages/apps/challengeList.vue'),
         layout: () => import('@/layouts/components/DefaultLayoutWithVerticalNav.vue'),
@@ -78,7 +78,7 @@ const router = createRouter({
               params: { id: 21 }, 
             })
           } else { // 값이 없다면
-            next()
+            next({ name: 'apps-challengeList' })
           }
         } catch (error) {
           console.error(error)

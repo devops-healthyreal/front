@@ -9,13 +9,29 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  userAddress: {
+    type: String,
+    required: true,
+  },
 })
 
 const emit = defineEmits(['update:isDialogVisible'])
 
 const dialogVisibleUpdate = val => {
   emit('update:isDialogVisible', val)
+
 }
+
+const userAddress = reactive({
+  address: '',
+})
+
+const handleUpdateAddress = newAddress => {
+  userAddress.address = newAddress.address
+}
+
+
+
 
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
@@ -23,7 +39,8 @@ const connetId = userInfo.value.id
   
 const userset = ref(4) //정원 수
 const achievementset = ref(50) //달성기준
-const areaSet = ref("") //장소
+let addressData = ref(null)
+
 const selectedCheckbox = ref([])
 
 const sliderValues = ref([
@@ -35,6 +52,7 @@ const selectedOption1 = ref('5,000원')
 const openRoomYN = ref(true) // 방공개여부
 const dateRange = ref('')
 const content = ref('')
+const title = ref('')
 const id = connetId
 
 
@@ -42,7 +60,6 @@ const id = connetId
 const createRoom = async () => {
   console.log("userset---", userset)
   console.log("achievementset---", achievementset)
-  console.log("areaSet---", areaSet)
   console.log("selectedCheckbox---", selectedCheckbox)
   console.log("sliderValues---", sliderValues)
   console.log("selectedOption1---", selectedOption1)
@@ -51,16 +68,19 @@ const createRoom = async () => {
   console.log("connetId-----", connetId)
   
   try {
+    console.log("addressData---", userAddress.address)
+
     const response = await axios.post('http://localhost:4000/croom/createRoom.do', {
       userset: userset.value,
       achievementset: achievementset.value,
-      areaSet: areaSet.value,
+      areaSet: userAddress.address,
       selectedCheckbox: selectedCheckbox.value,
       sliderValues: sliderValues.value,
       selectedOption1: selectedOption1.value,
       openRoomYN: openRoomYN.value,
       dateRange: dateRange.value,
       content: content.value,
+      title: title.value,
       id: connetId,
     })
 
@@ -83,7 +103,7 @@ const isValid = computed(() => {
     return false
   }
   
-  return userset.value > 0 && achievementset.value > 0 && areaSet.value !== '' && selectedOption1.value !== '' && dateRange.value !== '' && content.value !== ''
+  return userset.value > 0 && achievementset.value > 0 && userAddress.address !== '' && selectedOption1.value !== '' && dateRange.value !== '' && content.value !== ''
 })
 
 const usersetlabel = { //정원Silder 초기값, 끝값 라벨 
@@ -198,7 +218,11 @@ const router = useRouter()
             rows="5" 
             style="text-align: center;"
           >
-            <AddressApi />
+            <AddressApi
+              v-model="userAddress"
+              :new-address="userAddress" 
+              @update-address="handleUpdateAddress"
+            />
           </VCol>
         </VCol>
         <VCol>
@@ -296,6 +320,13 @@ const router = useRouter()
           </VCol>
         </VCol>
 
+        <VCol cols="12">
+          <VTextarea
+            v-model="title"
+            rows="1"
+            label="제목"
+          />
+        </VCol>
         <VCol
           cols="12"
           rows="4"
@@ -304,15 +335,15 @@ const router = useRouter()
             v-model="content"
             label="내용"
           />
-        </VCol>
-        <VCol style="text-align: center;">
-          <VBtn
-            :disabled="!isValid"
-            @click="createRoom"
-          >
-            확인
-          </VBtn>
-        </VCol>
+          <VCol style="text-align: center;">
+            <VBtn
+              :disabled="!isValid"
+              @click="createRoom"
+            >
+              확인
+            </VBtn>
+          </VCol>
+        </vcol>
       </VCardText>
     </VCard>
   </VDialog>

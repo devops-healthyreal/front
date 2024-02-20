@@ -46,7 +46,7 @@ const deleteData = async () => {
     const response = await axios.delete('http://localhost:4000/croom/deleteRoom.do', { data: { id: connetId } })
 
     console.log("방 나가기 성공")
-    router.push({ name: 'apps-challengelist' }) //넘겨줄 Vue 경로 입력하기
+    router.push({ name: 'challengeList' }) //넘겨줄 Vue 경로 입력하기
   } catch (error) {
     console.error(error)
   }
