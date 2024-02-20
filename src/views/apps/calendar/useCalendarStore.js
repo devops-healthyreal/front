@@ -42,6 +42,8 @@ export const useCalendarStore = defineStore('calendar', {
       return axios.get('http://localhost:4000/apps/calendar', { params: { calendars: this.selectedCalendars.join(',') } })
     },
     async addEvent(event) {
+      console.log(calendars.value)
+      
       return axios.post('http://localhost:4000/apps/calendar', { event })
     },
     async updateEvent(event) {
