@@ -2,10 +2,10 @@
 import AddChallRoomSetting from '@/components/dialogs/AddChallRoomSetting.vue'
 import axios from '@axios'
 import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
-const router = useRoute()
+const router = useRouter()
 const projectData = ref([])
 const isAddChallRoomSettingDialogVisible = ref(false)
 const store = useStore()
