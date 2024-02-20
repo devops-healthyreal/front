@@ -57,7 +57,7 @@ export function createRoadView(map){ //맵 객체를 인자로 받음
     draggable: true,
   })
   
-  //지도에 마커 표시
+  //지도에 마커 표시 (직접 움직여가며 헤당 좌표의 사진값을 보기 위한 용도)
   marker.setMap(map)
   
   //로드뷰 객체 생성
@@ -122,18 +122,13 @@ function removeMarkers(markers, infos) { //마커, 인포들을 지우는 함수
 }
 
 export function drawPolyLine(path, pathName, map, polyline, markers, infos){ //경로 그려주는 함수
-  console.log('markers:', markers.value)
-  console.log('drawPolyLine:', path)
-  console.log('pathName:', pathName)
-
-  //removeMarkers(markers.value, infos.value)
-  checkArrayUpdated(path).then(()=>{
+  checkArrayUpdated(path).then(()=>{ //배열이 모두 로드가 되었을 때 작동
     //(param)path: 카카오 위도, 경도로 변경한 path값들의 객체 리스트
     console.log('Promise이전:', path)
     
     return new Promise((resolve, reject)=>{
       var tempPath = []
-      for(const element of path) {
+      for(const element of path.pedePath) {
         //console.log('element값:', element)
         tempPath.push(new kakao.maps.LatLng(element[0], element[1]))
       }
@@ -144,34 +139,13 @@ export function drawPolyLine(path, pathName, map, polyline, markers, infos){ //�
   }, //하나의 경로에 접근하는 for
   )//then
     .then(tempPath => {
-      var i = 0
-
-      // for(const path of tempPath) {
-      //   console.log(`${i}번째 좌표:`, path)
-      //   var marker = new kakao.maps.Marker({ //마커 생성
-      //     map:map,
-      //     position: path
-      //   })
-      //   markers.value.push(marker)
-      //   //marker.setMap(map)
-      //   if (pathName[i] != 'undefined') {
-      //     var iwContent = `<div style="padding:5px;">${pathName[i]}</div>`
-      //     console.log(`${i}번째 인포윈도우:`, iwContent)
-      //     var infoWindow = new kakao.maps.InfoWindow({ //인포윈도우 생성
-      //         position : path, 
-      //         content : iwContent 
-      //     })
-      //     infos.value.push(infoWindow)
-      //     //infoWindow.open(map, marker)
-      //   }
-      //   i++
-      // }//마커 및 인포윈도우 생성 for문
       console.log('polyline에 전달한 tempPath값:', tempPath)
+      polyline.setMap(map)
       polyline.setPath(tempPath)
       console.log('polyline:', polyline)
       console.log('map:', map)
-      polyline.setMap(map)
       console.log(polyline.getMap())
+      setMarkerNInfo(path.pointPath, pathName, map, markers, infos)
     })//then
 }
 
@@ -179,6 +153,7 @@ export function setMarkerNInfo(path, pathName, map, markers, infos) {
   /*
     path: 대략적인 포인트가 되는 path
   */
+  var bounds = new kakao.maps.LatLngBounds() //지도의 범위정보 설정
   removeMarkers(markers.value, infos.value) //지도에 원래 올라가있던 값들 제거
   checkArrayUpdated(path).then(()=>{
     //(param)path: 카카오 위도, 경도로 변경한 path값들의 객체 리스트
@@ -187,6 +162,7 @@ export function setMarkerNInfo(path, pathName, map, markers, infos) {
       for(const element of path) {
         //console.log('element값:', element)
         tempPath.push(new kakao.maps.LatLng(element[0], element[1])) //받은 경로를 카카오 위도경도로 변환
+        bounds.extend(new kakao.maps.LatLng(element[0], element[1]))
       }
       resolve(tempPath)
       reject('에러 발생')
@@ -218,8 +194,8 @@ export function setMarkerNInfo(path, pathName, map, markers, infos) {
       }//마커 및 인포윈도우 생성 for문
     })
     .then(()=>{
-
       makeInfoWindowDesign()
+      map.setBounds(bounds)
     })
 }
 
