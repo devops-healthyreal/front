@@ -1,4 +1,5 @@
 <script setup>
+import AddChallRoomSetting from '@/components/dialogs/AddChallRoomSetting.vue'
 import axios from '@axios'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -355,14 +356,11 @@ const checkEntrance = async challNo => {
       <VCol
         cols="4"
         class="align-self-center"
-      >
-        <VBtn
-          :style="{'margin-left':'10px'}"
-          @click="isAddMateRoomSettingDialogVisible = !isAddMateRoomSettingDialogVisible"
-        >
-          Mate
+      >    
+        <VBtn @click="isAddChallRoomSettingDialogVisible = !isAddChallRoomSettingDialogVisible">
+          챌린지방 생성
         </VBtn>
-        <AddMateRoomSetting v-model:isDialogVisible="isAddMateRoomSettingDialogVisible" />
+        <AddChallRoomSetting v-model:isDialogVisible="isAddChallRoomSettingDialogVisible" />
       </VCol>
     </VRow>
   </section>

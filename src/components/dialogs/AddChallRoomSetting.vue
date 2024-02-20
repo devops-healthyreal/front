@@ -170,19 +170,23 @@ const router = useRouter()
       />
 
       <VCardText>
+        <VSwitch
+          v-model="openRoomYN"
+          :label="areaSet = capitalizedLabel(openRoomYN) === 'True' ? '공개' : '비공개' "
+        />
         <VCardText style=" border-radius: 20px;background-color: #7ce626;">
           <div class="text-h5 mb-1 text-center">
             <Goal @update:model-value="handleGoalNoChanged" />
           </div>
         </VCardText>
-        <VCol
+        <VRow
           class="fbox"
-          style="padding-bottom: 0;"
+          style="padding-bottom: 0; margin-top: 20px;"
         >
           <VCol
             class="fitem"
             cols="4"
-            rows="5" 
+            rows="4" 
           >
             정원 설정 : <strong>{{ userset }}</strong>
             
@@ -199,7 +203,7 @@ const router = useRouter()
           <VCol
             class="fitem"
             cols="4"
-            rows="5"                
+            rows="4"                
           >
             달성기준 : <strong>{{ achievementset }} % </strong>
             <VSlider
@@ -224,7 +228,7 @@ const router = useRouter()
               @update-address="handleUpdateAddress"
             />
           </VCol>
-        </VCol>
+        </VRow>
         <VCol>
           <div class="d-flex align-center flex-wrap justify-space-between mt-1 mb-4">
             <h4>참여자 제한 설정</h4>
@@ -235,7 +239,7 @@ const router = useRouter()
             />
           </div>
           <Transition name="fade">
-            <VCol
+            <VRow
               v-if="areaSet === 'ON'"
               class="fbox"
               style="border-radius: 10px;background-color: #e9e9e9;"
@@ -267,58 +271,47 @@ const router = useRouter()
                   />
                 </VCol>
               </VCol>
-            </VCol>
+            </VRow>
           </Transition>
         </VCol>
-        <VCol class="fbox">
+        <VRow
+          class="fbox"
+          style="height: 100px;margin-top: 10px;"
+        >
           <VCol
             class="fitem"
-            cols="4"
+            cols="2"
             rows="5" 
-            style="justify-content: center;text-align: center;"
+            style="justify-content: center;padding-top: 30px;text-align: center;"
           >
-            <h4>
-              참여비
-            </h4>
-            <VCol cols="12">
-              <VSelect
-                v-model="selectedOption1"
-                :items="pay"
-                label="Select"
-                prepend-icon="mdi-currency-usd"
-                single-line
-                variant="filled"
-              />
-            </VCol>
+            참여비
+          </VCol>
+          <VCol cols="4">
+            <VSelect
+              v-model="selectedOption1"
+              style="height: 20px;"
+              :items="pay"
+              label="Select"
+              single-line
+              variant="filled"
+            />
           </VCol>
           <VCol
             class="fitem"
-            cols="3"
+            cols="2"
             rows="5" 
-            style="justify-content: center;text-align: center;"
+            style="justify-content: center;padding-top: 30px;text-align: center;"                  
           >
-            <h4>방 공개 여부</h4>
-            <VCol style=" display: flex;width: 100%; justify-content: center;">               
-              <VSwitch
-                v-model="openRoomYN"
-                :label="areaSet = capitalizedLabel(openRoomYN) === 'True' ? 'ON' : 'OFF' "
-              />
-            </VCol>
+            기간 설정
           </VCol>
-          <VCol
-            class="fitem"
-            cols="5"
-            rows="5" 
-            style="justify-content: center;text-align: center;"                  
-          >
-            <h4>기간 설정</h4>
+          <VCol>
             <AppDateTimePicker
               v-model="dateRange"
               label="기간을 설정해주세요"
               :config="{ mode: 'range', closeOnSelect: true }"
             />
           </VCol>
-        </VCol>
+        </VRow>
 
         <VCol cols="12">
           <VTextarea
