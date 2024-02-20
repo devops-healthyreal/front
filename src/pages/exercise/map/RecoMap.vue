@@ -1,10 +1,12 @@
 <template>
   <div>
     <VSelect
+      id="selectPath"
       :items="recommendPathView"
       label="추천 경로를 선택하세요"
       variant="filled"
       :style="{'width':'100%','float':'right'}"
+      @change="selectButton"
     />
   </div>
   <div
@@ -15,9 +17,15 @@
 
 <script setup>
 import { createRoadView } from '@/pages/exercise/createRoadView'
+import { ref } from 'vue'
 
 //lat, lng 값을 저장할 변수 
 const emit = defineEmits(["updateRoadView"])
+
+const selectButton = () => {
+  console.log('값이 바뀜')
+}
+
 var recommendPath = [ //받아온 데이터라고 가정
   ["달터근린공원", "구룡산길", "개암약수터"],
   ["실로암 약수터", "대모산 초소위", "독도모형", "대모산 정상"],
@@ -29,6 +37,7 @@ var pathAboutLatLng = []
 onMounted(()=>{
   const script = document.createElement("script")
 
+  console.log(document.getElementById('selectPath'))
   script.onload = () => {
     kakao.maps.load(()=>{ //kakao가 로드되었을 때 실행될 콜백함수 정의
 
@@ -79,6 +88,15 @@ onMounted(()=>{
         "//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=ca9eb44c2889273e11b9860d99308508&libraries=services,clusterer,drawing"
   document.head.appendChild(script)
 })
+
+window.onclick = () =>{
+  var pathTag = document.getElementsByClassName('v-select__selection-text')[0]
+  if(typeof pathTag != 'undefined') {
+    var path = pathTag.textContent
+    console.log(path)
+  }
+}
+
 
 //지도를 화면에 로드하기 위한 함수
 //지도 객체는 반응형이 아니므로 initMap 함수를 정의해 사용해야 함
