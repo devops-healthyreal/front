@@ -75,7 +75,7 @@ const router = createRouter({
           if (data) { // 값이 있다면
             next({ 
               name: 'apps-user-id', 
-              params: { id: 21 }, 
+              params: { id: data }, 
             })
           } else { // 값이 없다면
             next({ name: 'apps-challengeList' })

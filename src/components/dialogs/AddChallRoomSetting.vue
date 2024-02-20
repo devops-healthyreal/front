@@ -88,7 +88,8 @@ const createRoom = async () => {
 
     if (response.status === 200) {
       console.log('방 생성이 완료되었습니다.')
-      router.push({ name: 'apps-user-id', params: { id: 21 } }) //넘겨줄 Vue 경로 입력하기
+      console.log('response.data----', response.data)
+      router.push({ name: 'apps-user-id', params: { id: response.data } }) //넘겨줄 Vue 경로 입력하기
     } else {
       console.log('방 생성에 실패하였습니다.')
     }

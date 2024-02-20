@@ -2,13 +2,12 @@
 import AddChallRoomSetting from '@/components/dialogs/AddChallRoomSetting.vue'
 import axios from '@axios'
 import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
-const router = useRoute()
+const router = useRouter()
 const projectData = ref([])
 const isAddChallRoomSettingDialogVisible = ref(false)
-const isAddMateRoomSettingDialogVisible = ref(false)
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
@@ -101,15 +100,6 @@ const getHourDifference = (date1, date2) => {
   return diff / (1000 * 60 * 60)
 }
 
-const currentDate = (() => {
-  const today = new Date()
-  const year = today.getFullYear().toString().slice(-2)
-  const month = String(today.getMonth() + 1).padStart(2, '0')
-  const day = String(today.getDate()).padStart(2, '0')
-  
-  return `${year}/${month}/${day}`
-})()
-
 //천 단위 형식
 const formatNumber = value => {
   if (!value) return ''
@@ -171,7 +161,7 @@ const checkEntrance = async challNo => {
 
     const response = await axios.post('http://localhost:4000/croom/joinRoom.do', { id: connetId, challNo: challNo })
 
-    router.push({ name: 'apps-user-id', params: { id: 21 } }) //넘겨줄 Vue 경로 입력하기
+    router.push({ name: 'apps-user-id', params: { id: challNo } }) //넘겨줄 Vue 경로 입력하기
 
   } else {
     alert('입장할 수 없습니다.')
@@ -192,12 +182,14 @@ const checkEntrance = async challNo => {
         >
           <VCard>
             <VCardItem>
-              <template #prepend>
-                <!--
-                  승환아 여기 이쁜 사진 넣어줘
-                  <VAvatar
-                  :image="data.avatar"
-                  size="38"
+              <VCardTitle><span style="font-size: xx-large; font-weight: bold;">{{ challenge.challTitle }}</span></VCardTitle>
+              <div class="d-flex align-center flex-wrap justify-space-between mt-1 mb-0">
+                <span style="margin-top: 20px;color: rgb(112, 196, 230); font-weight: b;">
+                  <VIcon
+                    start
+                    size="30"
+                    icon="mdi-face-man-shimmer-outline"
+                    color="info"
                   />
                 -->
               </template>
