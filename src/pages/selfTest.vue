@@ -193,19 +193,27 @@ const inbodydatas = computed(() => [
   },
   {
     title: '골격근량',
-    value: inbodysV.value[1] ? inbodysV.value[1] + 'kg' : '',
+    value: inbodysV.value[1] 
+      ? (inbodysV.value[1] > 100 ? inbodysV.value[1] - 100 : inbodysV.value[1]) + 'kg'
+      : '',
   },
   {
     title: '체지방량',
-    value: inbodysV.value[2] ? inbodysV.value[2] + 'kg' : '',
+    value: inbodysV.value[2] 
+      ? (inbodysV.value[2] > 100 ? inbodysV.value[2] - 100 : inbodysV.value[2]) + 'kg'
+      : '',
   },
   {
     title: 'BMI',
-    value: inbodysV.value[3] ? inbodysV.value[3] + 'kg/m2' : '',
+    value: inbodysV.value[3] 
+      ? (inbodysV.value[3] > 100 ? inbodysV.value[3] - 100 : inbodysV.value[3]) + 'kg/m2'
+      : '',
   },
   {
     title: '체지방률',
-    value: inbodysV.value[4] ? inbodysV.value[4] + '%' : '',
+    value: inbodysV.value[4] 
+      ? (inbodysV.value[4] > 100 ? inbodysV.value[4] - 100 : inbodysV.value[4]) + '%'
+      : '',
   },
 ])
 
