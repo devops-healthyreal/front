@@ -4,21 +4,11 @@ import {
 } from '@core/utils/formatters'
 
 const props = defineProps({
-  userData: {
+  participantsData: {
     type: Object,
     required: true,
   },
 })
-
-const standardPlan = {
-  plan: 'Standard',
-  price: 99,
-  benefits: [
-    '10 Users',
-    'Up to 10GB storage',
-    'Basic Support',
-  ],
-}
 
 const isUserInfoEditDialogVisible = ref(false)
 const isUpgradePlanDialogVisible = ref(false)
@@ -33,83 +23,50 @@ const resolveUserStatusVariant = stat => {
   
   return 'primary'
 }
-
-const resolveUserRoleVariant = role => {
-  if (role === 'subscriber')
-    return {
-      color: 'primary',
-      icon: 'mdi-account-outline',
-    }
-  if (role === 'author')
-    return {
-      color: 'warning',
-      icon: 'mdi-cog-outline',
-    }
-  if (role === 'maintainer')
-    return {
-      color: 'success',
-      icon: 'mdi-database-outline',
-    }
-  if (role === 'editor')
-    return {
-      color: 'info',
-      icon: 'mdi-pencil-outline',
-    }
-  if (role === 'admin')
-    return {
-      color: 'error',
-      icon: 'mdi-dns-outline',
-    }
-  
-  return {
-    color: 'primary',
-    icon: 'mdi-account-outline',
-  }
-}
 </script>
 
 <template>
   <VRow>
     <!-- SECTION User Details -->
     <VCol
-      v-if="props.userData"
+      v-for="participant in props.participantsData"
+      :key="participant.ID"
       cols="12"
     >
-      <VCard v-if="props.userData">
+      <VCard>
         <VCardText class="text-center mt-12 mt-sm-0 pa-0">
           <!-- 👉 Avatar -->
           <VAvatar
             rounded="sm"
             :size="120"
-            :color="!props.userData.avatar ? 'primary' : undefined"
-            :variant="!props.userData.avatar ? 'tonal' : undefined"
+            :color="!participant.PRO_FILEPATH ? 'primary' : undefined"
+            :variant="!participant.PRO_FILEPATH ? 'tonal' : undefined"
           >
             <VImg
-              v-if="props.userData.avatar"
-              :src="props.userData.avatar"
+              v-if="participant.PRO_FILEPATH"
+              :src="participant.PRO_FILEPATH"
               style="margin-top: 15px;"
             />
             <span
               v-else
               class="text-5xl font-weight-medium"
             >
-              {{ avatarText(props.userData.fullName) }}
+              {{ avatarText(participant.ID) }}
             </span>
           </VAvatar>
 
           <!-- 👉 User fullName -->
           <h6 class="text-h6 mt-4">
-            {{ props.userData.fullName }}
+            {{ participant.ID }}
           </h6>
 
           <!-- 👉 이행률 -->
           <VChip
-            :color="resolveUserRoleVariant(props.userData.role).color"
             density="comfortable"
             class="text-capitalize mt-4"
             style="margin-bottom: 15px;"
           >
-            {{ props.userData.role }}
+            80%
           </VChip>
         </VCardText>
       </VCard>
