@@ -52,7 +52,7 @@ const uploadImg = e => {
 }
 
 const upload = async () => {
-  console.log("fileToUpload--------------------------------",fileToUpload)
+  console.log("fileToUpload--------------------------------", fileToUpload)
   if (fileToUpload.value) {
     const formData = new FormData()
 
@@ -184,6 +184,29 @@ const iconsSteps = [
   
 ]
 
+const inbodydatas = [
+  {
+    title: '체중',
+    value: '',
+  },
+  {
+    title: '골격근량',
+    value: '',
+  },
+  {
+    title: '체지방량',
+    value: '',
+  },
+  {
+    title: 'BMI',
+    value: '',
+  },
+  {
+    title: '체지방률',
+    value: '',
+  },
+]
+
 const currentStep = ref(0)
 
 const onSubmit = () => {
@@ -247,6 +270,8 @@ const sendchkList = currentStep => {
     saveMemberAllergy(receivedHateFoodList, 2)
   }
 }
+
+
 
 onMounted(getallergyInfo)
 
@@ -387,12 +412,6 @@ onMounted(getallergyInfo)
                           :src="imageUrl"
                           style="align-self: center; margin: 50px;"
                         />
-                        <!-- 여기는 인식된 인바디 사진 -->
-                        <VImg
-                          id="diaryImages"
-                          :src="imageUrl"
-                          style="align-self: center; margin: 50px;"
-                        />
                       </VRow>
                     </VRow>
                     <VCol cols="12">
@@ -427,6 +446,36 @@ onMounted(getallergyInfo)
                 style="align-self: center; margin: 50px;"
               />  
             </VRow>
+            <!-- 너무 길다싶으면 style="width: ;" 이거 줘서 줄이면 됩니다 -->
+            <VTable v-if="imageUrl.length > 0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase">
+                    골격근, 지방분석
+                  </th>
+                  <th
+                    class="text-uppercase align"
+                    style="text-align: end;"
+                  >
+                    단위
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr
+                  v-for="inbody in inbodydatas"
+                  :key="inbody.value"
+                >
+                  <td>
+                    {{ inbody.title }}
+                  </td>
+                  <td style="text-align: end;">
+                    {{ inbody.value }}
+                  </td>
+                </tr>
+              </tbody>
+            </VTable>
           </VWindowItem>
 
 
