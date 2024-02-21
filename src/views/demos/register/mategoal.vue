@@ -14,11 +14,11 @@
 
 
 <script setup>
-import { defineEmits, ref } from 'vue';
+import { defineEmits, ref } from 'vue'
 
 const emit = defineEmits('update:modelValue', goal_No)
 
-const selectedOption = ref("목표 설정")
+const selectedOption = ref("스포츠 설정")
 
 const goal_No = ref([
   { state: '탁구', value: '탁구' },
