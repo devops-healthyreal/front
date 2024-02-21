@@ -55,15 +55,14 @@ const dietPlansList = [
 ]
 
 const recipedata = ref([])//내 레시피 데이터
+const selectedGroups = ref([])
 
 const getrecipe = async (connetId, foodname) =>{
   console.log('들어온 아이디와, 음식명', connetId, foodname)
   await axios.get('http://localhost:4000/recipe/View.do', { params: { 'id': connetId, 'foodname': foodname } })
     .then(response => {
-    // recipedata.value = response.data;
-    // console.log('가져온 레시피?',recipedata.value);
 
-      // 음식명을 기준으로 데이터 묶기 // 필요 시, 한번 더 레시피 코드를 기준으로 데이터를 묶어야 할 것 같음    
+      // 음식명을 기준으로 데이터 묶기
       recipedata.value = response.data.reduce((acc, curr) => {
         const FOODNAMEAll = curr.FOODNAME
         if (acc[FOODNAMEAll]) {
@@ -75,7 +74,20 @@ const getrecipe = async (connetId, foodname) =>{
         return acc // 콜백 함수에서 값을 반환하도록 수정
       }, {})
       console.log('그룹으로 묶였는지 확인 -> ', recipedata.value)
+
+      selectedGroups.value = getRandomGroups();
+      console.log('랜덤 추출값:', selectedGroups.value)
     })
+}
+
+// recipedata 배열에서 무작위로 5개 그룹을 선택하는 함수
+const getRandomGroups = () => {
+  // 객체를 배열로 변환
+  const dataArray = Object.values(recipedata.value);
+  // 배열을 무작위로 섞음
+  const shuffled = dataArray.sort(() => 0.5 - Math.random());
+  // 상위 5개 항목을 반환
+  return shuffled.slice(0, 5);
 }
 
 watch(router, fetchProjectData, { immediate: true })
@@ -154,7 +166,7 @@ watch(router, fetchProjectData, { immediate: true })
     <UserCategory v-model:isDialogVisible="isCategory" :choicecategory="choicecategory" @update:choicecategory="handleChoiceCategory"/>
     <RecipeView 
       v-model:isDialogVisible="isRecipe"
-      :recipedata="recipedata" 
+      :recipedata="selectedGroups" 
     />
   </section>
 </template>
