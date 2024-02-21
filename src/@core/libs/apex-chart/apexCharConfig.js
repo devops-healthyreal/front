@@ -166,7 +166,7 @@ export const getBarChartConfig = themeColors => {
     xaxis: {
       axisBorder: { show: false },
       axisTicks: { color: themeBorderColor },
-      categories: ['Goal achievement'],
+      categories: ['이행률 진행상황'],
       labels: {
         style: { colors: themeDisabledTextColor },
       },
