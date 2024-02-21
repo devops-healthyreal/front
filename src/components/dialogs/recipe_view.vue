@@ -19,6 +19,7 @@ const closeModal = () => {
   // 모달 창을 닫는 로직을 작성합니다.
   emit('update:isDialogVisible', false)
 }
+
 </script>
 
 <template>
