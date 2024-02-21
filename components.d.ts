@@ -71,6 +71,8 @@ declare module '@vue/runtime-core' {
     PhoneApi: typeof import('./src/views/demos/register/PhoneApi.vue')['default']
     PricingPlanDialog: typeof import('./src/components/dialogs/PricingPlanDialog.vue')['default']
     Pricingtest: typeof import('./src/components/dialogs/pricingtest.vue')['default']
+    Recipe_view: typeof import('./src/components/dialogs/recipe_view.vue')['default']
+    RecipeView: typeof import('./src/components/dialogs/recipe_view.vue')['default']
     ReferAndEarnDialog: typeof import('./src/components/dialogs/ReferAndEarnDialog.vue')['default']
     RoomSetAddressApi: typeof import('./src/components/dialogs/RoomSetAddressApi.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

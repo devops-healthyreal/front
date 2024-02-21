@@ -1,10 +1,13 @@
 <script setup>
 import UserCategory from '@/components/dialogs/UserCategory.vue'
-
+import RecipeView from '@/components/dialogs/recipe_view.vue'
+import axios from '@axios'
 const isUpgradePlanDietPlan = ref(false)
 const isCheckedRecipe = ref(false)
 const isCheckedRestaurant = ref(false)
 const isCategory = ref(false)
+const isRecipe = ref(false)
+
 
 const router = useRoute()
 const connectionData = ref([])
@@ -35,6 +38,39 @@ const dietPlansList = [
     content: '저녁 메뉴 설명',
   },
 ]
+const recipedata = ref([])//내 레시피 데이터
+const getrecipe = async (foodname, list) =>{
+  console.log(foodname, list)
+  await axios.get('http://localhost:4000/recipe/View.do', {params : {'foodname' : foodname}})
+  .then((response) => {
+    recipedata.value = response.data;
+    console.log('가져온 레시피?',recipedata.value);
+    // 음식명을 기준으로 데이터 묶기 // 필요 시, 한번 더 레시피 코드를 기준으로 데이터를 묶어야 할 것 같음
+    
+    // recipedata.value = response.data.reduce((acc, curr) => {
+    //   const FOODNAMEAll = curr.FOODNAME;
+    //   if (acc[FOODNAMEAll]) {
+    //     acc[FOODNAMEAll].push(curr);
+    //   } else {
+    //     acc[FOODNAMEAll] = [curr];
+    //   }
+    //   return acc; // 콜백 함수에서 값을 반환하도록 수정
+    // }, {});
+    // console.log('그룹으로 묶였는지 확인 -> ',recipedata.value)
+  })
+}
+
+      // // BBS_NO 값을 기준으로 데이터 묶기
+      // groupedDataAll.value = response.data.reduce((acc, curr) => {
+      //   const bbsNoAll = curr.BBS_NO
+      //   if (acc[bbsNoAll]) {
+      //     acc[bbsNoAll].push(curr)
+      //   } else {
+      //     acc[bbsNoAll] = [curr]
+      //   }
+        
+      //   return acc
+      // }, {})
 
 watch(router, fetchProjectData, { immediate: true })
 </script>
@@ -82,7 +118,7 @@ watch(router, fetchProjectData, { immediate: true })
           <VCardText class="justify-center">
             <VBtn
               variant="elevated" 
-              @click="isCheckedRecipe = true"
+              @click="isCheckedRecipe = true, getrecipe('두부', list), isRecipe = true"
             >
               레시피
             </VBtn>
@@ -110,7 +146,12 @@ watch(router, fetchProjectData, { immediate: true })
     <UserCheckedRecipe v-model:isDialogVisible="isCheckedRecipe" />
     <UserFindRestaurant v-model:isDialogVisible="isCheckedRestaurant" />
     <UserCategory v-model:isDialogVisible="isCategory" />
+    <RecipeView 
+    v-model:isDialogVisible="isRecipe"
+    :recipedata = recipedata 
+    />
   </section>
+
 </template>
 
 <style lang="scss">

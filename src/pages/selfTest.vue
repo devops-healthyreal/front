@@ -219,8 +219,27 @@ const inbodydatas = computed(() => [
 
 const currentStep = ref(0)
 
-const onSubmit = () => {
-  console.log(formData.value)
+const onSubmit = async () => {
+  console.log(inbodysV.value)
+  if(inbodysV.value.length > 0){
+    const formData = new FormData()
+    formData.append('id', connetId.value) //아이디
+    formData.append('inb_weight', inbodysV.value[0]) //체중 (Weight)
+    formData.append('inb_smm', inbodysV.value[1] > 100 ? inbodysV.value[1] - 100 : inbodysV.value[1]) //골격근량 (Skeletal Muscle Mass)
+    formData.append('inb_bfm', inbodysV.value[2] > 100 ? inbodysV.value[2] - 100 : inbodysV.value[2]) //체지방량 (Body Fat Mass)
+    formData.append('inb_bmi', inbodysV.value[3] > 100 ? inbodysV.value[3] - 100 : inbodysV.value[3]) //BMI (Body Mass Index)
+    formData.append('inb_pbf', inbodysV.value[4] > 100 ? inbodysV.value[4] - 100 : inbodysV.value[4]) //체지방률 (Percent Body Fat)
+    console.log(formData)
+    await axios
+    .post('http://localhost:4000/Inbody/Save.do', formData,{
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then((response) => {          
+      console.log('됐나?',response.data);
+    })
+  }else{
+    console.log('저장할 정보가 없습니다.')
+  }
 }
 
 const isSelected = value => {
