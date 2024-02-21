@@ -30,8 +30,8 @@ const tabs = [
 ]
 
 //시간 계산
-const startTime = 'test' //mapData.startTime //시작 시간 선택
-const endTime = 'test' //종료 시간 선택
+const startTime = ref('') //mapData.startTime //시작 시간 선택
+const endTime = ref('') //종료 시간 선택
 const timeValidityAlert = ref(false) //경고창 활성화 버튼 (시간체크)
 const hour = ref('00') //total 시간
 const minute = ref('00') //total 분
@@ -169,38 +169,21 @@ const setCenter = (lat, lng, map) => { //지도의 포커스 이동
   this.createRoadView(lat, lng, map)
 }
 
-const drawPolyLine = path => { //경로 그려주는 함수
 
-  //(param)path: 카카오 위도, 경도로 변경한 path값들의 객체 리스트
-  var tempPath = []
-  if(typeof path != "undefined") {
-    for(var i=0; i<path.length; i++){
-      tempPath.push(new kakao.maps.LatLng(path[i][0], path[i][1]))
-    }
-  }
-  var polyline = new kakao.maps.Polyline({
-    map: this.map,
-    path: tempPath,
-    strokeWeight: 3,
-    strokeColor: '#007B2A',
-    strokeOpacity: 1,
-    strokeStyle: 'solid',
-  })
-  polyline.setMap(this.map)
-}
 
 const checkTimeValidity = () => { //종료시간이 시작시간보다 늦는지 확인 및 총 선택 시간 계산용 함수
   console.log('start: %s, end: %s', startTime, endTime)
-  if (startTime!='' && endTime!=''){
-    var startMin = parseInt(startTime.split(':')[0])*60+parseInt(startTime.split(':')[1])
-    var endMin = parseInt(endTime.split(':')[0])*60+parseInt(endTime.split(':')[1])
+  if (startTime.value!='' && endTime.value!=''){
+    //시작시간, 종료시간을 분으로 환산
+    var startMin = parseInt(startTime.value.split(':')[0])*60+parseInt(startTime.value.split(':')[1]) 
+    var endMin = parseInt(endTime.value.split(':')[0])*60+parseInt(endTime.value.split(':')[1])
     if(startMin >= endMin || Math.abs(startMin-endMin) < 10) {
       timeValidityAlert.value = true
       hour.value = '00'
       minute.value = '00'
     }
     else{
-      timeValidityAlert.value = false
+      timeValidityAlert.value = false 
       totalTime.value = endMin-startMin
       hour.value = String((totalTime.value/60).toFixed())
       minute.value = String(totalTime.value%60)
@@ -387,17 +370,20 @@ const checkTimeValidity = () => { //종료시간이 시작시간보다 늦는지
 
 
 <style scoped>
-@import url('../../exercise/mapCss.css');
+@import "../../exercise/mapCss.css";
+
 #map {
-  width: 500px;
-  height: 500px;
+  block-size: 500px;
+  inline-size: 500px;
 }
 
 .button-group {
-  margin: 10px 0px;
+  margin-block: 10px;
+  margin-inline: 0;
 }
 
 button {
-  margin: 0 3px;
+  margin-block: 0;
+  margin-inline: 3px;
 }
 </style>

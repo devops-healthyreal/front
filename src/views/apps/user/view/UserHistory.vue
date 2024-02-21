@@ -10,10 +10,36 @@ const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo) 
 const connetId=userInfo.value.id
 
-const getDotColor = index => {
-  const colors = ['primary', 'info', 'success', 'error']
+const getDotColor = mhdate => {
+  const colors = ['']
   
-  return colors[index % colors.length]
+  if (mhdate.mem_colname=='NAME') {
+    colors.value='error'
+  }
+  else if (mhdate.mem_colname=='GENDER') {
+    colors.value='primary'
+  }
+  else if (mhdate.mem_colname=='B_DAY') {
+    colors.value='primary'
+  }
+  else if (mhdate.mem_colname=='TEL') {
+    colors.value='info'
+  }
+  else if (mhdate.mem_colname=='USERADDRESS') {
+    colors.value='info'
+  }
+  else if (mhdate.mem_colname=='HEIGHT') {
+    colors.value='success'
+  }
+  else if (mhdate.mem_colname=='WEIGHT') {
+    colors.value='success'
+  }
+  else if (mhdate.mem_colname=='GOAL_NO') {
+    colors.value='success'
+  }
+  else colors.value='success'
+  
+  return colors.value
 }
 
 // mh는 Member_History 테이블을 뜻하는 약자
@@ -58,7 +84,7 @@ onMounted(fetchData)
             <VTimelineItem
               v-for="(data, index) in mhdate"
               :key="index"
-              :dot-color="getDotColor(index+1)"
+              :dot-color="getDotColor(data)"
               size="x-small"
             >
               <div class="d-flex justify-space-between align-center flex-wrap gap-2 mb-3">

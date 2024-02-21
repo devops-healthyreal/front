@@ -25,6 +25,21 @@ const getNoticList = async id =>{
       console.log('실패')
     })
 }
+
+// 특정 시간마다 실행할 함수
+const executePeriodically = () => {
+  getNoticList(connetId.value);
+}
+
+// 초기 실행
+onMounted(() => {
+  getNoticList(connetId.value);
+
+  // 1분마다 실행
+  setInterval(() => {
+    executePeriodically();
+  }, 60000); // 1분은 60000밀리초입니다.
+});
 </script>
 
 <template>

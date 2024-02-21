@@ -33,12 +33,14 @@ function initialize(){
 // 전달받은 좌표(position)에 가까운 로드뷰의 파노라마 ID를 추출하여
 // 로드뷰를 설정하는 함수
 function toggleRoadview(rv, position){
+  console.log('toggleRoadview함수 실행됨:', position)
   rvClient.getNearestPanoId(position, 300, function(panoId) {
     // 파노라마 ID가 null 이면 로드뷰를 숨깁니다
     if (panoId === null) rvContainer.innerHTML = '표시할 로드뷰가 없습니다'
-   
-    // panoId로 로드뷰를 설정합니다
-    rv.setPanoId(panoId, position)
+    else {
+      // panoId로 로드뷰를 설정합니다
+      rv.setPanoId(panoId, position)
+    }
   },
   )
 }
@@ -63,7 +65,9 @@ export function createRoadView(map){ //맵 객체를 인자로 받음
 
   // 마커에 dragend 이벤트를 등록
   kakao.maps.event.addListener(marker, 'dragend', function(mouseEvent) {
-  
+    
+    console.log('마커에 draggable 이벤트 발생')
+
     // 현재 마커가 놓인 자리의 좌표
     var position = marker.getPosition()
   
@@ -99,3 +103,137 @@ export function createRoadView(map){ //맵 객체를 인자로 받음
     toggleRoadview(rv, position)
   })
 } //createRoadView
+
+//경로와 마커를 그려주는 코드
+
+function checkArrayUpdated(arr) { //배열이 업데이트 되었는지 확인하는 함수
+  return new Promise(resolve=>{
+    setTimeout(()=>{
+      if(arr.length != 0) resolve()
+    }, 1000)
+  })
+}
+
+function removeMarkers(markers, infos) { //마커, 인포들을 지우는 함수
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(null)
+    infos[i].close()
+  }     
+}
+
+export function drawPolyLine(path, pathName, map, polyline, markers, infos){ //경로 그려주는 함수
+  console.log('markers:', markers.value)
+  console.log('drawPolyLine:', path)
+  console.log('pathName:', pathName)
+
+  //removeMarkers(markers.value, infos.value)
+  checkArrayUpdated(path).then(()=>{
+    //(param)path: 카카오 위도, 경도로 변경한 path값들의 객체 리스트
+    console.log('Promise이전:', path)
+    
+    return new Promise((resolve, reject)=>{
+      var tempPath = []
+      for(const element of path) {
+        //console.log('element값:', element)
+        tempPath.push(new kakao.maps.LatLng(element[0], element[1]))
+      }
+      console.log("Promise에서의 tempPath값:", tempPath)
+      resolve(tempPath)
+      reject('에러 발생')
+    })
+  }, //하나의 경로에 접근하는 for
+  )//then
+    .then(tempPath => {
+      var i = 0
+
+      // for(const path of tempPath) {
+      //   console.log(`${i}번째 좌표:`, path)
+      //   var marker = new kakao.maps.Marker({ //마커 생성
+      //     map:map,
+      //     position: path
+      //   })
+      //   markers.value.push(marker)
+      //   //marker.setMap(map)
+      //   if (pathName[i] != 'undefined') {
+      //     var iwContent = `<div style="padding:5px;">${pathName[i]}</div>`
+      //     console.log(`${i}번째 인포윈도우:`, iwContent)
+      //     var infoWindow = new kakao.maps.InfoWindow({ //인포윈도우 생성
+      //         position : path, 
+      //         content : iwContent 
+      //     })
+      //     infos.value.push(infoWindow)
+      //     //infoWindow.open(map, marker)
+      //   }
+      //   i++
+      // }//마커 및 인포윈도우 생성 for문
+      console.log('polyline에 전달한 tempPath값:', tempPath)
+      polyline.setPath(tempPath)
+      console.log('polyline:', polyline)
+      console.log('map:', map)
+      polyline.setMap(map)
+      console.log(polyline.getMap())
+    })//then
+}
+
+export function setMarkerNInfo(path, pathName, map, markers, infos) { 
+  /*
+    path: 대략적인 포인트가 되는 path
+  */
+  removeMarkers(markers.value, infos.value) //지도에 원래 올라가있던 값들 제거
+  checkArrayUpdated(path).then(()=>{
+    //(param)path: 카카오 위도, 경도로 변경한 path값들의 객체 리스트
+    return new Promise((resolve, reject)=>{
+      var tempPath = []
+      for(const element of path) {
+        //console.log('element값:', element)
+        tempPath.push(new kakao.maps.LatLng(element[0], element[1])) //받은 경로를 카카오 위도경도로 변환
+      }
+      resolve(tempPath)
+      reject('에러 발생')
+    })
+  }, //하나의 경로에 접근하는 for
+  )//then
+    .then(tempPath=>{
+      var i = 0
+      for(const path of tempPath) {
+        console.log(`${i}번째 좌표:`, path)
+        var marker = new kakao.maps.Marker({ //마커 생성
+          map: map,
+          position: path,
+        })
+        markers.value.push(marker)
+
+        //marker.setMap(map)
+        if (pathName[i] != 'undefined') {
+          var iwContent = `<span class="info-title">${pathName[i]}</span>`
+          console.log(`${i}번째 인포윈도우:`, iwContent)
+          var infoWindow = new kakao.maps.InfoWindow({ //인포윈도우 생성
+            position: path, 
+            content: iwContent, 
+          })
+          infos.value.push(infoWindow)
+          infoWindow.open(map, marker)
+        }
+        i++
+      }//마커 및 인포윈도우 생성 for문
+    })
+    .then(()=>{
+
+      makeInfoWindowDesign()
+    })
+}
+
+function makeInfoWindowDesign(){
+  var infoTitle = document.querySelectorAll('.info-title')
+  infoTitle.forEach(function(e) {
+    var w = e.offsetWidth + 10
+    var ml = w/2
+    e.parentElement.style.top = "82px"
+    e.parentElement.style.left = "50%"
+    e.parentElement.style.marginLeft = -ml+"px"
+    e.parentElement.style.width = w+"px"
+    e.parentElement.previousSibling.style.display = "none"
+    e.parentElement.parentElement.style.border = "0px"
+    e.parentElement.parentElement.style.background = "unset"
+  })
+}

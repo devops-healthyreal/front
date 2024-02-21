@@ -1,8 +1,9 @@
 import store from '@/store'
+import axios from '@axios'
 import { setupLayouts } from 'virtual:generated-layouts'
 import { createRouter, createWebHistory } from 'vue-router'
+import { useStore } from 'vuex'
 import routes from '~pages'
-
 
 export const isfriendscreenchanged = ref(false)
 export const isSubscribesscreenchanged = ref(false)
@@ -44,6 +45,48 @@ const router = createRouter({
       redirect: () => ({ name: 'pages-user-profile-tab', params: { tab: 'profile' } }),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/apps/challengeList',
+      name: 'challengeList',
+      components: {
+        default: () => import('@/pages/apps/challengeList.vue'),
+        layout: () => import('@/layouts/components/DefaultLayoutWithVerticalNav.vue'),
+      },
+      beforeEnter: async (to, from, next) => {
+        try {
+          const store = useStore()
+    
+          // 로그인 상태 확인
+          if (!store.state.loginStore.isLogin) {
+            next({ name: 'login' })
+            
+            return
+          }
+    
+          console.log("beforeEnter 가드 실행")
+    
+          const userInfo = computed(() => store.state.userStore.userInfo)
+          const connetId = userInfo.value.id
+          const response = await axios.post('http://localhost:4000/croom/myRoomNum.do', { id: connetId }) // POST 요청
+          const data = response.data
+    
+          console.log("너의 방번호는?", data)
+    
+          if (data) { // 값이 있다면
+            next({ 
+              name: 'apps-user-id', 
+              params: { id: data }, 
+            })
+          } else { // 값이 없다면
+            next({ name: 'apps-challengeList' })
+          }
+        } catch (error) {
+          console.error(error)
+          next() // 예외가 발생하면 라우트 이동을 계속 진행
+        }
+      },
+      meta: { requiresAuth: true },
+    },
 
     ...setupLayouts(routes),
   ],
@@ -66,7 +109,6 @@ router.beforeEach((to, from, next) => {
   }
   next()
 })
-
 
 // const publicPages = ['/login', '/main']  // 로그인이 필요하지 않은 페이지의 경로를 배열로 정의
 

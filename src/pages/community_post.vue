@@ -3,6 +3,7 @@ import Editing from '@/components/dialogs/Editing.vue'
 import UserProfileCommunity from '@/components/dialogs/UserProfileCommunity.vue'
 import ViewPostPage from '@/components/dialogs/ViewPostPage.vue'
 import Writing from '@/components/dialogs/Writing.vue'
+import { sendCommReqMessage } from '@/message/requestComm'
 import InviteFriendConfirmModal from '@/pages/community/InviteFriendConfirmModal.vue'
 import Category from '@/pages/views/demos/forms/form-elements/select/category.vue'
 import axios from '@axios'
@@ -64,6 +65,13 @@ const handleSelected = async value => {
   }
 }
 
+
+
+const likesuser = ref([])
+const likespro = ref([])
+     
+
+
 //검색기능
 const searchItems = computed(() => {
   if (q.value) {
@@ -84,11 +92,11 @@ const getData = async function() {
       withCredentials: true,
     })
 
-
     // 응답 처리
     if (response.status === 200) {
-      console.log('데이터 받기 성공')
+      
       state.items = response.data // 데이터 저장
+      console.log('데이터 받기 성공', state.items)
 
       const tempUserKeys = []
       for(var i=0; i<state.items.length; i++){
@@ -195,6 +203,14 @@ const submitEdit = async bno => {
       // 서버로부터 받은 데이터를 자식 컴포넌트에게 전달하기 위해 저장
       postToEdit.value = response.data
       console.log('설마?', postToEdit.value)
+
+      const re = await axios.get('http://localhost:4000/bbs/likesPro.do', { params: { bno: bno } })
+      if (re.data) {
+        likespro.value = re.data.likesPro
+        likesuser.value = re.data.likes
+      }
+      console.log("좋아요 누른사람~~~~~~~~~~~~~~~~", re.data.likes)
+      console.log("좋아요 누른사람 이미지~~~~~~~~~~~~~~~~", re.data.likesPro)
     } else {
       console.log('글 번호 전송 실패')
     }
@@ -407,11 +423,12 @@ const subscribe = (name, check) => {
       userId: connetId,
       subToId: name,
     }), { headers: { 'Content-Type': 'application/json' } })
-      .then(navigator.serviceWorker.ready.catch.then(registration=>{
-        console.log(registration)
+      .then(
+        console.log('error'),
 
-        // registration.pushManager.subscribe(option)
-      }))
+        sendCommReqMessage(connetId, name),
+        
+      )
       .catch(err=>console.log(err))
   }
   else {
@@ -485,7 +502,6 @@ const openViewPostMoadl = async val =>{
 
 ///좋아요!!
 const toggleLike = async bno => {
-  isLiked.value = !isLiked.value  // 좋아요 버튼의 상태를 토글
 
   try {
     const response = await axios.post('http://localhost:4000/bbs/likes.do', {
@@ -496,8 +512,8 @@ const toggleLike = async bno => {
     })
 
     if (response.status === 200) {
-      console.log(response.data.likesId)
-      likesStatus[bno].value = response.data.likesId !== "OSH" //아이디 비교
+      isLiked.value = !isLiked.value  // 좋아요 버튼의 상태를 토글
+
       await getData() // 좋아요 상태 변경 후 데이터를 다시 가져오기
     } else {
       console.log('좋아요 상태 변경 실패')
@@ -777,7 +793,7 @@ const getMyList = async id => {
                       </VCardText>
                       <VCol>
                         <VBtn
-                          :icon="isLiked.value ? 'mdi-heart' : 'mdi-heart-outline'"
+                          :icon="item.likes == connetId ? 'mdi-heart' : 'mdi-heart-outline'"
                           variant="text"
                           color="success"
                           @click="toggleLike(item.bno)"
@@ -787,18 +803,8 @@ const getMyList = async id => {
                           variant="text"
                           color="success"
                         />
-                        <VBtn
-                          icon="mdi-send"
-                          variant="text"
-                          color="success"
-                        />
-                        <VBtn
-                          icon="mdi-bookmark-outline"
-                          variant="text"
-                          color="success"
-                        />
                         <VCol>
-                          좋아요 수
+                          좋아요 {{ item.likesnum }}개
                         </VCol>
                         <VCol v-if="group[item.bno]">
                           <strong>{{ group[item.bno].C_NO }}번 {{ group[item.bno].ID }}</strong> {{ group[item.bno].CCOMMENT }}
@@ -930,6 +936,8 @@ const getMyList = async id => {
       :insert-comment="insertComment"
       :searchuser="searchuser"
       :get-comment="getComment"
+      :likespro="likespro"
+      :likesuser="likesuser"
     />
   </section>
 </template>

@@ -33,7 +33,7 @@ let newchat = ref('')
 const q = ref('')
 
 // 메세지
-const receivedMessage = ref([]);
+const receivedMessage = ref([])
 const msg = ref('')
 let sendMessage = null
 let messages = ref([]) // 메시지를 저장할 배열 변수 선언

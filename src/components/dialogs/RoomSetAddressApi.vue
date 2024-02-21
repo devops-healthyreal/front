@@ -1,15 +1,25 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 
+
+const emit = defineEmits(['updateAddress', 'useraddress'])
 const postcode = ref('')
 const address = ref('')
 const detailAddress = ref('')
 const extraAddress = ref('')
 
-const userAddress = reactive({
+const userAddress = computed(() => ({
   postcode: postcode.value,
   address: address.value,
-})
+  detailAddress: detailAddress.value,
+  extraAddress: extraAddress.value,
+}))
+
+function updateAndEmitUserAddress() {
+  userAddress.address = address.value
+  emit('updateAddress', userAddress)
+}
+
 
 function execDaumPostcode() {
   new daum.Postcode({
@@ -52,11 +62,13 @@ function execDaumPostcode() {
 
       // 추가적인 작업이 필요한 경우 여기에 작성
 
-      // 상세주소 입력란에 포커스 설정
-      document.getElementById("detailAddressInput").focus()
-
       // 팝업창 닫기
-      execDaumPostcode.close()
+      document.getElementById("detailAddressInput")
+      window.close()
+      updateAndEmitUserAddress()
+
+
+
     },
   }).open({
     popupTitle: '장소 설정',

@@ -37,14 +37,44 @@ const isDialogVisible = ref(false)
 
 const imageUrl = ref('') // 이미지 URL을 담을 변수 -- 사진 1개
 
+let fileToUpload = ref(null)
+let inbodysV = ref([])
+
 const uploadImg = e => {
   const fileList = e.target.files
   if (fileList.length > 0) {
     const imgUrl = URL.createObjectURL(fileList[0])
 
     imageUrl.value = imgUrl
+    fileToUpload.value = fileList[0]
   } else {
-    // Handle the case where no file is selected
+    console.error('No file selected')
+  }
+}
+
+const upload = async () => {
+  console.log("fileToUpload--------------------------------", fileToUpload)
+  if (fileToUpload.value) {
+    const formData = new FormData()
+
+    formData.append('file', fileToUpload.value)
+
+    isDialogVisible.value=false
+
+    try {
+      const response = await axios.post('http://localhost:5000/ocr', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+
+      console.log(response.data)
+      fileToUpload.value = null
+      inbodysV.value=response.data
+    } catch (error) {
+      console.error(error)
+    }
+  } else {
     console.error('No file selected')
   }
 }
@@ -156,6 +186,37 @@ const iconsSteps = [
   
 ]
 
+const inbodydatas = computed(() => [
+  {
+    title: '체중',
+    value: inbodysV.value[0] ? inbodysV.value[0] + 'kg' : '',
+  },
+  {
+    title: '골격근량',
+    value: inbodysV.value[1] 
+      ? (inbodysV.value[1] > 100 ? inbodysV.value[1] - 100 : inbodysV.value[1]) + 'kg'
+      : '',
+  },
+  {
+    title: '체지방량',
+    value: inbodysV.value[2] 
+      ? (inbodysV.value[2] > 100 ? inbodysV.value[2] - 100 : inbodysV.value[2]) + 'kg'
+      : '',
+  },
+  {
+    title: 'BMI',
+    value: inbodysV.value[3] 
+      ? (inbodysV.value[3] > 100 ? inbodysV.value[3] - 100 : inbodysV.value[3]) + 'kg/m2'
+      : '',
+  },
+  {
+    title: '체지방률',
+    value: inbodysV.value[4] 
+      ? (inbodysV.value[4] > 100 ? inbodysV.value[4] - 100 : inbodysV.value[4]) + '%'
+      : '',
+  },
+])
+
 const currentStep = ref(0)
 
 const onSubmit = () => {
@@ -219,6 +280,8 @@ const sendchkList = currentStep => {
     saveMemberAllergy(receivedHateFoodList, 2)
   }
 }
+
+
 
 onMounted(getallergyInfo)
 
@@ -359,12 +422,6 @@ onMounted(getallergyInfo)
                           :src="imageUrl"
                           style="align-self: center; margin: 50px;"
                         />
-                        <!-- 여기는 인식된 인바디 사진 -->
-                        <VImg
-                          id="diaryImages"
-                          :src="imageUrl"
-                          style="align-self: center; margin: 50px;"
-                        />
                       </VRow>
                     </VRow>
                     <VCol cols="12">
@@ -381,7 +438,7 @@ onMounted(getallergyInfo)
                     <VCol>
                       <VBtn 
                         block
-                        @click="isDialogVisible=false"
+                        @click="upload"
                       >
                         확인
                       </VBtn>
@@ -399,6 +456,36 @@ onMounted(getallergyInfo)
                 style="align-self: center; margin: 50px;"
               />  
             </VRow>
+            <!-- 너무 길다싶으면 style="width: ;" 이거 줘서 줄이면 됩니다 -->
+            <VTable v-if="imageUrl.length > 0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase">
+                    골격근, 지방분석
+                  </th>
+                  <th
+                    class="text-uppercase align"
+                    style="text-align: end;"
+                  >
+                    단위
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr
+                  v-for="inbody in inbodydatas"
+                  :key="inbody.value"
+                >
+                  <td>
+                    {{ inbody.title }}
+                  </td>
+                  <td style="text-align: end;">
+                    {{ inbody.value }}
+                  </td>
+                </tr>
+              </tbody>
+            </VTable>
           </VWindowItem>
 
 
