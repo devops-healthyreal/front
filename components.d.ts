@@ -74,9 +74,7 @@ declare module '@vue/runtime-core' {
     PricingPlanDialog: typeof import('./src/components/dialogs/PricingPlanDialog.vue')['default']
     Pricingtest: typeof import('./src/components/dialogs/pricingtest.vue')['default']
     Recipe_view: typeof import('./src/components/dialogs/recipe_view.vue')['default']
-    RecipeView: typeof import('./src/components/dialogs/recipe_view.vue')['default']
     ReferAndEarnDialog: typeof import('./src/components/dialogs/ReferAndEarnDialog.vue')['default']
-    ResetPasswordDialog: typeof import('.src/pages/components/ResetPasswordDialog.vue')
     RoomSetAddressApi: typeof import('./src/components/dialogs/RoomSetAddressApi.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

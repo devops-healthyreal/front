@@ -3,6 +3,7 @@ import AddressApi from '@/components/dialogs/RoomSetAddressApi.vue'
 import Goal from '@/views/demos/register/goal.vue'
 import axios from '@axios'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
 const props = defineProps({
@@ -151,7 +152,7 @@ const pay = [
   '50,000원',
 ]
 
-const router = useRouter()
+const router = useRoute()
 </script>
 
 
