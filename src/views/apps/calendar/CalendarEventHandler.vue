@@ -52,7 +52,8 @@ const handleSubmit = () => {
     if (valid) {
       console.log(event.value)
       
-      const url = 'http://localhost:4000/api/calendar'
+      const url = 'http://localhost:4000/Calendar'
+
       const data = event.value
 
       console.log(data)
@@ -60,6 +61,7 @@ const handleSubmit = () => {
         .then(response => {
           // 요청이 성공적으로 완료된 경우의 처리
           console.log(response.data)
+          console.log("dkdkdkdk")
 
           // 추가적인 작업 수행 가능
         })
@@ -169,7 +171,7 @@ const endDateTimePickerConfig = computed(() => {
               <!-- 👉 Calendar -->
               <VCol cols="12">
                 <VSelect
-                  v-model="event.extendedProps.calendar"
+                  v-model="event.calendar"
                   label="Calendar"
                   :rules="[requiredValidator]"
                   :items="store.availableCalendars"
@@ -178,9 +180,9 @@ const endDateTimePickerConfig = computed(() => {
                 >
                   <template #selection="{ item }">
                     <div
-                      v-show="event.extendedProps.calendar"
+                      v-show="event.calendar"
                       class="align-center"
-                      :class="event.extendedProps.calendar ? 'd-flex' : ''"
+                      :class="event.calendar ? 'd-flex' : ''"
                     >
                       <VBadge
                         :color="item.raw.color"
@@ -219,7 +221,7 @@ const endDateTimePickerConfig = computed(() => {
               <!-- 👉 Location -->
               <VCol cols="12">
                 <VTextField
-                  v-model="event.extendedProps.sch_area"
+                  v-model="event.sch_area"
                   label="Location"
                 />
               </VCol>
@@ -227,7 +229,7 @@ const endDateTimePickerConfig = computed(() => {
               <!-- 👉 Description -->
               <VCol cols="12">
                 <VTextarea
-                  v-model="event.extendedProps.sch_memo"
+                  v-model="event.sch_memo"
                   label="content"
                 />
               </VCol>

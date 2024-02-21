@@ -16,6 +16,7 @@ export default [
       { title: '게시판', to: { name: 'community_post' }, icon: { icon: 'mdi-instagram'  } },
       { title: '채팅', to: { name: 'apps-chat' }, icon: { icon: 'mdi-message-text'  } },
       { title: '메이트', to: { name: 'mate' }, icon: { icon: 'mdi-crowd'  } },
+      { title: '메이트리스트', to: { name: 'mateList' }, icon: { icon: 'mdi-crowd'  } },
       { title: '챌린지', to: { name: 'challengeList' }, icon: { icon: 'mdi-charity'  } },
     ],
   },

@@ -1,22 +1,62 @@
 <script setup>
+import LoadingModal from '@/pages/LoadingModal.vue'
 import Calendar from '@/pages/apps/calendar.vue'
 import Timeline from '@/pages/components/timeline.vue'
+import ResetPasswordDialog from '@/pages/resetPasswordDialog.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
+import { onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
+const router = useRouter()
 const store = useStore()
+const route = useRoute()
+const isDialogVisible = ref(false)
+const isPDialogVisible = ref(!isDialogVisible.value)
+
 
 onMounted(async () => {
-  // 로그인하지 않았을 경우에만 실행
   if (!store.state.isLogin) {
     await store.dispatch('getToken')
     store.dispatch('saveToken')
 
     // 토큰을 이용해 사용자 정보를 가져옴
-    store.dispatch('getMemberInfo')
+    await store.dispatch('getMemberInfo')
   }
 })
 
+
+const isLoadingModalVisible = ref(false)
+const isResetPasswordDialogVisible = ref(false)
+
+watch(
+  () => store.state.isResetPasswordDialogVisible,
+  newVal => {
+    isResetPasswordDialogVisible.value = newVal
+  },
+  { immediate: true },
+)
+
+watch(
+  () => route.query.resetPassword,
+  async (newValue, oldValue) => {
+    if (newValue === 'true') {
+      isLoadingModalVisible.value = true
+
+      setTimeout(()=>{
+        isLoadingModalVisible.value = false
+        isResetPasswordDialogVisible.value = true
+      }, 4000)
+
+      await router.replace({ query: { ...route.query, resetPassword: null } })
+
+      if (route.query.resetPassword == null) {
+        store.dispatch('openResetPasswordDialogAction')
+      }
+    }
+  },
+  { immediate: true },
+)
 
 
 const userTab = ref(null)
@@ -120,6 +160,11 @@ const iconss = [
         <Timeline />
       </VCol>
     </VRow>
+    <LoadingModal v-model="isLoadingModalVisible" />
+    <ResetPasswordDialog
+      :is-dialog-visible="isResetPasswordDialogVisible"
+      @update:isDialogVisible="val => isResetPasswordDialogVisible = val"
+    />
   </section>
 </template>
 

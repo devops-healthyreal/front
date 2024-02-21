@@ -1,15 +1,72 @@
 <script setup>
+import axios from '@axios'
 import { useGenerateImageVariant } from '@core/composable/useGenerateImageVariant'
-import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
-import { themeConfig } from '@themeConfig'
 import authV2ForgotPasswordIllustrationBorderedDark from '@images/pages/auth-v2-forgot-password-illustration-bordered-dark.png'
 import authV2ForgotPasswordIllustrationBorderedLight from '@images/pages/auth-v2-forgot-password-illustration-bordered-light.png'
 import authV2ForgotPasswordIllustrationDark from '@images/pages/auth-v2-forgot-password-illustration-dark.png'
 import authV2ForgotPasswordIllustrationLight from '@images/pages/auth-v2-forgot-password-illustration-light.png'
 import authV2MaskDark from '@images/pages/auth-v2-mask-dark.png'
 import authV2MaskLight from '@images/pages/auth-v2-mask-light.png'
+import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
+import { themeConfig } from '@themeConfig'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const b_day = ref('')
+const id = route.query.id
 
 const email = ref('')
+
+const checkUserExistence = async id => {
+  try {
+    console.log("data", id)
+
+    const response = await axios.post('http://localhost:4000/check-userPWD', {
+      
+      id: id,
+
+    })
+
+    
+    
+    return response.status === 200
+  } catch (error) {
+    console.error('요청 처리 중 오류 발생: ', error)
+    
+    return false
+  }
+}
+
+const sendEmailVerificationRequest = async (id, email) => {
+  try {
+    const response = await axios.post('http://localhost:4000/email-verification-request', {
+      id: id,
+      
+      email: email.value,
+    })
+
+    if (response.status === 200) {
+      console.log('이메일 전송 성공')
+      alert('이메일이 발송되었습니다.')
+    } else {
+      console.log('이메일 전송 실패: ' + response.data)
+    }
+  } catch (error) {
+    console.error('요청 처리 중 오류 발생: ', error)
+  }
+}
+
+const handleConfirmButtonClick = async () => {
+  if (await checkUserExistence(id)) {
+    await sendEmailVerificationRequest(id, email)
+  } else {
+    alert('이름과 생년월일, 이메일을 다시 확인해주세요.')
+    console.log("data", id, b_day)
+    console.log('사용자가 존재하지 않습니다.')
+  }
+}
+
+
 const authThemeImg = useGenerateImageVariant(authV2ForgotPasswordIllustrationLight, authV2ForgotPasswordIllustrationDark, authV2ForgotPasswordIllustrationBorderedLight, authV2ForgotPasswordIllustrationBorderedDark, true)
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
 </script>
@@ -56,7 +113,7 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
             </RouterLink>
             <VCardText style="padding-left: 5px;">
               <h5 class="text-h5 mb-1">
-                비밀번호 찾기 🔒
+                비밀번호찾기 이메일 인증  🔒
               </h5>
             </VCardText>
           </VCol> 
@@ -67,16 +124,15 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
                 <!-- email -->
                 <VCol cols="12">
                   <VTextField
-                    v-model="name"
-                    label="이름"
-                    type="name"
+                    v-model="id"
+                    label="아이디"
+                    type="id"
                   />
                 </VCol>
                 <VCol cols="12">
-                  <VTextField
-                    v-model="birthday"
+                  <Birthyday
+                    v-model="b_day"
                     label="생년월일"
-                    type="b_day"
                   />
                 </VCol>
                 <VCol cols="12">
@@ -92,6 +148,7 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
                   <VBtn
                     block
                     type="submit"
+                    @click.prevent="handleConfirmButtonClick(id, b_day, email)"
                   >
                     Send Reset Link
                   </VBtn>

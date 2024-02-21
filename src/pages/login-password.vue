@@ -21,7 +21,7 @@ const refVForm = ref()
 //const id = ref('test');
 const route = useRoute()
 
-const id = ref(route.query.userid)
+const id = ref(route.query.userid || route.query.id || '')
 const pwd = ref('')
 
 

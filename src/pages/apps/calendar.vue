@@ -1,11 +1,11 @@
 <script setup>
-import FullCalendar from '@fullcalendar/vue3'
 import {
   blankEvent,
   useCalendar,
 } from '@/views/apps/calendar/useCalendar'
 import { useCalendarStore } from '@/views/apps/calendar/useCalendarStore'
 import { useResponsiveLeftSidebar } from '@core/composable/useResponsiveSidebar'
+import FullCalendar from '@fullcalendar/vue3'
 
 // Components
 import CalendarEventHandler from '@/views/apps/calendar/CalendarEventHandler.vue'
@@ -19,7 +19,8 @@ const isEventHandlerSidebarActive = ref(false)
 watch(isEventHandlerSidebarActive, val => {
   if (!val)
     event.value = structuredClone(blankEvent)
-  console.log(event.value)
+
+  // console.log(event.value)
 })
 
 const { isLeftSidebarOpen } = useResponsiveLeftSidebar()
