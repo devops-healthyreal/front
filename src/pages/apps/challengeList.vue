@@ -2,13 +2,12 @@
 import AddChallRoomSetting from '@/components/dialogs/AddChallRoomSetting.vue'
 import axios from '@axios'
 import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
-const router = useRoute()
+const router = useRouter()
 const projectData = ref([])
 const isAddChallRoomSettingDialogVisible = ref(false)
-const isAddMateRoomSettingDialogVisible = ref(false)
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
@@ -42,22 +41,6 @@ const challenge = ref({
   manager: null,
 })
 
-const participantsData = ref([])
-
-const participants = async () => {
-
-  const response = await axios.get('http://localhost:4000/croom/participantsData.do' )
-
-  if (response.status === 200) {
-    participantsData.value = response.data
-    console.log(' 참여자 데이타는---', participantsData.value)
-  } else {
-    console.log('참여자 데이타 가져오기 실패')
-  }
-
-}
-
-
 const myData = ref([])
 
 const my = async () => {
@@ -79,8 +62,8 @@ const getData = async () => {
     const response = await axios.get('http://localhost:4000/croom/listChall.do')
 
     challenges.value = response.data
-
     console.log("challenges.value---", challenges.value)
+
 
     if (challenges.value.length > 0) {
       challenge.value = challenges.value[0]
@@ -93,7 +76,7 @@ const getData = async () => {
 }
 
 
-onMounted(async () => { await getData(), await my(), await participants() })
+onMounted(async () => { await getData(), await my() })
 
 const getHourDifference = (date1, date2) => {
   const diff = Math.abs(new Date(date1) - new Date(date2))
@@ -171,7 +154,7 @@ const checkEntrance = async challNo => {
 
     const response = await axios.post('http://localhost:4000/croom/joinRoom.do', { id: connetId, challNo: challNo })
 
-    router.push({ name: 'apps-user-id', params: { id: 21 } }) //넘겨줄 Vue 경로 입력하기
+    router.push({ name: 'apps-user-id', params: { id: challNo } }) //넘겨줄 Vue 경로 입력하기
 
   } else {
     alert('입장할 수 없습니다.')
@@ -326,20 +309,20 @@ const checkEntrance = async challNo => {
                 <div class="d-flex align-center">
                   <div class="v-avatar-group me-2">
                     <VAvatar
-                      v-for="participant in participantsData"
+                      v-for="participant in challenge.participantsData"
                       :key="participant.ID"
                       :image="participant.PRO_FILEPATH"
                       :size="36"
                     />
                   </div>
                   <span class="text-xs">
-                    {{ participantsData.length }}
+                    {{ challenge.participantsData.length }}
                   </span>
                 </div>
                 <span>
                   <VBtn 
-                    v-if="participantsData.length <= challenge.challCapacity"
-                    @click="checkEntrance"
+                    v-if="challenge.participantsData.length <= challenge.challCapacity"
+                    @click="checkEntrance(challenge.challNo)"
                   >
                     입장
                   </VBtn>                  
