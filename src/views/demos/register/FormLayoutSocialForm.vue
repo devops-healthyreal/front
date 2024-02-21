@@ -32,7 +32,18 @@ const emits = defineEmits({
 })
 
 const store = useStore()
-const memberInfo = computed(() => store.state.userStore.userInfo)
+
+const memberInfo = computed(() => {
+  const userInfo = store.state.userStore.userInfo
+
+  if (!userInfo) {
+    console.error('userInfo 상태가 존재하지 않습니다.')
+    
+    return {}
+  }
+
+  return userInfo
+})
 
 const userInfo = ref({
   id: memberInfo.value.id || '',
@@ -43,6 +54,40 @@ const userInfo = ref({
   goal_No: memberInfo.value.goal_No || '',
   userAddress: memberInfo.value.userAddress || '',
 })
+
+const getUserInfo = async () => {
+  try {
+    // 로그인 중인 사용자의 아이디를 가져옵니다.
+    const userId = ref(store.state.userStore.userInfo.id)
+
+    // id가 없는 경우, 로그인이 필요하다는 메시지를 표시하고 함수를 종료합니다.
+    if (!userId.value) {
+      console.error('로그인이 필요합니다.')
+      
+      return
+    }
+
+    const response = await axios.get(`http://localhost:4000/getMemberById?id=${userId.value}`, { withCredentials: true })
+    
+    // response.data에서 필요한 사용자 정보를 추출합니다.
+    const { id, gender, weight, height, goal_No, tel, userAddress } = response.data
+
+    // 이제 이 정보를 사용하여 추가 정보를 입력할 수 있습니다.
+    // 예를 들어, Vue.js의 데이터 속성을 업데이트하거나, 사용자에게 정보를 표시할 수 있습니다.
+    userInfo.value = { id, gender, weight, height, goal_No, tel, userAddress }
+    console.log("getuserInfo함수"+userInfo.value.id, userInfo.value.tel)
+
+    return userInfo.value //사용자 정보 반환
+  } catch (error) {
+    console.error('사용자 정보를 가져오는 동안 오류가 발생했습니다:', error)
+  }
+}
+
+// 이 함수를 호출하여 사용자 정보를 가져옵니다.
+getUserInfo()
+
+
+
 
 
 // Axios 인스턴스 생성
@@ -94,7 +139,8 @@ const router = useRouter()
 
 const isSnackbarVisible = ref(false)
 const idText=ref(null)
-const id = ref('')
+
+const id = ref(userInfo.value.id)
 const name = ref('')
 const b_day = ref('')
 const pwd = ref('')
@@ -128,7 +174,7 @@ const timerSeconds = ref(0)
 let timerInterval = null
 const goal_No = ref("")
 const gender = ref("")
-
+const newAddress = ref("")
 
 const userAddress = reactive({
   postcode: '',
@@ -320,36 +366,42 @@ const validatePNCK = () => {
 
 
 const handleCertification = async () => {
-  // 유효성 검사 함수 호출
+
 
   validateHeight()
   validateWeight()
   validatePNCK()
 
-  // 모든 유효성 검사를 통과했을 때
+
   if (
     idError.value === '' &&
     heightError.value === '' &&
-      weightError.value === '' &&
-      PNError.value === '') {
+    weightError.value === '' &&
+    PNError.value === ''
+  ) {
+    if (!userAddress.postcode || !userAddress.address){
+      
 
-    const data = {
-      id: userInfo.value.id.value,
-      gender: userInfo.value.gender.value,
-      b_day: userInfo.value.b_day.value,
-      tel: userInfo.value.tel.value,
-      height: userInfo.value.height.value,
-      weight: userInfo.value.weight.value,
-      goal_No: userInfo.value.goal_No.value.value,
-      userAddress: `${userInfo.value.userAddress.postcode} ${userInfo.value.userAddress.address}`,
+      console.error('userAddress 속성이 존재하지 않습니다.')
+      
+      throw new Error('User address does not exist')
     }
 
-    console.log("유저데이터,수정이?", data)
-    console.log("주소", userAddress)
+    const data = {
+      id: id.value,
+      gender: gender.value,
+      tel: tel.value,
+      height: height.value,
+      b_day: b_day.value,
+      weight: weight.value,
+      goal_No: goal_No.value.value,
+      userAddress: `${userAddress.postcode} ${userAddress.address}`,
+    }
 
-    // 모든 유효성 검사를 통과한 데이터를 반환합니다.
+    console.log('유저데이터,수정이?', data)
+    console.log('주소', userAddress)
+
     return data
-
   } else {
     console.log('유효성 검사를 통과하지 못했습니다.')
     throw new Error('Validation failed')
@@ -398,6 +450,9 @@ const sendMessage = async () => {
       alert('회원정보를 올바르게 입력했는지 확인해주세요.')
       isDialogVisible.value = false
     } else {
+      console.log('data'+id.value, weight.value, gender.value, tel.value, height.value, goal_No.value.value, newAddress.value.newPostcode, newAddress.value.newAddress)
+      console.log('newAddress'+newAddress.value)
+
       // 그 외의 오류는 로그를 출력하고, 사용자에게 알립니다.
       console.error('An unknown error occurred:', error)
       alert('인증번호 발송에 실패하였습니다. 다시 시도해주세요.')
@@ -469,7 +524,7 @@ const updateSocialUser = async (data, isValidCertifiedPN) => {
       console.log(updateResponse.data, '회원정보 수정 성공')
 
       // 스토어의 사용자 정보를 업데이트합니다.
-      store.commit('updateUserInfo', data)
+      store.commit('UPDATE_USER_INFO', data)
 
       // 서버로부터 받은 응답을 로그로 출력
       console.log("response data", updateResponse.data)
@@ -515,48 +570,32 @@ clearValidationErrors() // 유효성 검사 에러 메시지를 초기화합니�
     <!-- () => {} -->
     <VRow class="my-3">
       <VCol cols="12">
+        <VCol cols="12">
+          <VRow no-gutters>
+            <!-- 👉 birthday -->
+            <VCol
+              cols="12"
+              md="3"
+            />
+
+            <VCol
+              cols="12"
+              md="1"
+            />
+
+            <VCol
+              cols="12"
+              md="4"
+            >
+              <Birthyday
+                v-model="b_day"
+                label="생년월일"
+              />
+            </VCol>
+          </VRow>
+        </VCol>
         <VRow no-gutters>
           <VCol cols="12">
-            <VRow no-gutters>
-              <!-- 👉 ID -->
-              <VCol
-                cols="12"
-                md="3"
-              />
-
-              <VCol
-                cols="12"
-                md="1"
-              />
-          
-              <VCol
-                cols="12"
-                md="4"
-              >
-                <VTextField
-                  id="id"
-                  ref="idText"
-                  v-model="id"
-                  placeholder="아이디"
-                  persistent-placeholder
-                  @input="validateId"
-                />
-                <!-- 입력 변경시 마다 아이디 유효성 검사 호출 -->
-                <div
-                  v-if="idError"
-                  :style="{ color: 'red' }"
-                >
-                  {{ idError }}
-                </div> <!-- 아이디 오류 메세지 -->
-
-                <div
-                  v-if="idSuccess"
-                  :style="{ color: 'greenyellow' }"
-                >
-                  {{ idSuccess }}
-                </div> <!-- 아이디 성공 메세지 -->
-              </VCol>
-            </VRow>
             <VRow
               no-gutters
               class="my-3"
