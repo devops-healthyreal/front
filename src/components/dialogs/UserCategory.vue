@@ -42,24 +42,24 @@ const currentTab = ref('tab-1')
       
         <VTab
           value="tab-2"
-          @click="$emit('update:choicecategory', '샌드위치')"
+          @click="$emit('update:choicecategory', '양식')"
         >
           <VIcon
             icon="mdi-bread-slice"
             class="mb-2"
           />
-          <span>샌드위치</span>
+          <span>양식</span>
         </VTab>
         
         <VTab
           value="tab-3"
-          @click="$emit('update:choicecategory', '단백질')"
+          @click="$emit('update:choicecategory', '다이어트')"
         >
           <VIcon
             icon="mdi-egg-fried"
             class="mb-2"
           />
-          <span>단백질</span>
+          <span>다이어트</span>
         </VTab>
       </VTabs>
       <VTabs
@@ -69,35 +69,35 @@ const currentTab = ref('tab-1')
       >
         <VTab
           value="tab-4"
-          @click="$emit('update:choicecategory', '샐러드')"
+          @click="$emit('update:choicecategory', '영양식')"
         >
           <VIcon
             icon="mdi-seed"
             class="mb-2"
           />
-          <span>샐러드</span>
+          <span>영양식</span>
         </VTab>
       
         <VTab
           value="tab-5"
-          @click="$emit('update:choicecategory', '도시락')"
+          @click="$emit('update:choicecategory', '일상')"
         >
           <VIcon
             icon="mdi-land-plots-circle-variant"
             class="mb-2"
           />
-          <span>도시락</span>
+          <span>일상</span>
         </VTab>
         
         <VTab
           value="tab-6"
-          @click="$emit('update:choicecategory', '음료수')"
+          @click="$emit('update:choicecategory', '찌개')"
         >
           <VIcon
             icon="mdi-beer"
             class="mb-2"
           />
-          <span>음료수</span>
+          <span>찌개</span>
         </VTab>
       </VTabs>
       <VWindow

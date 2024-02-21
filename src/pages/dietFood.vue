@@ -58,9 +58,9 @@ const dietPlansList = [
 const recipedata = ref([])//내 레시피 데이터
 const selectedGroups = ref([])
 
-const getrecipe = async (connetId, foodname) =>{
-  console.log('들어온 아이디와, 음식명', connetId, foodname)
-  await axios.get('http://localhost:4000/recipe/View.do', { params: { 'id': connetId, 'foodname': foodname } })
+const getrecipe = async (connetId, choicecategory) =>{
+  console.log('들어온 아이디와, 카테고리', connetId, choicecategory)
+  await axios.get('http://localhost:4000/recipe/View.do', { params: { 'id': connetId, 'category': choicecategory } })
     .then(response => {
 
       // 음식명을 기준으로 데이터 묶기
@@ -138,7 +138,7 @@ watch(router, fetchProjectData, { immediate: true })
             <VBtn
               variant="elevated" 
               style=" width: 90px;margin-right: 5px;"
-              @click="getrecipe(connetId, list.title == '아침 메뉴'? '계란': list.title == '점심 메뉴'?'두부':'닭가슴살'), isRecipe = true"
+              @click="getrecipe(connetId, list.title == '아침 메뉴'? '양식': list.title == '점심 메뉴'?'찌개':'일상'), isRecipe = true"
             >
               식단 재추천
             </VBtn>
