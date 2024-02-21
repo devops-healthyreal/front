@@ -29,7 +29,7 @@ const room= ref([])
 //참가자 데이터 가져오기
 const participants = async () => {
 
-  const response = await axios.get('http://localhost:4000/croom/participantsData.do' )
+  const response = await axios.get('http://localhost:4000/croom/participantsData.do', { params: { challNo: route.params.id } } )
 
   if (response.status === 200) {
     participantsData.value = response.data
@@ -133,7 +133,11 @@ const pay = ref("10000")
           <!-- 참가비 끝 -->
           <!-- 유저 목록 -->
           <VCol>
-            <UserProfileForChellenge :participants-data="participantsData" />
+            <UserProfileForChellenge
+              v-for="(participantGroup, index) in participantsData"
+              :key="index"
+              :participant-group="participantGroup"
+            />
           </VCol>
           <!-- 유저 목록 -->
           <!-- 운동량 시작 -->

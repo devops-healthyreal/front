@@ -4,7 +4,7 @@ import {
 } from '@core/utils/formatters'
 
 const props = defineProps({
-  participantsData: {
+  participantGroup: {
     type: Object,
     required: true,
   },
@@ -30,8 +30,8 @@ const resolveUserStatusVariant = stat => {
     <VRow>
       <!-- SECTION User Details -->
       <VCol
-        v-for="participant in props.participantsData"
-        :key="participant.ID"
+        v-for="(participant, index) in participantGroup"
+        :key="index"
         cols="3"
       >
         <VCard>
@@ -57,6 +57,22 @@ const resolveUserStatusVariant = stat => {
             </VAvatar>
 
             <!-- 👉 User fullName -->
+            <VChip
+              v-if="participant.CHALL_MANAGER === 'Y'"
+              color="success"
+              density="compact"
+              style="margin-bottom: -10%;"
+            >
+              방장
+            </VChip>
+            <VChip
+              v-else
+              color="info"
+              density="compact"
+              style="margin-bottom: -10%;"
+            >
+              참여자
+            </VChip>
             <h6 class="text-h6 mt-4">
               {{ participant.ID }}
             </h6>
@@ -65,7 +81,7 @@ const resolveUserStatusVariant = stat => {
             <VChip
               density="comfortable"
               class="text-capitalize mt-4"
-              style="margin-bottom: 15px;"
+              style=" margin-top: -5%;margin-bottom: 15px;"
             >
               80%
             </VChip>
