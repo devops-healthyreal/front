@@ -17,55 +17,99 @@ const currentTab = ref('tab-1')
 
 const closeModal = () => {
   // 모달 창을 닫는 로직을 작성합니다.
-  emit('update:isDialogVisible', false);
+  emit('update:isDialogVisible', false)
 }
-
 </script>
+
 <template>
-    <VDialog
-    width="1600"
-    height="1600"
+  <VDialog
+    style="height: 100%;"
     :model-value="props.isDialogVisible"
     @update:model-value="val => $emit('update:isDialogVisible', val)"
+  >
+    <VCard
+      class="py-8"
+      style="max-width: 100%; max-height: 100%;"
     >
-    <VCard class="py-8" style="max-width: 100%; max-height: 100%;">
       <VCardActions class="justify-end">
-        <VBtn icon @click="closeModal">
-          <v-icon style="margin-top:-50px;">mdi-close</v-icon>
+        <VBtn
+          icon
+          @click="closeModal"
+        >
+          <VIcon style="margin-top: -50px;">
+            mdi-close
+          </VIcon>
         </VBtn>
       </VCardActions>
-        <VTabs v-model="currentTab" grow stacked>
-        <VTab v-for="(group, index) in recipedata" :key="index" :value="'tab-' + (index+1)">
-          <img :src="group[0].RECIPE_IMG" alt="레시피 사진" style="width:50px;height:50px;">
-          <a :href="group[0].RECIPE_URL">
-            {{group[0].FOODNAME}}
+      <VTabs
+        v-model="currentTab"
+        grow
+        stacked
+        style="height: 180px;"
+      >
+        <VTab
+          v-for="(group, index) in recipedata"
+          :key="index"
+          :value="'tab-' + (index+1)"
+          style="height: 160px;"
+        >
+          <img
+            :src="group[0].RECIPE_IMG"
+            alt="레시피 사진"
+            style="width: 200px;height: 130px;"
+          >
+          <a
+            :href="group[0].RECIPE_URL"
+            style="margin: 10px 0;"
+          >
+            {{ group[0].FOODNAME }}
           </a>
         </VTab>
-        </VTabs>
-        <VWindow v-model="currentTab" class="mt-5">
-          <VWindowItem v-for="(group, index) in recipedata" :key="index" :value="'tab-' + (index+1)">
-              <strong>{{group[0].RECIPE_TITLE}}</strong>
+      </VTabs>
+      <VWindow
+        v-model="currentTab"
+        class="mt-5"
+      >
+        <VWindowItem
+          v-for="(group, index) in recipedata"
+          :key="index"
+          :value="'tab-' + (index+1)"
+        >
+          <strong style="margin: 0 20px; color: #068002; font-size: larger;">{{ group[0].RECIPE_TITLE }}</strong>
 
-              <div v-for="(gro, index) in group" :key="index">
-                <div v-if="index == 0 && gro.RECIPE_SEQ && gro.RECIPE_SEQ.length > 0">
-                  <br/>[조리순서]
-                  <div style="max-height: 300px; overflow-y: auto;" class="scrollbar">
-                    <p v-for="(seq, seqIndex) in gro.RECIPE_SEQ.split('||')" :key="seqIndex">
-                      {{seqIndex + 1}} ) {{seq}}
-                    </p>
-                  </div>
-                  <br/>
-                  [재료]
-                </div>
-                
-                <span v-if="gro.FOODNAME">
-                  - {{ gro.INGREDIENT }} - {{gro.RI_AMOUNT}}
-                </span>             
+          <div
+            v-for="(gro, index) in group"
+            :key="index"
+          >
+            <div v-if="index == 0 && gro.RECIPE_SEQ && gro.RECIPE_SEQ.length > 0">
+              <br><strong style="margin: 10px 20px;">[조리순서]</strong>
+              <div
+                style="max-height: 300px; overflow-y: auto;"
+                class="scrollbar"
+              >
+                <p
+                  v-for="(seq, seqIndex) in gro.RECIPE_SEQ.split('||')"
+                  :key="seqIndex"
+                  style="margin: 10px 20px;"
+                >
+                  {{ seqIndex + 1 }} ) {{ seq }}
+                </p>
               </div>
-          </VWindowItem>
-        </VWindow>
+              <br>
+              <strong style="margin: 10px 20px;">[재료]</strong>
+            </div>
+                
+            <span
+              v-if="gro.FOODNAME"
+              style="margin: 20px;"
+            >
+              - {{ gro.INGREDIENT }} - {{ gro.RI_AMOUNT }}
+            </span>             
+          </div>
+        </VWindowItem>
+      </VWindow>
     </VCard>
-    </VDialog>
+  </VDialog>
 </template>
 
 <style>

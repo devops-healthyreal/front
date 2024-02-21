@@ -46,26 +46,29 @@ const dietPlansList = [
     content: '저녁 메뉴 설명',
   },
 ]
+
 const recipedata = ref([])//내 레시피 데이터
+
 const getrecipe = async (connetId, foodname) =>{
-  console.log('들어온 아이디와, 음식명',connetId,foodname)
-  await axios.get('http://localhost:4000/recipe/View.do', {params : {'id':connetId,'foodname' : foodname}})
-  .then((response) => {
+  console.log('들어온 아이디와, 음식명', connetId, foodname)
+  await axios.get('http://localhost:4000/recipe/View.do', { params: { 'id': connetId, 'foodname': foodname } })
+    .then(response => {
     // recipedata.value = response.data;
     // console.log('가져온 레시피?',recipedata.value);
 
-    // 음식명을 기준으로 데이터 묶기 // 필요 시, 한번 더 레시피 코드를 기준으로 데이터를 묶어야 할 것 같음    
-    recipedata.value = response.data.reduce((acc, curr) => {
-      const FOODNAMEAll = curr.FOODNAME;
-      if (acc[FOODNAMEAll]) {
-        acc[FOODNAMEAll].push(curr);
-      } else {
-        acc[FOODNAMEAll] = [curr];
-      }
-      return acc; // 콜백 함수에서 값을 반환하도록 수정
-    }, {});
-    console.log('그룹으로 묶였는지 확인 -> ',recipedata.value)
-  })
+      // 음식명을 기준으로 데이터 묶기 // 필요 시, 한번 더 레시피 코드를 기준으로 데이터를 묶어야 할 것 같음    
+      recipedata.value = response.data.reduce((acc, curr) => {
+        const FOODNAMEAll = curr.FOODNAME
+        if (acc[FOODNAMEAll]) {
+          acc[FOODNAMEAll].push(curr)
+        } else {
+          acc[FOODNAMEAll] = [curr]
+        }
+        
+        return acc // 콜백 함수에서 값을 반환하도록 수정
+      }, {})
+      console.log('그룹으로 묶였는지 확인 -> ', recipedata.value)
+    })
 }
 
 watch(router, fetchProjectData, { immediate: true })
@@ -143,11 +146,10 @@ watch(router, fetchProjectData, { immediate: true })
     <UserFindRestaurant v-model:isDialogVisible="isCheckedRestaurant" />
     <UserCategory v-model:isDialogVisible="isCategory" />
     <RecipeView 
-    v-model:isDialogVisible="isRecipe"
-    :recipedata = recipedata 
+      v-model:isDialogVisible="isRecipe"
+      :recipedata="recipedata" 
     />
   </section>
-
 </template>
 
 <style lang="scss">
