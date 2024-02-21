@@ -3,6 +3,7 @@ import UserCategory from '@/components/dialogs/UserCategory.vue'
 import RecipeView from '@/components/dialogs/recipe_view.vue'
 import axios from '@axios'
 import { useStore } from 'vuex'
+import { ref } from 'vue';
 
 const store = useStore()
 
@@ -28,6 +29,12 @@ const fetchProjectData = () => {
     })
   }
 }
+
+const choicecategory = ref(''); // 선택된 값이 저장될 변수
+const handleChoiceCategory = (value) => {
+  choicecategory.value = value;
+  console.log('선택한 카테고리:', value);
+};
 
 const dietPlansList = [
   {
@@ -144,7 +151,7 @@ watch(router, fetchProjectData, { immediate: true })
     <UserUpgradedietPlan v-model:isDialogVisible="isUpgradePlanDietPlan" />
     <UserCheckedRecipe v-model:isDialogVisible="isCheckedRecipe" />
     <UserFindRestaurant v-model:isDialogVisible="isCheckedRestaurant" />
-    <UserCategory v-model:isDialogVisible="isCategory" />
+    <UserCategory v-model:isDialogVisible="isCategory" :choicecategory="choicecategory" @update:choicecategory="handleChoiceCategory"/>
     <RecipeView 
       v-model:isDialogVisible="isRecipe"
       :recipedata="recipedata" 
