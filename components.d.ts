@@ -65,6 +65,7 @@ declare module '@vue/runtime-core' {
     JoinSuccess: typeof import('./src/views/demos/register/JoinSuccess.vue')['default']
     KakaoMapLike: typeof import('./src/components/KakaoMapLike.vue')['default']
     KakaoMapReco: typeof import('./src/components/testMap/KakaoMapReco.vue')['default']
+    Mategoal: typeof import('./src/views/demos/register/mategoal.vue')['default']
     MoreBtn: typeof import('./src/@core/components/MoreBtn.vue')['default']
     Myradio: typeof import('./src/views/demos/register/Myradio.vue')['default']
     Notifications: typeof import('./src/@core/components/Notifications.vue')['default']

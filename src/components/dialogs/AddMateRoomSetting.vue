@@ -76,18 +76,60 @@ const createRoom = () => {
       />
 
       <VCardText>
-        <VCardText style="background-color: #a0a0a0;">
-          <div class="text-h5 mb-1 text-center">
+        <VRow>
+          <VCol cols="4">
             <strong>운동 종류 선택</strong>
-          </div>
-        </VCardText>
+            <Mategoal
+              style="margin-top: 10px;"
+              @update:model-value="handleGoalNoChanged"
+            />
+          </VCol>
+          <VCol
+            class="fitem"
+            cols="4"
+            rows="5"                
+          >
+            <strong>날짜 및 시간</strong>
+            <AppDateTimePicker
+              v-model="date"
+              :config="{ enableTime: true, dateFormat: 'Y-m-d H:i' }"
+              style="margin-top: 10px;"
+            />
+          </VCol>
+          <VCol
+            class="fitem"
+            cols="2"
+            rows="2" 
+            style="justify-content: center;text-align: center;"
+          >
+            매칭
+            <VSwitch
+              v-model="matchingYN"
+              :label="capitalizedLabel(matchingYN) === 'True' ? 'ON' : 'OFF' "
+              style="margin-left: 18px;"
+            />
+          </VCol>
+          <VCol
+            class="fitem"
+            cols="2"
+            rows="2" 
+            style="justify-content: center;text-align: center;"
+          >
+            방 공개
+            <VSwitch
+              v-model="openRoomYN"
+              :label="capitalizedLabel(openRoomYN) === 'True' ? 'ON' : 'OFF' "
+              style="margin-left: 18px;"
+            />
+          </VCol>
+        </VRow>
         <VCol
           class="fbox"
           style="padding-bottom: 0;"
         >
           <VCol
             class="fitem"
-            cols="4"
+            cols="8"
             rows="5" 
           >
             <h4>
@@ -103,19 +145,7 @@ const createRoom = () => {
               tick-size="4"
             />
           </VCol>
-          <VCol
-            class="fitem"
-            cols="4"
-            rows="5"                
-          >
-            <h4>
-              날짜 및 시간
-            </h4>
-            <AppDateTimePicker
-              v-model="date"
-              :config="{ enableTime: true, dateFormat: 'Y-m-d H:i' }"
-            />
-          </VCol>
+          
           <!--
             <VCol>
             {{type}}
@@ -142,7 +172,7 @@ const createRoom = () => {
           <VCol
             v-if="userlimit === 'ON'"
             class="fbox"
-            style="border-radius: 10px;background-color: #e9e9e9;"
+            style="border-radius: 10px;background-color: #f7f6f6;"
           >
             <VCol
               class="fitem"
@@ -173,36 +203,7 @@ const createRoom = () => {
             </VCol>
           </VCol>
         </VCol>
-        <VCol class="fbox">
-          <VCol
-            class="fitem"
-            cols="6"
-            rows="3" 
-            style="justify-content: center;text-align: center;"
-          >
-            <h4>매칭 희망 여부</h4>
-            <VCol style=" display: flex;width: 100%; justify-content: center;">               
-              <VSwitch
-                v-model="matchingYN"
-                :label="capitalizedLabel(matchingYN) === 'True' ? 'ON' : 'OFF' "
-              />
-            </VCol>
-          </VCol>
-          <VCol
-            class="fitem"
-            cols="6"
-            rows="3" 
-            style="justify-content: center;text-align: center;"
-          >
-            <h4>방 공개 여부</h4>
-            <VCol style=" display: flex;width: 100%; justify-content: center;">               
-              <VSwitch
-                v-model="openRoomYN"
-                :label="capitalizedLabel(openRoomYN) === 'True' ? 'ON' : 'OFF' "
-              />
-            </VCol>
-          </VCol>
-        </VCol>
+
         <VCol
           cols="12"
           rows="4"
