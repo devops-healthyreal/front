@@ -2,6 +2,14 @@
 import UserCategory from '@/components/dialogs/UserCategory.vue'
 import RecipeView from '@/components/dialogs/recipe_view.vue'
 import axios from '@axios'
+import { useStore } from 'vuex'
+
+const store = useStore()
+
+// 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=userInfo.value.id
+
 const isUpgradePlanDietPlan = ref(false)
 const isCheckedRecipe = ref(false)
 const isCheckedRestaurant = ref(false)
@@ -39,38 +47,26 @@ const dietPlansList = [
   },
 ]
 const recipedata = ref([])//내 레시피 데이터
-const getrecipe = async (foodname, list) =>{
-  console.log(foodname, list)
-  await axios.get('http://localhost:4000/recipe/View.do', {params : {'foodname' : foodname}})
+const getrecipe = async (connetId, foodname) =>{
+  console.log('들어온 아이디와, 음식명',connetId,foodname)
+  await axios.get('http://localhost:4000/recipe/View.do', {params : {'id':connetId,'foodname' : foodname}})
   .then((response) => {
-    recipedata.value = response.data;
-    console.log('가져온 레시피?',recipedata.value);
-    // 음식명을 기준으로 데이터 묶기 // 필요 시, 한번 더 레시피 코드를 기준으로 데이터를 묶어야 할 것 같음
-    
-    // recipedata.value = response.data.reduce((acc, curr) => {
-    //   const FOODNAMEAll = curr.FOODNAME;
-    //   if (acc[FOODNAMEAll]) {
-    //     acc[FOODNAMEAll].push(curr);
-    //   } else {
-    //     acc[FOODNAMEAll] = [curr];
-    //   }
-    //   return acc; // 콜백 함수에서 값을 반환하도록 수정
-    // }, {});
-    // console.log('그룹으로 묶였는지 확인 -> ',recipedata.value)
+    // recipedata.value = response.data;
+    // console.log('가져온 레시피?',recipedata.value);
+
+    // 음식명을 기준으로 데이터 묶기 // 필요 시, 한번 더 레시피 코드를 기준으로 데이터를 묶어야 할 것 같음    
+    recipedata.value = response.data.reduce((acc, curr) => {
+      const FOODNAMEAll = curr.FOODNAME;
+      if (acc[FOODNAMEAll]) {
+        acc[FOODNAMEAll].push(curr);
+      } else {
+        acc[FOODNAMEAll] = [curr];
+      }
+      return acc; // 콜백 함수에서 값을 반환하도록 수정
+    }, {});
+    console.log('그룹으로 묶였는지 확인 -> ',recipedata.value)
   })
 }
-
-      // // BBS_NO 값을 기준으로 데이터 묶기
-      // groupedDataAll.value = response.data.reduce((acc, curr) => {
-      //   const bbsNoAll = curr.BBS_NO
-      //   if (acc[bbsNoAll]) {
-      //     acc[bbsNoAll].push(curr)
-      //   } else {
-      //     acc[bbsNoAll] = [curr]
-      //   }
-        
-      //   return acc
-      // }, {})
 
 watch(router, fetchProjectData, { immediate: true })
 </script>
@@ -118,7 +114,7 @@ watch(router, fetchProjectData, { immediate: true })
           <VCardText class="justify-center">
             <VBtn
               variant="elevated" 
-              @click="isCheckedRecipe = true, getrecipe('두부', list), isRecipe = true"
+              @click="isCheckedRecipe = true, getrecipe(connetId, list.title == '아침 메뉴'? '계란': list.title == '점심 메뉴'?'두부':'닭가슴살'), isRecipe = true"
             >
               레시피
             </VBtn>

@@ -1,9 +1,18 @@
 <script setup>
 import AddressApi from '@/components/dialogs/RoomSetAddressApi.vue'
+import Mategoal from '@/views/demos/register/mategoal.vue'
+import axios from '@axios'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 
 const props = defineProps({
   isDialogVisible: {
     type: Boolean,
+    required: true,
+  },
+  userAddress: {
+    type: String,
     required: true,
   },
 })
@@ -14,8 +23,90 @@ const dialogVisibleUpdate = val => {
   emit('update:isDialogVisible', val)
 }
 
+const userAddress = reactive({
+  address: '',
+})
 
+const handleUpdateAddress = newAddress => {
+  userAddress.address = newAddress.address
+}
+
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId = userInfo.value.id
+
+
+
+const sport = ref("")
+const date = ref('')
+const openRoomYN = ref(true) // 방공개여부
+const matchingYN = ref(true) // 매칭희망여부
 const userset = ref(4) //정원 수
+const selectedCheckbox = ref([])
+const content = ref('')
+const title = ref('')
+
+const sliderValues = ref([
+  0,
+  100,
+])
+
+
+
+const createRoom = async () => {
+  console.log("userset---", userset) //정원
+  console.log("selectedCheckbox---", selectedCheckbox) //남여
+  console.log("sliderValues---", sliderValues) //나이
+  console.log("sport---", sport) //종목
+  console.log("openRoomYN---", openRoomYN) // 방공개
+  console.log("matchingYN---", matchingYN) //매칭여부
+  console.log("date---", date) //시작날짜
+  console.log("connetId-----", connetId)
+  
+  try {
+    console.log("userAddress.address---", userAddress.address)
+
+    const response = await axios.post('http://localhost:4000/mroom/createRoom.do', {
+      sport: sport.value,
+      userset: userset.value,
+      areaSet: userAddress.address,
+      selectedCheckbox: selectedCheckbox.value,
+      sliderValues: sliderValues.value,
+      openRoomYN: openRoomYN.value,
+      matchingYN: matchingYN.value,
+      date: date.value,
+      content: content.value,
+      title: title.value,
+      id: connetId,
+    })
+
+
+
+    if (response.status === 200) {
+      console.log('방 생성이 완료되었습니다.')
+      console.log('response.data----', response.data)
+      router.push({ name: 'apps-user-room', params: { room: response.data } }) //넘겨줄 Vue 경로 입력하기 //넘겨줄 Vue 경로 입력하기
+    } else {
+      console.log('방 생성에 실패하였습니다.')
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const handleGoalNoChanged = newGoalNo => {
+  console.log('부모컴포넌트', goal_No) // 여기서 newGoalNo는 선택한 항목의 goal_No 값입니다.
+  sport.value = newGoalNo
+}
+
+//유효성 검사
+const isValid = computed(() => {
+  if (toggleSwitch.value === true && selectedCheckbox.value.length === 0) {
+    return false
+  }
+  
+  return title.value !== '' &&  content.value !== ''&& date.value !== '' && sport.value !== '' && userAddress.address !== ''
+})
 
 const usersetlabel = { //정원Silder 초기값, 끝값 라벨 
   2: '2',
@@ -23,8 +114,8 @@ const usersetlabel = { //정원Silder 초기값, 끝값 라벨
 }
 
 const toggleSwitch = ref(true) // 참여자 제한 유무 
-const matchingYN = ref(true) // 매칭희망여부
-const openRoomYN = ref(true) // 방공개여부
+
+
 
 const capitalizedLabel = label => {
   const convertLabelText = label.toString()
@@ -35,28 +126,16 @@ const capitalizedLabel = label => {
 const checkboxContent = [
   {
     title: '남자',
-    value: 'man',
+    value: 1,
   },
   {
     title: '여자',
-    value: 'woman',
+    value: 2,
   },
 ]
 
-const selectedCheckbox = ref(['man', 'woman'])
-
-const sliderValues = ref([
-  0,
-  100,
-])
-
-const date = ref('')
 
 const router = useRouter()
-
-const createRoom = () => {
-  router.push({ name: 'mate' }) //넘겨줄 Vue 경로 입력하기
-}
 </script>
 
 
@@ -157,7 +236,11 @@ const createRoom = () => {
             rows="5" 
             style="text-align: center;"
           >
-            <AddressApi />
+            <AddressApi
+              v-model="userAddress"
+              :new-address="userAddress" 
+              @update-address="handleUpdateAddress"
+            />
           </VCol>
         </VCol>
         <VCol>
@@ -203,15 +286,28 @@ const createRoom = () => {
             </VCol>
           </VCol>
         </VCol>
-
+        <VCol cols="12">
+          <VTextarea
+            v-model="title"
+            rows="1"
+            label="제목"
+          />
+        </VCol>
         <VCol
           cols="12"
           rows="4"
         >
-          <VTextarea label="내용" />
+          <VTextarea
+            v-model="content"
+            label="내용"
+          />
         </VCol>
         <VCol style="text-align: center;">
-          <VBtn @click="createRoom">
+          <VBtn
+            :disabled="!isValid"
+            @click="createRoom"
+            style="margin-bottom: 10%;"
+          >
             등록
           </VBtn>
         </VCol>
