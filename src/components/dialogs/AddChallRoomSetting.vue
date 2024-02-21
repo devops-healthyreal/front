@@ -175,7 +175,7 @@ const router = useRouter()
           v-model="openRoomYN"
           :label="areaSet = capitalizedLabel(openRoomYN) === 'True' ? '공개' : '비공개' "
         />
-        <VCardText style=" border-radius: 20px;background-color: #7ce626;">
+        <VCardText style=" border-radius: 20px;">
           <div class="text-h5 mb-1 text-center">
             <Goal @update:model-value="handleGoalNoChanged" />
           </div>
