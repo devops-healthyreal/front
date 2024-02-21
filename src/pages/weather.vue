@@ -1,137 +1,163 @@
 <script setup>
-import { ref, onMounted } from 'vue';
 import axios from '@axios'
+import { onMounted, ref } from 'vue'
 
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
 import { useStore } from 'vuex'
+
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=ref(userInfo.value.id)
+const connetId=ref('')
 
-const weather = ref({});
-const code = ref('');
-const temp = ref(0);
-const location = ref('');
+const weather = ref({})
+const code = ref('')
+const temp = ref(0)
+const location = ref('')
 const userAddress = ref('')
-const getuseraddress = (store) => {
-  const params = new URLSearchParams();
-  params.append('id', connetId.value);
+
+const getuseraddress = () => {
+  if (!userInfo.value) {
+    console.log('userInfo.value is null')
+    
+    return
+  }
+
+  connetId.value = userInfo.value.id
+  let params = new URLSearchParams()
+
+  params.append('id', connetId.value)
 
   axios.get('http://localhost:4000/getUserAddress', { params })
-    .then((response) => {
-        console.log('받은 정보:', response.data);
-        userAddress.value = response.data.USERADDRESS
-        console.log('주소:',userAddress.value);
-        const addressArray = userAddress.value.split(' ');
-        if (addressArray.length === 0) {
-            location.value = '서울';
-        }        
-        else if (addressArray[1] === '서울' || addressArray[1] === '부산' || addressArray[1] === '울산') {
-            location.value = addressArray[1].trim();
-        }
-        else{
-            location.value = addressArray[2].trim();
-            // 시나 군으로 끝나면 맨 뒤 글자 제거
-            if (location.value.endsWith('시') || location.value.endsWith('군')) {
-                location.value = location.value.slice(0, -1);
-            }
-        }
-        console.log('추출된 값:', location.value);
+    .then(response => {
+      console.log('받은 정보:', response.data)
+      userAddress.value = response.data.USERADDRESS
+      console.log('주소:', userAddress.value)
 
-        const data = {
-            location: location.value,
-        };
+      const addressArray = userAddress.value.split(' ')
+      if (addressArray.length === 0) {
+        location.value = '서울'
+      }        
+      else if (addressArray[1] === '서울' || addressArray[1] === '부산' || addressArray[1] === '울산') {
+        location.value = addressArray[1].trim()
+      }
+      else{
+        location.value = addressArray[2].trim()
 
-        axios.post('http://127.0.0.1:5000/weatherInfo', data)
-            .then((response) => {
-            const result = response.data;
-            console.log('날씨 정보:', result);
-            weather.value = result;
-            temp.value = result.main.temp;
-            code.value = result.weather[0].id.toString();
-        });
+        // 시나 군으로 끝나면 맨 뒤 글자 제거
+        if (location.value.endsWith('시') || location.value.endsWith('군')) {
+          location.value = location.value.slice(0, -1)
+        }
+      }
+      console.log('추출된 값:', location.value)
+
+      const data = {
+        location: location.value,
+      }
+
+      axios.post('http://127.0.0.1:5000/weatherInfo', data)
+        .then(response => {
+          const result = response.data
+
+          console.log('날씨 정보:', result)
+          weather.value = result
+          temp.value = result.main.temp
+          code.value = result.weather[0].id.toString()
+        })
     })
-    .catch((error) => {
-      console.error('오류 발생:', error);
-    });
-};
+    .catch(error => {
+      console.error('오류 발생:', error)
+    })
+}
+
+
 // 날씨 표현 시 사용될 icon 배열
 const icons = [
   'mdi-weather-lightning-rainy', // 2xx : Thunderstorm
   'mdi-weather-rainy', // 3xx : Drizzle
   'mdi-weather-pouring', // 5xx : Rain
-  'mdi-weather-snowy', // 6xx : Snow
+  'mdi-weather-snowy', // 6xx : Snowa
   'mdi-weather-fog', // 7xx : Atmosphere
   'mdi-weather-sunny', // 800 : Clear
   'mdi-weather-cloudy', // 8xx : Clouds
-];
+]
 
 onMounted(() => {
-    getuseraddress(store);
+  // userInfo.value가 설정될 때까지 기다림
+  watch(userInfo, newVal => {
+    if (newVal) {
+      getuseraddress()
 
-    // 10분마다 실행
-    setInterval(() => {
-        getuseraddress(store);
-    }, 60000); // 10분은 60000밀리초입니다.
-});
+      // 10분마다 실행
+      setInterval(() => {
+        getuseraddress()
+      }, 60000) // 10분은 600000밀리초입니다.
+    }
+  }, { immediate: true }) // 초기 값에 대해서도 반응
+})
 </script>
 
     
+<template>
+  <div id="weather">
+    <!-- 날씨 정보가 있을 경우 -->
+    <div
+      v-if="typeof weather.main !='undefined' "
+      class="d-flex align-center flex-wrap mt-1 mb-4"
+    >
+      <div>
+        {{ location }}
+      </div>
+      <div>
+        <div>
+          <!-- Clear -->        
+          <VIcon v-if="code == 800">
+            {{ icons[5] }}
+          </VIcon>
+          <!-- Thunderstorm -->
+          <VIcon v-else-if="code.substr(0, 1) == 2">
+            {{ icons[0] }}
+          </VIcon>
+          <!-- Drizzle -->
+          <VIcon v-else-if="code.substr(0, 1) == 3">
+            {{ icons[1] }}
+          </VIcon>
+          <!-- Rain -->
+          <VIcon v-else-if="code.substr(0, 1) == 5">
+            {{ icons[2] }}
+          </VIcon>
+          <!-- Snow -->
+          <VIcon v-else-if="code.substr(0, 1) == 6">
+            {{ icons[3] }}
+          </VIcon>
+          <!-- Atmosphere -->
+          <VIcon v-else-if="code.substr(0, 1) == 7">
+            {{ icons[4] }}
+          </VIcon>
+          <!-- Clouds -->
+          <VIcon v-else>
+            {{ icons[6] }}
+          </VIcon>
+        </div>
+        <div>
+          {{ Math.round(temp) }}℃
+        </div>
+      </div>
+    </div>
+    <!-- 날씨 정보가 없을 경우 -->
+    <div v-else>
+      <div>
+        <VIcon>mdi-cancel</VIcon>
+      </div>
+      <div>
+        {{ weather.cod }}
+      </div>
+    </div>
+  </div>
+</template>
+
 <style scoped>
 #weather {
-    font-size: 0.875rem;
-    font-weight: 500;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 </style>
-<template>
-    <div id="weather">
-        <!-- 날씨 정보가 있을 경우 -->
-        <div v-if="typeof weather.main !='undefined' " class="d-flex align-center flex-wrap mt-1 mb-4">
-            <div>
-                {{location}}
-            </div>
-            <div>
-                <div>
-                    <!-- Clear -->        
-                    <v-icon v-if="code == 800">{{ icons[5] }}</v-icon>
-                    <!-- Thunderstorm -->
-                    <v-icon v-else-if="code.substr(0, 1) == 2">
-                        {{ icons[0] }}
-                    </v-icon>
-                    <!-- Drizzle -->
-                    <v-icon v-else-if="code.substr(0, 1) == 3">
-                        {{ icons[1] }}
-                    </v-icon>
-                    <!-- Rain -->
-                    <v-icon v-else-if="code.substr(0, 1) == 5">
-                        {{ icons[2] }}
-                    </v-icon>
-                    <!-- Snow -->
-                    <v-icon v-else-if="code.substr(0, 1) == 6">
-                        {{ icons[3] }}
-                    </v-icon>
-                    <!-- Atmosphere -->
-                    <v-icon v-else-if="code.substr(0, 1) == 7">
-                        {{ icons[4] }}
-                    </v-icon>
-                    <!-- Clouds -->
-                    <v-icon v-else>
-                        {{ icons[6] }}
-                    </v-icon>
-                </div>
-                <div>
-                    {{ Math.round(temp) }}℃
-                </div>
-            </div>
-        </div>
-        <!-- 날씨 정보가 없을 경우 -->
-        <div v-else>
-            <div>
-                <v-icon>mdi-cancel</v-icon>
-            </div>
-            <div>
-                {{ weather.cod }}
-            </div>
-        </div>
-    </div>
-</template>
