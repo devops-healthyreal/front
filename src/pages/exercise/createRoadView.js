@@ -2,6 +2,7 @@
 var rvContainer //로드뷰가 들어갈 태그
 var rvClient //로드뷰 파노라마 ID를 가져올 로드뷰 클라이언트 객체 생성
 var markImage //마커 이미지
+var rv //로드뷰 객체
 
 
 
@@ -11,6 +12,9 @@ function initialize(){
 
   //로드뷰 파노라마 ID를 가져올 로드뷰 클라이언트 객체 생성
   rvClient = new kakao.maps.RoadviewClient() 
+
+  //로드뷰 객체 생성
+  rv = new kakao.maps.Roadview(rvContainer) 
 
   //마커 이미지
   markImage = new kakao.maps.MarkerImage(
@@ -32,7 +36,7 @@ function initialize(){
 
 // 전달받은 좌표(position)에 가까운 로드뷰의 파노라마 ID를 추출하여
 // 로드뷰를 설정하는 함수
-function toggleRoadview(rv, position){
+export function toggleRoadview(rv, position){
   console.log('toggleRoadview함수 실행됨:', position)
   rvClient.getNearestPanoId(position, 300, function(panoId) {
     // 파노라마 ID가 null 이면 로드뷰를 숨깁니다
@@ -60,13 +64,12 @@ export function createRoadView(map){ //맵 객체를 인자로 받음
   //지도에 마커 표시 (직접 움직여가며 헤당 좌표의 사진값을 보기 위한 용도)
   marker.setMap(map)
   
-  //로드뷰 객체 생성
-  var rv = new kakao.maps.Roadview(rvContainer) 
-
+  
   // 마커에 dragend 이벤트를 등록
   kakao.maps.event.addListener(marker, 'dragend', function(mouseEvent) {
     
     console.log('마커에 draggable 이벤트 발생')
+    console.log('mouseEvent', mouseEvent)
 
     // 현재 마커가 놓인 자리의 좌표
     var position = marker.getPosition()
@@ -103,6 +106,9 @@ export function createRoadView(map){ //맵 객체를 인자로 받음
     toggleRoadview(rv, position)
   })
 } //createRoadView
+
+
+
 
 //경로와 마커를 그려주는 코드
 
@@ -184,10 +190,11 @@ export function setMarkerNInfo(path, pathName, map, markers, infos) {
           var iwContent = `<span class="info-title">${pathName[i]}</span>`
           console.log(`${i}번째 인포윈도우:`, iwContent)
           var infoWindow = new kakao.maps.InfoWindow({ //인포윈도우 생성
-            position: path, 
             content: iwContent, 
           })
           infos.value.push(infoWindow)
+          
+
           infoWindow.open(map, marker)
         }
         i++
@@ -196,6 +203,7 @@ export function setMarkerNInfo(path, pathName, map, markers, infos) {
     .then(()=>{
       makeInfoWindowDesign()
       map.setBounds(bounds)
+      map.relayout()
     })
 }
 

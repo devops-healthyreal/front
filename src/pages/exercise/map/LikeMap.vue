@@ -9,6 +9,7 @@
       prepend-icon="mdi-map-search-outline"
     />
     <VSelect
+      v-model="selectedPath"
       :items="pathsName[country]"
       label="경로"
       variant="filled"
@@ -31,15 +32,17 @@ import { ref } from 'vue'
 //메뉴 선택 핸들러 부분 start-----------
 const country = ref(null) //사용자가 선택한 지역
 
+const selectedPath = ref(null) //경로 선택지를 담을 변수
+
 var items = ref([ //즐겨찾기 경로의 시/군/구 카테고리 선택 (받아온 데이터라고 가정)
-  '평창군',
+  '아산시',
   '영월군',
 ])
 
 
 var paths = { //카테고리에 해당되는 즐겨찾기 경로 모음 
-  '평창군': [['봉평면 평창군 관광안내센터', '흥정천교', '평촌2교', '강변집', '금산교', '백옥포마을', '흥정천수로길', '백옥포교', '금당계곡로', '노루목고개', '용평여울목']],
-  '영월군': [['출향인공원', '삭도', '예밀정류장'], ['예밀정류장', '액자전망대', '모운동']],
+  '아산시': [['탕정면사무소', '꾀꼴산성'], ['봉곡사', '봉수산', '오형제고개', '배골마을', '송악저수지']],
+  '영월군': [['출향인공원', '삭도', '예밀'], ['예밀', '모운동']],
 }
 
 var pathsName = {} //메뉴에 뿌려줄 값을 담은 변수
@@ -62,8 +65,6 @@ var map = ref("") //지도 객체를 담을 변수
 const markers = ref([]) //지도에 올려줄 마커들을 모아둔 객체 설정
 const infos = ref([]) //지도에 올려줄 인포들을 모아둔 객체 설정
 var polyline = ref()
-const load = ref([]) //위도경도값을 저장할 변수
-
 
 onMounted(()=>{
   const script = document.createElement("script")
@@ -116,27 +117,43 @@ const initMap = (lng, lat) => {
 
 }
 
+
 const changePath = () => {
   console.log('paths', paths)
-  console.log('country', country.value)
-  var loadName = paths[country.value]
-  load.value = [] //위도 경도 저장을 위한 변수
-  console.log('changePath:', loadName)
+  console.log('country', country.value) //아산시
+  console.log('selectedPath', selectedPath)
+  var loadName
+  for (var i=0; i<paths[country.value].length; i++) {
+    if (pathsName[country.value][i] === selectedPath.value) loadName = paths[country.value][i]
+  }
+  console.log('loadName', loadName)
+
+  //😴
+  var load = []
+  var places = new kakao.maps.services.Places() //검색을 위한 객체
+
+  //load.value = [] //위도 경도 저장을 위한 변수
   loadName.forEach(name => {
-    getLatLng(name).then(latlng=>{
-      if (latlng!='') load.value.push([latlng.lat, latlng.lng])
-      else {
-        var places = new kakao.maps.services.Places() //검색을 위한 객체
+    console.log('name:', name)
+    getLatLng(name).then(latlng=> {
+      console.log(`${name} latlng:`, latlng)
+      load.push([latlng.lat, latlng.lng])
+    })
+      .catch(err=>{
         places.keywordSearch(name, (result, status)=>{
           if (status === kakao.maps.services.Status.OK) {
-            //console.log('검색 결과:', result[0]) //위도, 경도 값에 대한 정보가 나와있음
-            load.value.push([result[0].y, result[0].x]) //[x,y] = [lng, lat]
+            console.log('검색 결과:', result[0]) //위도, 경도 값에 대한 정보가 나와있음
+            load.push([result[0].y, result[0].x]) //[x,y] = [lng, lat]
           }
         })
-      }
-    })
+      })
   })
-  getPedePath(load.value, loadName, map.value, polyline.value, markers, infos)
+
+  //recoPath: [Array(2), Array(2), Array(2)]
+  //likeMap: {0: Array(2), 1: Array(2)}
+  console.log('like-path에서 넘겨준 값:', load) //{0: Array(2), 1: Array(2)}
+  getPedePath(load, loadName, map.value, polyline.value, markers, infos)
+  map.value.relayout()
 }
 </script>
 
