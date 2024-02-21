@@ -152,7 +152,7 @@ const pay = [
   '50,000원',
 ]
 
-const router = useRoute()
+const router = useRouter()
 </script>
 
 
