@@ -1,5 +1,4 @@
 <script setup>
-import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import { useGenerateImageVariant } from '@core/composable/useGenerateImageVariant'
 import authV2LoginIllustrationBorderedDark from '@images/pages/auth-v2-login-illustration-bordered-dark.png'
 import authV2LoginIllustrationBorderedLight from '@images/pages/auth-v2-login-illustration-bordered-light.png'
@@ -7,14 +6,14 @@ import authV2LoginIllustrationDark from '@images/pages/auth-v2-login-illustratio
 import authV2LoginIllustrationLight from '@images/pages/auth-v2-login-illustration-light.png'
 import authV2MaskDark from '@images/pages/auth-v2-mask-dark.png'
 import authV2MaskLight from '@images/pages/auth-v2-mask-light.png'
-import tree from '@images/pages/tree.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
 
 import {
   requiredValidatorId,
-  requiredValidatorPw
+  requiredValidatorPw,
 } from '@validators'
+
 const router = useRouter()
 
 const form = ref({
@@ -22,6 +21,7 @@ const form = ref({
   password: '',
   remember: false,
 })
+
 const refVForm = ref()
 
 const id = ref('')
@@ -32,8 +32,9 @@ const authThemeImg = useGenerateImageVariant(authV2LoginIllustrationLight, authV
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
 
 const loginId = () => {
-  router.push({path:"/access-control"});
+  router.push({ path: "/access-control" })
 }
+
 const loginNext = () => {
   refVForm.value?.validate().then(({ valid: isValid }) => {
     if (isValid)
@@ -47,44 +48,47 @@ export default{
   data() {
     return {
       keyCombination: [], //사용자가 누른 키 조합을 저장하는 역할
-      timer: null
-    }; 
+      timer: null,
+    } 
   },
   created(){
-    window.addEventListener('keydown',this.handleKeyDown);
+    window.addEventListener('keydown', this.handleKeyDown)
   },
-  destroyed(){
-    window.removeEventListener('keydown', this.handleKeyDown);
+  unmounted(){
+    window.removeEventListener('keydown', this.handleKeyDown)
   },
   methods: {
     handleKeyDown(event) {
-      const key = event.key;
-      this.keyCombination.push(key);
+      const key = event.key
 
-      clearTimeout(this.timer);
+      this.keyCombination.push(key)
+
+      clearTimeout(this.timer)
       this.timer = setTimeout(() => {
-        this.resetKeyCombination();
+        this.resetKeyCombination()
+
         //console.log('타이머가 만료되었습니다.')
-      }, 5000);
+      }, 5000)
 
       if (this.checkKeyCombination()) {
-        this.enterAdminMode();
+        this.enterAdminMode()
       }
     },
     checkKeyCombination() {
-      const targetKeys = ['ArrowUp','ArrowUp', 'ArrowRight','ArrowRight', 'ArrowDown','ArrowDown', 'ArrowLeft','ArrowLeft'];
-      return this.keyCombination.length === targetKeys.length && this.keyCombination.every((key, index) => key === targetKeys[index]);
+      const targetKeys = ['ArrowUp', 'ArrowUp', 'ArrowRight', 'ArrowRight', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowLeft']
+      
+      return this.keyCombination.length === targetKeys.length && this.keyCombination.every((key, index) => key === targetKeys[index])
     },
     resetKeyCombination() {
-      this.keyCombination = [];
+      this.keyCombination = []
     },
     enterAdminMode() {
       // 일반 모드로 변경
       //console.log('일반 모드를 실행합니다.');
-      location.href = '/login';
-    }
-  }
-};
+      location.href = '/login'
+    },
+  },
+}
 </script>
 
 <template>
@@ -102,26 +106,20 @@ export default{
       no-gutters
       class="auth-wrapper"
     >
-      <VCol
-        class="d-none d-md-flex align-center justify-center position-relative"
-      >
-      </VCol>
+      <VCol class="d-none d-md-flex align-center justify-center position-relative" />
 
       <VCol
         cols="12"
         class="auth-card-v2 d-flex align-center justify-center"
-        style="background-color:gray;opacity: 0.8;"
+        style="background-color: gray;opacity: 0.8;"
       >
         <VCard
           flat
           :max-width="500"
           class="mt-12 mt-sm-0 pa-4"
-          style="border:solid 2px gray;width:500px;height:500px;opacity: 0.8;"
+          style="width: 500px;height: 500px;border: solid 2px gray;opacity: 0.8;"
         >
-          <VCol
-            class="text-center" 
-          >
-          
+          <VCol class="text-center">
             <VCardText>              
               <h5 class="text-h5 mb-1">
                 &#128100;관리자 로그인
@@ -131,7 +129,8 @@ export default{
           <VCardText>
             <VForm
               ref="refVForm" 
-              @submit.prevent="router.push('/access-control')">
+              @submit.prevent="router.push('/access-control')"
+            >
               <VRow>
                 <!-- 아이디 입력란 -->
                 <VCol cols="12">
@@ -152,10 +151,12 @@ export default{
                     @click:append-inner="isPasswordVisible = !isPasswordVisible"
                   />                 
                 </VCol>                               
-                  <VCol cols="12">
-                    <div class="d-flex align-center flex-wrap mt-1 mb-4 justify-center">
-                      <VBtn @click="loginNext()">로그인</VBtn>
-                      <div @keydown="handleKeyDown"></div>
+                <VCol cols="12">
+                  <div class="d-flex align-center flex-wrap mt-1 mb-4 justify-center">
+                    <VBtn @click="loginNext">
+                      로그인
+                    </VBtn>
+                    <div @keydown="handleKeyDown" />
                   </div>
                 </VCol>                                                                  
               </VRow>
@@ -170,12 +171,13 @@ export default{
 
 <style lang="scss">
 @use "@core/scss/template/pages/page-auth.scss";
+
 video {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  block-size: 100%;
+  inline-size: 100%;
+  inset-block-start: 0;
+  inset-inline-start: 0;
   object-fit: cover;
 }
 </style>

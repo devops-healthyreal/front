@@ -9,12 +9,19 @@ const store = useStore()
 
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=computed(() => userInfo.value.id)
+const connetId = computed(() => userInfo.value ? userInfo.value.id : null)
+
 const name = computed(() => store.state.userStore.userInfo ? store.state.userStore.userInfo.name : null)
 
 let noticlists = ref([])
 
-const getNoticList = async id =>{
+const getNoticList = async id => {
+  if (!id) {
+    console.log('id is null')
+    
+    return
+  }
+
   await axios.get('http://localhost:4000/Notic/View.do', { params: { id: id } })
     .then(response => {
       console.log('가져오기 성공')
@@ -26,20 +33,23 @@ const getNoticList = async id =>{
     })
 }
 
+
 // 특정 시간마다 실행할 함수
 const executePeriodically = () => {
-  getNoticList(connetId.value);
+  getNoticList(connetId.value)
 }
 
 // 초기 실행
 onMounted(() => {
-  getNoticList(connetId.value);
+  if (connetId.value) {
+    getNoticList(connetId.value)
 
-  // 1분마다 실행
-  setInterval(() => {
-    executePeriodically();
-  }, 60000); // 1분은 60000밀리초입니다.
-});
+    // 1분마다 실행
+    setInterval(() => {
+      executePeriodically()
+    }, 60000) // 1분은 60000밀리초입니다.
+  }
+})
 </script>
 
 <template>

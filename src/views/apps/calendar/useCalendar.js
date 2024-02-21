@@ -9,15 +9,15 @@ export const blankEvent = {
   sch_title: '',
   sch_start: '',
   sch_end: '',
-  extendedProps: {
-    /*
+
+  /*
           ℹ️ We have to use undefined here because if we have blank string as value then select placeholder will be active (moved to top).
           Hence, we need to set it to undefined or null
         */
-    calendar: undefined,
-    sch_area: '',
-    sch_memo: '',
-  },
+  calendar: undefined,
+  sch_area: '',
+  sch_memo: '',
+
 }
 export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpen) => {
   // 👉 themeConfig
@@ -42,18 +42,16 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
 
   // ℹ️ Extract event data from event API
   const extractEventDataFromEventApi = eventApi => {
-    const { id, sch_title, sch_start, sch_end, extendedProps: { calendar, sch_area, sch_memo } } = eventApi
+    const { id, sch_title, sch_start, sch_end, calendar, sch_area, sch_memo } = eventApi
     
     return {
       id,
       sch_title,
       sch_start,
       sch_end,
-      extendedProps: {
-        calendar,
-        sch_area,
-        sch_memo,
-      },
+      calendar,
+      sch_area,
+      sch_memo,
 
     }
   }
@@ -146,10 +144,9 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
   const updateEvent = _event => {
     store.updateEvent(_event)
       .then(r => {
-        const propsToUpdate = ['id', 'sch_title']
-        const extendedPropsToUpdate = ['calendar', 'sch_area', 'sch_memo']
+        const propsToUpdate = ['id', 'sch_title', 'calendar', 'sch_area', 'sch_memo']
 
-        updateEventInCalendar(r.data.event, propsToUpdate, extendedPropsToUpdate)
+        updateEventInCalendar(r.data.event, propsToUpdate)
       })
   }
 
@@ -205,7 +202,7 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
       */
     navLinks: true,
     eventClassNames({ event: calendarEvent }) {
-      const colorName = calendarsColor[calendarEvent._def.extendedProps.calendar]
+      const colorName = calendarsColor[calendarEvent._def.calendar]
       
       return [
         // Background Color

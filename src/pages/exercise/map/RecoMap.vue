@@ -16,8 +16,8 @@
 </template>
 
 <script setup>
-import { createRoadView, setMarkerNInfo } from '@/pages/exercise/createRoadView'
-import { getLatLng, getPedePath } from '@/pages/exercise/googleGeoCoderAPI'
+import { createRoadView } from '@/pages/exercise/createRoadView'
+import { getCurrentPosition, getLatLng, getPedePath } from '@/pages/exercise/googleGeoCoderAPI'
 import { ref } from 'vue'
 
 //구글 지도 api 끝
@@ -35,13 +35,11 @@ var recommendPath = [ //받아온 데이터라고 가정
 ]
 var map = ref('') //지도 객체를 담을 변수
 var recommendPathView = [] //받아온 경로를 뿌려주는 값을 저장할 변수
-var pathAboutLatLng = []
 
 const selectController = () => {
   console.log('select에 클릭 이벤트')
 }
 
-const polyline = ref()
 
 onMounted(()=>{
   const script = document.createElement("script")
@@ -59,7 +57,6 @@ onMounted(()=>{
           lat = currlat
           initMap(lng, lat)
           map.value.relayout()
-          console.log('reco:', map.value)
       
           createRoadView(map.value)
         })
@@ -90,12 +87,12 @@ const initMap = (lng, lat) => {
   emit("updateRoadView", map.value)
 
   //경로 가져오기
-  var places = new kakao.maps.services.Places() //검색을 위한 객체
   recommendPath.forEach(path=>{
     var option = ''
     path.forEach(point=>{
       option += point + '-' //뿌려주는 용도의 text
     })
+    option = option.slice(0, option.length-1)
     recommendPathView.push(option) //드롭다운 선택란에 뿌려줄 값
   })
   var path
@@ -122,17 +119,29 @@ const initMap = (lng, lat) => {
             console.log(name)
             loadName.push(name)
             getLatLng(name).then(latlng=>{
-              if (latlng!='') load.push([latlng.lat, latlng.lng])
-              else {
+              load.push([latlng.lat, latlng.lng])
+            })
+              .catch(err=>{
                 var places = new kakao.maps.services.Places() //검색을 위한 객체
                 places.keywordSearch(name, (result, status)=>{
                   if (status === kakao.maps.services.Status.OK) {
-                    //console.log('검색 결과:', result[0]) //위도, 경도 값에 대한 정보가 나와있음
+                    console.log('검색 결과:', result[0]) //위도, 경도 값에 대한 정보가 나와있음
                     load.push([result[0].y, result[0].x]) //[x,y] = [lng, lat]
                   }
                 })
-              }
-            })
+              })
+
+            //   if (latlng!='') load.push([latlng.lat, latlng.lng])
+            //   else {
+            //     var places = new kakao.maps.services.Places() //검색을 위한 객체
+            //     places.keywordSearch(name, (result, status)=>{
+            //       if (status === kakao.maps.services.Status.OK) {
+            //         //console.log('검색 결과:', result[0]) //위도, 경도 값에 대한 정보가 나와있음
+            //         load.push([result[0].y, result[0].x]) //[x,y] = [lng, lat]
+            //       }
+            //     })
+            //   }
+            // })////
           }//split if문
         }//for
         console.log('선택한 경로', loadName)
@@ -140,25 +149,11 @@ const initMap = (lng, lat) => {
 
         //drawPolyLine(load, loadName, map.value, polyline, markers, infos)
         getPedePath(load, loadName, map.value, polyline, markers, infos) //보행자 경로 표시
-        setMarkerNInfo(load, loadName, map.value, markers, infos) //포인트 위치에만 마커, 인포윈도우 생성
+        //setMarkerNInfo(load, loadName, map.value, markers, infos) //포인트 위치에만 마커, 인포윈도우 생성
       }
     }
+    map.value.relayout()
   }
-}
-
-//사용자의 현재 위치를 얻어오기 위한 함수
-const getCurrentPosition = () => {
-  return new Promise((resolve, reject) => {
-    if(navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(position => {
-        resolve([position.coords.longitude, position.coords.latitude])
-      }, error => {
-        reject(error)
-      })
-    } else {
-      reject(new Error('Geolocation is not supported by this browser.'))
-    }
-  })
 }
 </script>
 

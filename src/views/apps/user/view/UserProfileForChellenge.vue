@@ -4,21 +4,11 @@ import {
 } from '@core/utils/formatters'
 
 const props = defineProps({
-  userData: {
+  participantsData: {
     type: Object,
     required: true,
   },
 })
-
-const standardPlan = {
-  plan: 'Standard',
-  price: 99,
-  benefits: [
-    '10 Users',
-    'Up to 10GB storage',
-    'Basic Support',
-  ],
-}
 
 const isUserInfoEditDialogVisible = ref(false)
 const isUpgradePlanDialogVisible = ref(false)
@@ -33,98 +23,68 @@ const resolveUserStatusVariant = stat => {
   
   return 'primary'
 }
-
-const resolveUserRoleVariant = role => {
-  if (role === 'subscriber')
-    return {
-      color: 'primary',
-      icon: 'mdi-account-outline',
-    }
-  if (role === 'author')
-    return {
-      color: 'warning',
-      icon: 'mdi-cog-outline',
-    }
-  if (role === 'maintainer')
-    return {
-      color: 'success',
-      icon: 'mdi-database-outline',
-    }
-  if (role === 'editor')
-    return {
-      color: 'info',
-      icon: 'mdi-pencil-outline',
-    }
-  if (role === 'admin')
-    return {
-      color: 'error',
-      icon: 'mdi-dns-outline',
-    }
-  
-  return {
-    color: 'primary',
-    icon: 'mdi-account-outline',
-  }
-}
 </script>
 
 <template>
-  <VRow>
-    <!-- SECTION User Details -->
-    <VCol
-      v-if="props.userData"
-      cols="12"
-    >
-      <VCard v-if="props.userData">
-        <VCardText class="text-center mt-12 mt-sm-0 pa-0">
-          <!-- 👉 Avatar -->
-          <VAvatar
-            rounded="sm"
-            :size="120"
-            :color="!props.userData.avatar ? 'primary' : undefined"
-            :variant="!props.userData.avatar ? 'tonal' : undefined"
-          >
-            <VImg
-              v-if="props.userData.avatar"
-              :src="props.userData.avatar"
-              style="margin-top: 15px;"
-            />
-            <span
-              v-else
-              class="text-5xl font-weight-medium"
+  <VCol>
+    <VRow>
+      <!-- SECTION User Details -->
+      <VCol
+        v-for="participant in props.participantsData"
+        :key="participant.ID"
+        cols="3"
+      >
+        <VCard>
+          <VCardText class="text-center mt-12 mt-sm-0 pa-0">
+            <!-- 👉 Avatar -->
+            <VAvatar
+              rounded="sm"
+              :size="120"
+              :color="!participant.PRO_FILEPATH ? 'primary' : undefined"
+              :variant="!participant.PRO_FILEPATH ? 'tonal' : undefined"
             >
-              {{ avatarText(props.userData.fullName) }}
-            </span>
-          </VAvatar>
+              <VImg
+                v-if="participant.PRO_FILEPATH"
+                :src="participant.PRO_FILEPATH"
+                style="margin-top: 15px;"
+              />
+              <span
+                v-else
+                class="text-5xl font-weight-medium"
+              >
+                {{ avatarText(participant.ID) }}
+              </span>
+            </VAvatar>
 
-          <!-- 👉 User fullName -->
-          <h6 class="text-h6 mt-4">
-            {{ props.userData.fullName }}
-          </h6>
+            <!-- 👉 User fullName -->
+            <h6 class="text-h6 mt-4">
+              {{ participant.ID }}
+            </h6>
 
-          <!-- 👉 이행률 -->
-          <VChip
-            :color="resolveUserRoleVariant(props.userData.role).color"
-            density="comfortable"
-            class="text-capitalize mt-4"
-            style="margin-bottom: 15px;"
-          >
-            {{ props.userData.role }}
-          </VChip>
-        </VCardText>
-      </VCard>
-    </VCol>
+            <!-- 👉 이행률 -->
+            <VChip
+              density="comfortable"
+              class="text-capitalize mt-4"
+              style="margin-bottom: 15px;"
+            >
+              80%
+            </VChip>
+          </VCardText>
+        </VCard>
+      </VCol>
     <!-- !SECTION -->
-  </VRow>
+    </VRow>
+  
 
-  <!-- 👉 Edit user info dialog -->
-  <UserInfoEditDialog
-    v-model:isDialogVisible="isUserInfoEditDialogVisible"
-    :user-data="props.userData"
-  />
+    <!-- 👉 Edit user info dialog -->
+    <UserInfoEditDialog
+      v-model:isDialogVisible="isUserInfoEditDialogVisible"
+      :user-data="props.userData"
+    />
 
-  <!-- 👉 Upgrade plan dialog -->
-  <UserUpgradePlanDialog v-model:isDialogVisible="isUpgradePlanDialogVisible" />
+    <!-- 👉 Upgrade plan dialog -->
+    <UserUpgradePlanDialog v-model:isDialogVisible="isUpgradePlanDialogVisible" />
+  </vcol>
 </template>
 
 <style lang="scss" scoped>

@@ -1,18 +1,31 @@
 <script setup>
 import TermsAndConditions from '@/views/demos/register/TermsAndConditions.vue'
+import axios from '@axios'
+import { useStore } from 'vuex'
 
-// const store = useStore()
+const store = useStore()
 
-// onMounted(async () => {
-//   // 서버에서 토큰을 가져와 로컬 스토리지에 저장
-//   const response = await axios.post('http://localhost:4000/user/getToken', {}, { withCredentials: true })
-//   const token = response.data
+onMounted(async () => {
+  // 서버에서 토큰을 가져와 로컬 스토리지에 저장
+  const response = await axios.post('http://localhost:4000/user/getToken', {}, { withCredentials: true })
+  const token = response.data
 
-//   localStorage.setItem('access_token', token)
+  localStorage.setItem('access_token', token)
 
-//   // 토큰을 이용해 사용자 정보를 가져옴
-//   store.dispatch('getMemberInfo')
-// })
+  // 토큰을 이용해 사용자 정보를 가져옴
+  await store.dispatch('getMemberInfo')
+
+  // 로그인 토큰 가져오기
+  const currentToken = localStorage.getItem('access_token')
+
+  // 사용자 정보 가져오기
+  const userInfo = store.state.userStore.userInfo
+
+  // 유저스토어의 상태값 가져오기
+  const userStoreState = store.state.userStore
+
+  console.log(currentToken, userInfo, userStoreState)
+})
 
 
 
