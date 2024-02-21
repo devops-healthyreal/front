@@ -2,6 +2,24 @@
 import food3 from '@images/Unbalanced/22.jpg'
 import food2 from '@images/margherita.jpg'
 import food from '@images/veggieroll.jpg'
+import { defineEmits, defineProps, ref } from 'vue'
+
+const props = defineProps({
+  checkedItems: Array,
+})
+
+const emit = defineEmits(['sendData'])
+const checkedItems = ref([])
+
+// 여기에 checkedItem에 체크박스 value 저장 저장된 배열 [id].vue에 emit으로 데이터 보냄
+function sendDataToParent(value) {
+  if (checkedItems.value.includes(value)) {
+    checkedItems.value = checkedItems.value.filter(item => item !== value)
+  } else {
+    checkedItems.value.push(value)
+  }
+  emit('sendData', checkedItems.value)
+}
 </script>
 
 <template>
@@ -46,7 +64,12 @@ import food from '@images/veggieroll.jpg'
 
             <!-- 👉 Person Actions -->
             <div>
-              <VCheckbox color="warning" />
+              <VCheckbox
+                color="warning"
+                class="BCheckbox"
+                value="B"
+                @change="sendDataToParent('B')"
+              />
             </div>
           </div>
         </VTimelineItem>
@@ -84,7 +107,11 @@ import food from '@images/veggieroll.jpg'
 
             <!-- 👉 Person Actions -->
             <div>
-              <VCheckbox color="warning" />
+              <VCheckbox
+                color="warning" 
+                value="L"
+                @change="sendDataToParent('L')"
+              />
             </div>
           </div>
         </VTimelineItem>
@@ -121,7 +148,11 @@ import food from '@images/veggieroll.jpg'
 
             <!-- 👉 Person Actions -->
             <div>
-              <VCheckbox color="warning" />
+              <VCheckbox
+                color="warning" 
+                value="D"
+                @change="sendDataToParent('D')"
+              />
             </div>
           </div>
         </VTimelineItem>
