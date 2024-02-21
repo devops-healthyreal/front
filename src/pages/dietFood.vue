@@ -2,8 +2,8 @@
 import UserCategory from '@/components/dialogs/UserCategory.vue'
 import RecipeView from '@/components/dialogs/recipe_view.vue'
 import axios from '@axios'
+import { ref } from 'vue'
 import { useStore } from 'vuex'
-import { ref } from 'vue';
 
 const store = useStore()
 
@@ -30,11 +30,12 @@ const fetchProjectData = () => {
   }
 }
 
-const choicecategory = ref(''); // 선택된 값이 저장될 변수
-const handleChoiceCategory = (value) => {
-  choicecategory.value = value;
-  console.log('선택한 카테고리:', value);
-};
+const choicecategory = ref('') // 선택된 값이 저장될 변수
+
+const handleChoiceCategory = value => {
+  choicecategory.value = value
+  console.log('선택한 카테고리:', value)
+}
 
 const dietPlansList = [
   {
@@ -124,12 +125,12 @@ watch(router, fetchProjectData, { immediate: true })
           <VCardText class="justify-center">
             <VBtn
               variant="elevated" 
-              @click="isCheckedRecipe = true, getrecipe(connetId, list.title == '아침 메뉴'? '계란': list.title == '점심 메뉴'?'두부':'닭가슴살'), isRecipe = true"
+              style=" width: 90px;margin-right: 5px;"
+              @click="getrecipe(connetId, list.title == '아침 메뉴'? '계란': list.title == '점심 메뉴'?'두부':'닭가슴살'), isRecipe = true"
             >
-              레시피
+              식단 재추천
             </VBtn>
-          </VCardText>
-          <VCardText class="justify-center">
+          
             <VBtn
               variant="elevated"
               @click="isCheckedRestaurant = true"
@@ -139,19 +140,14 @@ watch(router, fetchProjectData, { immediate: true })
           </VCardText>
         </VCard>
       </VCol>
-      <VCol>
-        <VBtn
-          block
-          @click="isUpgradePlanDietPlan = true"
-        >
-          식단 재추천
-        </VBtn>
-      </VCol>
     </VRow>
-    <UserUpgradedietPlan v-model:isDialogVisible="isUpgradePlanDietPlan" />
     <UserCheckedRecipe v-model:isDialogVisible="isCheckedRecipe" />
     <UserFindRestaurant v-model:isDialogVisible="isCheckedRestaurant" />
-    <UserCategory v-model:isDialogVisible="isCategory" :choicecategory="choicecategory" @update:choicecategory="handleChoiceCategory"/>
+    <UserCategory
+      v-model:isDialogVisible="isCategory"
+      :choicecategory="choicecategory"
+      @update:choicecategory="handleChoiceCategory"
+    />
     <RecipeView 
       v-model:isDialogVisible="isRecipe"
       :recipedata="recipedata" 

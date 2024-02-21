@@ -23,7 +23,7 @@ const closeModal = () => {
 
 <template>
   <VDialog
-    style="height: 100%;"
+    style=" width: 50%;height: 100%;"
     :model-value="props.isDialogVisible"
     @update:model-value="val => $emit('update:isDialogVisible', val)"
   >
@@ -36,7 +36,7 @@ const closeModal = () => {
           icon
           @click="closeModal"
         >
-          <VIcon style="margin-top: -50px;">
+          <VIcon>
             mdi-close
           </VIcon>
         </VBtn>
