@@ -19,7 +19,6 @@ const closeModal = () => {
   // 모달 창을 닫는 로직을 작성합니다.
   emit('update:isDialogVisible', false)
 }
-
 </script>
 
 <template>
@@ -58,6 +57,7 @@ const closeModal = () => {
             :src="group[0].RECIPE_IMG"
             alt="레시피 사진"
             style="width: 200px;height: 130px;"
+            @click="$emit('update:recipedatach', group)"
           >
           <a
             :href="group[0].RECIPE_URL"
