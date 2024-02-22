@@ -8,10 +8,12 @@ const props = defineProps({
   pay: {
     // pay props의 타입을 지정합니다. 필요에 따라 수정할 수 있습니다.
     type: Number,
-
     // 기본값을 설정할 수 있습니다. 필요에 따라 수정할 수 있습니다.
     default: null,
-  },
+  },challroomno:{
+    type: Number,
+    default: null,
+  }
 })
 
 const store = useStore()
@@ -26,7 +28,7 @@ const payHandler = async () => {    //await과 함께 사용하는 함수
     response = await Bootpay.requestPayment({
       "application_id": "65a88b6500be04001a1ab11b",  
       "price": props.pay,
-      "order_name": "HealthyReal 챌린지",
+      "order_name": "HealthyReal 챌린지 "+props.challroomno,
       "order_id": "TEST_ORDER_ID",
 
       // "pg": "카카오페이",
@@ -34,9 +36,9 @@ const payHandler = async () => {    //await과 함께 사용하는 함수
       "tax_free": 0,
       "user": {
         "id": connetId,
-        "username": "김길동",
-        "phone": "01000000000",
-        "email": "test@test.com",
+        // "username": "김길동",
+        // "phone": "01000000000",
+        // "email": "test@test.com",
       },
       "items": [
         {
