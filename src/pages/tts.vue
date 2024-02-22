@@ -2,26 +2,21 @@
 import axios from '@axios'
 import { onMounted, ref } from 'vue'
 
-const props = defineProps({
-  transcript: String,
-  isRecognizing: Boolean,
-  startRecognition: Function,
-})
-
 let messages = ref([{ role: 'system', content: 'You are Helthy-Real\'s customer service chatbot.' }])
 let chatgpt = ref('')
-let selectedVoice = ref('')
-let transcript = ref(props.transcript)
-let isRecognizing = ref(props.isRecognizing)
+let selectedVoice = ref(null)
+let transcript = ref('')
+let isRecognizing = ref(false)
 let recognition
 let voices = ref([])
+let ttsText = ref('')
 
 //stt
 if (!('webkitSpeechRecognition' in window)) {
   console.log('당신의 브라우저는 STT를 지원하지 않습니다.')
 } else {
   recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition || window.mozSpeechRecognition || window.msSpeechRecognition)()
-  recognition.lang = 'ko-KR'
+  recognition.lang = 'Microsoft Heami - Korean (Korean)', 'Google US English'
   recognition.interimResults = true
 
   recognition.onspeechstart = () => {
@@ -40,11 +35,9 @@ if (!('webkitSpeechRecognition' in window)) {
 
     for (let i = event.resultIndex; i < event.results.length; ++i) {
       if (event.results[i].isFinal) {
-        // ChatGPT 응답 받기 시작
+      // ChatGPT 응답 받기 시작
         try {
-          const response = await axios.post('YOUR_CHAT_GPT_API_URL', { transcript: transcript.value })
-
-          console.log(response.data)
+          await sendToChatGPT(transcript.value) // 음성 인식 결과를 OpenAI API에 전송
         } catch (error) {
           console.error('ChatGPT에 요청 중 오류가 발생했습니다:', error)
         }
@@ -69,17 +62,10 @@ const startRecognition = () => {
 }
 
 //tts
-const sendToChatGPT = async () => {
+const sendToChatGPT = async transcript => {
   try {
-    const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-      model: 'gpt-3.5-turbo',
-      messages: messages.value,
-      temperature: 0,
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer YOUR_API_KEY`,
-      },
+    const response = await axios.post('https://localhost:3333/chatgpt', {
+      transcript: transcript, // 사용자 메시지를 백엔드에 전달
     })
 
     chatgpt.value = response.data.choices[0].message.content
@@ -98,16 +84,30 @@ if ('speechSynthesis' in window) {
   utterance  = new SpeechSynthesisUtterance()
 
   loadVoices = function() {
-    var voices = window.speechSynthesis.getVoices()
-    voices.forEach(function(voice, i) {
-      if (voice.lang === 'ko-KR') {
-        selectedVoice.value = voice.voiceURI
+    return new Promise(resolve => {
+      let voiceList = window.speechSynthesis.getVoices()
+      if (voiceList.length !== 0) {
+        voices.value = voiceList.map(voice => ({ text: voice.name, value: voice.voiceURI }))
+        console.log('Loaded voices: ', voices.value) // 로드된 음성 목록 출력
+        console.log('voiceList: ', voiceList)
+        resolve()
+      } else {
+        window.speechSynthesis.onvoiceschanged = () => {
+          voiceList = window.speechSynthesis.getVoices()
+          voices.value = voiceList.map(voice => ({ text: voice.name, value: voice.voiceURI }))
+          console.log('Loaded voices: ', voices.value.value) // 로드된 음성 목록 출력
+          resolve()
+        }
+        window.speechSynthesis.getVoices() // 음성 목록을 불러오는 코드 추가
       }
     })
   }
 
+  window.speechSynthesis.onvoiceschanged = loadVoices
+
   startSynthesis = function() {
-    utterance.text = chatgpt.value
+    ttsText.value = chatgpt.value
+    utterance.text = ttsText.value
     if (selectedVoice.value) {
       utterance.voiceURI = selectedVoice.value
     }
@@ -122,7 +122,21 @@ if ('speechSynthesis' in window) {
 }
 
 // Load voices when component is mounted
-onMounted(loadVoices)
+onMounted(async () => {
+  window.speechSynthesis.onvoiceschanged = async () => {
+    await loadVoices()
+
+    let voice = voices.value.find(voice => voice.text.includes('Microsoft Heami - Korean (Korean)', 'Google US English'))
+    console.log('voice.value: ', voices.value) // voice 변수가 정의된 이후에 console.log 호출
+
+    if (voice) { 
+      selectedVoice.value = voice.text 
+    } else {
+      console.log('Korean voice not found')
+    }
+  }
+  window.speechSynthesis.getVoices() // 음성 목록을 가져오는 요청을 시작합니다.
+})
 </script>
 
 <template>
@@ -159,8 +173,17 @@ onMounted(loadVoices)
           <VSelect
             id="voice"
             v-model="selectedVoice"
-            :items="voices"
+            :items="voices.value"
             label="음성을 선택하세요"
+            item-text="text"
+            item-value="text"
+          />
+        </VCol>
+        <VCol cols="12">
+          <VTextField
+            id="input-tts"
+            v-model="ttsText"
+            label="TTS에 사용할 텍스트를 입력하세요"
           />
         </VCol>
         <VCol cols="12">

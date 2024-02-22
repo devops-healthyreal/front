@@ -46,6 +46,11 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/tts',
+      name: 'TTS',
+      component: () => import(/* webpackChunkName: "tts" */ '../pages/tts.vue'),
+    },
+    {
       path: '/apps/challengeList',
       name: 'challengeList',
       components: {

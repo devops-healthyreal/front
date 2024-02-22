@@ -136,6 +136,15 @@ const iconss = [
         </VWindow>
         <VCol cols="12" />
         <VCard>
+          <VCol cols="12">
+            <VBtn
+              id="startBtn"
+              class="btn-lg btn-dark"
+              @click="$router.push('/tts')"
+            >
+              SpeechToText Start
+            </VBtn>
+          </VCol>
           <VCardText>
             <VTab
               v-for="icons in iconss"
