@@ -11,6 +11,7 @@ const isAddMateRoomSettingDialogVisible = ref(false)
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
+const isSnackbarCenteredVisible = ref(false)
 
 const fetchProjectData = () => {
   axios.get('/pages/profile', { params: { tab: 'projects' } }).then(response => {
@@ -21,25 +22,6 @@ const fetchProjectData = () => {
 watch(router, fetchProjectData, { immediate: true })
 
 const challenges = ref([])
-
-const challenge = ref({
-  mateNo: null,
-  mateSport: null,
-  mateArea: null,
-  mateCapacity: null,
-  gLimit: null,
-  ageMin: null,
-  ageMax: null,
-  rYN: null,
-  mYN: null,
-  mateDate: null,
-  matchingRoom: null,
-  mCreateDate: null,
-  mateContent: null,
-  mateTitle: null,
-  manager: null,
-})
-
 
 const myData = ref([])
 
@@ -64,11 +46,6 @@ const getData = async () => {
     challenges.value = response.data
 
     console.log("challenges.value---", challenges.value)
-
-    if (challenges.value.length > 0) {
-      challenge.value = challenges.value[0]
-      console.log("challenge.value---", challenge.value)
-    }
 
   } catch (error) {
     console.error(error)
@@ -125,25 +102,25 @@ const getGenderCode = gender => {
 
 
 //참여 유효성 검사
-const checkEntrance = async challNo => {
+const checkEntrance = async challenge => {
   console.log("myData.value---", myData.value)
   console.log("calculateAge(myData.value.B_DAY)---", calculateAge(myData.value.data.B_DAY))
-  console.log("challenge.value.ageMin---", challenge.value.ageMin)
-  console.log("challenge.value.ageMax---", challenge.value.ageMax)
+  console.log("challenge.value.ageMin---", challenge.ageMin)
+  console.log("challenge.value.ageMax---", challenge.ageMax)
   console.log("getGenderCode(myData.value.GENDER)---", getGenderCode(myData.value.data.GENDER))
   console.log("myData.value.data.GENDER---", myData.value.data.GENDER)
-  console.log("challenge.value.glimit---", challenge.value.glimit)
+  console.log("challenge.value.glimit---", challenge.glimit)
   console.log("connetId---", connetId)
   console.log("challNo---", challNo)
 
-  if (myData.value && calculateAge(myData.value.data.B_DAY) >= challenge.value.ageMin && calculateAge(myData.value.data.B_DAY) <= challenge.value.ageMax && (getGenderCode(myData.value.data.GENDER)===challenge.value.glimit || challenge.value.glimit===0)) {
+  if (myData.value && calculateAge(myData.value.data.B_DAY) >= challenge.ageMin && calculateAge(myData.value.data.B_DAY) <= challenge.ageMax && (getGenderCode(myData.value.data.GENDER)===challenge.glimit || challenge.glimit===0)) {
 
-    const response = await axios.post('http://localhost:4000/mroom/joinRoom.do', { id: connetId, challNo: challNo })
+    const response = await axios.post('http://localhost:4000/mroom/joinRoom.do', { id: connetId, challNo: challenge.challNo })
 
-    router.push({ name: 'apps-user-room', params: { room: challNo } }) //넘겨줄 Vue 경로 입력하기
+    router.push({ name: 'apps-user-room', params: { room: challenge.challNo } }) //넘겨줄 Vue 경로 입력하기
 
   } else {
-    alert('입장할 수 없습니다.')
+    isSnackbarCenteredVisible.value = true
   }
 }
 </script>
@@ -245,7 +222,6 @@ const checkEntrance = async challNo => {
             <VCardText>
               <div class="d-flex align-center justify-end flex-wrap gap-2">
                 <VChip
-                  v-if="challenge.ageMin && challenge.ageMax"
                   color="success"
                   density="compact"
                 >
@@ -280,10 +256,16 @@ const checkEntrance = async challNo => {
                 <span>
                   <VBtn 
                     v-if="challenge.participantsData.length <= challenge.mateCapacity"
-                    @click="checkEntrance(challenge.mateNo)"
+                    @click="checkEntrance(challenge)"
                   >
                     입장
-                  </VBtn>                  
+                    <VSnackbar
+                    v-model="isSnackbarCenteredVisible"
+                    location="center"
+                  >
+                    입장할 수 없습니다.
+                  </VSnackbar>  
+                  </VBtn>
                   <strong v-else>참여불가</strong>
                 </span>
               </div>

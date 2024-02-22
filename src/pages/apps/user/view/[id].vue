@@ -8,8 +8,11 @@ import UserBioPanel from '@/views/apps/user/view/UserBioPanel.vue'
 import UserEdit from '@/views/apps/user/view/UserEdit.vue'
 import UserHistory from '@/views/apps/user/view/UserHistory.vue'
 import UserPaymentList from '@/views/apps/user/view/UserPaymentList.vue'
+import ApexChartAreaChart from '@/views/charts/apex-chart/ApexChartAreaChart.vue'
+import ChartJsPolarAreaChart from '@/views/charts/chartjs/ChartJsPolarAreaChart.vue'
+import ChartJsRadarChart from '@/views/charts/chartjs/ChartJsRadarChart.vue'
 import axios from '@axios'
-import { ref, watchEffect } from 'vue'
+import { onMounted, ref, watchEffect } from 'vue'
 import { useStore } from 'vuex'
 
 const currentTab = ref('tab-1')
@@ -25,8 +28,8 @@ const route = useRoute()
 const userData = ref()
 const userTab = ref(null)
 
-const checkedItems = ref([])
-const checkedExerciseItems = ref([])
+const checkedItems = ref("")
+const checkedExerciseItems = ref("")
 
 function handleDataFromChild(data) {
   checkedItems.value = data
@@ -39,6 +42,24 @@ function handleDataFromChildExer (data) {
   console.log(checkedExerciseItems.value)
   console.log('여기다운동')
 }
+
+onMounted(async () => { await setting() })
+
+
+//이행률 데이터 가져오기
+const setting = async () => {
+  const response = await axios.post('http://localhost:4000/croom/implementationSetting.do',  { id: connetId } )
+  if (response.status === 200) {
+    checkedItems.value = response.data.eatting
+    checkedExerciseItems.value = response.data.exercise
+    console.log(' 이행률 데이타는---', response)
+    console.log(' checkedItems.value---', checkedItems.value)
+    console.log(' checkedItems.value---', checkedExerciseItems.value)
+  } else {
+    console.log('이행률 데이타 가져오기 실패')
+  }
+}
+
 
 const tabs = [
   {
@@ -67,21 +88,51 @@ const tabs = [
   },
 ]
 
+const chartJsCustomColors = {
+  white: '#fff',
+  yellow: '#ffe802',
+  primary: '#836af9',
+  areaChartBlue: '#2c9aff',
+  barChartYellow: '#ffcf5c',
+  polarChartGrey: '#4f5d70',
+  polarChartInfo: '#299aff',
+  lineChartYellow: '#d4e157',
+  polarChartGreen: '#28dac6',
+  lineChartPrimary: '#9e69fd',
+  lineChartWarning: '#ff9800',
+  horizontalBarInfo: '#26c6da',
+  polarChartWarning: '#ff8131',
+  scatterChartGreen: '#28c76f',
+  warningShade: '#ffbd1f',
+  areaChartBlueLight: '#84d0ff',
+  areaChartGreyLight: '#edf1f4',
+  scatterChartWarning: '#ff9f43',
+}
+
 userListStore.fetchUser(Number(route.params.id)).then(response => {
   userData.value = response.data
 })
 
+
 // checkedItems의 변화를 감지하여 변경 사항을 업데이트합니다.
 watchEffect(async () => {
-  console.log('checkedItems가 변경되었습니다:', checkedItems.value.length)
-  console.log('checkedItems가 변경되었습니다:', checkedExerciseItems.value.length)
+  if(checkedItems.value && checkedItems.value && Array.isArray(checkedItems.value)) {
+    console.log('checkedItems가 변경되었습니다:', checkedItems.value.length)
+  }
+  if(checkedExerciseItems.value && checkedExerciseItems.value && Array.isArray(checkedExerciseItems.value)) {
+    console.log('checkedExerciseItems가 변경되었습니다:', checkedExerciseItems.value.length)
+  }
 
-  const response = await axios.post('http://localhost:4000/croom/implementation.do', { 
-    foodCheckCount: checkedItems.value.length,
-    exerciseCheckCount: checkedExerciseItems.value.length,
-    id: connetId, 
-  })
+  console.log('checkedItems 초기화?:', checkedItems.value)
+  console.log('checkedExerciseItems 초기화?:', checkedExerciseItems.value)
 
+  if(checkedItems.value && Array.isArray(checkedItems.value) && checkedExerciseItems.value && Array.isArray(checkedExerciseItems.value)){
+    const response = await axios.post('http://localhost:4000/croom/implementation.do', { 
+      foodCheckCount: checkedItems.value,
+      exerciseCheckCount: checkedExerciseItems.value,
+      id: connetId, 
+    })
+  }
 })
 </script>
 
@@ -123,7 +174,60 @@ watchEffect(async () => {
         </VWindowItem>
 
         <VWindowItem>
-          제목에 맞는
+          <!-- 인바티 데이터 차트 모아둔 거 -->
+          <VCard>
+            <VCardItem class="d-flex flex-wrap justify-space-between gap-4">
+              <VCardTitle>Inbody 변화</VCardTitle>
+              <VCardSubtitle>몸의 변화를 그래프로 보세요</VCardSubtitle>
+
+              <template #append>
+                <div class="date-picker-wrapper">
+                  <AppDateTimePicker
+                    style="width: 150px;"
+                    model-value="2022-06-09"
+                    prepend-inner-icon="mdi-calendar-blank-outline"
+                    density="compact"
+                    :config="{ position: 'auto right' }"
+                  />
+                </div>
+              </template>
+            </VCardItem>
+
+            <VCardText>
+              <ApexChartAreaChart />
+            </VCardText>
+          </VCard>
+          <VRow style="margin-top: 20px;">
+            <!-- 인바티 데이터 차트 -->
+            <VCol
+              cols="12"
+              md="6"
+            >
+              <VCard
+                title="이번달 Inbody"
+                class="hover-card"
+              >
+                <VCardText>
+                  <ChartJsRadarChart />
+                </VCardText>
+              </VCard>
+            </VCol>
+
+            <!-- 영양분 데이터 차트 -->
+            <VCol
+              cols="12"
+              md="6"
+            >
+              <VCard
+                title="섭취 영양분"
+                class="hover-card"
+              >
+                <VCardText>
+                  <ChartJsPolarAreaChart :colors="chartJsCustomColors" />
+                </VCardText>
+              </VCard>
+            </VCol>
+          </VRow>
         </VWindowItem>
 
         <VWindowItem>
@@ -135,7 +239,7 @@ watchEffect(async () => {
             <ApexChartStatistics
               :checked-items="checkedItems"
               :checked-exercise-items="checkedExerciseItems"
-              style="margin: 50px 0;"
+              style="margin: 50px 0; opacity: 0.6;"
             /> <!-- 차트 -->
           </VCard>
           <VTabs
@@ -166,11 +270,17 @@ watchEffect(async () => {
           >
             <!-- 식단쪽 이행률 체크 타임라인 -->
             <VWindowItem value="tab-1">
-              <TimelineBasic @sendData="handleDataFromChild" />
+              <TimelineBasic
+                :checked-items="checkedItems"
+                @sendData="handleDataFromChild"
+              />
             </VWindowItem>
             <!-- 운동쪽 이행률 체크 타임라인 -->
             <VWindowItem value="tab-2">
-              <TimelineBasicExercise @sendDataExer="handleDataFromChildExer" />
+              <TimelineBasicExercise
+                :checked-exercise-items="checkedExerciseItems"
+                @sendDataExer="handleDataFromChildExer"
+              />
             </VWindowItem>
           </VWindow>
         </VWindowItem>
@@ -182,3 +292,15 @@ watchEffect(async () => {
     </VCol>
   </VRow>
 </template>
+
+<style lang="scss">
+.hover-card {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.hover-card:hover {
+  z-index: 1;
+  transform: scale(1.2); /* 크기를 1.1배로 확대합니다. */
+}
+</style>
