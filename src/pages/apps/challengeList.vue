@@ -10,6 +10,7 @@ const isAddChallRoomSettingDialogVisible = ref(false)
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
+const isSnackbarCenteredVisible = ref(false)
 
 const fetchProjectData = () => {
   axios.get('/pages/profile', { params: { tab: 'projects' } }).then(response => {
@@ -148,7 +149,7 @@ const checkEntrance = async challNo => {
     router.push({ name: 'apps-user-id', params: { id: challNo } }) //넘겨줄 Vue 경로 입력하기
 
   } else {
-    alert('입장할 수 없습니다.')
+    isSnackbarCenteredVisible.value = true
   }
 }
 </script>
@@ -316,8 +317,13 @@ const checkEntrance = async challNo => {
                     @click="checkEntrance(challenge.challNo)"
                   >
                     입장
-                  </VBtn>                  
-                  <strong v-else>참여불가</strong>
+                  </VBtn>   
+                  <VSnackbar
+                    v-model="isSnackbarCenteredVisible"
+                    location="center"
+                  >
+                    입장할 수 없습니다.
+                  </VSnackbar>               
                 </span>
               </div>
             </VCardText>
