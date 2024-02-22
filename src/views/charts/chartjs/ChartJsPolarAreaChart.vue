@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useTheme } from 'vuetify'
-import type { ChartJsCustomColors } from '@/views/charts/chartjs/types'
-import { getPolarChartConfig } from '@core/libs/chartjs/chartjsConfig'
-import PolarAreaChart from '@core/libs/chartjs/components/PolarAreaChart'
+import type { ChartJsCustomColors } from '@/views/charts/chartjs/types';
+import { getPolarChartConfig } from '@core/libs/chartjs/chartjsConfig';
+import PolarAreaChart from '@core/libs/chartjs/components/PolarAreaChart';
+import { useTheme } from 'vuetify';
 
 interface Props {
   colors: ChartJsCustomColors
@@ -14,14 +14,16 @@ const vuetifyTheme = useTheme()
 
 const chartConfig = computed(() => getPolarChartConfig(vuetifyTheme.current.value))
 
+
+//평소 섭취하는 영양소의 비율을 나타내고자한 차트에요 원하면 바꿔도 괜찮아요
 const data = {
-  labels: ['Africa', 'Asia', 'Europe', 'America', 'Antarctica', 'Australia'],
+  labels: ['탄수화물', '단백질', '지방', '미네랄', '비타민'],
   datasets: [
     {
       borderWidth: 0,
       label: 'Population (millions)',
-      data: [19, 17.5, 15, 13.5, 11, 9],
-      backgroundColor: [props.colors.primary, props.colors.yellow, props.colors.polarChartWarning, props.colors.polarChartInfo, props.colors.polarChartGrey, props.colors.polarChartGreen],
+      data: [16, 17.5, 15, 13.5, 11],
+      backgroundColor: [props.colors.primary, props.colors.yellow, props.colors.polarChartWarning, props.colors.polarChartInfo, props.colors.polarChartGrey],
     },
   ],
 }

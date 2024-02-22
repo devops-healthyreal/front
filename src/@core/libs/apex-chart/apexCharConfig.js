@@ -279,13 +279,11 @@ export const getRadialBarChartConfig = themeColors => {
             color: themePrimaryTextColor,
             formatter(w) {
               const totalValue = w.globals.seriesTotals.reduce((a, b) => {
-                return a + b
+                return Math.floor(a) + Math.floor(b)
               }, 0) / w.globals.series.length
 
-              if (totalValue % 1 === 0)
-                return `${totalValue}%`
-              else
-                return `${totalValue.toFixed(2)}%`
+
+              return `${totalValue}%`
             },
           },
         },
@@ -394,6 +392,8 @@ export const getDonutChartConfig = themeColors => {
 }
 export const getAreaChartSplineConfig = themeColors => {
   const areaColors = {
+    series5: '#99ff99',
+    series4: '#00ffff',
     series3: '#e0cffe',
     series2: '#b992fe',
     series1: '#ab7efd',
@@ -425,9 +425,9 @@ export const getAreaChartSplineConfig = themeColors => {
         horizontal: 10,
       },
     },
-    colors: [areaColors.series3, areaColors.series2, areaColors.series1],
+    colors: [areaColors.series5, areaColors.series4, areaColors.series3, areaColors.series2, areaColors.series1],
     fill: {
-      opacity: 1,
+      opacity: 0.6,
       type: 'solid',
     },
     grid: {
@@ -452,19 +452,19 @@ export const getAreaChartSplineConfig = themeColors => {
         style: { colors: themeDisabledTextColor },
       },
       categories: [
-        '7/12',
-        '8/12',
-        '9/12',
-        '10/12',
-        '11/12',
-        '12/12',
-        '13/12',
-        '14/12',
-        '15/12',
-        '16/12',
-        '17/12',
-        '18/12',
-        '19/12',
+        '23/2',
+        '23/3',
+        '23/4',
+        '23/5',
+        '23/6',
+        '23/7',
+        '23/8',
+        '23/9',
+        '23/10',
+        '23/11',
+        '23/12',
+        '24/1',
+        '24/2',
       ],
     },
   }

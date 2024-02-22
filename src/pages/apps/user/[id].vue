@@ -40,6 +40,10 @@ const participants = async () => {
 
 }
 
+//참여비 변수
+const pay = ref('')
+const challroomno = ref('')
+
 //방 데이터 가져오기
 const roomData = async () => {
   
@@ -50,7 +54,11 @@ const roomData = async () => {
 
   if (response.status === 200) {
     room.value = response.data
-    console.log(' 방의 데이타는---', room.value)
+    console.log('방의 데이타는---', room.value)
+    pay.value = room.value.pfee
+    challroomno.value = room.value.challNo
+    console.log('참여비는?', pay.value, '방 번호는?', challroomno.value)
+
   } else {
     console.log('방의 데이타 가져오기 실패')
   }
@@ -110,9 +118,6 @@ const formatDate = dateString => {
 
   return `${year}/${month}/${day}`
 }
-
-//참여비 변수
-const pay = ref("10000")
 </script>
 
 <template>
@@ -189,7 +194,7 @@ const pay = ref("10000")
           <!-- 목표 달성률 끝 -->
           <VCol align="center">
             <VCol class="d-flex justify-end">
-              <Pricingtest :pay="parseInt(pay)" />
+              <Pricingtest :pay="parseInt(pay)" :challroomno="challroomno" />
             </VCol>
             <VBtn @click="isShareProjectDialogVisible = !isShareProjectDialogVisible">
               초대하기
