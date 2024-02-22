@@ -1,9 +1,7 @@
 <script setup>
-import SvgIcon from '@jamescoyle/vue-icon';
-import { mdiRefresh } from '@mdi/js';
-import { defineProps, defineEmits } from 'vue';
-
-const path = mdiRefresh;
+import SvgIcon from '@jamescoyle/vue-icon'
+import { mdiRefresh } from '@mdi/js'
+import { defineEmits, defineProps } from 'vue'
 
 const props = defineProps({
   isDialogVisible: {
@@ -16,38 +14,47 @@ const props = defineProps({
   },
   dietPlansListtype: {
     type: Number,
-    required:true,
+    required: true,
   },
   connetId: {
     type: String,
-    required:true,
+    required: true,
   },
 })
+
 const emit = defineEmits(['update:isDialogVisible'])
+const path = mdiRefresh
 const tabItemText = 'Biscuit cheesecake gingerbread oat cake tiramisu. Marzipan tiramisu jelly-o muffin biscuit jelly cake pie. Chocolate cookie candy croissant brownie cupcake powder cheesecake. Biscuit sesame snaps biscuit topping tiramisu croissant.'
 const currentTab = ref('tab-1')
+
 const closeModal = () => {
   // 모달 창을 닫는 로직을 작성합니다.
   emit('update:isDialogVisible', false)
 }
+
 const currentRecipe = ref('')
-const updateRecipeData = (group) => {
+
+const updateRecipeData = group => {
   currentRecipe.value = group
-    console.log('현재 클릭한 레시피:',currentRecipe.value)
+  console.log('현재 클릭한 레시피:', currentRecipe.value)
+
   // emit('update:recipedatach', group);
-};
+}
 
 const updateCurrent = () => {
-  console.log('지금 레시피로 넘깁니다.',currentRecipe.value)
-  emit('update:recipedatach', { recipe: currentRecipe.value, dietType: props.dietPlansListtype});
+  console.log('지금 레시피로 넘깁니다.', currentRecipe.value)
+  emit('update:recipedatach', { recipe: currentRecipe.value, dietType: props.dietPlansListtype })
 }
+
 const changeRandom = () => {
-  const connetId = props.connetId; // 자식 컴포넌트에서 필요한 데이터 생성
-  const choicecategory = props.recipedata[0][0].CATEGORY;
-  const index = props.dietPlansListtype;
-  emit('icon-clicked', { connetId, choicecategory, index }); // 부모 컴포넌트로 데이터 전달
+  const connetId = props.connetId // 자식 컴포넌트에서 필요한 데이터 생성
+  const choicecategory = props.recipedata[0][0].CATEGORY
+  const index = props.dietPlansListtype
+
+  emit('icon-clicked', { connetId, choicecategory, index }) // 부모 컴포넌트로 데이터 전달
 }
 </script>
+
 <template>
   <VDialog
     style=" width: 50%;height: 100%;"
@@ -57,13 +64,15 @@ const changeRandom = () => {
     <VCard
       class="py-8"
       style="max-width: 100%; max-height: 100%;"
-    >    
+    >
       <VCardActions class="justify-space-between">
-        <svg-icon type="mdi" :path="path" @click="changeRandom"/>
+        <SvgIcon
+          type="mdi"
+          :path="path"
+          @click="changeRandom"
+        />
         <div>
-          <VBtn
-            @click="updateCurrent"
-          >
+          <VBtn @click="updateCurrent">
             식단 변경하기
           </VBtn>
           <VBtn
@@ -92,8 +101,8 @@ const changeRandom = () => {
           <img
             :src="group[0].RECIPE_IMG"
             alt="레시피 사진"
-            style="width: 200px;height: 130px;"            
-          >          
+            style="width: 200px;height: 130px;"
+          >
           <a
             :href="group[0].RECIPE_URL"
             style="margin: 10px 0;"
@@ -112,7 +121,6 @@ const changeRandom = () => {
           :value="'tab-' + (index+1)"
         >
           <strong style="margin: 0 20px; color: #068002; font-size: larger;">{{ group[0].RECIPE_TITLE }}</strong>
-
           <div
             v-for="(gro, index) in group"
             :key="index"
@@ -134,13 +142,12 @@ const changeRandom = () => {
               <br>
               <strong style="margin: 10px 20px;">[재료]</strong>
             </div>
-                
             <span
               v-if="gro.FOODNAME"
               style="margin: 20px;"
             >
               - {{ gro.INGREDIENT }} - {{ gro.RI_AMOUNT }}
-            </span>             
+            </span>
           </div>
         </VWindowItem>
       </VWindow>

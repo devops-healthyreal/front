@@ -8,6 +8,9 @@ import UserBioPanel from '@/views/apps/user/view/UserBioPanel.vue'
 import UserEdit from '@/views/apps/user/view/UserEdit.vue'
 import UserHistory from '@/views/apps/user/view/UserHistory.vue'
 import UserPaymentList from '@/views/apps/user/view/UserPaymentList.vue'
+import ApexChartAreaChart from '@/views/charts/apex-chart/ApexChartAreaChart.vue'
+import ChartJsPolarAreaChart from '@/views/charts/chartjs/ChartJsPolarAreaChart.vue'
+import ChartJsRadarChart from '@/views/charts/chartjs/ChartJsRadarChart.vue'
 import { ref, watchEffect } from 'vue'
 import { useStore } from 'vuex'
 
@@ -66,6 +69,27 @@ const tabs = [
   },
 ]
 
+const chartJsCustomColors = {
+  white: '#fff',
+  yellow: '#ffe802',
+  primary: '#836af9',
+  areaChartBlue: '#2c9aff',
+  barChartYellow: '#ffcf5c',
+  polarChartGrey: '#4f5d70',
+  polarChartInfo: '#299aff',
+  lineChartYellow: '#d4e157',
+  polarChartGreen: '#28dac6',
+  lineChartPrimary: '#9e69fd',
+  lineChartWarning: '#ff9800',
+  horizontalBarInfo: '#26c6da',
+  polarChartWarning: '#ff8131',
+  scatterChartGreen: '#28c76f',
+  warningShade: '#ffbd1f',
+  areaChartBlueLight: '#84d0ff',
+  areaChartGreyLight: '#edf1f4',
+  scatterChartWarning: '#ff9f43',
+}
+
 userListStore.fetchUser(Number(route.params.id)).then(response => {
   userData.value = response.data
 })
@@ -115,7 +139,52 @@ watchEffect(() => {
         </VWindowItem>
 
         <VWindowItem>
-          제목에 맞는
+          <VCard>
+            <VCardItem class="d-flex flex-wrap justify-space-between gap-4">
+              <VCardTitle>Area Chart</VCardTitle>
+              <VCardSubtitle>Commercial networks</VCardSubtitle>
+
+              <template #append>
+                <div class="date-picker-wrapper">
+                  <AppDateTimePicker
+                    style="width: 150px;"
+                    model-value="2022-06-09"
+                    prepend-inner-icon="mdi-calendar-blank-outline"
+                    density="compact"
+                    :config="{ position: 'auto right' }"
+                  />
+                </div>
+              </template>
+            </VCardItem>
+
+            <VCardText>
+              <ApexChartAreaChart />
+            </VCardText>
+          </VCard>
+          <VRow style="margin-top: 20px;">
+            <VCol
+              cols="12"
+              md="6"
+            >
+              <VCard title="Radar Chart">
+                <VCardText>
+                  <ChartJsRadarChart />
+                </VCardText>
+              </VCard>
+            </VCol>
+
+            <!-- 👉 Average Skills Polar Area Chart -->
+            <VCol
+              cols="12"
+              md="6"
+            >
+              <VCard title="Average Skills">
+                <VCardText>
+                  <ChartJsPolarAreaChart :colors="chartJsCustomColors" />
+                </VCardText>
+              </VCard>
+            </VCol>
+          </VRow>
         </VWindowItem>
 
         <VWindowItem>
