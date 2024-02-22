@@ -4,16 +4,32 @@ import Calendar from '@/pages/apps/calendar.vue'
 import Timeline from '@/pages/components/timeline.vue'
 import ResetPasswordDialog from '@/pages/resetPasswordDialog.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
+import axios from '@axios'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
 const router = useRouter()
 const store = useStore()
+
+// 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId = userInfo.value.id
+
 const route = useRoute()
 const isDialogVisible = ref(false)
 const isPDialogVisible = ref(!isDialogVisible.value)
 
+const dietinfo = ref([])
+
+const getEatingRecord = async () => {
+  console.log('체크해보자 : ')
+  await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
+    .then(response => {
+      dietinfo.value = response.data
+      console.log('가져온 유저 Eating_Record', dietinfo.value)
+    })
+}
 
 onMounted(async () => {
   if (!store.state.isLogin) {
@@ -21,8 +37,9 @@ onMounted(async () => {
     store.dispatch('saveToken')
 
     // 토큰을 이용해 사용자 정보를 가져옴
-    await store.dispatch('getMemberInfo')
+    await store.dispatch('getMemberInfo')    
   }
+  getEatingRecord()
 })
 
 
@@ -164,39 +181,42 @@ const dietPlansList = [
                       size="160"
                       class="mb-2"
                     >
-                      <VImg
+                      <VImg 
+                        v-if="!dietinfo[list.index]"
                         size="160px"
                       />
-                      <VImg
-                        style="height: 160px;"
+                      <VImg 
+                        v-else
+                        style="height: 160px;" 
+                        :src="dietinfo[list.index]?.recipe_img"
                       />
                     </VAvatar>
                     <h6 class="text-h6">
-                      <span>{{list.index == 0? '아침': list.index == 1? '점심' : '저녁'}} 메뉴</span>
+                      <span v-if="dietinfo.length > 0">{{ dietinfo[list.index]?.eating_foodname }}</span>
+
+                      <span v-else>{{ list.index == 0? '아침': list.index == 1? '점심' : '저녁' }} 메뉴</span>
                     </h6>
                   </VCardItem>
                   <VCardText>
-                    <span>{{list.index == 0? '아침 메뉴': list.index == 1? '점심 메뉴' : '저녁 메뉴'}} 설명</span>
+                    <span>{{ list.index == 0? '아침 메뉴': list.index == 1? '점심 메뉴' : '저녁 메뉴' }} 설명</span>
                   </VCardText>
                   <VCardText>
-                    <span>레시피</span>
-                    <span
-                      style="height: 450px;"
-                    >
+                    <span style="height: 450px;">
                       <div>
                         <div>
-                          <br><strong style="margin: 0 20px;">[조리순서]</strong>
-                          <div
+                          <!--
+                            <br><strong style="margin: 0 20px;">[조리순서]</strong>
+                            <span>{{ dietinfo[list.index]?.recipe_seq }}</span>
+                            <div
                             style="max-height: 200px; overflow-y: auto;"
                             class="scrollbar"
-                          >
-                            <p
-                              style="margin: 10px 20px;"
                             >
-                              첫번째 조리순서 내용
+                            <p style="margin: 10px 20px;">
+                            첫번째 조리순서 내용
                             </p>
-                          </div>
-                          <br>
+                            </div>
+                            <br> 
+                          -->
                           <strong style="margin: 10px 20px;">[재료]</strong>
                         </div>
                         <span>

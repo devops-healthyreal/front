@@ -31,6 +31,7 @@ const closeModal = () => {
   // 모달 창을 닫는 로직을 작성합니다.
   emit('update:isDialogVisible', false)
 }
+
 const currentRecipe = ref('')
 
 const updateRecipeData = group => {
@@ -41,6 +42,7 @@ const updateRecipeData = group => {
 }
 
 const updateCurrent = () => {
+  closeModal()
   console.log('지금 레시피로 넘깁니다.', currentRecipe.value)
   emit('update:recipedatach', { recipe: currentRecipe.value, dietType: props.dietPlansListtype })
 }
