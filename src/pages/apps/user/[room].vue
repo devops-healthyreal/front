@@ -65,33 +65,34 @@ watch(() => chatflag.value, newValue => {
 //참가자 데이터 가져오기
 const participants = async () => {
 
-const response = await axios.get('http://localhost:4000/mroom/participantsData.do', { params: { challNo: router.params.id } } )
+  const response = await axios.get('http://localhost:4000/mroom/participantsData.do', { params: { challNo: router.params.id } } )
 
-if (response.status === 200) {
-  participantsData.value = response.data
-  console.log(' 참여자 데이타는---', participantsData.value)
-} else {
-  console.log('참여자 데이타 가져오기 실패')
-}
+  if (response.status === 200) {
+    participantsData.value = response.data
+    console.log(' 참여자 데이타는---', participantsData.value)
+  } else {
+    console.log('참여자 데이타 가져오기 실패')
+  }
 
 }
 
 //방 데이터 가져오기
 const roomData = async () => {
 
-console.log("challNo----", router.params.room)
+  console.log("challNo----", router.params.room)
 
-const response = await axios.post('http://localhost:4000/mroom/roomData.do', { challNo: router.params.room })
+  const response = await axios.post('http://localhost:4000/mroom/roomData.do', { challNo: router.params.room })
 
 
-if (response.status === 200) {
-  room.value = response.data
-  console.log(' 방의 데이타는---', room.value)
-} else {
-  console.log('방의 데이타 가져오기 실패')
+  if (response.status === 200) {
+    room.value = response.data
+    console.log(' 방의 데이타는---', room.value)
+  } else {
+    console.log('방의 데이타 가져오기 실패')
+  }
+
 }
 
-}
 const deleteData = async () => {
   if(room.value.manager === connetId && participantsData.value.length == 1){
     const response = await axios.delete('http://localhost:4000/mroom/deleteRoom.do', { data: { id: connetId } })
@@ -195,11 +196,11 @@ onMounted(async () => { await participants(), await roomData() })
             </VBtn>
             <VCol cols="2">
               <VBtn
-              :style="{'margin-left':'10px'}"
-              @click="deleteData"
-            >
-              나가기
-            </VBtn>
+                :style="{'margin-left':'10px'}"
+                @click="deleteData"
+              >
+                나가기
+              </VBtn>
             </VCol>
           </VCol>
         </VCard>

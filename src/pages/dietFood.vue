@@ -27,7 +27,6 @@ const fetchProjectData = () => {
 }
 
 const choicecategory = ref('') // 선택된 값이 저장될 변수
-const recipedatach = ref({})
 
 const handleChoiceCategory = value => {
   choicecategory.value = value

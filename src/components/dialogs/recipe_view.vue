@@ -31,6 +31,7 @@ const closeModal = () => {
   // 모달 창을 닫는 로직을 작성합니다.
   emit('update:isDialogVisible', false)
 }
+<<<<<<< HEAD
 
 const currentRecipe = ref('')
 
@@ -53,6 +54,8 @@ const changeRandom = () => {
 
   emit('icon-clicked', { connetId, choicecategory, index }) // 부모 컴포넌트로 데이터 전달
 }
+=======
+>>>>>>> aaf8671477b1e8f37dd6c8e7488e75a5ee700f52
 </script>
 
 <template>
@@ -102,6 +105,7 @@ const changeRandom = () => {
             :src="group[0].RECIPE_IMG"
             alt="레시피 사진"
             style="width: 200px;height: 130px;"
+            @click="$emit('update:recipedatach', group)"
           >
           <a
             :href="group[0].RECIPE_URL"
