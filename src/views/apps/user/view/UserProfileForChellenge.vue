@@ -8,6 +8,18 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  goal: {
+    type: String,
+    required: true,
+  },
+  cstartDate: {
+    type: String,
+    required: true,
+  },
+  cendDate: {
+    type: String,
+    required: true,
+  },
 })
 
 const isUserInfoEditDialogVisible = ref(false)
@@ -22,6 +34,12 @@ const resolveUserStatusVariant = stat => {
     return 'secondary'
   
   return 'primary'
+}
+
+const getHourDifference = (date1, date2) => {
+  const diff = Math.abs(new Date(date1) - new Date(date2))
+  
+  return diff / (1000 * 60 * 60)
 }
 </script>
 
@@ -83,7 +101,17 @@ const resolveUserStatusVariant = stat => {
               class="text-capitalize mt-4"
               style=" margin-top: -5%;margin-bottom: 15px;"
             >
-              80%
+              {{
+                (goal=='감량' || goal == '식단') ?
+                  (((participantGroup.reduce((total, participant) => total + participant.EATING.length, 0) / 3) /
+                    (getHourDifference(new Date(cendDate), new Date(cstartDate)) / 24 * 3 * participantGroup.length) * 100).toFixed(0)) :
+                  (goal=='증가' || goal=='강화') ?
+                    (((participantGroup.reduce((total, participant) => total + participant.EXERCISE.length, 0) / 3) /
+                      (getHourDifference(new Date(cendDate), new Date(cstartDate)) / 24 * 3 * participantGroup.length) * 100).toFixed(0)) :
+                    ((((participantGroup.reduce((total, participant) => total + participant.EXERCISE.length, 0) / 3) +
+                      (participantGroup.reduce((total, participant) => total + participant.EATING.length, 0) / 3)) /
+                      (getHourDifference(new Date(cendDate), new Date(cstartDate)) / 24 * 6 * participantGroup.length) * 100).toFixed(0))
+              }}%
             </VChip>
           </VCardText>
         </VCard>

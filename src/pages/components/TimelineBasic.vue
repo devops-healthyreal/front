@@ -2,13 +2,14 @@
 import food3 from '@images/Unbalanced/22.jpg'
 import food2 from '@images/margherita.jpg'
 import food from '@images/veggieroll.jpg'
-import { defineEmits, defineProps, ref } from 'vue'
+import { defineEmits, defineProps } from 'vue'
 
 const props = defineProps({
   checkedItems: Array,
 })
 
 const emit = defineEmits(['sendData'])
+
 const checkedItems = ref([])
 
 

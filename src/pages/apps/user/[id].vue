@@ -142,6 +142,9 @@ const formatDate = dateString => {
               v-for="(participantGroup, index) in participantsData"
               :key="index"
               :participant-group="participantGroup"
+              :goal="room.goal"
+              :cstart-date="room.cstartDate"
+              :cend-date="room.cendDate"
             />
           </VCol>
           <!-- 유저 목록 -->
@@ -194,7 +197,10 @@ const formatDate = dateString => {
           <!-- 목표 달성률 끝 -->
           <VCol align="center">
             <VCol class="d-flex justify-end">
-              <Pricingtest :pay="parseInt(pay)" :challroomno="challroomno" />
+              <Pricingtest
+                :pay="parseInt(pay)"
+                :challroomno="challroomno"
+              />
             </VCol>
             <VBtn @click="isShareProjectDialogVisible = !isShareProjectDialogVisible">
               초대하기

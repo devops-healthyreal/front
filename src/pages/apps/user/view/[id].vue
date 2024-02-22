@@ -126,7 +126,7 @@ watchEffect(async () => {
   console.log('checkedItems 초기화?:', checkedItems.value)
   console.log('checkedExerciseItems 초기화?:', checkedExerciseItems.value)
 
-  if(checkedItems.value && Array.isArray(checkedItems.value) && checkedExerciseItems.value && Array.isArray(checkedExerciseItems.value)){
+  if(checkedItems.value != "" && checkedExerciseItems.value != "" ){
     const response = await axios.post('http://localhost:4000/croom/implementation.do', { 
       foodCheckCount: checkedItems.value,
       exerciseCheckCount: checkedExerciseItems.value,
