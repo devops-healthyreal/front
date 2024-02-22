@@ -8,12 +8,11 @@ import UserBioPanel from '@/views/apps/user/view/UserBioPanel.vue'
 import UserEdit from '@/views/apps/user/view/UserEdit.vue'
 import UserHistory from '@/views/apps/user/view/UserHistory.vue'
 import UserPaymentList from '@/views/apps/user/view/UserPaymentList.vue'
-import axios from '@axios'
-import { onMounted, ref, watchEffect } from 'vue'
 import ApexChartAreaChart from '@/views/charts/apex-chart/ApexChartAreaChart.vue'
 import ChartJsPolarAreaChart from '@/views/charts/chartjs/ChartJsPolarAreaChart.vue'
 import ChartJsRadarChart from '@/views/charts/chartjs/ChartJsRadarChart.vue'
-import { ref, watchEffect } from 'vue'
+import axios from '@axios'
+import { onMounted, ref, watchEffect } from 'vue'
 import { useStore } from 'vuex'
 
 const currentTab = ref('tab-1')
@@ -47,7 +46,7 @@ function handleDataFromChildExer (data) {
 onMounted(async () => { await setting() })
 
 
-  //이행률 데이터 가져오기
+//이행률 데이터 가져오기
 const setting = async () => {
   const response = await axios.post('http://localhost:4000/croom/implementationSetting.do',  { id: connetId } )
   if (response.status === 200) {
@@ -117,10 +116,10 @@ userListStore.fetchUser(Number(route.params.id)).then(response => {
 
 // checkedItems의 변화를 감지하여 변경 사항을 업데이트합니다.
 watchEffect(async () => {
-  if(checkedItems && checkedItems.value && Array.isArray(checkedItems.value)) {
+  if(checkedItems.value && checkedItems.value && Array.isArray(checkedItems.value)) {
     console.log('checkedItems가 변경되었습니다:', checkedItems.value.length)
   }
-  if(checkedExerciseItems && checkedExerciseItems.value && Array.isArray(checkedExerciseItems.value)) {
+  if(checkedExerciseItems.value && checkedExerciseItems.value && Array.isArray(checkedExerciseItems.value)) {
     console.log('checkedExerciseItems가 변경되었습니다:', checkedExerciseItems.value.length)
   }
 
@@ -271,11 +270,17 @@ watchEffect(async () => {
           >
             <!-- 식단쪽 이행률 체크 타임라인 -->
             <VWindowItem value="tab-1">
-              <TimelineBasic :checkedItems="checkedItems" @sendData="handleDataFromChild" />
+              <TimelineBasic
+                :checked-items="checkedItems"
+                @sendData="handleDataFromChild"
+              />
             </VWindowItem>
             <!-- 운동쪽 이행률 체크 타임라인 -->
             <VWindowItem value="tab-2">
-              <TimelineBasicExercise :checkedExerciseItems="checkedExerciseItems" @sendDataExer="handleDataFromChildExer" />
+              <TimelineBasicExercise
+                :checked-exercise-items="checkedExerciseItems"
+                @sendDataExer="handleDataFromChildExer"
+              />
             </VWindowItem>
           </VWindow>
         </VWindowItem>
