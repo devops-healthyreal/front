@@ -1,5 +1,4 @@
 <script setup>
-import AddChallRoomSetting from '@/components/dialogs/AddChallRoomSetting.vue'
 import axios from '@axios'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -13,6 +12,7 @@ const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
 const isSnackbarCenteredVisible = ref(false)
 
+
 const fetchProjectData = () => {
   axios.get('/pages/profile', { params: { tab: 'projects' } }).then(response => {
     projectData.value = response.data
@@ -22,25 +22,6 @@ const fetchProjectData = () => {
 watch(router, fetchProjectData, { immediate: true })
 
 const challenges = ref([])
-
-const challenge = ref({
-  challNo: null,
-  goal: null,
-  challCapacity: null,
-  implementation: null,
-  gLimit: null,
-  ageMin: null,
-  ageMax: null,
-  pFee: null,
-  cYN: null,
-  cCreateDate: null,
-  cStartDate: null,
-  cEndDate: null,
-  challContent: null,
-  challTitle: null,
-  challArea: null,
-  manager: null,
-})
 
 const myData = ref([])
 
@@ -57,19 +38,13 @@ const my = async () => {
 
 }
 
-
 const getData = async () => {
   try {
     const response = await axios.get('http://localhost:4000/croom/listChall.do')
 
     challenges.value = response.data
+
     console.log("challenges.value---", challenges.value)
-
-
-    if (challenges.value.length > 0) {
-      challenge.value = challenges.value[0]
-      console.log("challenge.value---", challenge.value)
-    }
 
   } catch (error) {
     console.error(error)
@@ -132,22 +107,22 @@ const getGenderCode = gender => {
 }
 
 //참여 유효성 검사
-const checkEntrance = async challNo => {
+const checkEntrance = async challenge => {
   console.log("myData.value---", myData.value)
   console.log("calculateAge(myData.value.B_DAY)---", calculateAge(myData.value.data.B_DAY))
-  console.log("challenge.value.ageMin---", challenge.value.ageMin)
-  console.log("challenge.value.ageMax---", challenge.value.ageMax)
+  console.log("challenge.value.ageMin---", challenge.ageMin)
+  console.log("challenge.value.ageMax---", challenge.ageMax)
   console.log("getGenderCode(myData.value.GENDER)---", getGenderCode(myData.value.data.GENDER))
   console.log("myData.value.data.GENDER---", myData.value.data.GENDER)
-  console.log("challenge.value.glimit---", challenge.value.glimit)
+  console.log("challenge.value.glimit---", challenge.glimit)
   console.log("connetId---", connetId)
-  console.log("challNo---", challNo)
+  console.log("challNo---", challenge.challNo)
 
-  if (myData.value && calculateAge(myData.value.data.B_DAY) >= challenge.value.ageMin && calculateAge(myData.value.data.B_DAY) <= challenge.value.ageMax && (getGenderCode(myData.value.data.GENDER)===challenge.value.glimit || challenge.value.glimit===0)) {
+  if (myData.value && calculateAge(myData.value.data.B_DAY) >= challenge.ageMin && calculateAge(myData.value.data.B_DAY) <= challenge.ageMax && (getGenderCode(myData.value.data.GENDER)===challenge.glimit || challenge.glimit===0)) {
 
-    const response = await axios.post('http://localhost:4000/croom/joinRoom.do', { id: connetId, challNo: challNo })
+    const response = await axios.post('http://localhost:4000/croom/joinRoom.do', { id: connetId, challNo: challenge.challNo })
 
-    router.push({ name: 'apps-user-id', params: { id: challNo } }) //넘겨줄 Vue 경로 입력하기
+    router.push({ name: 'apps-user-id', params: { id: challenge.challNo } }) //넘겨줄 Vue 경로 입력하기
 
   } else {
     isSnackbarCenteredVisible.value = true
@@ -266,7 +241,6 @@ const checkEntrance = async challNo => {
             <VCardText>
               <div class="d-flex align-center justify-end flex-wrap gap-2">
                 <VChip
-                  v-if="challenge.ageMin && challenge.ageMax"
                   color="success"
                   density="compact"
                 >
@@ -286,14 +260,34 @@ const checkEntrance = async challNo => {
               </div>
               <div class="d-flex align-center justify-space-between flex-wrap text-xs mt-4 mb-2">
                 <span style="font-weight: bold;">달성 기준 : {{ challenge.implementation }}%</span>
-                <span style="font-weight: bold;">{{ Math.round((challenge.implementation)) }}% 달성</span>
+                <span style="font-weight: bold;">
+                  {{
+                    (challenge.goal.includes('감량') || challenge.goal.includes('식단')) ?
+                      (((challenge.participantsData.reduce((total, participant) => total + participant.EATING.length, 0) / 3) /
+                        (getHourDifference(new Date(challenge.cendDate), new Date(challenge.cstartDate)) / 24 * 3 * challenge.participantsData.length) * 100).toFixed(0)) :
+                      (challenge.goal.includes('증가') || challenge.goal.includes('강화')) ?
+                        (((challenge.participantsData.reduce((total, participant) => total + participant.EXERCISE.length, 0) / 3) /
+                          (getHourDifference(new Date(challenge.cendDate), new Date(challenge.cstartDate)) / 24 * 3 * challenge.participantsData.length) * 100).toFixed(0)) :
+                        ((((challenge.participantsData.reduce((total, participant) => total + participant.EXERCISE.length, 0) / 3) +
+                          (challenge.participantsData.reduce((total, participant) => total + participant.EATING.length, 0) / 3)) /
+                          (getHourDifference(new Date(challenge.cendDate), new Date(challenge.cstartDate)) / 24 * 6 * challenge.participantsData.length) * 100).toFixed(0))
+                  }}% 달성
+                </span>
               </div>
               <!-- model-value 이게 지금 기준 / max 퍼센트 최대 -->
               <VProgressLinear
                 rounded
                 rounded-bar
                 height="8"
-                :model-value="31"
+                :model-value="((challenge.goal.includes('감량') || challenge.goal.includes('식단')) ?
+                  ((challenge.participantsData.reduce((total, participant) => total + participant.EATING.length, 0) / 3) /
+                    (getHourDifference(new Date(challenge.cendDate), new Date(challenge.cstartDate)) / 24 * 3 * challenge.participantsData.length) * 100) :
+                  (challenge.goal.includes('증가') || challenge.goal.includes('강화')) ?
+                    ((challenge.participantsData.reduce((total, participant) => total + participant.EXERCISE.length, 0) / 3) /
+                      (getHourDifference(new Date(challenge.cendDate), new Date(challenge.cstartDate)) / 24 * 3 * challenge.participantsData.length) * 100) :
+                    (((challenge.participantsData.reduce((total, participant) => total + participant.EXERCISE.length, 0) / 3) +
+                      (challenge.participantsData.reduce((total, participant) => total + participant.EATING.length, 0) / 3)) /
+                      (getHourDifference(new Date(challenge.cendDate), new Date(challenge.cstartDate)) / 24 * 6 * challenge.participantsData.length) * 100))"
                 :max="100"
                 color="primary"
               />
@@ -315,31 +309,47 @@ const checkEntrance = async challNo => {
                 <span>
                   <VBtn 
                     v-if="challenge.participantsData.length <= challenge.challCapacity"
-                    @click="checkEntrance(challenge.challNo)"
+                    @click="checkEntrance(challenge)"
                   >
                     입장
-                  </VBtn>   
-                  <VSnackbar
-                    v-model="isSnackbarCenteredVisible"
-                    location="center"
-                  >
-                    입장할 수 없습니다.
-                  </VSnackbar>               
+                    <VSnackbar
+                      v-model="isSnackbarCenteredVisible"
+                      location="center"
+                    >
+                      입장할 수 없습니다.
+                    </VSnackbar>   
+                  </VBtn> 
+                  <strong v-else>참여불가</strong>  
                 </span>
               </div>
             </VCardText>
           </VCard>
         </VCol>
       </VRow>
+      <VRow
+        v-else
+        class="d-flex flex-column align-center justify-center"
+        style="height: 100%;"
+      >
+        <VCard 
+          class="d-flex align-center justify-center" 
+          style="position: relative; width: 400px; height: 400px; margin-bottom: 20px; font-weight: bold;"
+        >
+          방을 새로 만들어보세요!
+        </VCard>
+      </VRow>
     </VCol>
     <VRow style="margin-top: 50px;">
       <VCol cols="4" />
       <VCol
         cols="4"
-        class="align-self-center"
-      >    
-        <VBtn @click="isAddChallRoomSettingDialogVisible = !isAddChallRoomSettingDialogVisible">
-          챌린지방 생성
+        class="d-flex flex-column align-center justify-center"
+      >
+        <VBtn
+          :style="{'margin-left':'10px'}"
+          @click="isAddChallRoomSettingDialogVisible = !isAddChallRoomSettingDialogVisible"
+        >
+          챌린지 방 생성
         </VBtn>
         <AddChallRoomSetting v-model:isDialogVisible="isAddChallRoomSettingDialogVisible" />
       </VCol>

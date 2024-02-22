@@ -82,7 +82,7 @@ const router = createRouter({
           }
         } catch (error) {
           console.error(error)
-          next() // 예외가 발생하면 라우트 이동을 계속 진행
+          next({ name: 'apps-challengeList' }) // 예외가 발생하면 라우트 이동을 계속 진행
         }
       },
       meta: { requiresAuth: true },
@@ -128,7 +128,7 @@ const router = createRouter({
           }
         } catch (error) {
           console.error(error)
-          next() // 예외가 발생하면 라우트 이동을 계속 진행
+          next({ name: 'apps-mateList' })// 예외가 발생하면 라우트 이동을 계속 진행
         }
       },
       meta: { requiresAuth: true },
