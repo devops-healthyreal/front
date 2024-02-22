@@ -11,6 +11,7 @@ const props = defineProps({
 const emit = defineEmits(['sendData'])
 const checkedItems = ref([])
 
+
 // 여기에 checkedItem에 체크박스 value 저장 저장된 배열 [id].vue에 emit으로 데이터 보냄
 function sendDataToParent(value) {
   if (checkedItems.value.includes(value)) {
