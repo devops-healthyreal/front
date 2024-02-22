@@ -166,7 +166,7 @@ const changeRandom = () => {
 
 .scrollbar::-webkit-scrollbar-thumb {
   border-radius: 10px; /* 스크롤바 둥근 테두리 */
-  background: rgba(0, 220, 60); /* 스크롤바 색상 */
+  background: rgb(247, 177, 177); /* 스크롤바 색상 */
 }
 
 .scrollbar::-webkit-scrollbar-track {

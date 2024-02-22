@@ -155,12 +155,21 @@ watch(router, fetchProjectData, { immediate: true })
   <section>
     <VRow class="fill-height">
       <VCol cols="12">
-        <VBtn
-          block
-          @click="isCategory = true"
-        >
-          카테고리
-        </VBtn>
+        <VRow style="margin: 0 10px;">
+          <VBtn
+            color="warning"
+            @click="isCategory = true"
+          >
+            카테고리
+          </VBtn>
+          <VSpacer />
+          <VBtn
+            color="warning"
+            @click="savedietFood"
+          >
+            저장하기
+          </VBtn>
+        </VRow>
       </VCol>
       <VCol
         v-for="list in dietPlansList"
@@ -169,9 +178,11 @@ watch(router, fetchProjectData, { immediate: true })
         md="4"
       >
         <VCard class="text-center">
-          <VCardItem class="d-flex flex-column justify-center align-center">
+          <VCardItem
+            class="d-flex flex-column justify-center align-center"
+            style="height: 250px;"
+          >
             <VAvatar
-              color="primary"
               variant="tonal"
               size="160"
               class="mb-2"
@@ -186,21 +197,27 @@ watch(router, fetchProjectData, { immediate: true })
                 :src="recipedatach[list.index][0].RECIPE_IMG"
               />
             </VAvatar>
-            <h6 class="text-h6">
+            <h6
+              class="text-h6"
+              style="font-weight: bold;"
+            >
               <span v-if="!(recipedatach[list.index] && recipedatach[list.index].length)">{{ list.title }}</span>
               <span v-else>{{ recipedatach[list.index][0].FOODNAME }}</span>
             </h6>
           </VCardItem>
-          <VCardText>
+          <VCardText style="height: 40px; font-weight: bold;">
             <span v-if="!(recipedatach[list.index] && recipedatach[list.index].length)">{{ list.content }}</span>
             <span v-else>{{ recipedatach[list.index][0].RECIPE_TITLE }}</span>
           </VCardText>
+
           <VCardText>
             <span v-if="!(recipedatach[list.index] && recipedatach[list.index].length)">레시피</span>
-            <span
-              v-else
-              style="height: 450px;"
-            >
+          </VCardText>
+          <VCardText
+            v-if="(recipedatach[list.index] && recipedatach[list.index].length)"
+            style="height: 500px;"
+          >
+            <span>
               <div
                 v-for="(gro, index) in recipedatach[list.index]"
                 :key="index"
@@ -230,6 +247,7 @@ watch(router, fetchProjectData, { immediate: true })
           </VCardText>
           <VCardText class="justify-center">
             <VBtn
+              color="warning"
               variant="elevated"
               style=" width: 90px;margin-right: 5px;"
               @click="getrecipe(connetId, list.title == '아침 메뉴'? '양식': list.title == '점심 메뉴'?'찌개':'일상', list.index), isRecipe = true"
@@ -237,6 +255,7 @@ watch(router, fetchProjectData, { immediate: true })
               식단 재추천
             </VBtn>
             <VBtn
+              color="warning"
               variant="elevated"
               @click="isCheckedRestaurant = true"
             >
@@ -244,14 +263,6 @@ watch(router, fetchProjectData, { immediate: true })
             </VBtn>
           </VCardText>
         </VCard>
-      </VCol>
-      <VCol cols="12">
-        <VBtn
-          block
-          @click="savedietFood"
-        >
-          저장하기
-        </VBtn>
       </VCol>
     </VRow>
     <UserCheckedRecipe v-model:isDialogVisible="isCheckedRecipe" />
