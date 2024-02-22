@@ -34,6 +34,7 @@ const handleUpdateAddress = newAddress => {
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
+const router = useRouter()
 
 
 
@@ -133,9 +134,6 @@ const checkboxContent = [
     value: 2,
   },
 ]
-
-
-const router = useRouter()
 </script>
 
 

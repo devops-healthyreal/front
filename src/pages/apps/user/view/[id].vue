@@ -8,6 +8,7 @@ import UserBioPanel from '@/views/apps/user/view/UserBioPanel.vue'
 import UserEdit from '@/views/apps/user/view/UserEdit.vue'
 import UserHistory from '@/views/apps/user/view/UserHistory.vue'
 import UserPaymentList from '@/views/apps/user/view/UserPaymentList.vue'
+import axios from '@axios'
 import { ref, watchEffect } from 'vue'
 import { useStore } from 'vuex'
 
@@ -71,9 +72,16 @@ userListStore.fetchUser(Number(route.params.id)).then(response => {
 })
 
 // checkedItems의 변화를 감지하여 변경 사항을 업데이트합니다.
-watchEffect(() => {
-  console.log('checkedItems가 변경되었습니다:', checkedItems.value)
-  console.log('checkedItems가 변경되었습니다:', checkedExerciseItems.value)
+watchEffect(async () => {
+  console.log('checkedItems가 변경되었습니다:', checkedItems.value.length)
+  console.log('checkedItems가 변경되었습니다:', checkedExerciseItems.value.length)
+
+  const response = await axios.post('http://localhost:4000/croom/implementation.do', { 
+    foodCheckCount: checkedItems.value.length,
+    exerciseCheckCount: checkedExerciseItems.value.length,
+    id: connetId, 
+  })
+
 })
 </script>
 

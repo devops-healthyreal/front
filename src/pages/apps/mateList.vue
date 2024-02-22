@@ -291,12 +291,24 @@ const checkEntrance = async challNo => {
           </VCard>
         </VCol>
       </VRow>
+      <VRow
+        v-else
+        class="d-flex flex-column align-center justify-center"
+        style="height: 100%;"
+      >
+        <VCard 
+          class="d-flex align-center justify-center" 
+          style="position: relative; width: 400px; height: 400px; margin-bottom: 20px; font-weight: bold;"
+        >
+          방을 새로 만들어보세요!
+        </VCard>
+      </VRow>
     </VCol>
     <VRow style="margin-top: 50px;">
       <VCol cols="4" />
       <VCol
         cols="4"
-        class="align-self-center"
+        class="d-flex flex-column align-center justify-center"
       >
         <VBtn
           :style="{'margin-left':'10px'}"

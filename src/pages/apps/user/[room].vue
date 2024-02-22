@@ -13,6 +13,7 @@ const chatflag = ref(false) // 채팅방 열기&닫기 flag
 const openRoomYN = ref(true) // 방공개여부
 const delayChat = ref(false)
 const router = useRouter()
+const route = useRoute() //route객체
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
@@ -65,52 +66,55 @@ watch(() => chatflag.value, newValue => {
 //참가자 데이터 가져오기
 const participants = async () => {
 
-const response = await axios.get('http://localhost:4000/mroom/participantsData.do', { params: { challNo: router.params.id } } )
+  console.log(' router.params.room---', route.params.room)
 
-if (response.status === 200) {
-  participantsData.value = response.data
-  console.log(' 참여자 데이타는---', participantsData.value)
-} else {
-  console.log('참여자 데이타 가져오기 실패')
-}
+  const response = await axios.get('http://localhost:4000/mroom/participantsData.do', { params: { challNo: route.params.room } } )
+
+  if (response.status === 200) {
+    participantsData.value = response.data
+    console.log(' 참여자 데이타는---', participantsData.value)
+  } else {
+    console.log('참여자 데이타 가져오기 실패')
+  }
 
 }
 
 //방 데이터 가져오기
 const roomData = async () => {
 
-console.log("challNo----", router.params.room)
+  console.log("challNo----", route.params.room)
 
-const response = await axios.post('http://localhost:4000/mroom/roomData.do', { challNo: router.params.room })
+  const response = await axios.post('http://localhost:4000/mroom/roomData.do', { challNo: route.params.room })
 
 
-if (response.status === 200) {
-  room.value = response.data
-  console.log(' 방의 데이타는---', room.value)
-} else {
-  console.log('방의 데이타 가져오기 실패')
+  if (response.status === 200) {
+    room.value = response.data
+    console.log(' 방의 데이타는---', room.value)
+  } else {
+    console.log('방의 데이타 가져오기 실패')
+  }
+
 }
 
-}
 const deleteData = async () => {
   if(room.value.manager === connetId && participantsData.value.length == 1){
     const response = await axios.delete('http://localhost:4000/mroom/deleteRoom.do', { data: { id: connetId } })
 
     console.log("방 나가기 성공")
-    router.push({ name: 'challengeList' }) //넘겨줄 Vue 경로 입력하기
+    router.push({ name: 'mateList' }) //넘겨줄 Vue 경로 입력하기
 
   }else if(room.value.manager === connetId){
     const response = await axios.delete('http://localhost:4000/mroom/deleteManager.do', { data: { id: connetId } })
 
     console.log("방장 나가기 성공")
-    router.push({ name: 'challengeList' }) //넘겨줄 Vue 경로 입력하
+    router.push({ name: 'mateList' }) //넘겨줄 Vue 경로 입력하
   }
 
   else{
     const response = await axios.delete('http://localhost:4000/mroom/deletePeople.do', { data: { id: connetId } })
 
     console.log("일반사람 나가기 성공")
-    router.push({ name: 'challengeList' }) //넘겨줄 Vue 경로 입력하기
+    router.push({ name: 'mateList' }) //넘겨줄 Vue 경로 입력하기
 
   }
 }
@@ -195,11 +199,11 @@ onMounted(async () => { await participants(), await roomData() })
             </VBtn>
             <VCol cols="2">
               <VBtn
-              :style="{'margin-left':'10px'}"
-              @click="deleteData"
-            >
-              나가기
-            </VBtn>
+                :style="{'margin-left':'10px'}"
+                @click="deleteData"
+              >
+                나가기
+              </VBtn>
             </VCol>
           </VCol>
         </VCard>
