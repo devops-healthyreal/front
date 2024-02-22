@@ -83,9 +83,12 @@ import * as mapSearch from '@/pages/exercise/mapSearch'
 import { isSearchListClicked } from '@/pages/exercise/mapSearch'
 import { ref } from 'vue'
 import { createRoadView } from '../createRoadView'
+import axios from '@axios'
 
 var lat = []
 var lng = []
+const totalDistance = ref() //그려진 polyline의 거리
+const totalDots = ref([]) //그려진 polyline의 경로
 export default {
   name: "DrawMap",
   props: ["controllRoadView"],
@@ -127,6 +130,13 @@ export default {
     //this.drawingMap.relayout();
   }, //mounted
   methods: {
+    uploadDrawPath(){
+      console.log("DrawMap ref:", totalDistance.value)
+      if(totalDistance.value == undefined) {alert("등록할 경로가 없습니다")}
+      else{
+        axios.post()
+      }
+    },
     addMarker(){
       mapSearch.addTempMarker(this.drawingMap)
     },
@@ -291,7 +301,8 @@ export default {
                         
           var distance = Math.round(clickLine.getLength() + moveLine.getLength()), // 선의 총 거리를 계산합니다
             content = '<div class="dotOverlay distanceInfo">총거리 <span class="number">' + distance + '</span>m</div>' // 커스텀오버레이에 추가될 내용입니다
-                        
+          totalDistance.value = distance
+
           // 거리정보를 지도에 표시합니다
           showDistance(content, mousePosition)   
         }             
@@ -319,7 +330,11 @@ export default {
               dots[dots.length-1].distance.setMap(null)
               dots[dots.length-1].distance = null    
             }
-
+            console.log('dots:', dots)
+            for(const dot of dots) {
+              totalDots.value.push(dot.position)
+            }
+            console.log('totalDOts:', totalDots.value)
             var distance = Math.round(clickLine.getLength()), // 선의 총 거리를 계산합니다
               content = getTimeHTML(distance) // 커스텀오버레이에 추가될 내용입니다
                                 
@@ -347,6 +362,8 @@ export default {
           clickLine.setMap(null)    
           clickLine = null        
         }
+        totalDots.value = []
+        totalDistance.value = undefined
       }
 
       // 마우스 드래그로 그려지고 있는 선의 총거리 정보를 표시하거
@@ -410,7 +427,7 @@ export default {
         }
 
         // 배열에 추가합니다
-        dots.push({ circle: circleOverlay, distance: distanceOverlay })
+        dots.push({ circle: circleOverlay, distance: distanceOverlay, position: position })
       }
 
       // 클릭 지점에 대한 정보 (동그라미와 클릭 지점까지의 총거리)를 지도에서 모두 제거하는 함수입니다
@@ -426,7 +443,7 @@ export default {
             dots[i].distance.setMap(null)
           }
         }
-
+        
         dots = []
       }
 

@@ -3,7 +3,7 @@ import AppDateTimePicker from '@/@core/components/app-form-elements/AppDateTimeP
 import DrawMap from '@/pages/exercise/map/DrawMap.vue'
 import LikeMap from '@/pages/exercise/map/LikeMap.vue'
 import RecoMap from '@/pages/exercise/map/RecoMap.vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 //라우트
@@ -195,6 +195,13 @@ const checkTimeValidity = () => { //종료시간이 시작시간보다 늦는지
     }
   }
 }
+
+const drawRef = ref(null) //자식 컴포넌트 DrawMap에 접근용
+const drawRefComputed = computed(()=>drawRef.value)
+
+const uploadPath = () => {
+  drawRefComputed.value.uploadDrawPath()
+}
 </script>
 
 <template>
@@ -252,16 +259,22 @@ const checkTimeValidity = () => { //종료시간이 시작시간보다 늦는지
             :touch="false"
           >
             <VWindowItem value="reco">
-              <RecoMap :controll-road-view="impossibleRoadView" />
+              <RecoMap
+                ref="recoRef"
+                :controll-road-view="impossibleRoadView"
+              />
             </VWindowItem>
 
             <VWindowItem value="like">
-              <LikeMap :controll-road-view="impossibleRoadView" />
+              <LikeMap
+                ref="likeRef"
+                :controll-road-view="impossibleRoadView"
+              />
             </VWindowItem>
 
             <VWindowItem value="self">
               <DrawMap
-                ref="childMap"
+                ref="drawRef"
                 :controll-road-view="impossibleRoadView"
                 @refresh-child-road="createRoadView" 
               />
@@ -351,7 +364,7 @@ const checkTimeValidity = () => { //종료시간이 시작시간보다 늦는지
               variant="text"
               color="info"
               style=" margin-left: 10px;float: inline-end; font-size: medium;"
-              @click="reset"
+              @click="uploadPath"
             />
           </div>
           <!-- 지도 탭 end -->
