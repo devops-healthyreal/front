@@ -1,6 +1,6 @@
 #menu-wrap {
   position: absolute;
-  z-index: 1;
+  z-index: 9999;
   padding: 5px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 90%);
@@ -167,3 +167,12 @@
   cursor: default;
   font-weight: bold;
 }
+
+.dot { overflow: hidden; background: url("http://localhost:3333/src/assets/images/mapPoint.svg"); block-size: 12px; float: inline-start; inline-size: 12px; }
+.dotOverlay { position: relative; padding: 5px; border: 1px solid #ccc; border-radius: 6px; background: #fff; border-block-end: 2px solid #ddd; float: inline-start; font-size: 12px; inset-block-end: 10px; }
+.dotOverlay:nth-of-type(n) { border: 0; box-shadow: 0 1px 2px #888; }
+.number { color: #005d32; font-weight: bold; }
+.dotOverlay::after { position: absolute; background: url("https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white_small.png"); block-size: 8px; content: ""; inline-size: 11px; inset-block-end: -8px; inset-inline-start: 50%; margin-inline-start: -6px; }
+.distanceInfo { position: relative; margin: 0; inset-block-start: 5px; inset-inline-start: 5px; list-style: none; }
+.distanceInfo .label { display: inline-block; inline-size: 50px; }
+.distanceInfo::after { content: none; }

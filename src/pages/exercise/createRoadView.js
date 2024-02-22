@@ -40,7 +40,9 @@ export function toggleRoadview(rv, position){
   console.log('toggleRoadview함수 실행됨:', position)
   rvClient.getNearestPanoId(position, 300, function(panoId) {
     // 파노라마 ID가 null 이면 로드뷰를 숨깁니다
-    if (panoId === null) rvContainer.innerHTML = '표시할 로드뷰가 없습니다'
+    if (panoId === null) {
+      
+    }
     else {
       // panoId로 로드뷰를 설정합니다
       rv.setPanoId(panoId, position)

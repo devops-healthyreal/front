@@ -23,7 +23,7 @@ const tabs = [
     recommend: 'like',
   },
   {
-    title: '직접등록',
+    title: '그리기',
     icon: 'mdi-account-outline',
     recommend: 'self',
   },
@@ -53,6 +53,7 @@ const isSearchShow = ref(false) //검색창 화면 조정
 
 const likePath = ref([])
 const recoPath = ref([])
+const impossibleRoadView = ref(false)
 
 //지도위에 현재 로드뷰의 위치와, 각도를 표시하기 위한 map walker 아이콘 생성 클래스
 function MapWalker(position){
@@ -251,17 +252,18 @@ const checkTimeValidity = () => { //종료시간이 시작시간보다 늦는지
             :touch="false"
           >
             <VWindowItem value="reco">
-              <RecoMap />
+              <RecoMap :controll-road-view="impossibleRoadView" />
             </VWindowItem>
 
             <VWindowItem value="like">
-              <LikeMap />
+              <LikeMap :controll-road-view="impossibleRoadView" />
             </VWindowItem>
 
             <VWindowItem value="self">
               <DrawMap
                 ref="childMap"
-                @refresh-child-road="createRoadView"
+                :controll-road-view="impossibleRoadView"
+                @refresh-child-road="createRoadView" 
               />
             </VWindowItem>
           </VWindow>
@@ -344,6 +346,13 @@ const checkTimeValidity = () => { //종료시간이 시작시간보다 늦는지
                 {{ item.title }}
               </VTab>
             </Vtabs>
+            <VBtn
+              icon="mdi-upload-circle-outline"
+              variant="text"
+              color="info"
+              style=" margin-left: 10px;float: inline-end; font-size: medium;"
+              @click="reset"
+            />
           </div>
           <!-- 지도 탭 end -->
         </VCard>
@@ -355,6 +364,11 @@ const checkTimeValidity = () => { //종료시간이 시작시간보다 늦는지
             id="roadview"
             :style="{'width':'100%','height':'100%'}"
           />
+          <VDialog v-model="impossibleRoadView">
+            <VCard>
+              <VCardText>로드뷰로 표현할 수 있는 위치가 아닙니다</VCardText>
+            </VCard>
+          </VDialog>
         </VCard>
       </VCol>
       <!-- 지도 로드뷰 end -->

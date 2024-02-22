@@ -77,7 +77,7 @@ export function displayPlaces(places) {
     // 마커를 생성하고 지도에 표시합니다
     var placePosition = new kakao.maps.LatLng(places[i].y, places[i].x)
 
-    var marker = addMarker(placePosition, i)
+    var marker = addMarker(placePosition)
     var itemEl = getListItem(i, places[i]) // 검색 결과 항목 Element를 생성합니다
     
     // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
@@ -114,8 +114,8 @@ export function displayPlaces(places) {
       }
 
       itemEl.onclick = function() {
-        isSearchListClicked = true
-        console.log('itemEl클릭:', typeof isSearchListClicked)
+        isSearchListClicked.value = true
+        console.log('itemEl클릭:', typeof isSearchListClicked.value)
       }
       kakao.maps.event.addListener(marker, 'click', function() {
         if(markerClicked.value === 0) {
@@ -133,7 +133,10 @@ export function displayPlaces(places) {
             markerClicked.value += 1
           }
         } //도착좌표 등록
-        
+        else if(markerClicked.value === 2){
+          removeAllMarker()
+          markerClicked.value=0
+        }
       }) //마커 클릭 이벤트
     }
     infoFunc(marker, places[i].place_name)
@@ -178,7 +181,7 @@ export function getListItem(index, places) {
 }
 
 // 마커를 생성하고 지도 위에 마커를 표시하는 함수입니다
-export function addMarker(position, idx) {
+export function addMarker(position) {
   //https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png
   var imageSrc = 'https://t1.daumcdn.net/mapjsapi/images/marker.png', // 마커 이미지 url, 스프라이트 이미지를 씁니다
     imageSize = new kakao.maps.Size(29, 42),  // 마커 이미지의 크기
@@ -198,13 +201,54 @@ export function addMarker(position, idx) {
   return marker
 }
 
-// 지도 위에 표시되고 있는 마커를 모두 제거합니다
+export function addTempMarker(param_map) {
+
+  map.value = param_map
+  var markerImage = new kakao.maps.MarkerImage(
+    'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
+    new kakao.maps.Size(24, 35))
+  var marker = new kakao.maps.Marker({
+    map: map.value,
+    position: map.value.getCenter(),
+    image: markerImage,
+    draggable: true,
+  })
+  marker.setMap(map.value)
+  markers.value.push(marker)
+}
+
+// 출발, 도착 마커를 제외한 지도 위에 표시되고 있는 마커를 모두 제거
 export function removeMarker() {
-  console.log('removeMarker함수 실행됨')
-  console.log('removeMarker함수 실행 후 markers:', markers.value.length)
+  console.log('remove 이전 markers값:', markers.value)
+  var tempStartEndMarker = [] //출발, 도착 마커를 잠시 담아두기 위한 변수
+
   for ( var i = 0; i < markers.value.length; i++ ) {
-    if (markers.value[i].T.mk != startImageSrc && markers.value[i].T.mk != endImageSrc)
-      markers.value[i].setMap(null)
+    //검색 결과 마커들만 제거
+    //동시에 삭제까지 진행할 경우 인덱스 번호가 꼬이기 때문에 따로 담아둬야 함
+    if(markers.value[i] !== undefined) {
+      if (markers.value[i].T.mk != startImageSrc && markers.value[i].T.mk != endImageSrc) {
+        markers.value[i].setMap(null)
+      }
+      else {
+        tempStartEndMarker.push(markers.value[i])
+      }
+    }
+  }   
+  if(tempStartEndMarker.length == 0) {
+    markers.value = []
+  }
+  else {
+    markers.value = [tempStartEndMarker[0], tempStartEndMarker[1]]
+  }
+  console.log('remove결과:', markers.value)
+  console.log('remove결과:', tempStartEndMarker)
+}
+
+export function removeAllMarker() {
+  markerClicked.value = 0
+  console.log("markers:", markers)
+  for ( var i = 0; i < markers.value.length; i++ ) {
+    markers.value[i].setMap(null)
   }   
   markers.value = []
 }

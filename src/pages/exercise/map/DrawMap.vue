@@ -1,13 +1,76 @@
 <template>
+  <!-- 지도 검색창 -->
+  <div
+    v-show="switchOnOff"
+    id="menu-wrap"
+    class="bg_white"
+    :style="{'height':'80%', 'margin-top':'64px'}"
+  >
+    <div class="option">
+      <div>
+        <form
+          v-show="!isMyPlace"
+          @submit="searchPosition"
+        >
+          키워드 : <input
+            id="keyword"
+            type="text"
+            value=""
+            size="15"
+            placeholder="검색어를 입력하세요"
+          > 
+          <button type="submit">
+            검색
+          </button> 
+        </form>
+      </div>
+      <hr>
+      <div v-show="!isMyPlace">
+        <ul
+          id="placesList"
+          @click="searchListClickController"
+        />
+        <div id="pagination" />
+      </div>
+    </div>
+    <hr>
+    <div v-show="!isMyPlace">
+      <ul
+        id="placesList"
+        @click="searchListClickController"
+      />
+      <div id="pagination" />
+    </div>
+  </div>
+  <!-- 지도 검색창end -->
   <div>
     <!-- 지도 검색창 화면 활성화 스위치(직접설정 클릭시 show) -->
+    <VBtn
+      icon="mdi-refresh"
+      variant="text"
+      color="info"
+      style=" margin: 5px;float: inline-end;"
+      @click="reset"
+    />
+    <VBtn
+      variant="text"
+      color="info"
+      style="margin: 5px;"
+      @click="addMarker"
+    >
+      <VIcon icon="mdi-plus" />
+      마커 추가하기
+    </VBtn>
     <VSwitch
+      v-model="isSwitchOn"
       label="검색창 보기"
       :value="Info"
       :color="'Info'.toLowerCase()"
       :style="{'float':'right', 'margin':'5px','margin-right':'20px'}"
+      @update:model-value="switchController"
     />
   </div>
+  
   <div
     id="drawingMap"
     :style="{'width':'100%','height':'450px'}"
@@ -17,6 +80,7 @@
 
 <script>
 import * as mapSearch from '@/pages/exercise/mapSearch'
+import { isSearchListClicked } from '@/pages/exercise/mapSearch'
 import { ref } from 'vue'
 import { createRoadView } from '../createRoadView'
 
@@ -24,11 +88,22 @@ var lat = []
 var lng = []
 export default {
   name: "DrawMap",
+  props: ["controllRoadView"],
+  setup(props) {
+    console.log('DrawMap에서 찍어본 props값:', props.controllRoadView)
+  },
   data() {
     return {
+      isSearchListClicked: isSearchListClicked,
       drawingMap: ref(null),
       lat: lat,
       lng: lng,
+      isSearchShow: ref(false), //검색창 화면 조정
+      isMyPlace: ref(false), //직접 설정에서 내가 자주 찾는 장소 보기 클릭했는지 확인 (직접설정)
+      switchOnOff: ref(false), //검색창 활성화 버튼 (직접설정)
+      searchSwitch: ref(false), //위치 검색창 활성화 스위치 (직접설정)
+      switchOnOff: ref(false), //검색창 활성화 버튼 (직접설정)
+      isSwitchOn: ref(false),
     }
   }, //data
   mounted() {
@@ -52,6 +127,18 @@ export default {
     //this.drawingMap.relayout();
   }, //mounted
   methods: {
+    addMarker(){
+      mapSearch.addTempMarker(this.drawingMap)
+    },
+    reset(){
+      mapSearch.removeAllMarker()
+    },
+    displayMarker(ps){
+      mapSearch.searchPlaces(ps, this.drawingMap)
+    },
+    switchController(){
+      this.switchOnOff = ! this.switchOnOff
+    },
     showSearchUi() {
       this.switchOnOff = !this.switchOnOff
       var mapEl = document.getElementById('menu-wrap') //지도 태그 가져오기
@@ -62,8 +149,24 @@ export default {
         this.isSearchShow = false
       }
     },
+    searchListClickController(e){
+      e.stopPropagation()
+      console.log('ul태그 클릭 이벤트', this.isSearchListClicked)
+      this.isSearchListClicked = false
+    },
+    searchPosition(e){
+      e.preventDefault()
+      console.log('부모 컴포넌트에서 값을 보냄')
+      var ps = new kakao.maps.services.Places() 
+      this.displayMarker(ps)
+
+      // 장소 검색 객체를 생성합니다
+      // mapSearch.searchPlaces(ps, this.map)
+    },
     initMap() { //지도 초기화 함수
       const drawingContainer = document.getElementById("drawingMap")
+
+      drawingContainer.innerHTML = ''
       var lat = ref(33.450701)
       var lng = ref(126.570667) //디폴트 값
       if(navigator.geolocation){
@@ -82,12 +185,12 @@ export default {
           //지도 객체는 반응형 관리 대상이 아니므로 initMap에서 선언합니다.
           this.drawingMap = new kakao.maps.Map(drawingContainer, tempoptions)
           this.drawingMap.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW)
-          console.log('draw:', this.drawingMap)
 
           createRoadView(this.drawingMap)
           this.drawingLine(this.drawingMap)
         })
       }//if
+
     }, //initMap
     displayMarker(ps){
       mapSearch.searchPlaces(ps, this.drawingMap)
@@ -371,6 +474,11 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+@import "@/pages/exercise/mapCss.css"
+
+</style>
 
 <style>
 .dot { overflow: hidden; background: url("http://localhost:3333/src/assets/images/mapPoint.svg"); block-size: 12px; float: inline-start; inline-size: 12px; }
