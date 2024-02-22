@@ -139,10 +139,11 @@ watchEffect(() => {
         </VWindowItem>
 
         <VWindowItem>
+          <!-- 인바티 데이터 차트 모아둔 거 -->
           <VCard>
             <VCardItem class="d-flex flex-wrap justify-space-between gap-4">
-              <VCardTitle>Area Chart</VCardTitle>
-              <VCardSubtitle>Commercial networks</VCardSubtitle>
+              <VCardTitle>Inbody 변화</VCardTitle>
+              <VCardSubtitle>몸의 변화를 그래프로 보세요</VCardSubtitle>
 
               <template #append>
                 <div class="date-picker-wrapper">
@@ -162,23 +163,30 @@ watchEffect(() => {
             </VCardText>
           </VCard>
           <VRow style="margin-top: 20px;">
+            <!-- 인바티 데이터 차트 -->
             <VCol
               cols="12"
               md="6"
             >
-              <VCard title="Radar Chart">
+              <VCard
+                title="이번달 Inbody"
+                class="hover-card"
+              >
                 <VCardText>
                   <ChartJsRadarChart />
                 </VCardText>
               </VCard>
             </VCol>
 
-            <!-- 👉 Average Skills Polar Area Chart -->
+            <!-- 영양분 데이터 차트 -->
             <VCol
               cols="12"
               md="6"
             >
-              <VCard title="Average Skills">
+              <VCard
+                title="섭취 영양분"
+                class="hover-card"
+              >
                 <VCardText>
                   <ChartJsPolarAreaChart :colors="chartJsCustomColors" />
                 </VCardText>
@@ -196,7 +204,7 @@ watchEffect(() => {
             <ApexChartStatistics
               :checked-items="checkedItems"
               :checked-exercise-items="checkedExerciseItems"
-              style="margin: 50px 0;"
+              style="margin: 50px 0; opacity: 0.6;"
             /> <!-- 차트 -->
           </VCard>
           <VTabs
@@ -243,3 +251,15 @@ watchEffect(() => {
     </VCol>
   </VRow>
 </template>
+
+<style lang="scss">
+.hover-card {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.hover-card:hover {
+  z-index: 1;
+  transform: scale(1.2); /* 크기를 1.1배로 확대합니다. */
+}
+</style>
