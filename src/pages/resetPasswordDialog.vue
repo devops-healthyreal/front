@@ -105,6 +105,7 @@ const updatePassword = async () => {
     // 로그인 실행
     await store.dispatch('login', { id: id.value, pwd: pwd.value })
     closeDialog()
+    window.location.reload()
 
     // 로그인 완료 후 모달 창 닫기
 
