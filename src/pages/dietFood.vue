@@ -95,55 +95,51 @@ const getrecipe = async (connetId, choicecategory, index) =>{
 // recipedata 배열에서 무작위로 5개 그룹을 선택하는 함수
 const getRandomGroups = () => {
   // 객체를 배열로 변환
-  const dataArray = Object.values(recipedata.value)
-
+  const dataArray = Object.values(recipedata.value);
   // 배열을 무작위로 섞음
-  const shuffled = dataArray.sort(() => 0.5 - Math.random())
-
+  const shuffled = dataArray.sort(() => 0.5 - Math.random());
   // 상위 5개 항목을 반환
-  return shuffled.slice(0, 5)
+  return shuffled.slice(0, 5);
 }
 
 const savedietFood = () => {
   // 저장할 데이터
   // 아침, 점심, 저녁 별로 데이터를 가공하여 저장
   const morningData = {
-    connetId: connetId,
-    mealType: '아침', // 아침 식사 유형
-    foodName: recipedatach.value[0][0].FOODNAME, // 아침에 선택된 음식명
-    recipeCode: recipedatach.value[0][0].RECIPE_CODE, // 아침에 선택된 레시피 코드
-  }
+    id: connetId,
+    mealtype: '아침', // 아침 식사 유형
+    eating_foodname: recipedatach.value[0][0].FOODNAME, // 아침에 선택된 음식명
+    eating_recipeCode: recipedatach.value[0][0].RECIPECODE // 아침에 선택된 레시피 코드
+  };
 
   const lunchData = {
-    connetId: connetId,
-    mealType: '점심', // 점심 식사 유형
-    foodName: recipedatach.value[1][0].FOODNAME, // 점심에 선택된 음식명
-    recipeCode: recipedatach.value[1][0].RECIPE_CODE, // 점심에 선택된 레시피 코드
-  }
+    id: connetId,
+    mealtype: '점심', // 점심 식사 유형
+    eating_foodname: recipedatach.value[1][0].FOODNAME, // 점심에 선택된 음식명
+    eating_recipeCode: recipedatach.value[1][0].RECIPECODE // 점심에 선택된 레시피 코드
+  };
 
   const dinnerData = {
-    connetId: connetId,
-    mealType: '저녁', // 저녁 식사 유형
-    foodName: recipedatach.value[2][0].FOODNAME, // 저녁에 선택된 음식명
-    recipeCode: recipedatach.value[2][0].RECIPE_CODE, // 저녁에 선택된 레시피 코드
-  }
-
-  console.log('아침 :', morningData)
-  console.log('점심 :', lunchData)
-  console.log('저녁 :', dinnerData)
-
-  // // Axios를 사용하여 서버로 데이터를 전송
-  // axios.post('/your-server-endpoint', dataToSave)
-  //   .then(response => {
-  //     // 성공적으로 저장된 경우의 처리
-  //     console.log('데이터가 성공적으로 저장되었습니다.');
-  //     // 저장 후에 필요한 작업을 여기에 추가할 수 있습니다
-  //   })
-  //   .catch(error => {
-  //     // 저장 중에 발생한 오류 처리
-  //     console.error('데이터 저장 중 오류가 발생했습니다:', error);
-  //     // 오류 처리 방법에 따라 적절한 조치를 취할 수 있습니다
-  //   });
+    id: connetId,
+    mealtype: '저녁', // 저녁 식사 유형
+    eating_foodname: recipedatach.value[2][0].FOODNAME, // 저녁에 선택된 음식명
+    eating_recipeCode: recipedatach.value[2][0].RECIPECODE // 저녁에 선택된 레시피 코드
+  };
+  console.log('아침 :',morningData)
+  console.log('점심 :',lunchData)
+  console.log('저녁 :',dinnerData)
+  // Axios를 사용하여 서버로 데이터를 전송
+  axios.post('http://localhost:4000/Dietfood/Insert.do', { morningData, lunchData, dinnerData })
+    .then(response => {
+      // 성공적으로 저장된 경우의 처리
+      console.log('데이터가 성공적으로 서버에 전송되었습니다.');
+      // 서버로부터의 응답을 처리하는 등의 추가 작업을 수행할 수 있습니다.
+    })
+    .catch(error => {
+      // 데이터 전송 중에 오류가 발생한 경우의 처리
+      console.error('데이터 전송 중 오류가 발생했습니다:', error);
+      // 오류 처리 방법에 따라 적절한 조치를 취할 수 있습니다.
+    });
 }
 
 const handleIconClicked = data => {

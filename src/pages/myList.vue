@@ -42,7 +42,7 @@ const getData = async function() {
     if (response.status === 200) {
       console.log('데이터 받기 성공')
       state.items = response.data // 데이터 저장
-      console.log(state.items[0])
+      console.log('가져온 아이템을 어디 한번 보자',state.items)
     } else {
       console.log('데이터 전송 실패')
     }
@@ -146,9 +146,9 @@ const getComment = async function() {
       console.log('전체 데이타', groupedDataAll)
       console.log('특정 게시물 데이타', groupedDataAll.value)
 
-      // postmodalData.value = {
-      //   comments: groupedDataAll.value[postbbsno.value],    
-      // }
+      postmodalData.value = {
+        comments: groupedDataAll.value[postbbsno.value],    
+      }
 
       // Allgroupbbs.value = groupedDataAll._rawValue[17]
       statecomm.value.comment = toRaw(groupedData)
@@ -161,6 +161,21 @@ const getComment = async function() {
   } catch (error) {
     console.error(`데이터 전송 실패: ${error}`)
   }
+}
+
+const postmodalData = ref({ comments: {} })
+const postbbsno = ref(0)
+
+const openViewPostMoadl = async val =>{
+  console.log('가져온 글번호', val)
+  postbbsno.value = val
+  viewPostPageModal.value=true
+
+  // console.log('글번호에 대한 댓글', groupedDataAll.value._rawValue[postbbsno.value])
+  postmodalData.value = {
+    comments: groupedDataAll.value[postbbsno.value],    
+  }
+  console.log(postmodalData.value)
 }
 
 //스크롤 이벤트 리스터 추가 - 화면 하단에 스크롤 도착 시 loadMore()함수 호출
@@ -252,7 +267,7 @@ const loadMore = () => {
                                 style="margin-left: -15%;"
                                 @click="userProfileModal=true"
                               >
-                                {{ item.id }}  <!-- 유저 닉네임 뿌려주기 -->
+                                {{ item.id }}  {{item.bno}}<!-- 유저 닉네임 뿌려주기 -->
                               </VCardSubtitle>
                             </VCol>
                           </VCol>
@@ -306,7 +321,7 @@ const loadMore = () => {
                             :src="image"
                             class="pointer-cursor"
                             style="width: auto; height: auto;"
-                            @click="viewPostPageModal=true;submitEdit(item.bno)"
+                            @click="openViewPostMoadl(item.bno);submitEdit(item.bno)"
                           />
                         </VCol>
                       </VCol>
@@ -327,14 +342,14 @@ const loadMore = () => {
                           <VImg
                             :src="image"
                             class="pointer-cursor"
-                            @click="viewPostPageModal=true;submitEdit(item.bno)"
+                            @click="openViewPostMoadl(item.bno);submitEdit(item.bno)"
                           />
                         </VCarouselItem>
                       </VCarousel>
                       <VCardItem>
                         <VCardTitle
                           class="pointer-cursor"
-                          @click="viewPostPageModal=true; submitEdit(item.bno)"
+                          @click="openViewPostMoadl(item.bno); submitEdit(item.bno)"
                         >
                           {{ item.content }}
                         </VCardTitle> 
