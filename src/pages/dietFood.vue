@@ -2,14 +2,14 @@
 import UserCategory from '@/components/dialogs/UserCategory.vue'
 import RecipeView from '@/components/dialogs/recipe_view.vue'
 import axios from '@axios'
-import { ref } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useStore } from 'vuex'
 
 const store = useStore()
 
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=userInfo.value.id
+const connetId = userInfo.value.id
 
 const isUpgradePlanDietPlan = ref(false)
 const isCheckedRecipe = ref(false)
@@ -17,10 +17,8 @@ const isCheckedRestaurant = ref(false)
 const isCategory = ref(false)
 const isRecipe = ref(false)
 
-
 const router = useRoute()
 const connectionData = ref([])
-
 
 const fetchProjectData = () => {
   if (router.params.tab === 'connections') {
@@ -31,16 +29,19 @@ const fetchProjectData = () => {
 }
 
 const choicecategory = ref('') // 선택된 값이 저장될 변수
-const recipedatach = ref('')
+const recipedatach = ref({})
 
 const handleChoiceCategory = value => {
   choicecategory.value = value
   console.log('선택한 카테고리:', value)
 }
 
+const updatediet = ref('')
 const handleRecipedatach = value =>{
-  recipedatach.value = value
-  console.log('선택한 레시피:', value)
+  const { recipe, dietType } = value;
+  recipedatach.value[dietType] = recipe;
+  updatediet.value = dietType;
+  console.log('선택한 레시피:', recipedatach.value, '선택한 index:', updatediet.value);
 }
 
 const dietPlansList = [
@@ -64,12 +65,13 @@ const dietPlansList = [
   },
 ]
 
-const recipedata = ref([])//내 레시피 데이터
+const recipedata = ref([]) // 내 레시피 데이터
 const selectedGroups = ref([])
+const dietPlansListtype = ref('')
 
-const getrecipe = async (connetId, foodname) =>{
-  console.log('들어온 아이디와, 음식명', connetId, foodname)
-  await axios.get('http://localhost:4000/recipe/View.do', { params: { 'id': connetId, 'foodname': foodname } })
+const getrecipe = async (connetId, choicecategory, index) =>{
+  console.log('들어온 아이디와, 카테고리', connetId, choicecategory,index)
+  await axios.get('http://localhost:4000/recipe/View.do', { params: { 'id': connetId, 'category': choicecategory } })
     .then(response => {
 
       // 음식명을 기준으로 데이터 묶기
@@ -85,7 +87,8 @@ const getrecipe = async (connetId, foodname) =>{
       }, {})
       console.log('그룹으로 묶였는지 확인 -> ', recipedata.value)
 
-      selectedGroups.value = getRandomGroups()
+      selectedGroups.value = getRandomGroups();
+      dietPlansListtype.value = index;
       console.log('랜덤 추출값:', selectedGroups.value)
     })
 }
@@ -100,6 +103,50 @@ const getRandomGroups = () => {
 
   // 상위 5개 항목을 반환
   return shuffled.slice(0, 5)
+}
+
+const savedietFood = () => {
+  // 저장할 데이터
+    // 아침, 점심, 저녁 별로 데이터를 가공하여 저장
+  const morningData = {
+    connetId: connetId,
+    mealType: '아침', // 아침 식사 유형
+    foodName: recipedatach.value[0][0].FOODNAME, // 아침에 선택된 음식명
+    recipeCode: recipedatach.value[0][0].RECIPE_CODE // 아침에 선택된 레시피 코드
+  };
+
+  const lunchData = {
+    connetId: connetId,
+    mealType: '점심', // 점심 식사 유형
+    foodName: recipedatach.value[1][0].FOODNAME, // 점심에 선택된 음식명
+    recipeCode: recipedatach.value[1][0].RECIPE_CODE // 점심에 선택된 레시피 코드
+  };
+
+  const dinnerData = {
+    connetId: connetId,
+    mealType: '저녁', // 저녁 식사 유형
+    foodName: recipedatach.value[2][0].FOODNAME, // 저녁에 선택된 음식명
+    recipeCode: recipedatach.value[2][0].RECIPE_CODE // 저녁에 선택된 레시피 코드
+  };
+  console.log('아침 :',morningData)
+  console.log('점심 :',lunchData)
+  console.log('저녁 :',dinnerData)
+  // // Axios를 사용하여 서버로 데이터를 전송
+  // axios.post('/your-server-endpoint', dataToSave)
+  //   .then(response => {
+  //     // 성공적으로 저장된 경우의 처리
+  //     console.log('데이터가 성공적으로 저장되었습니다.');
+  //     // 저장 후에 필요한 작업을 여기에 추가할 수 있습니다
+  //   })
+  //   .catch(error => {
+  //     // 저장 중에 발생한 오류 처리
+  //     console.error('데이터 저장 중 오류가 발생했습니다:', error);
+  //     // 오류 처리 방법에 따라 적절한 조치를 취할 수 있습니다
+  //   });
+}
+const handleIconClicked = (data) => {
+  const { connetId, choicecategory, index } = data;
+  getrecipe(connetId, choicecategory, index); // 클릭 이벤트 발생 시 getrecipe 함수 호출
 }
 
 watch(router, fetchProjectData, { immediate: true })
@@ -118,7 +165,7 @@ watch(router, fetchProjectData, { immediate: true })
       </VCol>
       <VCol
         v-for="list in dietPlansList"
-        :key="list"
+        :key="list.index"
         cols="12"
         md="4"
       >
@@ -131,35 +178,32 @@ watch(router, fetchProjectData, { immediate: true })
               class="mb-2"
             >
               <VImg
-                v-if="!(recipedatach.length >=1)"
+                v-if="!(recipedatach[list.index] && recipedatach[list.index].length)"
                 size="160px"
               />
               <VImg
-                v-if="(recipedatach.length >=1) "
+                v-else
                 style="height: 160px;"
-                :src="recipedatach[list.index].RECIPE_IMG"
+                :src="recipedatach[list.index][0].RECIPE_IMG"
               />
             </VAvatar>
-
             <h6 class="text-h6">
-              <span v-if="!(recipedatach.length >=1)">{{ list.title }}</span>
-              <span v-if="(recipedatach.length >=1)">{{ recipedatach[0].FOODNAME }}</span>
+              <span v-if="!(recipedatach[list.index] && recipedatach[list.index].length)">{{ list.title }}</span>
+              <span v-else>{{ recipedatach[list.index][0].FOODNAME }}</span>
             </h6>
           </VCardItem>
-
           <VCardText>
-            <span v-if="!(recipedatach.length >=1)">{{ list.content }}</span>
-            <span v-if="(recipedatach.length >=1)">{{ recipedatach[0].RECIPE_TITLE }}</span>
+            <span v-if="!(recipedatach[list.index] && recipedatach[list.index].length)">{{ list.content }}</span>
+            <span v-else>{{ recipedatach[list.index][0].RECIPE_TITLE }}</span>
           </VCardText>
-
           <VCardText>
-            <span v-if="!(recipedatach.length >=1)">레시피</span>
+            <span v-if="!(recipedatach[list.index] && recipedatach[list.index].length)">레시피</span>
             <span
-              v-if="(recipedatach.length >=1)"
+              v-else
               style="height: 450px;"
             >
               <div
-                v-for="(gro, index) in recipedatach"
+                v-for="(gro, index) in recipedatach[list.index]"
                 :key="index"
               >
                 <div v-if="index == 0 && gro.RECIPE_SEQ && gro.RECIPE_SEQ.length > 0">
@@ -181,21 +225,18 @@ watch(router, fetchProjectData, { immediate: true })
                 </div>
                 <span v-if="gro.FOODNAME">
                   - {{ gro.INGREDIENT }} - {{ gro.RI_AMOUNT }}
-                </span> 
+                </span>
               </div>
-              
             </span>
           </VCardText>
-
           <VCardText class="justify-center">
             <VBtn
-              variant="elevated" 
+              variant="elevated"
               style=" width: 90px;margin-right: 5px;"
-              @click="getrecipe(connetId, list.title == '아침 메뉴'? '계란': list.title == '점심 메뉴'?'두부':'닭가슴살'), isRecipe = true"
+              @click="getrecipe(connetId, list.title == '아침 메뉴'? '양식': list.title == '점심 메뉴'?'찌개':'일상', list.index), isRecipe = true"
             >
               식단 재추천
             </VBtn>
-          
             <VBtn
               variant="elevated"
               @click="isCheckedRestaurant = true"
@@ -205,6 +246,14 @@ watch(router, fetchProjectData, { immediate: true })
           </VCardText>
         </VCard>
       </VCol>
+      <VCol cols="12">
+        <VBtn
+          block
+          @click="savedietFood"
+        >
+          저장하기
+        </VBtn>
+      </VCol>      
     </VRow>
     <UserCheckedRecipe v-model:isDialogVisible="isCheckedRecipe" />
     <UserFindRestaurant v-model:isDialogVisible="isCheckedRestaurant" />
@@ -213,10 +262,13 @@ watch(router, fetchProjectData, { immediate: true })
       :choicecategory="choicecategory"
       @update:choicecategory="handleChoiceCategory"
     />
-    <RecipeView 
+    <RecipeView
       v-model:isDialogVisible="isRecipe"
-      :recipedata="selectedGroups" 
+      :recipedata="selectedGroups"
+      :dietPlansListtype="dietPlansListtype"
+      :connetId="connetId"
       @update:recipedatach="handleRecipedatach"
+      @icon-clicked="handleIconClicked"
     />
   </section>
 </template>

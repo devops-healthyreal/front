@@ -1,4 +1,10 @@
 <script setup>
+import SvgIcon from '@jamescoyle/vue-icon';
+import { mdiRefresh } from '@mdi/js';
+import { defineProps, defineEmits } from 'vue';
+
+const path = mdiRefresh;
+
 const props = defineProps({
   isDialogVisible: {
     type: Boolean,
@@ -8,19 +14,40 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  dietPlansListtype: {
+    type: Number,
+    required:true,
+  },
+  connetId: {
+    type: String,
+    required:true,
+  },
 })
-
 const emit = defineEmits(['update:isDialogVisible'])
-
 const tabItemText = 'Biscuit cheesecake gingerbread oat cake tiramisu. Marzipan tiramisu jelly-o muffin biscuit jelly cake pie. Chocolate cookie candy croissant brownie cupcake powder cheesecake. Biscuit sesame snaps biscuit topping tiramisu croissant.'
 const currentTab = ref('tab-1')
-
 const closeModal = () => {
   // 모달 창을 닫는 로직을 작성합니다.
   emit('update:isDialogVisible', false)
 }
-</script>
+const currentRecipe = ref('')
+const updateRecipeData = (group) => {
+  currentRecipe.value = group
+    console.log('현재 클릭한 레시피:',currentRecipe.value)
+  // emit('update:recipedatach', group);
+};
 
+const updateCurrent = () => {
+  console.log('지금 레시피로 넘깁니다.',currentRecipe.value)
+  emit('update:recipedatach', { recipe: currentRecipe.value, dietType: props.dietPlansListtype});
+}
+const changeRandom = () => {
+  const connetId = props.connetId; // 자식 컴포넌트에서 필요한 데이터 생성
+  const choicecategory = props.recipedata[0][0].CATEGORY;
+  const index = props.dietPlansListtype;
+  emit('icon-clicked', { connetId, choicecategory, index }); // 부모 컴포넌트로 데이터 전달
+}
+</script>
 <template>
   <VDialog
     style=" width: 50%;height: 100%;"
@@ -30,16 +57,24 @@ const closeModal = () => {
     <VCard
       class="py-8"
       style="max-width: 100%; max-height: 100%;"
-    >
-      <VCardActions class="justify-end">
-        <VBtn
-          icon
-          @click="closeModal"
-        >
-          <VIcon>
-            mdi-close
-          </VIcon>
-        </VBtn>
+    >    
+      <VCardActions class="justify-space-between">
+        <svg-icon type="mdi" :path="path" @click="changeRandom"/>
+        <div>
+          <VBtn
+            @click="updateCurrent"
+          >
+            식단 변경하기
+          </VBtn>
+          <VBtn
+            icon
+            @click="closeModal"
+          >
+            <VIcon>
+              mdi-close
+            </VIcon>
+          </VBtn>
+        </div>
       </VCardActions>
       <VTabs
         v-model="currentTab"
@@ -52,13 +87,13 @@ const closeModal = () => {
           :key="index"
           :value="'tab-' + (index+1)"
           style="height: 160px;"
+          @click="updateRecipeData(group)"
         >
           <img
             :src="group[0].RECIPE_IMG"
             alt="레시피 사진"
-            style="width: 200px;height: 130px;"
-            @click="$emit('update:recipedatach', group)"
-          >
+            style="width: 200px;height: 130px;"            
+          >          
           <a
             :href="group[0].RECIPE_URL"
             style="margin: 10px 0;"
