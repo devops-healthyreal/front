@@ -8,6 +8,8 @@ import UserBioPanel from '@/views/apps/user/view/UserBioPanel.vue'
 import UserEdit from '@/views/apps/user/view/UserEdit.vue'
 import UserHistory from '@/views/apps/user/view/UserHistory.vue'
 import UserPaymentList from '@/views/apps/user/view/UserPaymentList.vue'
+import axios from '@axios'
+import { ref, watchEffect } from 'vue'
 import { useStore } from 'vuex'
 
 const currentTab = ref('tab-1')
@@ -22,6 +24,21 @@ const userListStore = useUserListStore()
 const route = useRoute()
 const userData = ref()
 const userTab = ref(null)
+
+const checkedItems = ref([])
+const checkedExerciseItems = ref([])
+
+function handleDataFromChild(data) {
+  checkedItems.value = data
+  console.log(checkedItems.value)
+  console.log('여기다')
+}
+
+function handleDataFromChildExer (data) {
+  checkedExerciseItems.value = data
+  console.log(checkedExerciseItems.value)
+  console.log('여기다운동')
+}
 
 const tabs = [
   {
@@ -52,6 +69,19 @@ const tabs = [
 
 userListStore.fetchUser(Number(route.params.id)).then(response => {
   userData.value = response.data
+})
+
+// checkedItems의 변화를 감지하여 변경 사항을 업데이트합니다.
+watchEffect(async () => {
+  console.log('checkedItems가 변경되었습니다:', checkedItems.value.length)
+  console.log('checkedItems가 변경되었습니다:', checkedExerciseItems.value.length)
+
+  const response = await axios.post('http://localhost:4000/croom/implementation.do', { 
+    foodCheckCount: checkedItems.value.length,
+    exerciseCheckCount: checkedExerciseItems.value.length,
+    id: connetId, 
+  })
+
 })
 </script>
 
@@ -102,7 +132,11 @@ userListStore.fetchUser(Number(route.params.id)).then(response => {
 
         <VWindowItem>
           <VCard style="margin-bottom: 50px;">
-            <ApexChartStatistics style="margin: 50px 0;" /> <!-- 차트 -->
+            <ApexChartStatistics
+              :checked-items="checkedItems"
+              :checked-exercise-items="checkedExerciseItems"
+              style="margin: 50px 0;"
+            /> <!-- 차트 -->
           </VCard>
           <VTabs
             v-model="currentTab"
@@ -132,11 +166,11 @@ userListStore.fetchUser(Number(route.params.id)).then(response => {
           >
             <!-- 식단쪽 이행률 체크 타임라인 -->
             <VWindowItem value="tab-1">
-              <TimelineBasic />
+              <TimelineBasic @sendData="handleDataFromChild" />
             </VWindowItem>
             <!-- 운동쪽 이행률 체크 타임라인 -->
             <VWindowItem value="tab-2">
-              <TimelineBasicExercise />
+              <TimelineBasicExercise @sendDataExer="handleDataFromChildExer" />
             </VWindowItem>
           </VWindow>
         </VWindowItem>

@@ -166,7 +166,7 @@ export const getBarChartConfig = themeColors => {
     xaxis: {
       axisBorder: { show: false },
       axisTicks: { color: themeBorderColor },
-      categories: ['Goal achievement'],
+      categories: ['이행률 진행상황'],
       labels: {
         style: { colors: themeDisabledTextColor },
       },
@@ -279,13 +279,11 @@ export const getRadialBarChartConfig = themeColors => {
             color: themePrimaryTextColor,
             formatter(w) {
               const totalValue = w.globals.seriesTotals.reduce((a, b) => {
-                return a + b
+                return Math.floor(a) + Math.floor(b)
               }, 0) / w.globals.series.length
 
-              if (totalValue % 1 === 0)
-                return `${totalValue}%`
-              else
-                return `${totalValue.toFixed(2)}%`
+
+              return `${totalValue}%`
             },
           },
         },

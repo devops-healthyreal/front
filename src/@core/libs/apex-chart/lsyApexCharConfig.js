@@ -172,7 +172,7 @@ export const getBarChartConfig = themeColors => { //칼로리 차트
     xaxis: {
       axisBorder: { show: false },
       axisTicks: { color: themeBorderColor },
-      categories: ['권장','현재'],
+      categories: ['권장', '현재'],
       labels: {
         style: { colors: themeDisabledTextColor },
       },
@@ -243,7 +243,7 @@ export const getRadialBarChartConfig = themeColors => {
   
   return {
     stroke: { lineCap: 'round' },
-    labels: ['탄수화물', '단백질', '지방','비타민','무기질'],
+    labels: ['탄수화물', '단백질', '지방', '비타민', '무기질'],
     legend: {
       show: true,
       position: 'bottom',

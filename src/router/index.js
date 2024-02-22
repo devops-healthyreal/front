@@ -82,7 +82,53 @@ const router = createRouter({
           }
         } catch (error) {
           console.error(error)
-          next() // 예외가 발생하면 라우트 이동을 계속 진행
+          next({ name: 'apps-challengeList' }) // 예외가 발생하면 라우트 이동을 계속 진행
+        }
+      },
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/apps/mateList',
+      name: 'mateList',
+      components: {
+        default: () => import('@/pages/apps/mateList.vue'),
+        layout: () => import('@/layouts/components/DefaultLayoutWithVerticalNav.vue'),
+      },
+      beforeEnter: async (to, from, next) => {
+        try {
+          const store = useStore()
+    
+          // 로그인 상태 확인
+          if (!store.state.loginStore.isLogin) {
+            next({ name: 'login' })
+            
+            return
+          }
+    
+          console.log("메이트 실행")
+   
+    
+          const userInfo = computed(() => store.state.userStore.userInfo)
+          const connetId = userInfo.value.id
+
+          console.log("connetId------", connetId)
+
+          const response = await axios.post('http://localhost:4000/mroom/myRoomNum.do', { id: connetId }) // POST 요청
+          const data = response.data
+    
+          console.log("너의 방번호는?", data)
+    
+          if (data) { // 값이 있다면
+            next({ 
+              name: 'apps-user-room', 
+              params: { room: data }, 
+            })
+          } else { // 값이 없다면
+            next({ name: 'apps-mateList' })
+          }
+        } catch (error) {
+          console.error(error)
+          next({ name: 'apps-mateList' })// 예외가 발생하면 라우트 이동을 계속 진행
         }
       },
       meta: { requiresAuth: true },

@@ -1,5 +1,4 @@
 <script setup>
-import AddChallRoomSetting from '@/components/dialogs/AddChallRoomSetting.vue'
 import axios from '@axios'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -11,6 +10,7 @@ const isAddChallRoomSettingDialogVisible = ref(false)
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
+const isSnackbarCenteredVisible = ref(false)
 
 const fetchProjectData = () => {
   axios.get('/pages/profile', { params: { tab: 'projects' } }).then(response => {
@@ -84,14 +84,6 @@ const getHourDifference = (date1, date2) => {
   return diff / (1000 * 60 * 60)
 }
 
-const currentDate = (() => {
-  const today = new Date()
-  const year = today.getFullYear().toString().slice(-2)
-  const month = String(today.getMonth() + 1).padStart(2, '0')
-  const day = String(today.getDate()).padStart(2, '0')
-  
-  return `${year}/${month}/${day}`
-})()
 
 //천 단위 형식
 const formatNumber = value => {
@@ -157,7 +149,7 @@ const checkEntrance = async challNo => {
     router.push({ name: 'apps-user-id', params: { id: challNo } }) //넘겨줄 Vue 경로 입력하기
 
   } else {
-    alert('입장할 수 없습니다.')
+    isSnackbarCenteredVisible.value = true
   }
 }
 </script>
@@ -325,23 +317,43 @@ const checkEntrance = async challNo => {
                     @click="checkEntrance(challenge.challNo)"
                   >
                     입장
-                  </VBtn>                  
-                  <strong v-else>참여불가</strong>
+                  </VBtn>   
+                  <VSnackbar
+                    v-model="isSnackbarCenteredVisible"
+                    location="center"
+                  >
+                    입장할 수 없습니다.
+                  </VSnackbar>               
                 </span>
               </div>
             </VCardText>
           </VCard>
         </VCol>
       </VRow>
+      <VRow
+        v-else
+        class="d-flex flex-column align-center justify-center"
+        style="height: 100%;"
+      >
+        <VCard 
+          class="d-flex align-center justify-center" 
+          style="position: relative; width: 400px; height: 400px; margin-bottom: 20px; font-weight: bold;"
+        >
+          방을 새로 만들어보세요!
+        </VCard>
+      </VRow>
     </VCol>
     <VRow style="margin-top: 50px;">
       <VCol cols="4" />
       <VCol
         cols="4"
-        class="align-self-center"
-      >    
-        <VBtn @click="isAddChallRoomSettingDialogVisible = !isAddChallRoomSettingDialogVisible">
-          챌린지방 생성
+        class="d-flex flex-column align-center justify-center"
+      >
+        <VBtn
+          :style="{'margin-left':'10px'}"
+          @click="isAddChallRoomSettingDialogVisible = !isAddChallRoomSettingDialogVisible"
+        >
+          챌린지 방 생성
         </VBtn>
         <AddChallRoomSetting v-model:isDialogVisible="isAddChallRoomSettingDialogVisible" />
       </VCol>

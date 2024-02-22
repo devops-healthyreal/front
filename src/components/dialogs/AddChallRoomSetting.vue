@@ -36,7 +36,6 @@ const handleUpdateAddress = newAddress => {
 const goal = ref("")
 const userset = ref(4) //정원 수
 const achievementset = ref(50) //달성기준
-let addressData = ref(null)
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
@@ -68,7 +67,7 @@ const createRoom = async () => {
   console.log("connetId-----", connetId)
   
   try {
-    console.log("addressData---", userAddress.address)
+    console.log("userAddress.address---", userAddress.address)
 
     const response = await axios.post('http://localhost:4000/croom/createRoom.do', {
       goal: goal.value,
@@ -106,7 +105,7 @@ const isValid = computed(() => {
     return false
   }
   
-  return userset.value > 0 && achievementset.value > 0 && userAddress.address !== '' && selectedOption1.value !== '' && dateRange.value !== '' && content.value !== ''
+  return userset.value > 0 && achievementset.value > 0 && userAddress.address !== '' && selectedOption1.value !== '' && dateRange.value !== '' && content.value !== '' && title.value !== ''
 })
 
 const usersetlabel = { //정원Silder 초기값, 끝값 라벨 
@@ -152,7 +151,7 @@ const pay = [
   '50,000원',
 ]
 
-const router = useRoute()
+const router = useRouter()
 </script>
 
 
