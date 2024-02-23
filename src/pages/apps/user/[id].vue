@@ -12,6 +12,7 @@ import VueApexCharts from 'vue3-apexcharts' //차트 불러오기
 import { useTheme } from 'vuetify' //차트 불러오기
 import { useStore } from 'vuex'
 
+
 const isShareProjectDialogVisible = ref(false)
 const userListStore = useUserListStore()
 const route = useRoute() //route객체
@@ -138,13 +139,11 @@ const formatDate = dateString => {
           <!-- 참가비 끝 -->
           <!-- 유저 목록 -->
           <VCol>
-            <UserProfileForChellenge
-              v-for="(participantGroup, index) in participantsData"
-              :key="index"
-              :participant-group="participantGroup"
-              :goal="room.goal"
+            <UserProfileForChellenge 
+              :participants-data="participantsData"
               :cstart-date="room.cstartDate"
               :cend-date="room.cendDate"
+              :implementation="room.implementation"
             />
           </VCol>
           <!-- 유저 목록 -->
@@ -177,7 +176,14 @@ const formatDate = dateString => {
                     icon="mdi-human-male-female"
                     color="success"
                   />
-                  {{ participantsData.length }}/{{ room.challCapacity }}
+                  {{ participantsData.length }}/{{ room.challCapacity }}&nbsp;&nbsp;
+                  <VIcon
+                    start
+                    size="20"
+                    icon="mdi-chart-bar"
+                    color="success"
+                  />
+                  {{ room.implementation }}% 
                 </div>
               </VCol>
             </VCol>
@@ -186,7 +192,7 @@ const formatDate = dateString => {
             <VCol>
               <VueApexCharts
                 type="bar"
-                height="130"
+                height="100"
                 :options="horizontalBarChartConfig"
                 :series="series"
                 style="width:'100%'; margin-top':30px;"
@@ -227,3 +233,4 @@ const formatDate = dateString => {
     --v-card-list-gap: 0.75rem;
   }
 </style>
+
