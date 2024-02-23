@@ -259,11 +259,11 @@ const checkEntrance = async challenge => {
                 </VChip>
               </div>
               <div class="d-flex align-center justify-space-between flex-wrap text-xs mt-4 mb-2">
-                <span style="font-weight: bold;">달성 기준 : {{ challenge.implementation }}%</span>
                 <span style="font-weight: bold;">
                   {{ ((challenge.participantsData.reduce((sum, currentValue) => sum + currentValue.CHALL_IMPLEMENTATION_RATE, 0) / 
                     (getHourDifference(new Date(challenge.cendDate), new Date(challenge.cstartDate)) / 24 * 3 * challenge.participantsData.length)) * 100).toFixed(0) }}% 달성
                 </span>
+                <span style="font-weight: bold;">달성 기준 : {{ challenge.implementation }}%</span>
               </div>
               <!-- model-value 이게 지금 기준 / max 퍼센트 최대 -->
               <VProgressLinear
