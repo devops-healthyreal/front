@@ -146,27 +146,36 @@ onMounted(async () => { await participants(), await roomData() })
       >
         <VCard>
           <VCol>
-            <VRow>
+            <VRow style="display: flex; justify-content: space-between;">
               <VCol cols="7">
-                <VBtn @click="isShareProjectDialogVisible = !isShareProjectDialogVisible">
+                <VBtn
+                  style=" width: 90px;"
+                  @click="isShareProjectDialogVisible = !isShareProjectDialogVisible"
+                >
                   Invite
                 </VBtn>
                 <ShareProjectDialogTemp v-model:isDialogVisible="isShareProjectDialogVisible" />
                 <VBtn
-                  :style="{'margin-left':'10px'}"
+                  style=" width: 90px;margin-left: 10px;"
                   @click="isareaCrawlingResultDialogVisible = !isareaCrawlingResultDialogVisible;"
                 >
                   장소 찾기
-                </VBtn>                        
+                </VBtn>
+                <VBtn
+                  style=" width: 90px;margin-left: 10px;"
+                  @click="togglechatFlag"
+                >
+                  <span v-if="!chatflag">채팅방 열기</span>
+                  <span v-else>채팅방 닫기</span>
+                </VBtn>                     
                 <AreaCrawlingresult v-model:isDialogVisible="isareaCrawlingResultDialogVisible" />
               </VCol>                        
               <!-- 아래 방공개는 방장에게만 보여주기 / 조건 추가 필요 -->
               <VCol
                 v-if="room.manager==connetId"
-                cols="5"
+                cols="3"
                 class="d-flex justify-end align-center"
               >
-                <strong style="margin-right: 1em;">방 공개 여부</strong>
                 <VSwitch
                   v-model="openRoomYN"
                   :label="areaSet = capitalizedLabel(openRoomYN) === 'True' ? '공개' : '비공개'"
@@ -174,29 +183,23 @@ onMounted(async () => { await participants(), await roomData() })
               </VCol>
             </VRow>
           </VCol>
-          <VCol>
-            <span>종목 : {{ room.mateSport }}</span> &nbsp;&nbsp;
-            <span>지역 : {{ room.mateArea }}</span> &nbsp;&nbsp;
-            <span>정원 : {{ room.mateCapacity }}명</span> &nbsp;&nbsp;
-            <span>시작날짜 : {{ formatDate(room.mateDate) }}</span>
+          <VCol style="margin-left: 10px;">
+            <VIcon icon="mdi-soccer" /><span> : {{ room.mateSport }}</span> &nbsp;&nbsp;
+            <VIcon icon="mdi-map-marker" /><span> : {{ room.mateArea }}</span> &nbsp;&nbsp;
+            <VIcon icon="mdi-human-female-female" /><span> : {{ room.mateCapacity }}명</span> &nbsp;&nbsp;
+            <VIcon icon="mdi-calendar-range" /><span> : 시작날짜 : {{ formatDate(room.mateDate) }}</span>
             <VColmateRoomParticipants :participants-data=" participantsData" />
           </VCol>
-          <VCol cols="2">
-            <VBtn 
-              size="large"
-              @click="togglechatFlag"
+          <VCol
+            cols="2"
+            class="justify-end"
+          >
+            <VBtn
+              style="margin-left: 10px;"
+              @click="deleteData"
             >
-              <span v-if="!chatflag">채팅방 열기</span>
-              <span v-else>채팅방 닫기</span>
+              나가기
             </VBtn>
-            <VCol cols="2">
-              <VBtn
-                :style="{'margin-left':'10px'}"
-                @click="deleteData"
-              >
-                나가기
-              </VBtn>
-            </VCol>
           </VCol>
         </VCard>
       </VCol>

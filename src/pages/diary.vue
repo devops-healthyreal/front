@@ -24,7 +24,7 @@ app.component('QuillEditor', QuillEditor)
 
 import timelineCardHeader from '@images/cards/timeline-card-header.png'
 import {
-requiredValidatorDiaryPassword,
+  requiredValidatorDiaryPassword,
 } from '@validators'
 
 
@@ -548,14 +548,14 @@ const postDiary = score => {
 
 <style lang="scss">
 @font-face {
-    font-family: 'seolleimcool-SemiBold';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/seolleimcool-SemiBold.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
+  font-family: seolleimcool-SemiBold;
+  font-style: normal;
+  font-weight: normal;
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/seolleimcool-SemiBold.woff2") format("woff2");
 }
 
 .ql-font-seolleimcool-SemiBold {
-    font-family: seolleimcool-SemiBold;
+  font-family: seolleimcool-SemiBold;
 }
 
 .fade-enter,

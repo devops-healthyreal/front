@@ -20,42 +20,46 @@ const isdropout = member => {
     console.log(membersList)
   }
 }
-
 </script>
 
 <template>
-  <VCard class="share-project-dialog pa-5 pa-sm-8">
-    <VCardText>
-      <h5 class="text-h5 text-center mb-3">
-        참여자
-      </h5>
-      <br>
-      <VList class="card-list">
-        <VListItem
-          v-for="participant in participantsData"
-          :key="participant.ID"
+  <VCol>
+    <VCard
+      style="margin-top: 40px;"
+      class="share-project-dialog pa-5 pa-sm-8"
+    >
+      <VCardText cols="3">
+        <VCol
+          class="text-h5 text-center mb-3"
+          style="margin-bottom: 20px; font-weight: bold; opacity: 0.7;"
         >
-          <template #prepend>
-            <VAvatar :image="participant.PRO_FILEPATH" />
-          </template>
-
-          <VListItemTitle class="text-sm">
-            {{ participant.ID }}
-          </VListItemTitle>
-          
-          <!-- 초대 버튼 -->
-          <template #append>
-            <VBtn
-              id="myButton"
-              @click="isdropout(member)"
-            >
-              강퇴하기
-            </VBtn>
-          </template>
-        </VListItem>
-      </VList>
-    </VCardText>
-  </VCard>
+          참여자
+        </VCol>
+        <VCol class="card-list">
+          <VCol
+            v-for="participant in participantsData"
+            :key="participant.ID"
+          >
+            <VRow>
+              <VAvatar :image="participant.PRO_FILEPATH" />
+              <VCol style="font-weight: bold;">
+                {{ participant.ID }}
+              </VCol>
+              <!-- 초대 버튼 -->
+              <VBtn
+                id="myButton"
+                size="small"
+                style="align-self: center;"
+                @click="isdropout(member)"
+              >
+                강퇴하기
+              </VBtn>
+            </VRow>
+          </VCol>
+        </VCol>
+      </VCardText>
+    </VCard>
+  </VCol>
 </template>
 
 <style lang="scss">
