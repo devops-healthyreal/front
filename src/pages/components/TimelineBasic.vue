@@ -1,8 +1,8 @@
 <script setup>
-import food3 from '@images/Unbalanced/22.jpg'
-import food2 from '@images/margherita.jpg'
-import food from '@images/veggieroll.jpg'
-import { defineEmits, defineProps } from 'vue'
+import axios from '@axios'
+import { defineEmits, defineProps, onMounted } from 'vue'
+
+import { useStore } from 'vuex'
 
 const props = defineProps({
   checkedItems: Array,
@@ -10,8 +10,13 @@ const props = defineProps({
 
 const emit = defineEmits(['sendData'])
 
-const checkedItems = ref([])
+const store = useStore()
 
+// 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=userInfo.value.id
+
+const checkedItems = ref([])
 
 // 여기에 checkedItem에 체크박스 value 저장 저장된 배열 [id].vue에 emit으로 데이터 보냄
 function sendDataToParent(value) {
@@ -22,6 +27,21 @@ function sendDataToParent(value) {
   }
   emit('sendData', checkedItems.value)
 }
+
+const dietinfo = ref([])
+
+const getEatingRecord = async () => {
+  console.log('체크해보자 : ')
+  await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
+    .then(response => {
+      dietinfo.value = response.data
+      console.log('가져온 유저 Eating_Record', dietinfo.value)
+    })
+}
+
+onMounted(async () => {
+  await getEatingRecord()
+})
 </script>
 
 <template>
@@ -44,7 +64,7 @@ function sendDataToParent(value) {
             <span class="app-timeline-title">
               아침 식단
             </span>
-            <span class="app-timeline-meta">음식명, kcal</span>
+            <span class="app-timeline-meta">{{ dietinfo[0]?.eating_foodname }}, kcal</span>
           </div>
 
 
@@ -58,7 +78,7 @@ function sendDataToParent(value) {
               <div>
                 <img
                   id="diaryImages"
-                  :src="food"
+                  :src="dietinfo[0]?.recipe_img"
                   style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
                 >
               </div>
@@ -87,7 +107,7 @@ function sendDataToParent(value) {
             <span class="app-timeline-title">
               점심 식단
             </span>
-            <span class="app-timeline-meta">음식명, kcal</span>
+            <span class="app-timeline-meta">{{ dietinfo[1]?.eating_foodname }}, kcal</span>
           </div>
 
 
@@ -101,7 +121,7 @@ function sendDataToParent(value) {
               <div>
                 <img
                   id="diaryImages"
-                  :src="food2"
+                  :src="dietinfo[1]?.recipe_img"
                   style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
                 >
               </div>
@@ -128,7 +148,7 @@ function sendDataToParent(value) {
             <span class="app-timeline-title">
               저녁 식단
             </span>
-            <span class="app-timeline-meta">음식명, kcal</span>
+            <span class="app-timeline-meta">{{ dietinfo[2]?.eating_foodname }}, kcal</span>
           </div>
 
 
@@ -142,7 +162,7 @@ function sendDataToParent(value) {
               <div>
                 <img
                   id="diaryImages"
-                  :src="food3"
+                  :src="dietinfo[2]?.recipe_img"
                   style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
                 >
               </div>

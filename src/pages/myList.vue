@@ -1,7 +1,7 @@
 <script setup>
-import axios from '@axios'
-import { onMounted, onUnmounted, reactive, ref } from 'vue'
-import { useStore } from 'vuex'
+import axios from '@axios';
+import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { useStore } from 'vuex';
 
 
 const props = defineProps({
@@ -42,7 +42,7 @@ const getData = async function() {
     if (response.status === 200) {
       console.log('데이터 받기 성공')
       state.items = response.data // 데이터 저장
-      console.log('가져온 아이템을 어디 한번 보자',state.items)
+      console.log('가져온 아이템을 어디 한번 보자', state.items)
     } else {
       console.log('데이터 전송 실패')
     }
@@ -178,6 +178,88 @@ const openViewPostMoadl = async val =>{
   console.log(postmodalData.value)
 }
 
+const modalData = ref({ userid: '', userproIntroduction: '', userprofilePath: '' })
+const profiledata = ref([])//내 프로필 데이터
+
+const openUserProfileModal = val => {
+  console.log('오픈할 유저 프로필:', val)
+  let id
+  
+  if (typeof val === 'object' && val.id) {
+    id = val.id // val이 객체이고 id 속성이 존재하는 경우
+  } else {
+    id = val // 그 외의 경우 val 그대로 사용
+  }
+  axios
+    .get('http://localhost:4000/comm/profile', {
+      params: {
+        id: id,
+      },
+    })
+    .then(response => {
+      if (response.status === 200) {
+        console.log('프로필 값:', response.data)
+        profiledata.value = response.data
+        console.log('프로필 Path:', profiledata.value.profilePath)
+
+        // 모달에 전달할 변수 값 설정
+        modalData.value = {
+          userid: profiledata.value.id,
+          userprofilePath: profiledata.value.profilePath,
+          userproIntroduction: profiledata.value.proIntroduction,
+        }
+      } else {
+        console.log('데이터 가져오기 실패')
+      }
+    })
+    .catch(error => {
+      console.error(error)
+    })
+  userProfileModal.value = true
+}
+
+//댓글 입력
+const searchuser = userInfo.value.id //현재 접속중인 유저 아이디
+
+console.log("userInfo.value.id", userInfo.value.id)
+
+const commentinput = ref('')
+
+const insertComment = async (bno, comment, type, parent_comment) => {
+  const formData = new FormData()
+
+  formData.append('bbs_no', bno)
+  formData.append('id', searchuser)
+  formData.append('ccomment', comment)  
+  if(type == 2 && parent_comment !== 0){
+    formData.append('parent_comment', parent_comment)
+    formData.append('type', 2)
+  }else{
+    formData.append('type', 1)
+  }
+  console.log(bno, searchuser, comment, parent_comment)
+
+  await axios.post('http://localhost:4000/commentline/Write.do', formData, { 
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+    .then(response => {
+    // 성공적으로 업데이트되었을 때의 처리
+      console.log('성공')
+      console.log(response.data)
+
+      // 댓글 입력 필드 초기화
+      commentinput.value = ''  
+
+      getComment() 
+    })
+    .catch(error => {
+    // 업데이트 중 오류가 발생했을 때의 처리
+      console.log('실패')
+    })
+}
+
 //스크롤 이벤트 리스터 추가 - 화면 하단에 스크롤 도착 시 loadMore()함수 호출
 const scrollTimeout = ref(null)
 
@@ -267,7 +349,7 @@ const loadMore = () => {
                                 style="margin-left: -15%;"
                                 @click="userProfileModal=true"
                               >
-                                {{ item.id }}  {{item.bno}}<!-- 유저 닉네임 뿌려주기 -->
+                                {{ item.id }} <!-- 유저 닉네임 뿌려주기 -->
                               </VCardSubtitle>
                             </VCol>
                           </VCol>
@@ -384,7 +466,12 @@ const loadMore = () => {
         </VCard>
       </VCol>
     </VRow>
-    <UserProfileCommunity v-model:isDialogVisible="userProfileModal" />
+    <UserProfileCommunity 
+      v-model:isDialogVisible="userProfileModal" 
+      :userid="modalData.userid"
+      :userprofile-path="modalData.userprofilePath"
+      :userpro-introduction="modalData.userproIntroduction"
+    />
     <Editing
       v-model:isDialogVisible="editingModal"
       :post-to-edit="postToEdit"
@@ -393,6 +480,12 @@ const loadMore = () => {
     <ViewPostPage
       v-model:isDialogVisible="viewPostPageModal" 
       :post-to-edit="postToEdit"
+      :comments="postmodalData.comments"
+      :bno="postToEdit.bno"
+      :open-user-profile-modal="openUserProfileModal"
+      :insert-comment="insertComment"
+      :searchuser="searchuser"
+      :get-comment="getComment"
     />
   </section>
 </template>
