@@ -137,13 +137,11 @@ const formatDate = dateString => {
           <!-- 참가비 끝 -->
           <!-- 유저 목록 -->
           <VCol>
-            <UserProfileForChellenge
-              v-for="(participantGroup, index) in participantsData"
-              :key="index"
-              :participant-group="participantGroup"
-              :goal="room.goal"
+            <UserProfileForChellenge 
+              :participants-data="participantsData"
               :cstart-date="room.cstartDate"
               :cend-date="room.cendDate"
+              :implementation="room.implementation"
             />
           </VCol>
           <!-- 유저 목록 -->
