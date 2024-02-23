@@ -21,7 +21,6 @@ const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
 const router = useRouter()
 
-
 const participantsData = ref([])
 const room= ref([])
 
@@ -153,13 +152,13 @@ const formatDate = dateString => {
           <!-- 유저 목록 -->
           <!-- 운동량 시작 -->
           <VRow>
-            <VCol>
+            <VCol style="margin-left: 5%;">
               <VCol>
                 <VIcon
                   start
                   size="20"
                   icon="mdi-calendar"
-                  color="success"
+                  color="info"
                 />
                 <span style="font-weight: bold;">{{ formatDate(room.cstartDate) }} ~ 
                   {{ formatDate(room.cendDate) }}</span>
@@ -169,7 +168,7 @@ const formatDate = dateString => {
                     start
                     size="20"
                     icon="mdi-location"
-                    color="success"
+                    color="info"
                   />
                   {{ room.challArea }}
                 </div>
@@ -178,7 +177,7 @@ const formatDate = dateString => {
                     start
                     size="20"
                     icon="mdi-human-male-female"
-                    color="success"
+                    color="info"
                   />
                   {{ participantsData.length }}/{{ room.challCapacity }}
                 </div>
@@ -188,6 +187,18 @@ const formatDate = dateString => {
             <!-- 목표 달성률 시작 -->
           </VRow>
           <VCol>
+            <div style="display: flex; justify-content: space-between;">
+              <VIcon
+                color="success"
+                icon="mdi-run-fast"
+                :style="{ marginLeft: `${((participantsData.reduce((sum, currentValue) => sum + currentValue.CHALL_IMPLEMENTATION_RATE, 0) / (getHourDifference(new Date(room.cendDate), new Date(room.cstartDate))/24*3*participantsData.length))*100)}%` }"
+              />
+              <VIcon
+                icon="mdi-flag-checkered"
+                style="margin-right: 5%;"
+                color="success"
+              />
+            </div>
             <VProgressLinear
               style=" width: 90%; margin-top: 10px; margin-right: auto; margin-bottom: 10px;margin-left: 0;"
               rounded
@@ -197,8 +208,10 @@ const formatDate = dateString => {
               :max="100"
               color="primary"
             />
-            <strong style="margin-left: 5%;">현재 이행률 : {{ ((participantsData.reduce((sum, currentValue) => sum + currentValue.CHALL_IMPLEMENTATION_RATE, 0) / (getHourDifference(new Date(room.cendDate), new Date(room.cstartDate))/24*3*participantsData.length))*100).toFixed(0) }}%</strong>
-            <strong style="margin-left: 60%;">목표 이행률 : {{ room.implementation }}%</strong>
+            <div style="display: flex; justify-content: space-between;">
+              <strong style="margin-left: 5%;">현재 이행률 : {{ ((participantsData.reduce((sum, currentValue) => sum + currentValue.CHALL_IMPLEMENTATION_RATE, 0) / (getHourDifference(new Date(room.cendDate), new Date(room.cstartDate))/24*3*participantsData.length))*100).toFixed(0) }}%</strong>
+              <strong style=" margin-right: 5%;margin-left: auto%;">목표 이행률 : {{ room.implementation }}%</strong>
+            </div>
           </VCol>
           <!-- 목표 달성률 끝 -->
           <VCol align="center">
