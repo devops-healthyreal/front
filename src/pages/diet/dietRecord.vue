@@ -20,36 +20,41 @@ const uploadImg = (e, tagId) =>{
     isSubmitDisabled.value = false
   }
   console.log(isSubmitDisabled)
-  foodocr(e.target.files[0]);
+  foodocr(e.target.files[0])
   console.log('함수끝')
 }
 
-const foodocr = (imageFile) => {
-  console.log('foodocr 실행', imageFile);
+const foodocr = imageFile => {
+  console.log('foodocr 실행', imageFile)
   try {
-    const reader = new FileReader();
+    const reader = new FileReader()
+
     reader.onloadend = function () {
-      const base64Encoded = reader.result.split(',')[1];
-      console.log('제발', base64Encoded);
-      const formdata = new FormData();
-      formdata.append('base64Encoded', base64Encoded);
+      const base64Encoded = reader.result.split(',')[1]
+
+      console.log('제발', base64Encoded)
+
+      const formdata = new FormData()
+
+      formdata.append('base64Encoded', base64Encoded)
       axios
         .post('http://127.0.0.1:5000/foodOcr', formdata)
-        .then((response) => {          
-          console.log(response.data.base64);
-          return response.data;
+        .then(response => {          
+          console.log(response.data.base64)
+          
+          return response.data
         })
-        .then((data) => {
-          document.querySelector('#imgBefore').src = 'data:image/jpeg;base64,' + data.base64;
-          console.log('여기까지 들어옴', data);
-        });
-    };
-    reader.readAsDataURL(imageFile); // 이미지 파일을 읽고 base64 인코딩된 데이터를 얻음
+        .then(data => {
+          document.querySelector('#imgBefore').src = 'data:image/jpeg;base64,' + data.base64
+          console.log('여기까지 들어옴', data)
+        })
+    }
+    reader.readAsDataURL(imageFile) // 이미지 파일을 읽고 base64 인코딩된 데이터를 얻음
   } catch (e) {
-    console.log('뭔데..');
-    console.error(e);
+    console.log('뭔데..')
+    console.error(e)
   }
-};
+}
 
 const makeDisable = () => {
   console.log('함수 실행됨')

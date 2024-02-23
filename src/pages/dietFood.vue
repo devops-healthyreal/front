@@ -18,6 +18,17 @@ const isCategory = ref(false)
 const isRecipe = ref(false)
 const router = useRoute()
 const connectionData = ref([])
+const isLoadingmo = ref(false)
+
+watch(isLoadingmo, value => {
+  console.log(isLoadingmo.value)
+  if (!value)
+    return
+
+  setTimeout(() => {
+    isLoadingmo.value = false
+  }, 500)
+})
 
 const fetchProjectData = () => {
   if (router.params.tab === 'connections') {
@@ -184,6 +195,7 @@ const savedietFood = async () => {
       const response = await axios.post('http://localhost:4000/Dietfood/SaveBulk.do', dataToSave)
 
       console.log('데이터가 성공적으로 서버에 전송되었습니다.')
+      isLoadingmo.value = true
 
       // 데이터를 성공적으로 저장한 후에 dietinfo.value[i] 값을 갱신합니다.
       await getEatingRecord()
@@ -346,9 +358,33 @@ watch(router, fetchProjectData, { immediate: true })
       @update:recipedatach="handleRecipedatach"
       @icon-clicked="handleIconClicked"
     />
+    <!-- Dialog -->
+    <VDialog
+      v-model="isLoadingmo"
+      width="300"
+    >
+      <VCard
+        color="warning"
+        width="300"
+      >
+        <VCardText
+          class="pt-3"
+          style="align-self: center; margin-top: 5px;"
+        >
+          <VIcon icon="mdi-check-bookmark" />
+          <strong>
+            저장되었습니다
+          </strong>
+        </VCardText>
+      </VCard>
+    </VDialog>
   </section>
 </template>
 
 <style lang="scss">
-  @use "@core/scss/template/libs/apex-chart.scss";
+@use "@core/scss/template/libs/apex-chart.scss";
+
+.v-dialog__content {
+  z-index: 9999; /* 원하는 z-index 값으로 변경하세요 */
+}
 </style>

@@ -131,16 +131,17 @@ export const getLineChartSimpleConfig = themeColors => {
     },
   }
 }
+
 export const getBarChartConfig = themeColors => {
   const { themeBorderColor, themeDisabledTextColor } = colorVariables(themeColors)
   
   return {
     chart: {
       parentHeightOffset: 0,
-      toolbar: { show: false },
+      toolbar: { show: true },
     },
     colors: ['#45d15a'],
-    dataLabels: { enabled: false },
+    dataLabels: { enabled: true },
     plotOptions: {
       bar: {
         borderRadius: 6,
@@ -152,7 +153,7 @@ export const getBarChartConfig = themeColors => {
     grid: {
       borderColor: themeBorderColor,
       xaxis: {
-        lines: { show: false },
+        lines: { show: true },
       },
       padding: {
         top: -10,
@@ -164,7 +165,7 @@ export const getBarChartConfig = themeColors => {
       },
     },
     xaxis: {
-      axisBorder: { show: false },
+      axisBorder: { show: true },
       axisTicks: { color: themeBorderColor },
       categories: ['이행률 진행상황'],
       labels: {

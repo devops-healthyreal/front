@@ -4,20 +4,20 @@ import {
 } from '@core/utils/formatters'
 
 const props = defineProps({
-  participantGroup: {
+  participantsData: {
     type: Object,
     required: true,
   },
-  goal: {
-    type: String,
-    required: true,
-  },
   cstartDate: {
-    type: String,
+    type: Object,
     required: true,
   },
   cendDate: {
-    type: String,
+    type: Object,
+    required: true,
+  },
+  implementation: {
+    type: Object,
     required: true,
   },
 })
@@ -26,14 +26,11 @@ const isUserInfoEditDialogVisible = ref(false)
 const isUpgradePlanDialogVisible = ref(false)
 
 const resolveUserStatusVariant = stat => {
-  if (stat === 'pending')
+  if (stat < props.implementation)
     return 'warning'
-  if (stat === 'active')
-    return 'success'
-  if (stat === 'inactive')
-    return 'secondary'
+  else (stat >= props.implementation)
   
-  return 'primary'
+  return 'info'
 }
 
 const getHourDifference = (date1, date2) => {
@@ -48,7 +45,7 @@ const getHourDifference = (date1, date2) => {
     <VRow>
       <!-- SECTION User Details -->
       <VCol
-        v-for="(participant, index) in participantGroup"
+        v-for="(participant, index) in participantsData"
         :key="index"
         cols="3"
       >
@@ -100,18 +97,9 @@ const getHourDifference = (date1, date2) => {
               density="comfortable"
               class="text-capitalize mt-4"
               style=" margin-top: -5%;margin-bottom: 15px;"
+              :color="resolveUserStatusVariant(((participant.CHALL_IMPLEMENTATION_RATE/(getHourDifference(new Date(cendDate), new Date(cstartDate))/24*3))*100).toFixed(0))"
             >
-              {{
-                (goal=='감량' || goal == '식단') ?
-                  (((participantGroup.reduce((total, participant) => total + participant.EATING.length, 0) / 3) /
-                    (getHourDifference(new Date(cendDate), new Date(cstartDate)) / 24 * 3 * participantGroup.length) * 100).toFixed(0)) :
-                  (goal=='증가' || goal=='강화') ?
-                    (((participantGroup.reduce((total, participant) => total + participant.EXERCISE.length, 0) / 3) /
-                      (getHourDifference(new Date(cendDate), new Date(cstartDate)) / 24 * 3 * participantGroup.length) * 100).toFixed(0)) :
-                    ((((participantGroup.reduce((total, participant) => total + participant.EXERCISE.length, 0) / 3) +
-                      (participantGroup.reduce((total, participant) => total + participant.EATING.length, 0) / 3)) /
-                      (getHourDifference(new Date(cendDate), new Date(cstartDate)) / 24 * 6 * participantGroup.length) * 100).toFixed(0))
-              }}%
+              {{ ((participant.CHALL_IMPLEMENTATION_RATE/(getHourDifference(new Date(cendDate), new Date(cstartDate))/24*3))*100).toFixed(0) }}%
             </VChip>
           </VCardText>
         </VCard>

@@ -95,10 +95,12 @@ const tabs = [
   {
     icon: 'mdi-silverware-fork-knife',
     title: '식단',
+    color: 'warning',
   },
   {
-    icon: 'mdi-lock-outline',
-    title: '원하는',
+    icon: 'mdi-map-check',
+    title: '경로',
+    color: 'success',
   },
 
 ]
@@ -163,6 +165,7 @@ const dietPlansList = [
           <VTab
             v-for="tab in tabs"
             :key="tab.icon"
+            :color="tab.color"
             block
           >
             <VIcon
@@ -189,7 +192,6 @@ const dietPlansList = [
                 <VCard class="text-center">
                   <VCardItem class="d-flex flex-column justify-center align-center">
                     <VAvatar
-                      color="primary"
                       variant="tonal"
                       size="160"
                       class="mb-2"
@@ -211,29 +213,33 @@ const dietPlansList = [
                     </h6>
                   </VCardItem>
                   <VCardText>
-                    <span>{{ list.index == 0? '아침 메뉴': list.index == 1? '점심 메뉴' : '저녁 메뉴' }} 설명</span>
+                    <span v-if="dietinfo.length > 0">{{ list.index == 0? '아침 메뉴': list.index == 1? '점심 메뉴' : '저녁 메뉴' }} 설명</span>
                   </VCardText>
                   <VCardText>
-                    <span style="height: 450px;">
-                      <div>
-                        <div>
-                          <!--
-                            <br><strong style="margin: 0 20px;">[조리순서]</strong>
-                            <span>{{ dietinfo[list.index]?.recipe_seq }}</span>
-                            <div
+                    <span>
+                      <div
+                        v-for="(gro, index) in dietPlansList[list.index]"
+                        :key="index"
+                      >
+                        <div v-if="index == 0 && gro.RECIPE_SEQ && gro.RECIPE_SEQ.length > 0">
+                          <br><strong style="margin: 0 20px;">[조리순서]</strong>
+                          <div
                             style="max-height: 200px; overflow-y: auto;"
                             class="scrollbar"
+                          >
+                            <p
+                              v-for="(seq, seqIndex) in gro.RECIPE_SEQ.split('||')"
+                              :key="seqIndex"
+                              style="margin: 10px 20px;"
                             >
-                            <p style="margin: 10px 20px;">
-                            첫번째 조리순서 내용
+                              {{ seqIndex + 1 }} ) {{ seq }}
                             </p>
-                            </div>
-                            <br> 
-                          -->
+                          </div>
+                          <br>
                           <strong style="margin: 10px 20px;">[재료]</strong>
                         </div>
-                        <span>
-                          - 재료명 - 투입량
+                        <span v-if="gro.FOODNAME">
+                          - {{ gro.INGREDIENT }} - {{ gro.RI_AMOUNT }}
                         </span>
                       </div>
                     </span>
@@ -248,27 +254,35 @@ const dietPlansList = [
         </VWindow>
         <VCol cols="12" />
         <VCard>
-          <VCol cols="12">
-            <VBtn
-              id="startBtn"
-              class="btn-lg btn-dark"
-              @click="$router.push('/tts')"
-            >
-              SpeechToText Start
-            </VBtn>
-          </VCol>
-          <VCardText>
-            <VTab
-              v-for="icons in iconss"
-              :key="icons.icon"
-            >
-              <VIcon
-                start
-                :icon="icons.icon"
-              />
-              <span>{{ icons.title }}</span>
-            </VTab>
-          </VCardText>
+          <VRow>
+            <VCardText>
+              <VBtn
+                style="height: 40px;"
+                variant="text"
+              >
+                <VIcon
+                  start
+                  icon="mdi-contactless-payment-circle-outline"
+                />
+                오늘의 스케쥴
+              </VBtn>
+            </VCardText>
+            <VCol cols="2">
+              <VBtn
+                id="startBtn"
+                style=" height: 45px; margin-top: 4px;margin-left: 48px;"
+                variant="text"
+                class="btn-lg btn-dark"
+                @click="$router.push('/tts')"
+              >
+                <VIcon
+                  size="x-large"
+                  icon="mdi-microphone-outline"
+                  color="success"
+                />
+              </VBtn>
+            </VCol>
+          </VRow>
         </VCard>
         <!-- -->
       </VCol>

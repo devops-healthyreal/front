@@ -8,7 +8,6 @@ import { getBarChartConfig } from '@core/libs/apex-chart/apexCharConfig' //차�
 import axios from "axios"
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import VueApexCharts from 'vue3-apexcharts' //차트 불러오기
 import { useTheme } from 'vuetify' //차트 불러오기
 import { useStore } from 'vuex'
 
@@ -21,7 +20,6 @@ const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
 const router = useRouter()
-
 
 const participantsData = ref([])
 const room= ref([])
@@ -75,7 +73,7 @@ const horizontalBarChartConfig = computed(() => getBarChartConfig(vuetifyTheme.c
 
 console.log('test:', vuetifyTheme.current.value)
 
-const series = [{ data: [100] }]
+const series = [{ data: [100.55] }]
 
 
 //차트 불러오기 용 end
@@ -105,6 +103,12 @@ const deleteData = async () => {
     router.push({ name: 'challengeList' }) //넘겨줄 Vue 경로 입력하기
 
   }
+}
+
+const getHourDifference = (date1, date2) => {
+  const diff = Math.abs(new Date(date1) - new Date(date2))
+  
+  return diff / (1000 * 60 * 60)
 }
 
 const formatDate = dateString => {
@@ -138,35 +142,33 @@ const formatDate = dateString => {
           <!-- 참가비 끝 -->
           <!-- 유저 목록 -->
           <VCol>
-            <UserProfileForChellenge
-              v-for="(participantGroup, index) in participantsData"
-              :key="index"
-              :participant-group="participantGroup"
-              :goal="room.goal"
+            <UserProfileForChellenge 
+              :participants-data="participantsData"
               :cstart-date="room.cstartDate"
               :cend-date="room.cendDate"
+              :implementation="room.implementation"
             />
           </VCol>
           <!-- 유저 목록 -->
           <!-- 운동량 시작 -->
           <VRow>
-            <VCol>
+            <VCol style="margin-left: 5%;">
               <VCol>
                 <VIcon
                   start
                   size="20"
                   icon="mdi-calendar"
-                  color="success"
+                  color="info"
                 />
                 <span style="font-weight: bold;">{{ formatDate(room.cstartDate) }} ~ 
                   {{ formatDate(room.cendDate) }}</span>
                   
-                <div style=" margin-bottom: 8px; margin-top: 20px;">
+                <div style=" margin-top: 20px; margin-bottom: 8px;">
                   <VIcon
                     start
                     size="20"
                     icon="mdi-location"
-                    color="success"
+                    color="info"
                   />
                   {{ room.challArea }}
                 </div>
@@ -175,7 +177,7 @@ const formatDate = dateString => {
                     start
                     size="20"
                     icon="mdi-human-male-female"
-                    color="success"
+                    color="info"
                   />
                   {{ participantsData.length }}/{{ room.challCapacity }}
                 </div>
@@ -183,17 +185,34 @@ const formatDate = dateString => {
             </VCol>
             <!-- 운동량 끝 -->
             <!-- 목표 달성률 시작 -->
-            <VCol>
-              <VueApexCharts
-                type="bar"
-                height="130"
-                :options="horizontalBarChartConfig"
-                :series="series"
-                style="width:'100%'; margin-top':30px;"
-              />
-            </VCol>
           </VRow>
-        
+          <VCol>
+            <div style="display: flex; justify-content: space-between;">
+              <VIcon
+                color="success"
+                icon="mdi-run-fast"
+                :style="{ marginLeft: `${((participantsData.reduce((sum, currentValue) => sum + currentValue.CHALL_IMPLEMENTATION_RATE, 0) / (getHourDifference(new Date(room.cendDate), new Date(room.cstartDate))/24*3*participantsData.length))*100)}%` }"
+              />
+              <VIcon
+                icon="mdi-flag-checkered"
+                style="margin-right: 5%;"
+                color="success"
+              />
+            </div>
+            <VProgressLinear
+              style=" width: 90%; margin-top: 10px; margin-right: auto; margin-bottom: 10px;margin-left: 0;"
+              rounded
+              rounded-bar
+              height="8"
+              :model-value="((participantsData.reduce((sum, currentValue) => sum + currentValue.CHALL_IMPLEMENTATION_RATE, 0) / (getHourDifference(new Date(room.cendDate), new Date(room.cstartDate))/24*3*participantsData.length))*100)"
+              :max="100"
+              color="primary"
+            />
+            <div style="display: flex; justify-content: space-between;">
+              <strong style="margin-left: 5%;">현재 이행률 : {{ ((participantsData.reduce((sum, currentValue) => sum + currentValue.CHALL_IMPLEMENTATION_RATE, 0) / (getHourDifference(new Date(room.cendDate), new Date(room.cstartDate))/24*3*participantsData.length))*100).toFixed(0) }}%</strong>
+              <strong style=" margin-right: 5%;margin-left: auto%;">목표 이행률 : {{ room.implementation }}%</strong>
+            </div>
+          </VCol>
           <!-- 목표 달성률 끝 -->
           <VCol align="center">
             <VCol class="d-flex justify-end">

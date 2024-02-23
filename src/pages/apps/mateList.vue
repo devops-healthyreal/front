@@ -2,10 +2,10 @@
 import AddMateRoomSetting from '@/components/dialogs/AddMateRoomSetting.vue'
 import axios from '@axios'
 import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
-const router = useRoute()
+const router = useRouter()
 const projectData = ref([])
 const isAddMateRoomSettingDialogVisible = ref(false)
 const store = useStore()
@@ -45,7 +45,7 @@ const getData = async () => {
 
     challenges.value = response.data
 
-    console.log("challenges.value---", challenges.value)
+    console.log("방 전체 정보는???---", challenges.value)
 
   } catch (error) {
     console.error(error)
@@ -111,13 +111,13 @@ const checkEntrance = async challenge => {
   console.log("myData.value.data.GENDER---", myData.value.data.GENDER)
   console.log("challenge.value.glimit---", challenge.glimit)
   console.log("connetId---", connetId)
-  console.log("challNo---", challNo)
+  console.log("challNo---", challenge.mateNo)
 
   if (myData.value && calculateAge(myData.value.data.B_DAY) >= challenge.ageMin && calculateAge(myData.value.data.B_DAY) <= challenge.ageMax && (getGenderCode(myData.value.data.GENDER)===challenge.glimit || challenge.glimit===0)) {
 
-    const response = await axios.post('http://localhost:4000/mroom/joinRoom.do', { id: connetId, challNo: challenge.challNo })
+    const response = await axios.post('http://localhost:4000/mroom/joinRoom.do', { id: connetId, challNo: challenge.mateNo })
 
-    router.push({ name: 'apps-user-room', params: { room: challenge.challNo } }) //넘겨줄 Vue 경로 입력하기
+    router.push({ name: 'apps-user-room', params: { room: challenge.mateNo } }) //넘겨줄 Vue 경로 입력하기
 
   } else {
     isSnackbarCenteredVisible.value = true
@@ -260,11 +260,11 @@ const checkEntrance = async challenge => {
                   >
                     입장
                     <VSnackbar
-                    v-model="isSnackbarCenteredVisible"
-                    location="center"
-                  >
-                    입장할 수 없습니다.
-                  </VSnackbar>  
+                      v-model="isSnackbarCenteredVisible"
+                      location="center"
+                    >
+                      입장할 수 없습니다.
+                    </VSnackbar>  
                   </VBtn>
                   <strong v-else>참여불가</strong>
                 </span>

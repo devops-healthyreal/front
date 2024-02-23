@@ -119,6 +119,19 @@ const deleteData = async () => {
   }
 }
 
+const formatDate = dateString => {
+  const date = new Date(dateString) // 날짜 문자열을 Date 객체로 변환
+
+  date.setDate(date.getDate()) // 1일을 추가
+
+  const year = date.getFullYear().toString().substring(2)
+  const month = (date.getMonth() + 1).toString().padStart(2, '0') // 월은 0부터 시작하므로 1을 더하고, 2자리로 맞춤
+  const day = date.getDate().toString().padStart(2, '0') // 날짜를 2자리로 맞춤
+
+  return `${year}/${month}/${day}`
+}
+
+
 onMounted(async () => { await participants(), await roomData() })
 </script>
 
@@ -149,6 +162,7 @@ onMounted(async () => { await participants(), await roomData() })
               </VCol>                        
               <!-- 아래 방공개는 방장에게만 보여주기 / 조건 추가 필요 -->
               <VCol
+                v-if="room.manager==connetId"
                 cols="5"
                 class="d-flex justify-end align-center"
               >
@@ -160,34 +174,12 @@ onMounted(async () => { await participants(), await roomData() })
               </VCol>
             </VRow>
           </VCol>
-          <VCol class="d-flex">
-            <VCol cols="10">
-              <VAutocomplete
-                :items="RoomList"
-                item-title="RoomNumber"
-                item-value="RoomNumber"
-                placeholder="방 번호를 검색하세요"
-                density="compact"
-              >
-                <template #item="{ props: listItemProp, item }">
-                  <VListItem v-bind="listItemProp">
-                    <template #prepend>
-                      <VAvatar size="30" />
-                    </template>
-                  </VListItem>
-                </template>
-              </VAutocomplete>
-            </VCol>
-            <VCol
-              cols="2"
-              class="d-flex justify-end"
-            >
-              <VBtn>참가</VBtn>
-            </VCol>
-          </VCol>
-          <!-- <VCol cols="10">3. 채팅방 열기</VCol> -->
           <VCol>
-            <VColmateRoomParticipants />
+            <span>종목 : {{ room.mateSport }}</span> &nbsp;&nbsp;
+            <span>지역 : {{ room.mateArea }}</span> &nbsp;&nbsp;
+            <span>정원 : {{ room.mateCapacity }}명</span> &nbsp;&nbsp;
+            <span>시작날짜 : {{ formatDate(room.mateDate) }}</span>
+            <VColmateRoomParticipants :participants-data=" participantsData" />
           </VCol>
           <VCol cols="2">
             <VBtn 
