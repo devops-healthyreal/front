@@ -239,7 +239,7 @@ watchEffect(async () => {
             <ApexChartStatistics
               :checked-items="checkedItems"
               :checked-exercise-items="checkedExerciseItems"
-              style="margin: 50px 0; opacity: 0.6;"
+              style="margin: 50px 0;"
             /> <!-- 차트 -->
           </VCard>
           <VTabs

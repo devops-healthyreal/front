@@ -131,6 +131,8 @@ export const getLineChartSimpleConfig = themeColors => {
     },
   }
 }
+
+// 챌린지 이행률 그래프
 export const getBarChartConfig = themeColors => {
   const { themeBorderColor, themeDisabledTextColor } = colorVariables(themeColors)
   

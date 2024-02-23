@@ -75,7 +75,7 @@ const horizontalBarChartConfig = computed(() => getBarChartConfig(vuetifyTheme.c
 
 console.log('test:', vuetifyTheme.current.value)
 
-const series = [{ data: [100] }]
+const series = [{ data: [80] }]
 
 
 //차트 불러오기 용 end
