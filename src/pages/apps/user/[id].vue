@@ -181,15 +181,18 @@ const formatDate = dateString => {
             <!-- 운동량 끝 -->
             <!-- 목표 달성률 시작 -->
           </VRow>
-          <VProgressLinear
-            style=" width: 600px; margin-top: 10px; margin-right: auto; margin-bottom: 10px;margin-left: 0;"
-            rounded
-            rounded-bar
-            height="8"
-            :model-value="10"
-            :max="100"
-            color="primary"
-          />
+          <VCol>
+            <VProgressLinear
+              style=" width: 90%; margin-top: 10px; margin-right: auto; margin-bottom: 10px;margin-left: 0;"
+              rounded
+              rounded-bar
+              height="8"
+              :model-value="10"
+              :max="100"
+              color="primary"
+            />
+            <strong style="margin-left: 5%;">현재 이행률</strong><strong style="margin-left: 60%;">목표 이행률</strong>
+          </VCol>
           <!-- 목표 달성률 끝 -->
           <VCol align="center">
             <VCol class="d-flex justify-end">
