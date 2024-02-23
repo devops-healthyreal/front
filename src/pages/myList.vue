@@ -1,7 +1,7 @@
 <script setup>
-import axios from '@axios'
-import { onMounted, onUnmounted, reactive, ref } from 'vue'
-import { useStore } from 'vuex'
+import axios from '@axios';
+import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { useStore } from 'vuex';
 
 
 const props = defineProps({
@@ -349,7 +349,7 @@ const loadMore = () => {
                                 style="margin-left: -15%;"
                                 @click="userProfileModal=true"
                               >
-                                {{ item.id }}  {{ item.bno }}<!-- 유저 닉네임 뿌려주기 -->
+                                {{ item.id }} <!-- 유저 닉네임 뿌려주기 -->
                               </VCardSubtitle>
                             </VCol>
                           </VCol>
