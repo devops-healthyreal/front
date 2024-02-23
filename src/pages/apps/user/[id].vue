@@ -106,6 +106,12 @@ const deleteData = async () => {
   }
 }
 
+const getHourDifference = (date1, date2) => {
+  const diff = Math.abs(new Date(date1) - new Date(date2))
+  
+  return diff / (1000 * 60 * 60)
+}
+
 const formatDate = dateString => {
   const date = new Date(dateString) // 날짜 문자열을 Date 객체로 변환
 
@@ -187,11 +193,12 @@ const formatDate = dateString => {
               rounded
               rounded-bar
               height="8"
-              :model-value="10"
+              :model-value="((participantsData.reduce((sum, currentValue) => sum + currentValue.CHALL_IMPLEMENTATION_RATE, 0) / (getHourDifference(new Date(room.cendDate), new Date(room.cstartDate))/24*3*participantsData.length))*100)"
               :max="100"
               color="primary"
             />
-            <strong style="margin-left: 5%;">현재 이행률</strong><strong style="margin-left: 60%;">목표 이행률</strong>
+            <strong style="margin-left: 5%;">현재 이행률 : {{ ((participantsData.reduce((sum, currentValue) => sum + currentValue.CHALL_IMPLEMENTATION_RATE, 0) / (getHourDifference(new Date(room.cendDate), new Date(room.cstartDate))/24*3*participantsData.length))*100).toFixed(0) }}%</strong>
+            <strong style="margin-left: 60%;">목표 이행률 : {{ room.implementation }}%</strong>
           </VCol>
           <!-- 목표 달성률 끝 -->
           <VCol align="center">
