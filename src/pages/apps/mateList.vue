@@ -2,10 +2,10 @@
 import AddMateRoomSetting from '@/components/dialogs/AddMateRoomSetting.vue'
 import axios from '@axios'
 import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
-const router = useRoute()
+const router = useRouter()
 const projectData = ref([])
 const isAddMateRoomSettingDialogVisible = ref(false)
 const store = useStore()
@@ -111,13 +111,13 @@ const checkEntrance = async challenge => {
   console.log("myData.value.data.GENDER---", myData.value.data.GENDER)
   console.log("challenge.value.glimit---", challenge.glimit)
   console.log("connetId---", connetId)
-  console.log("challNo---", challNo)
+  console.log("challNo---", challenge.mateNo)
 
   if (myData.value && calculateAge(myData.value.data.B_DAY) >= challenge.ageMin && calculateAge(myData.value.data.B_DAY) <= challenge.ageMax && (getGenderCode(myData.value.data.GENDER)===challenge.glimit || challenge.glimit===0)) {
 
-    const response = await axios.post('http://localhost:4000/mroom/joinRoom.do', { id: connetId, challNo: challenge.challNo })
+    const response = await axios.post('http://localhost:4000/mroom/joinRoom.do', { id: connetId, challNo: challenge.mateNo })
 
-    router.push({ name: 'apps-user-room', params: { room: challenge.challNo } }) //넘겨줄 Vue 경로 입력하기
+    router.push({ name: 'apps-user-room', params: { room: challenge.mateNo } }) //넘겨줄 Vue 경로 입력하기
 
   } else {
     isSnackbarCenteredVisible.value = true
@@ -256,7 +256,7 @@ const checkEntrance = async challenge => {
                 <span>
                   <VBtn 
                     v-if="challenge.participantsData.length <= challenge.mateCapacity"
-                    @click="checkEntrance(challenge.mateNo)"
+                    @click="checkEntrance(challenge)"
                   >
                     입장
                     <VSnackbar
