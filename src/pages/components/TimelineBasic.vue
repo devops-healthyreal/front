@@ -34,7 +34,20 @@ const getEatingRecord = async () => {
   console.log('체크해보자 : ')
   await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
     .then(response => {
-      dietinfo.value = response.data
+      if(response.data.length > 0){
+        // 초기화
+        dietinfo.value = [[], [], []]
+
+        response.data.forEach(data => {
+          if (data.mealType === '아침') {
+            dietinfo.value[0] = data
+          } else if (data.mealType === '점심') {
+            dietinfo.value[1] = data
+          } else if (data.mealType === '저녁') {
+            dietinfo.value[2] = data
+          }
+        })
+      }
       console.log('가져온 유저 Eating_Record', dietinfo.value)
     })
 }

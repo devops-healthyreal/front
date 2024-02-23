@@ -3,6 +3,7 @@ import UserCategory from '@/components/dialogs/UserCategory.vue'
 import RecipeView from '@/components/dialogs/recipe_view.vue'
 import axios from '@axios'
 import { computed, ref, watch } from 'vue'
+
 import { useStore } from 'vuex'
 
 const store = useStore()
@@ -69,17 +70,40 @@ const recipedata = ref([]) // 내 레시피 데이터
 const selectedGroups = ref([])
 const dietPlansListtype = ref('')
 
-const getEatingRecord = async connetId => {
+let dietinfo = ref([])
+
+// DB에 유저 데이터가 있으면 가지고 옴
+const getEatingRecord = async () => {
+  const connetId = userInfo.value.id
+
   console.log('체크해보자 : ', connetId)
   await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
-    .then(response => {
+    .then(response => {    
       console.log('가져온 유저 Eating_Record', response.data.length)
+
+      if(response.data.length > 0){
+        // 초기화
+        dietinfo.value = [[], [], []]
+
+        response.data.forEach(data => {
+          if (data.mealType === '아침') {
+            dietinfo.value[0] = data
+          } else if (data.mealType === '점심') {
+            dietinfo.value[1] = data
+          } else if (data.mealType === '저녁') {
+            dietinfo.value[2] = data
+          }
+        })
+      }else {
+        // 데이터가 없는 경우에도 dietinfo를 초기화합니다.
+        dietinfo.value = [[], [], []]
+      }
     })
+  console.log('현재 데이터:', dietinfo.value)
 }
 
 // DB에서 특정 카테고리에 대한 레시피를 가져와서 레시피를 기준으로 그룹 묶고 랜덤 5개만 자식 컴포넌트에 넘기기 
 const getrecipe = async (connetId, choicecategory, index) =>{
-  getEatingRecord(connetId)
   console.log('들어온 아이디와, 카테고리', connetId, choicecategory, index)
   await axios.get('http://localhost:4000/recipe/View.do', { params: { 'id': connetId, 'category': choicecategory } })
     .then(response => {
@@ -115,37 +139,64 @@ const getRandomGroups = () => {
   return shuffled.slice(0, 5)
 }
 
-const savedietFood = () => {
+const savedietFood = async () => {
   // 저장할 데이터 배열
   const dataToSave = []
 
-  // 아침, 점심, 저녁 데이터를 각각 추가합니다.
+  // 아침, 점심, 저녁 데이터를 각각 확인하면서 데이터가 있는 경우 배열에 추가합니다.
   for (let i = 0; i < 3; i++) {
     if (recipedatach.value[i] && recipedatach.value[i].length > 0) {
-      dataToSave.push({
-        id: connetId,
-        mealtype: i === 0 ? '아침' : i === 1 ? '점심' : '저녁',
-        eating_foodname: recipedatach.value[i][0].FOODNAME,
-        eating_recipeCode: recipedatach.value[i][0].RECIPECODE,
-      })
+      const mealType = i === 0 ? '아침' : i === 1 ? '점심' : '저녁'
+      const foodName = recipedatach.value[i][0].FOODNAME
+      const recipeCode = recipedatach.value[i][0].RECIPECODE
+
+      // 데이터가 이미 존재하는지 여부를 확인합니다.
+      const existingData = dietinfo.value[i]
+
+      console.log('existingData:', existingData)
+      if (existingData && existingData.id) {
+        // 데이터가 이미 존재하면 update 데이터로 추가합니다.
+        dataToSave.push({
+          id: connetId,
+          mealtype: mealType,
+          eating_foodname: foodName,
+          eating_recipeCode: recipeCode,
+          action: 'update', // update로 표시합니다.
+        })
+      }else{
+        // 데이터가 존재하지 않으면 insert 데이터로 추가합니다.
+        dataToSave.push({
+          id: connetId,
+          mealtype: mealType,
+          eating_foodname: foodName,
+          eating_recipeCode: recipeCode,
+          action: 'insert', // insert로 표시합니다.
+        })
+      }          
     }
   }
   console.log('어디 볼까', dataToSave)
 
-  // Axios를 사용하여 서버로 데이터를 전송
-  axios.post('http://localhost:4000/Dietfood/Insert.do', dataToSave)
-    .then(response => {
-      // 성공적으로 저장된 경우의 처리
+  // 데이터를 저장할 요청이 존재하는지 확인합니다.
+  if (dataToSave.length > 0) {
+    try {
+      // Axios를 사용하여 서버로 데이터를 전송합니다.
+      const response = await axios.post('http://localhost:4000/Dietfood/SaveBulk.do', dataToSave)
+
       console.log('데이터가 성공적으로 서버에 전송되었습니다.')
 
-      // 서버로부터의 응답을 처리하는 등의 추가 작업을 수행할 수 있습니다.
-    })
-    .catch(error => {
+      // 데이터를 성공적으로 저장한 후에 dietinfo.value[i] 값을 갱신합니다.
+      await getEatingRecord()
+
+      // recipedatach.value[i] 값을 초기화합니다.
+      recipedatach.value = []
+    } catch (error) {
       // 데이터 전송 중에 오류가 발생한 경우의 처리
       console.error('데이터 전송 중 오류가 발생했습니다:', error)
-
-      // 오류 처리 방법에 따라 적절한 조치를 취할 수 있습니다.
-    })
+    }
+  } else {
+    console.log('저장할 데이터가 없습니다.')
+  }
 }
 
 const handleIconClicked = data => {
@@ -153,6 +204,8 @@ const handleIconClicked = data => {
 
   getrecipe(connetId, choicecategory, index) // 클릭 이벤트 발생 시 getrecipe 함수 호출
 }
+
+onMounted(getEatingRecord)
 
 watch(router, fetchProjectData, { immediate: true })
 </script>
@@ -194,8 +247,13 @@ watch(router, fetchProjectData, { immediate: true })
               class="mb-2"
             >
               <VImg
-                v-if="!(recipedatach[list.index] && recipedatach[list.index].length)"
+                v-if="!(recipedatach[list.index] && recipedatach[list.index].length) && !(dietinfo[list.index])"
                 size="160px"
+              />
+              <VImg
+                v-else-if="!(recipedatach[list.index] && recipedatach[list.index].length) && dietinfo[list.index]"
+                style="height: 160px;"
+                :src="dietinfo[list.index].recipe_img"
               />
               <VImg
                 v-else
@@ -207,13 +265,15 @@ watch(router, fetchProjectData, { immediate: true })
               class="text-h6"
               style="font-weight: bold;"
             >
-              <span v-if="!(recipedatach[list.index] && recipedatach[list.index].length)">{{ list.title }}</span>
-              <span v-else>{{ recipedatach[list.index][0].FOODNAME }}</span>
+              <span v-if="!(recipedatach[list.index] && recipedatach[list.index].length) && dietinfo[list.index] && dietinfo[list.index] != ''">{{ dietinfo[list.index].eating_foodname }}</span>
+              <span v-else-if="(recipedatach[list.index] && recipedatach[list.index].length)">{{ recipedatach[list.index][0].FOODNAME }}</span>
+              <span v-else>{{ list.title }}</span>              
             </h6>
           </VCardItem>
           <VCardText style="height: 40px; font-weight: bold;">
-            <span v-if="!(recipedatach[list.index] && recipedatach[list.index].length)">{{ list.content }}</span>
-            <span v-else>{{ recipedatach[list.index][0].RECIPE_TITLE }}</span>
+            <span v-if="!(recipedatach[list.index] && recipedatach[list.index].length) && dietinfo[list.index] && dietinfo[list.index] != ''">{{ dietinfo[list.index].recipe_title }}</span>
+            <span v-else-if="(recipedatach[list.index] && recipedatach[list.index].length)">{{ recipedatach[list.index][0].RECIPE_TITLE }}</span>
+            <span v-else>{{ list.content }}</span>
           </VCardText>
 
           <VCardText>
