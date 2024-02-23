@@ -45,7 +45,7 @@ const getData = async () => {
 
     challenges.value = response.data
 
-    console.log("challenges.value---", challenges.value)
+    console.log("방 전체 정보는???---", challenges.value)
 
   } catch (error) {
     console.error(error)
@@ -256,15 +256,15 @@ const checkEntrance = async challenge => {
                 <span>
                   <VBtn 
                     v-if="challenge.participantsData.length <= challenge.mateCapacity"
-                    @click="checkEntrance(challenge)"
+                    @click="checkEntrance(challenge.mateNo)"
                   >
                     입장
                     <VSnackbar
-                    v-model="isSnackbarCenteredVisible"
-                    location="center"
-                  >
-                    입장할 수 없습니다.
-                  </VSnackbar>  
+                      v-model="isSnackbarCenteredVisible"
+                      location="center"
+                    >
+                      입장할 수 없습니다.
+                    </VSnackbar>  
                   </VBtn>
                   <strong v-else>참여불가</strong>
                 </span>
