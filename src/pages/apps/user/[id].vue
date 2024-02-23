@@ -8,10 +8,8 @@ import { getBarChartConfig } from '@core/libs/apex-chart/apexCharConfig' //차�
 import axios from "axios"
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import VueApexCharts from 'vue3-apexcharts' //차트 불러오기
 import { useTheme } from 'vuetify' //차트 불러오기
 import { useStore } from 'vuex'
-
 
 const isShareProjectDialogVisible = ref(false)
 const userListStore = useUserListStore()
@@ -76,7 +74,7 @@ const horizontalBarChartConfig = computed(() => getBarChartConfig(vuetifyTheme.c
 
 console.log('test:', vuetifyTheme.current.value)
 
-const series = [{ data: [80] }]
+const series = [{ data: [100.55] }]
 
 
 //차트 불러오기 용 end
@@ -139,11 +137,13 @@ const formatDate = dateString => {
           <!-- 참가비 끝 -->
           <!-- 유저 목록 -->
           <VCol>
-            <UserProfileForChellenge 
-              :participants-data="participantsData"
+            <UserProfileForChellenge
+              v-for="(participantGroup, index) in participantsData"
+              :key="index"
+              :participant-group="participantGroup"
+              :goal="room.goal"
               :cstart-date="room.cstartDate"
               :cend-date="room.cendDate"
-              :implementation="room.implementation"
             />
           </VCol>
           <!-- 유저 목록 -->
@@ -160,7 +160,7 @@ const formatDate = dateString => {
                 <span style="font-weight: bold;">{{ formatDate(room.cstartDate) }} ~ 
                   {{ formatDate(room.cendDate) }}</span>
                   
-                <div style=" margin-bottom: 8px; margin-top: 20px;">
+                <div style=" margin-top: 20px; margin-bottom: 8px;">
                   <VIcon
                     start
                     size="20"
@@ -176,30 +176,22 @@ const formatDate = dateString => {
                     icon="mdi-human-male-female"
                     color="success"
                   />
-                  {{ participantsData.length }}/{{ room.challCapacity }}&nbsp;&nbsp;
-                  <VIcon
-                    start
-                    size="20"
-                    icon="mdi-chart-bar"
-                    color="success"
-                  />
-                  {{ room.implementation }}% 
+                  {{ participantsData.length }}/{{ room.challCapacity }}
                 </div>
               </VCol>
             </VCol>
             <!-- 운동량 끝 -->
             <!-- 목표 달성률 시작 -->
-            <VCol>
-              <VueApexCharts
-                type="bar"
-                height="100"
-                :options="horizontalBarChartConfig"
-                :series="series"
-                style="width:'100%'; margin-top':30px;"
-              />
-            </VCol>
           </VRow>
-        
+          <VProgressLinear
+            style=" width: 600px; margin-top: 10px; margin-right: auto; margin-bottom: 10px;margin-left: 0;"
+            rounded
+            rounded-bar
+            height="8"
+            :model-value="10"
+            :max="100"
+            color="primary"
+          />
           <!-- 목표 달성률 끝 -->
           <VCol align="center">
             <VCol class="d-flex justify-end">
@@ -233,4 +225,3 @@ const formatDate = dateString => {
     --v-card-list-gap: 0.75rem;
   }
 </style>
-
