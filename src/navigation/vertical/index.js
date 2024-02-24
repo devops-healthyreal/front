@@ -30,6 +30,11 @@ export default [
     to: { name: 'exerciseRecommendation' },
     icon: { icon: 'mdi-dumbbell' },
   },
+  {
+    title: '테스트',
+    to: { name: 'faceTest' },
+    icon: { icon: 'mdi-emoticon' },
+  },
 
   ...management,
 ]

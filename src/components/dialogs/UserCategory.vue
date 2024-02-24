@@ -28,6 +28,7 @@ const currentTab = ref('tab-1')
         v-model="currentTab"
         grow
         stacked
+        style="margin-top: 50px;"
       >
         <VTab
           value="tab-1"

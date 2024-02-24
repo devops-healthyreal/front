@@ -29,9 +29,10 @@ const getuseraddress = () => {
 
   axios.get('http://localhost:4000/getUserAddress', { params })
     .then(response => {
-      console.log('받은 정보:', response.data)
+      // console.log('받은 정보:', response.data)
       userAddress.value = response.data.USERADDRESS
-      console.log('주소:', userAddress.value)
+
+      // console.log('주소:', userAddress.value)
 
       const addressArray = userAddress.value.split(' ')
       if (addressArray.length === 0) {
@@ -58,7 +59,7 @@ const getuseraddress = () => {
         .then(response => {
           const result = response.data
 
-          console.log('날씨 정보:', result)
+          // console.log('날씨 정보:', result)
           weather.value = result
           temp.value = result.main.temp
           code.value = result.weather[0].id.toString()

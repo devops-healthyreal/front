@@ -227,12 +227,6 @@ watch(router, fetchProjectData, { immediate: true })
     <VRow class="fill-height">
       <VCol cols="12">
         <VRow style="margin: 0 10px;">
-          <VBtn
-            color="warning"
-            @click="isCategory = true"
-          >
-            카테고리
-          </VBtn>
           <VSpacer />
           <VBtn
             color="warning"
@@ -249,9 +243,17 @@ watch(router, fetchProjectData, { immediate: true })
         md="4"
       >
         <VCard class="text-center">
+          <VBtn
+            style=" margin-top: 10px;margin-left: -74%;"
+            color="warning"
+            size="small"
+            @click="isCategory = true"
+          >
+            카테고리
+          </VBtn>
           <VCardItem
             class="d-flex flex-column justify-center align-center"
-            style="height: 250px;"
+            style="height: 250px; margin-top: 20px;"
           >
             <VAvatar
               variant="tonal"
