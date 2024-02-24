@@ -1,4 +1,8 @@
 <script setup>
+import axios from '@axios'
+import { defineProps, onUpdated } from 'vue'
+import { useStore } from 'vuex'
+
 const props = defineProps({
   isDialogVisible: {
     type: Boolean,
@@ -10,16 +14,35 @@ const props = defineProps({
   },
 })
 
-const isdropout = member => {
-  console.log('강퇴할 유저:', member.name)
-  member.dropout = true
+const participantsData = ref([])
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId = userInfo.value.id
+let Manager = ref({}) // 초기 값을 {}로 설정
 
-  const index = membersList.indexOf(member)
-  if (index > -1) {
-    membersList.splice(index, 1)
-    console.log(membersList)
-  }
+
+const deletepeople = async member => {
+  console.log('강퇴할 유저:', member)
+
+  const response = await axios.delete('http://localhost:4000/mroom/deletePeople.do', { data: { id: member } })
+
+  // 강퇴 후 participantsData 업데이트
+  participantsData.value = participantsData.value.filter(participant => participant.ID !== member)
+
 }
+
+
+onUpdated(() => {
+  participantsData.value = props.participantsData
+  console.log("참여자 데이터는?????", props.participantsData)
+
+  const foundManager = props.participantsData.find(participant => participant.MRP_MANAGER === 'Y')
+  if (foundManager) {
+    Manager.value = foundManager
+  }
+
+  console.log("내가 방장이다!!!!", Manager.value)
+})
 </script>
 
 <template>
@@ -44,10 +67,11 @@ const isdropout = member => {
               </VCol>
               <!-- 초대 버튼 -->
               <VBtn
+                v-if="Manager.ID == connetId && Manager.ID != participant.ID" 
                 id="myButton"
                 size="small"
                 style="align-self: center;"
-                @click="isdropout(member)"
+                @click="deletepeople(participant.ID)"
               >
                 강퇴하기
               </VBtn>

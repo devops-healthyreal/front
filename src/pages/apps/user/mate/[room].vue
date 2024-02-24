@@ -28,18 +28,6 @@ const capitalizedLabel = label => {
 
 const isareaCrawlingResultDialogVisible = ref(false)
 
-const RoomList = [
-  {
-    RoomNumber: 'MateRoom01',
-  },
-  {
-    RoomNumber: 'MateRoom02',
-  },
-  {
-    RoomNumber: 'MateRoom03',
-  },
-]
-
 function togglechatFlag() {
   chatflag.value = !chatflag.value
   if(chatflag.value){
@@ -79,6 +67,9 @@ const participants = async () => {
 
 }
 
+const crawlingData=ref("")
+let isLoading = ref(true)  // 로딩 상태를 나타내는 데이터 추가
+
 //방 데이터 가져오기
 const roomData = async () => {
 
@@ -90,6 +81,11 @@ const roomData = async () => {
   if (response.status === 200) {
     room.value = response.data
     console.log(' 방의 데이타는---', room.value)
+
+    startCrawling()
+    console.log("matearea", room.value.mateArea)
+    console.log("getMonthFromDate(room.value.mateDate)", getMonthFromDate(room.value.mateDate))
+    console.log("getdayFromDate(room.value.mateDate)", getdayFromDate(room.value.mateDate))
   } else {
     console.log('방의 데이타 가져오기 실패')
   }
@@ -131,6 +127,48 @@ const formatDate = dateString => {
   return `${year}/${month}/${day}`
 }
 
+const getMonthFromDate = data => {
+  const date = new Date(data)
+
+  // 월을 가져옵니다. getMonth()는 0부터 11까지의 값을 반환하므로 1을 더합니다.
+  return Number(date.getMonth() + 1)
+}
+
+const getdayFromDate = data => {
+  const date = new Date(data)
+
+  // 일을 가져옵니다.
+  return Number(date.getDate())
+}
+
+
+
+
+
+// 크롤링 함수
+function startCrawling(){
+  crawlingData.value=""
+  isLoading.value = true
+  try{        
+    axios.post('http://127.0.0.1:5000/areaCrawling', { matearea: room.value.mateArea, matemonth: getMonthFromDate(room.value.mateDate), matedate: getdayFromDate(room.value.mateDate) })
+      .then(response => {
+        // 서버로부터의 응답 처리
+        console.log(response.data)//JSON.parse()
+        crawlingData.value = response.data
+      })
+      .catch(error => { 
+        // 에러 처리
+        console.error(error)
+      },
+      )
+  }catch (e) {
+    console.error(e)
+  }
+  finally {
+    isLoading.value = false  // 요청 완료 후에 로딩 상태를 false로 설정
+  }
+}
+
 
 onMounted(async () => { await participants(), await roomData() })
 </script>
@@ -152,7 +190,7 @@ onMounted(async () => { await participants(), await roomData() })
                   style=" width: 90px;"
                   @click="isShareProjectDialogVisible = !isShareProjectDialogVisible"
                 >
-                  Invite
+                  초대하기
                 </VBtn>
                 <ShareProjectDialogTemp v-model:isDialogVisible="isShareProjectDialogVisible" />
                 <VBtn
@@ -189,6 +227,50 @@ onMounted(async () => { await participants(), await roomData() })
             <VIcon icon="mdi-human-female-female" /><span> : {{ room.mateCapacity }}명</span> &nbsp;&nbsp;
             <VIcon icon="mdi-calendar-range" /><span> : 시작날짜 : {{ formatDate(room.mateDate) }}</span>
           </VCol>
+          <div class="image-container">
+            <VRow v-if="!crawlingData">
+              <VProgressCircular
+                v-if="!isLoading"
+                class="loading"
+                indeterminate
+                color="primary"
+              />
+            </VRow>
+            <VRow v-else>
+              <VCol
+                v-for="data in crawlingData"
+                :key="data.index"
+                cols="4"
+              >
+                <VCard cols="12">
+                  <VCol
+                    cols="12"
+                    style=" display: flex;flex-wrap: wrap; align-items: center; justify-content: center;"
+                  >
+                    <img
+                      :src="data.src"
+                      alt="이미지"
+                      style="width: 300px;height: 200px;object-fit: cover;"
+                    >
+                  </VCol>
+                  <VCol
+                    cols="12"
+                    style="height: 50px;"
+                  >
+                    <a
+                      :href="data.link"
+                      class="my-custom-button"
+                    >{{ data.title }}</a>
+                  </VCol>
+                  <VCol cols="12">
+                    요금 : {{ data.pay }}         
+                  </VCol>
+                  <!-- 금액 : {{data.pay}}  -->
+                  <!-- </VCardItem> -->
+                </VCard>
+              </VCol>
+            </VRow>
+          </div>
           <VColmateRoomParticipants :participants-data=" participantsData" />
           <VCol
             cols="2"

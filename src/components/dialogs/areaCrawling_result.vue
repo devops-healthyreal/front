@@ -1,6 +1,6 @@
 <script setup>
 import axios from '@axios'
-import { ref } from 'vue'
+import { onUpdated, ref } from 'vue'
 
 const props = defineProps({
   isDialogVisible: {
@@ -14,6 +14,7 @@ const emit = defineEmits(['update:isDialogVisible'])
 const dialogVisibleUpdate = val => {
   emit('update:isDialogVisible', val)
 }
+
 
 let isLoading = ref(true)  // 로딩 상태를 나타내는 데이터 추가
 const crawlingData=ref("")
