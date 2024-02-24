@@ -24,10 +24,7 @@ const isdropout = member => {
 
 <template>
   <VCol>
-    <VCard
-      style="margin-top: 40px;"
-      class="share-project-dialog pa-5 pa-sm-8"
-    >
+    <VCard class="share-project-dialog pa-5 pa-sm-8">
       <VCardText cols="3">
         <VCol
           class="text-h5 text-center mb-3"

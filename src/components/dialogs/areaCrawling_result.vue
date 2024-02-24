@@ -157,8 +157,8 @@ function encodeToBase64(binaryData) {
           <VSelect
             v-model="matearea"
             :items="searchList"
-            label="지역 선택"
-            placeholder="지역 선택"
+            label="지역을 선택해주세요"
+            placeholder="지역을 선택해주세요"
             @change="validatematearea(matearea)"
           />
           <div :style="{ color: mateareaerr ? (mateareaerr === '검색 가능!' ? 'green' : 'red') : '', fontSize: 'smaller' }">

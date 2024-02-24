@@ -184,12 +184,12 @@ onMounted(async () => { await participants(), await roomData() })
             </VRow>
           </VCol>
           <VCol style="margin-left: 10px;">
-            <VIcon icon="mdi-soccer" /><span> : {{ room.mateSport }}</span> &nbsp;&nbsp;
+            <VIcon icon="mdi-whistle" /><span> : {{ room.mateSport }}</span> &nbsp;&nbsp;
             <VIcon icon="mdi-map-marker" /><span> : {{ room.mateArea }}</span> &nbsp;&nbsp;
             <VIcon icon="mdi-human-female-female" /><span> : {{ room.mateCapacity }}명</span> &nbsp;&nbsp;
             <VIcon icon="mdi-calendar-range" /><span> : 시작날짜 : {{ formatDate(room.mateDate) }}</span>
-            <VColmateRoomParticipants :participants-data=" participantsData" />
           </VCol>
+          <VColmateRoomParticipants :participants-data=" participantsData" />
           <VCol
             cols="2"
             class="justify-end"
