@@ -79,7 +79,7 @@ const router = createRouter({
     
           if (data) { // 값이 있다면
             next({ 
-              name: 'apps-user-id', 
+              name: 'apps-user-challenge-id', 
               params: { id: data }, 
             })
           } else { // 값이 없다면
@@ -125,7 +125,7 @@ const router = createRouter({
     
           if (data) { // 값이 있다면
             next({ 
-              name: 'apps-user-room', 
+              name: 'apps-user-mate-room', 
               params: { room: data }, 
             })
           } else { // 값이 없다면
