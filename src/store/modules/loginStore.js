@@ -33,6 +33,15 @@ if('serviceWorker' in navigator) {
   })
 }
 
+const foodRecommend = async id => {
+  await axios.get("http://localhost:4000/dietfood/search.do", { params: { id: id } })
+    .then(response => {
+      console.log('응답받은 행:', response.data)
+      if(response.data === 0){
+        axios.get("http://localhost:5000/food_recommend", { params: { id: id } })
+      }
+    })
+}
 
 
 /*알림 test용 end*/
@@ -79,6 +88,7 @@ const loginStore = {
         .then(res => {
           console.log('여기까지는 들어옴?', res)
           console.log(formdata.get("id"))
+          foodRecommend(formdata.get("id"))
 
           //FMC 토큰 등록용 코드 start (로그인 한 사용자의 브라우저가 받은 FMC 토큰 값 저장)
           messaging.getToken(messaging, { vapidKey: config.vapidKey })
@@ -108,6 +118,7 @@ const loginStore = {
           context.dispatch('saveToken', token)
 
           router.push('/main')
+          
         })
         .catch(error => {
           console.log(error)

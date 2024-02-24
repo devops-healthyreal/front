@@ -49,7 +49,6 @@ const getuseraddress = () => {
           location.value = location.value.slice(0, -1)
         }
       }
-      console.log('추출된 값:', location.value)
 
       const data = {
         location: location.value,
@@ -91,7 +90,7 @@ onMounted(() => {
       // 10분마다 실행
       setInterval(() => {
         getuseraddress()
-      }, 60000) // 10분은 600000밀리초입니다.
+      }, 600000) // 10분은 600000밀리초입니다.
     }
   }, { immediate: true }) // 초기 값에 대해서도 반응
 })

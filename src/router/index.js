@@ -23,15 +23,15 @@ const router = createRouter({
       beforeEnter: (to, from, next) => {
         if (store.state.loginStore.isLogin) {
           console.log('로그인 된 상태')
-
+    
           
-          next()
+          
         } else {
           console.log('로그인 안 된 상태')
  
             .then(() => {
               if (store.state.loginStore.isLogin) {
-                next() // 토큰이 유효하면 메인 페이지로 진행
+                next() // 토큰이 유효하면 메인 페이지로 진행                
               } else {
                 next({ name: 'login' }) // 토큰이 유효하지 않으면 로그인 페이지로 리다이렉트
               }
