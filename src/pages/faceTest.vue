@@ -18,39 +18,39 @@ app.component('QuillEditor', QuillEditor)
 
 
 
-const inputDiaryPhoto = ref(false)
+const inputEmotionPhoto = ref(false)
 
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=computed(() => userInfo.value.id)
+const emotiondata=ref('')
 
-
-const imgUrls = ref([]) // 이미지 URL 담을 변수 -- 사진 여러개
+const imgUrlEmotion = ref([]) // 이미지 URL 담을 변수 -- 사진 여러개
 
 //파일 1개 업로드 함수 -- 오늘의 기분
-const uploadImgMultiple = e => {
+const uploadImgEmotion = e => {
   const file = e.target.files[0] // 첫 번째 파일만 선택
 
   console.log('함수 안의 파일명:', file)
   
   if (file) {
     // 이미지 URL 생성
-    const imgUrl = URL.createObjectURL(file)
+    const imgEmotion = URL.createObjectURL(file)
     
     // 이미지 URL을 배열에 추가
-    imgUrls.value = [imgUrl]
+    imgUrlEmotion.value = [imgEmotion]
     
-    // 파일을 formData에 추가하고 서버로 업로드
-    const formData = new FormData()
+    // 파일을 formEmotion에 추가하고 서버로 업로드
+    const formEmotion = new FormData()
 
-    formData.append('file', file)
+    formEmotion.append('file', file)
 
-    axios.post('http://localhost:5000/test', formData, {
+    axios.post('http://localhost:5000/test', formEmotion, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
       .then(response => {
         console.log(response.data)
+        emotiondata.value=response.data
 
       // 서버에서 받은 응답 처리
       })
@@ -68,8 +68,9 @@ const uploadImgMultiple = e => {
 
 <template>
   <VCol cols="1">
+    {{ emotiondata.emotion }}
     <VDialog
-      v-model="inputDiaryPhoto"
+      v-model="inputEmotionPhoto"
       width="600"
     >
       <template #activator="{ props }">
@@ -81,17 +82,17 @@ const uploadImgMultiple = e => {
         </VBtn>
       </template>
       <!-- Dialog Content -->
-      <VCard title="당신의 오늘의 기분을 알려주세요!!">
+      <VCard title="오늘의 얼굴을 보여주세요!!">
         <DialogCloseBtn
           variant="text"
           size="small"
-          @click="inputDiaryPhoto = false"
+          @click="inputEmotionPhoto = false"
         />
         <VCardText>
-          사진을 추가해주세요
+          Ai가 얼굴을 인식해 감정을 분석해줍니다
         </VCardText>
         <VImg 
-          v-for="(url, index) in imgUrls" 
+          v-for="(url, index) in imgUrlEmotion" 
           :key="index"
           :src="url"
           style="width: 400px; height: 400px; align-self: center;"
@@ -104,13 +105,13 @@ const uploadImgMultiple = e => {
             accept="image/png, image/jpeg, image/bmp"
             placeholder="Pick an avatar"
             prepend-icon="mdi-camera-outline"
-            @change="uploadImgMultiple"
+            @change="uploadImgEmotion"
           />
         </VCol>
         <VCol>
           <VBtn 
             block
-            @click="uploadImageToServer"
+            @click="inputEmotionPhoto=false"
           >
             확인
           </VBtn>

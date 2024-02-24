@@ -122,7 +122,7 @@ const checkEntrance = async challenge => {
 
     const response = await axios.post('http://localhost:4000/croom/joinRoom.do', { id: connetId, challNo: challenge.challNo })
 
-    router.push({ name: 'apps-user-id', params: { id: challenge.challNo } }) //넘겨줄 Vue 경로 입력하기
+    router.push({ name: 'apps-user-challenge-id', params: { id: challenge.challNo } }) //넘겨줄 Vue 경로 입력하기
 
   } else {
     isSnackbarCenteredVisible.value = true

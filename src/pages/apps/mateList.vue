@@ -117,7 +117,7 @@ const checkEntrance = async challenge => {
 
     const response = await axios.post('http://localhost:4000/mroom/joinRoom.do', { id: connetId, challNo: challenge.mateNo })
 
-    router.push({ name: 'apps-user-room', params: { room: challenge.mateNo } }) //넘겨줄 Vue 경로 입력하기
+    router.push({ name: 'apps-user-mate-room', params: { room: challenge.mateNo } }) //넘겨줄 Vue 경로 입력하기
 
   } else {
     isSnackbarCenteredVisible.value = true

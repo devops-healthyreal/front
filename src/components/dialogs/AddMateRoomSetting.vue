@@ -86,7 +86,7 @@ const createRoom = async () => {
     if (response.status === 200) {
       console.log('방 생성이 완료되었습니다.')
       console.log('response.data----', response.data)
-      router.push({ name: 'apps-user-room', params: { room: response.data } }) //넘겨줄 Vue 경로 입력하기 //넘겨줄 Vue 경로 입력하기
+      router.push({ name: 'apps-user-mate-room', params: { room: response.data } }) //넘겨줄 Vue 경로 입력하기 //넘겨줄 Vue 경로 입력하기
     } else {
       console.log('방 생성에 실패하였습니다.')
     }
@@ -303,8 +303,8 @@ const checkboxContent = [
         <VCol style="text-align: center;">
           <VBtn
             :disabled="!isValid"
-            @click="createRoom"
             style="margin-bottom: 10%;"
+            @click="createRoom"
           >
             등록
           </VBtn>

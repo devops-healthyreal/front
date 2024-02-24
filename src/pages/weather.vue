@@ -102,45 +102,66 @@ onMounted(() => {
     <!-- 날씨 정보가 있을 경우 -->
     <div
       v-if="typeof weather.main !='undefined' "
-      class="d-flex align-center flex-wrap mt-1 mb-4"
+      class="d-flex align-center flex-wrap mt-4 mb-4"
     >
-      <div>
-        {{ location }}
+      <div style="margin-right: 8px;">
+        <strong>{{ location }}</strong>
       </div>
-      <div>
+      <div style="margin-right: 8px;">
         <div>
           <!-- Clear -->        
-          <VIcon v-if="code == 800">
+          <VIcon
+            v-if="code == 800"
+            color="error"
+          >
             {{ icons[5] }}
           </VIcon>
           <!-- Thunderstorm -->
-          <VIcon v-else-if="code.substr(0, 1) == 2">
+          <VIcon
+            v-else-if="code.substr(0, 1) == 2"
+            color="#FFD700"
+          >
             {{ icons[0] }}
           </VIcon>
           <!-- Drizzle -->
-          <VIcon v-else-if="code.substr(0, 1) == 3">
+          <VIcon
+            v-else-if="code.substr(0, 1) == 3"
+            color="info"
+          >
             {{ icons[1] }}
           </VIcon>
           <!-- Rain -->
-          <VIcon v-else-if="code.substr(0, 1) == 5">
+          <VIcon
+            v-else-if="code.substr(0, 1) == 5"
+            color="#4169E1"
+          >
             {{ icons[2] }}
           </VIcon>
           <!-- Snow -->
-          <VIcon v-else-if="code.substr(0, 1) == 6">
+          <VIcon
+            v-else-if="code.substr(0, 1) == 6"
+            color="#6A5ACD"
+          >
             {{ icons[3] }}
           </VIcon>
           <!-- Atmosphere -->
-          <VIcon v-else-if="code.substr(0, 1) == 7">
+          <VIcon
+            v-else-if="code.substr(0, 1) == 7"
+            color="#C0C0C0"
+          >
             {{ icons[4] }}
           </VIcon>
           <!-- Clouds -->
-          <VIcon v-else>
+          <VIcon
+            v-else
+            color="#C0C0C0"
+          >
             {{ icons[6] }}
           </VIcon>
         </div>
-        <div>
-          {{ Math.round(temp) }}℃
-        </div>
+      </div>
+      <div>
+        <strong>{{ Math.round(temp) }}℃</strong>
       </div>
     </div>
     <!-- 날씨 정보가 없을 경우 -->
