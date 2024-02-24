@@ -4,13 +4,13 @@ import AreaCrawlingresult from '@/components/dialogs/areaCrawling_result.vue'
 import Chat from '@/pages/apps/mateChat.vue'
 import VColmateRoomParticipants from '@/pages/apps/mateRoomParticipants.vue'
 import axios from '@axios'
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
 const isShareProjectDialogVisible = ref(false)
 const chatflag = ref(false) // 채팅방 열기&닫기 flag
-const openRoomYN = ref(true) // 방공개여부
+const room= ref([])
 const delayChat = ref(false)
 const router = useRouter()
 const route = useRoute() //route객체
@@ -18,7 +18,7 @@ const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
 const participantsData = ref([])
-const room= ref([])
+const openRoomYN = ref("") // 방공개여부
 
 const capitalizedLabel = label => {
   const convertLabelText = label.toString()
@@ -51,6 +51,10 @@ watch(() => chatflag.value, newValue => {
   }
 })
 
+const openClose = async () => {
+  const response = await axios.post('http://localhost:4000/mroom/openClose.do', { mateNo: route.params.room, open: openRoomYN.value }   )
+}
+
 //참가자 데이터 가져오기
 const participants = async () => {
 
@@ -61,6 +65,7 @@ const participants = async () => {
   if (response.status === 200) {
     participantsData.value = response.data
     console.log(' 참여자 데이타는---', participantsData.value)
+    await roomData()
   } else {
     console.log('참여자 데이타 가져오기 실패')
   }
@@ -82,7 +87,9 @@ const roomData = async () => {
     room.value = response.data
     console.log(' 방의 데이타는---', room.value)
 
-    startCrawling()
+    openRoomYN.value = room.value.ryn === 'Y'
+
+    //startCrawling()
     console.log("matearea", room.value.mateArea)
     console.log("getMonthFromDate(room.value.mateDate)", getMonthFromDate(room.value.mateDate))
     console.log("getdayFromDate(room.value.mateDate)", getdayFromDate(room.value.mateDate))
@@ -169,8 +176,33 @@ function startCrawling(){
   }
 }
 
+// WebSocket 연결 생성
+const socket = new WebSocket(`ws://localhost:4000/chat/${route.params.room}`)
 
-onMounted(async () => { await participants(), await roomData() })
+
+// WebSocket 연결이 열린 경우
+socket.addEventListener("open", event => {
+  console.log("WebSocket 연결 성공")
+})
+
+// WebSocket에서 메시지를 받은 경우
+socket.addEventListener("message", async event => {
+  console.log("WebSocket 메시지 수신:", event.data)
+
+  // 참가자가 들어오거나 나간 경우 참가자 데이터 갱신
+  if (event.data.includes("연결 되었습니다") || event.data.includes("연결이 끊어졌어요")) {
+    await participants()
+    await roomData()
+  }
+})
+
+// 컴포넌트 해제 시 WebSocket 연결 종료
+onUnmounted(() => {
+  socket.close()
+})
+
+
+onMounted(async () => { await participants(), await roomData()})
 </script>
 
 
@@ -217,6 +249,7 @@ onMounted(async () => { await participants(), await roomData() })
                 <VSwitch
                   v-model="openRoomYN"
                   :label="areaSet = capitalizedLabel(openRoomYN) === 'True' ? '공개' : '비공개'"
+                  @change="openClose"
                 />
               </VCol>
             </VRow>

@@ -6,7 +6,7 @@ import { useUserListStore } from '@/views/apps/user/useUserListStore'
 import UserProfileForChellenge from '@/views/apps/user/view/UserProfileForChellenge.vue'
 import { getBarChartConfig } from '@core/libs/apex-chart/apexCharConfig' //차트 불러오기
 import axios from "axios"
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTheme } from 'vuetify' //차트 불러오기
 import { useStore } from 'vuex'
@@ -32,6 +32,7 @@ const participants = async () => {
   if (response.status === 200) {
     participantsData.value = response.data
     console.log(' 참여자 데이타는---', participantsData.value)
+    await roomData()
   } else {
     console.log('참여자 데이타 가져오기 실패')
   }
@@ -76,12 +77,6 @@ console.log('test:', vuetifyTheme.current.value)
 const series = [{ data: [100.55] }]
 
 
-//차트 불러오기 용 end
-/*
-userListStore.fetchUser(Number(route.params.id)).then(response => {
-  userData.value = response.data
-})*/
-
 const deleteData = async () => {
   if(room.value.manager === connetId && participantsData.value.length == 1){
     const response = await axios.delete('http://localhost:4000/croom/deleteRoom.do', { data: { id: connetId } })
@@ -122,6 +117,31 @@ const formatDate = dateString => {
 
   return `${year}/${month}/${day}`
 }
+
+// WebSocket 연결 생성
+const socket = new WebSocket(`ws://localhost:4000/chat/${route.params.room}`)
+
+
+// WebSocket 연결이 열린 경우
+socket.addEventListener("open", event => {
+  console.log("WebSocket 연결 성공")
+})
+
+// WebSocket에서 메시지를 받은 경우
+socket.addEventListener("message", async event => {
+  console.log("WebSocket 메시지 수신:", event.data)
+
+  // 참가자가 들어오거나 나간 경우 참가자 데이터 갱신
+  if (event.data.includes("연결 되었습니다") || event.data.includes("연결이 끊어졌어요")) {
+    await participants()
+    await roomData()
+  }
+})
+
+// 컴포넌트 해제 시 WebSocket 연결 종료
+onUnmounted(() => {
+  socket.close()
+})
 </script>
 
 <template>

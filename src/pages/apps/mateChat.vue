@@ -1,7 +1,5 @@
 <script setup>
-import ChatActiveChatUserProfileSidebarContent from '@/views/apps/chat/ChatActiveChatUserProfileSidebarContent.vue'
 import ChatLog from '@/views/apps/chat/ChatLog.vue'
-import ChatUserProfileSidebarContent from '@/views/apps/chat/ChatUserProfileSidebarContent.vue'
 import { useChat } from '@/views/apps/chat/useChat'
 import { useChatStore } from '@/views/apps/chat/useChatStore'
 import { useResponsiveLeftSidebar } from '@core/composable/useResponsiveSidebar'
@@ -83,79 +81,21 @@ const isActiveChatUserProfileSidebarOpen = ref(false)
 // file input
 const refInputEl = ref()
 
-const moreList = [
-  {
-    title: 'View Contact',
-    value: 'View Contact',
-  },
-  {
-    title: 'Mute Notifications',
-    value: 'Mute Notifications',
-  },
-  {
-    title: 'Block Contact',
-    value: 'Block Contact',
-  },
-  {
-    title: 'Clear Chat',
-    value: 'Clear Chat',
-  },
-  {
-    title: 'Report',
-    value: 'Report',
-  },
-]
-openChatOfContact('1');
+openChatOfContact('1')
 </script>
 
 <template>
   <VLayout class="chat-app-layout bg-surface">
-    <!-- 👉 user profile sidebar -->
-    <VNavigationDrawer
-      v-model="isUserProfileSidebarOpen"
-      temporary
-      touchless
-      absolute
-      class="user-profile-sidebar"
-      location="start"
-      width="370"
-    >
-      <ChatUserProfileSidebarContent @close="isUserProfileSidebarOpen = false" />
-    </VNavigationDrawer>
-
-    <!-- 👉 Active Chat sidebar -->
-    <VNavigationDrawer
-      v-model="isActiveChatUserProfileSidebarOpen"
-      width="374"
-      absolute
-      temporary
-      location="end"
-      touchless
-      class="active-chat-user-profile-sidebar"
-    >
-      <ChatActiveChatUserProfileSidebarContent @close="isActiveChatUserProfileSidebarOpen = true" />
-    </VNavigationDrawer>
-
-    
-
     <!-- 👉 Chat content -->
     <VMain class="chat-content-container ">
       <!-- 👉 Right content: Active Chat -->
-      <!--아래의 class 속성의 h-100을 h-50으로 바꿔 길이 조정-->
+      <!-- 아래의 class 속성의 h-100을 h-50으로 바꿔 길이 조정 -->
       <div
         v-if="store.activeChat"
         class="d-flex flex-column h-100"
       >
         <!-- 👉 Active chat header -->
         <div class="active-chat-header d-flex align-center text-medium-emphasis">
-          <!-- Sidebar toggler -->
-          <IconBtn
-            class="d-md-none me-3"
-            @click="isLeftSidebarOpen = true"
-          >
-            <VIcon icon="mdi-menu" />
-          </IconBtn>
-
           <!-- avatar -->
           <div
             class="d-flex align-center cursor-pointer"
@@ -197,17 +137,9 @@ openChatOfContact('1');
           <!-- Header right content -->
           <div class="d-sm-flex align-center d-none">
             <IconBtn>
-              <VIcon icon="mdi-phone" />
-            </IconBtn>
-            <IconBtn>
-              <VIcon icon="mdi-video-outline" />
-            </IconBtn>
-            <IconBtn>
               <VIcon icon="mdi-magnify" />
             </IconBtn>
           </div>
-
-          <MoreBtn :menu-list="moreList" />
         </div>
 
         <VDivider />
@@ -268,7 +200,6 @@ openChatOfContact('1');
           >
         </VForm>
       </div>
-
     </VMain>
   </VLayout>
 </template>
