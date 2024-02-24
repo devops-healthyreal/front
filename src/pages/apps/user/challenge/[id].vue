@@ -119,7 +119,7 @@ const formatDate = dateString => {
 }
 
 // WebSocket 연결 생성
-const socket = new WebSocket(`ws://localhost:4000/chat/${route.params.room}`)
+const socket = new WebSocket(`ws://localhost:4000/chat/c${route.params.id}`)
 
 
 // WebSocket 연결이 열린 경우
