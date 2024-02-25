@@ -68,9 +68,6 @@ const participants = async () => {
   if (response.status === 200) {
     participantsData.value = response.data
     await roomData()
-    if (!room.value) {
-      router.push({ name: 'mateList' })
-    }
   } else {
     console.log('참여자 데이타 가져오기 실패')
   }
@@ -90,15 +87,12 @@ const roomData = async () => {
 
   if (response.status === 200) {
     room.value = response.data
-    if (!room.value) {
-      router.push({ name: 'mateList' })
-    }
     console.log(' 방의 데이타는---', room.value)
     console.log(' 방의 데이타는---room', room)
 
     openRoomYN.value = room.value.ryn === 'Y'
 
-    startCrawling()
+
     console.log("matearea", room.value.mateArea)
     console.log("getMonthFromDate(room.value.mateDate)", getMonthFromDate(room.value.mateDate))
     console.log("getdayFromDate(room.value.mateDate)", getdayFromDate(room.value.mateDate))
@@ -211,11 +205,12 @@ socket.addEventListener("close", async event => {
 
 // 컴포넌트 해제 시 WebSocket 연결 종료
 onUnmounted(() => {
+  stopMatching()
   socket.close()
 })
 
 
-onMounted(async () => { await participants(), await roomData()})
+onMounted(async () => { await participants(), await roomData(), await startCrawling()})
 
 // 매칭 시작 함수
 const startMatching = async () => {
