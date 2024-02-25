@@ -34,10 +34,11 @@ const fetchProjectData = () => {
         >
           <!-- 참가비 시작 -->
           <VCol>
-            <VBtn
-              icon="mdi-text-box-edit-outline"
-              color="success"
-              variant="text"
+            <!-- 👉 Search -->
+            <AppSearchHeader
+              v-model="faqSearchQuery"
+              subtitle="찾고 싶은 단어를 작성해 주세요"
+              custom-class="mb-7"
             />
             <VCard
               v-for="data in 20"

@@ -1,7 +1,7 @@
 <script setup>
+import { useGenerateImageVariant } from '@core/composable/useGenerateImageVariant'
 import AppSearchHeaderBgDark from '@images/pages/app-search-header-bg-dark.png'
 import AppSearchHeaderBgLight from '@images/pages/app-search-header-bg-light.png'
-import { useGenerateImageVariant } from '@core/composable/useGenerateImageVariant'
 
 const props = defineProps({
   title: {
@@ -39,7 +39,7 @@ const themeBackgroundImg = useGenerateImageVariant(AppSearchHeaderBgLight, AppSe
       <!-- 👉 Search Input -->
       <VTextField
         v-bind="$attrs"
-        placeholder="Ask a question.."
+        placeholder="Search"
         class="search-header-input mx-auto my-3"
       >
         <template #prepend-inner>

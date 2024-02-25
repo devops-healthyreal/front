@@ -1,6 +1,28 @@
 <script setup lang="ts">
 import UserList from '@/views/apps/roles/UserList.vue'
+import ChartJsLineChart from '@/views/charts/chartjs/ChartJsLineChart.vue'
 import timelineCardHeader from '@images/cards/timeline-card-header.png'
+
+const chartJsCustomColors = {
+  white: '#fff',
+  yellow: '#ffe802',
+  primary: '#836af9',
+  areaChartBlue: '#2c9aff',
+  barChartYellow: '#ffcf5c',
+  polarChartGrey: '#4f5d70',
+  polarChartInfo: '#299aff',
+  lineChartYellow: '#d4e157',
+  polarChartGreen: '#28dac6',
+  lineChartPrimary: '#9e69fd',
+  lineChartWarning: '#ff9800',
+  horizontalBarInfo: '#26c6da',
+  polarChartWarning: '#ff8131',
+  scatterChartGreen: '#28c76f',
+  warningShade: '#ffbd1f',
+  areaChartBlueLight: '#84d0ff',
+  areaChartGreyLight: '#edf1f4',
+  scatterChartWarning: '#ff9f43',
+}
 
 const currentTab = ref(0)
 </script>
@@ -136,6 +158,16 @@ const currentTab = ref(0)
               <span class="text-sm">page statistics</span>
             </div>
           </div>
+          <VCol cols="12">
+            <VCard
+              title="Statistics"
+              subtitle="Commercial networks and enterprises"
+            >
+              <VCardText>
+                <ChartJsLineChart :colors="chartJsCustomColors" />
+              </VCardText>
+            </VCard>
+          </VCol>
         </VWindowItem>
         <VWindowItem>
           <div class="d-flex align-center mb-6">
