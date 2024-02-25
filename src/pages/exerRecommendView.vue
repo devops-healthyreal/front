@@ -41,7 +41,7 @@ const fetchProjectData = () => {
               <VCol >
                 <p style="margin: 0 20px;">내용인데 뭘 넣어야할까요 </p>
               </VCol>
-              <VCol>
+              <VCol style="margin: 0 10px;">
                 <VAvatar color="success" size="small"/>
                 <span style=" margin-left: 8px;font-size: 12px; font-weight: bold;"> 유저 이름 </span>
                 <span style=" margin-left: 8px;font-size: 12px; font-weight: bold;">2024.02.25</span>

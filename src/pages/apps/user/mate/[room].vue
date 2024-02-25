@@ -306,14 +306,16 @@ onMounted(async () => { await participants(), await roomData()})
           </div>
           <VColmateRoomParticipants :participants-data=" participantsData" />
           <VCol
-            cols="2"
-            class="justify-end"
+            cols="12"
+            style="display: flex; justify-content: space-between;"
           >
-            <VBtn
-              style="margin-left: 10px;"
-              @click="deleteData"
-            >
+            <VBtn @click="deleteData">
               나가기
+            </VBtn>
+            
+            <!-- 매칭잡기 버튼 방장만 가능하게 -->
+            <VBtn v-if="room.manager==connetId">
+              매칭잡기
             </VBtn>
           </VCol>
         </VCard>
