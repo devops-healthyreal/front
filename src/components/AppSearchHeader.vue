@@ -1,4 +1,5 @@
 <script setup>
+import axios from '@axios'
 import { useGenerateImageVariant } from '@core/composable/useGenerateImageVariant'
 import AppSearchHeaderBgDark from '@images/pages/app-search-header-bg-dark.png'
 import AppSearchHeaderBgLight from '@images/pages/app-search-header-bg-light.png'
@@ -18,9 +19,31 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(['crawlingComplete'])
+
 defineOptions({ inheritAttrs: false })
 
 const themeBackgroundImg = useGenerateImageVariant(AppSearchHeaderBgLight, AppSearchHeaderBgDark)
+const searchKeyword = ref('')
+const kincrawlingresult = ref([])
+
+const kincrawling = () => {
+// 검색 실행
+  axios.get('http://localhost:5000/kinCrawling', { params: {
+    search: searchKeyword.value,
+  } })
+    .then(response => {
+      // 검색 결과 처리
+      kincrawlingresult.value = response.data
+      console.log('검색어 크롤링 :', kincrawlingresult.value)
+      console.log(kincrawlingresult.value[0])
+      emit('crawlingComplete', kincrawlingresult.value)
+    })
+    .catch(error => {
+      // 에러 처리
+      console.error(error)
+    })
+}
 </script>
 
 <template>
@@ -37,16 +60,18 @@ const themeBackgroundImg = useGenerateImageVariant(AppSearchHeaderBgLight, AppSe
       </h5>
 
       <!-- 👉 Search Input -->
-      <VTextField
-        v-bind="$attrs"
+      <!-- v-bind="$attrs" -->
+      <VTextField        
+        v-model="searchKeyword"
         placeholder="Search"
         class="search-header-input mx-auto my-3"
+        @keyup.enter="kincrawling"
       >
         <template #prepend-inner>
           <VIcon
             icon="mdi-magnify"
             size="24"
-          />
+          />        
         </template>
       </VTextField>
 

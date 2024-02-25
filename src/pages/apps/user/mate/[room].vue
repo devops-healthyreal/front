@@ -98,10 +98,7 @@ const roomData = async () => {
 
     openRoomYN.value = room.value.ryn === 'Y'
 
-
-    
-
-    //startCrawling()
+    startCrawling()
     console.log("matearea", room.value.mateArea)
     console.log("getMonthFromDate(room.value.mateDate)", getMonthFromDate(room.value.mateDate))
     console.log("getdayFromDate(room.value.mateDate)", getdayFromDate(room.value.mateDate))
@@ -168,7 +165,7 @@ function startCrawling(){
   crawlingData.value=""
   isLoading.value = true
   try{        
-    axios.post('http://127.0.0.1:5000/areaCrawling', { matearea: room.value.mateArea, matemonth: getMonthFromDate(room.value.mateDate), matedate: getdayFromDate(room.value.mateDate) })
+    axios.post('http://127.0.0.1:5000/areaCrawling', { matearea: room.value.mateArea.split(' ')[0].trim(), matemonth: getMonthFromDate(room.value.mateDate), matedate: getdayFromDate(room.value.mateDate) })
       .then(response => {
         // 서버로부터의 응답 처리
         console.log(response.data)//JSON.parse()
