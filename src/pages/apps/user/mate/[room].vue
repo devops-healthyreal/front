@@ -322,7 +322,11 @@ onMounted(async () => { await participants(), await roomData()})
         v-if="delayChat"
         cols="5"
       >
-        <Chat />
+        <Chat
+          :participants-data=" participantsData"
+          :socket="socket"
+          :mate-no="route.params.room"
+        />
       </VCol>
     </VRow>
   </section>
