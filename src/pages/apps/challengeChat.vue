@@ -1,18 +1,35 @@
 <script setup>
-import ChatActiveChatUserProfileSidebarContent from '@/views/apps/chat/ChatActiveChatUserProfileSidebarContent.vue'
-import ChatLog from '@/views/apps/chat/ChatLog.vue'
-import ChatUserProfileSidebarContent from '@/views/apps/chat/ChatUserProfileSidebarContent.vue'
-import { useChat } from '@/views/apps/chat/useChat'
-import { useChatStore } from '@/views/apps/chat/useChatStore'
+import axios from '@axios'
 import { useResponsiveLeftSidebar } from '@core/composable/useResponsiveSidebar'
-import { avatarText } from '@core/utils/formatters'
+import { formatDate } from '@core/utils/formatters'
+import { nextTick, onMounted } from 'vue'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { useDisplay } from 'vuetify'
+import { useStore } from 'vuex'
+
+
+const props = defineProps({
+  participantsData: {
+    type: Array,
+    required: true,
+  },
+  socket: {
+    type: Object,
+    required: true,
+  },
+  mateNo: {
+    type: Object,
+    required: true,
+  },
+})
 
 const vuetifyDisplays = useDisplay()
-const store = useChatStore()
+
 const { isLeftSidebarOpen } = useResponsiveLeftSidebar(vuetifyDisplays.smAndDown)
-const { resolveAvatarBadgeVariant } = useChat()
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId = userInfo.value.id
+const connetAv = userInfo.value.pro_filepath
 
 // Perfect scrollbar
 const chatLogPS = ref()
@@ -23,46 +40,12 @@ const scrollToBottomInChatLog = () => {
   scrollEl.scrollTop = scrollEl.scrollHeight
 }
 
-// Search query
-const q = ref('')
-
-watch(q, val => store.fetchChatsAndContacts(val), { immediate: true })
-
-// Open Sidebar in smAndDown when "start conversation" is clicked
-const startConversation = () => {
-  if (vuetifyDisplays.mdAndUp.value)
-    return
-  isLeftSidebarOpen.value = true
-}
-
-// Chat message
-const msg = ref('')
-
-const sendMessage = async () => {
-  if (!msg.value)
-    return
-  await store.sendMsg(msg.value)
+const openChatOfContact = async()  => {
+  await allData(props.mateNo)
 
   // Reset message input
   msg.value = ''
-
-  // Scroll to bottom
-  nextTick(() => {
-    scrollToBottomInChatLog()
-  })
-}
-
-const openChatOfContact = async userId => {
-  await store.getChat(userId)
-
-  // Reset message input
-  msg.value = ''
-
-  // Set unseenMsgs to 0
-  const contact = store.chatsContacts.find(c => c.id === userId)
-  if (contact)
-    contact.chat.unseenMsgs = 0
-
+  
   // if smAndDown =>  Close Chat & Contacts left sidebar
   if (vuetifyDisplays.smAndDown.value)
     isLeftSidebarOpen.value = false
@@ -73,142 +56,136 @@ const openChatOfContact = async userId => {
   })
 }
 
+openChatOfContact()
 
-// User profile sidebar
-const isUserProfileSidebarOpen = ref(false)
+let msg = ref('')
 
-// Active chat user profile sidebar
-const isActiveChatUserProfileSidebarOpen = ref(false)
+// 메시지를 전송하는 함수
+async function sendMessage(msgValue) {
+  console.log('sendMessage 함수가 호출되었습니다.')
+  console.log("msgValue", msgValue)
+  if (msgValue && msgValue.trim() !== "") {
+    try {
+      // 서버에 메시지 전송 요청
+      const response = await axios.post("http://localhost:4000/chat/challWrite.do", { content: msgValue, id: connetId, mateNo: props.mateNo, ruser: 'all' })
+      
+      
+      console.log('메시지 전송 성공')
+      
 
-// file input
-const refInputEl = ref()
+      // 웹소켓을 통해 메시지 전송
+      props.socket.send(JSON.stringify({ content: msgValue, id: connetId, mateNo: props.mateNo, ruser: 'all' }))
 
-const moreList = [
-  {
-    title: 'View Contact',
-    value: 'View Contact',
-  },
-  {
-    title: 'Mute Notifications',
-    value: 'Mute Notifications',
-  },
-  {
-    title: 'Block Contact',
-    value: 'Block Contact',
-  },
-  {
-    title: 'Clear Chat',
-    value: 'Clear Chat',
-  },
-  {
-    title: 'Report',
-    value: 'Report',
-  },
-]
+      // chat 배열에 메시지 추가
+      chat.value.push({
+        message: msgValue,
+        time: new Date(),
+        senderId: connetId,
+        notice: false, // 이 부분은 실제 메시지 데이터 구조에 맞게 수정해야 합니다.
+      })
+      
+      // 입력 필드 초기화
+      msg.value = ""
 
-openChatOfContact('1')
+    } catch (error) {
+      console.error(`메시지 전송 중 에러 발생: ${error}`)
+    }
+  }
+}
+
+let chat = ref([])
+async function allData(mateNo) {
+  try {
+    const response = await axios.post("http://localhost:4000/chat/allChallChating.do", { mateNo: mateNo })
+
+    console.log("받은 데이타", response)
+    if (response.data && Array.isArray(response.data)) {
+      response.data.forEach(item => {
+        chat.value.push({
+          message: item.content,
+          time: item.sendDate,
+          senderId: item.id,
+          notice: item.notice,
+        })
+      })
+    }
+    console.log("넣은 데이타", chat)
+  } catch (error) {
+    console.error(`데이터를 가져오는데 실패했습니다: ${error}`)
+  }
+}
+
+const msgGroups = computed(() => {
+  let messages = chat.value
+  const _msgGroups = []
+
+  messages.forEach(msg => {
+    _msgGroups.push({
+      senderId: msg.senderId,
+      messages: [{ // 'messages' 속성 추가
+        message: msg.message,
+
+        // 'time' 속성이 없을 경우 대비하여 기본값 설정
+        time: msg.time || new Date(),
+      }],
+    })
+  })
+
+  return _msgGroups
+})
+
+onMounted(() => {
+  props.socket.onmessage = function(event) {
+    // 메시지 파싱
+    const messageData = JSON.parse(event.data)
+
+    // chat 배열에 메시지 추가
+    chat.value.push({
+      message: messageData.content,
+      time: new Date(),
+      senderId: messageData.id,
+      notice: false, // 이 부분은 실제 메시지 데이터 구조에 맞게 수정해야 합니다.
+    })
+  }
+})
+
+const getProfileImagePath = id => {
+  const participant = props.participantsData.find(p => p.ID === id)
+  
+  return participant ? participant.PRO_FILEPATH : ''
+}
+
+console.log("채팅창2", msgGroups)
 </script>
 
 <template>
   <VLayout class="chat-app-layout bg-surface">
-    <!-- 👉 user profile sidebar -->
-    <VNavigationDrawer
-      v-model="isUserProfileSidebarOpen"
-      temporary
-      touchless
-      absolute
-      class="user-profile-sidebar"
-      location="start"
-      width="370"
-    >
-      <ChatUserProfileSidebarContent @close="isUserProfileSidebarOpen = false" />
-    </VNavigationDrawer>
-
-    <!-- 👉 Active Chat sidebar -->
-    <VNavigationDrawer
-      v-model="isActiveChatUserProfileSidebarOpen"
-      width="374"
-      absolute
-      temporary
-      location="end"
-      touchless
-      class="active-chat-user-profile-sidebar"
-    >
-      <ChatActiveChatUserProfileSidebarContent @close="isActiveChatUserProfileSidebarOpen = true" />
-    </VNavigationDrawer>
-
-    
-
     <!-- 👉 Chat content -->
     <VMain class="chat-content-container ">
       <!-- 👉 Right content: Active Chat -->
       <!-- 아래의 class 속성의 h-100을 h-50으로 바꿔 길이 조정 -->
-      <div
-        v-if="store.activeChat"
-        class="d-flex flex-column h-100"
-      >
+      <div class="d-flex flex-column h-100">
         <!-- 👉 Active chat header -->
         <div class="active-chat-header d-flex align-center text-medium-emphasis">
-          <!-- Sidebar toggler -->
-          <IconBtn
-            class="d-md-none me-3"
-            @click="isLeftSidebarOpen = true"
-          >
-            <VIcon icon="mdi-menu" />
-          </IconBtn>
-
           <!-- avatar -->
-          <div
-            class="d-flex align-center cursor-pointer"
-            @click="isActiveChatUserProfileSidebarOpen = true"
-          >
-            <VBadge
-              dot
-              location="bottom right"
-              offset-x="3"
-              offset-y="3"
-              :color="resolveAvatarBadgeVariant(store.activeChat.contact.status)"
-              bordered
-            >
-              <VAvatar
-                size="40"
-                :variant="!store.activeChat.contact.avatar ? 'tonal' : undefined"
-                :color="!store.activeChat.contact.avatar ? resolveAvatarBadgeVariant(store.activeChat.contact.status) : undefined"
-                class="cursor-pointer"
-              >
-                <VImg
-                  v-if="store.activeChat.contact.avatar"
-                  :src="store.activeChat.contact.avatar"
-                  :alt="store.activeChat.contact.fullName"
-                />
-                <span v-else>{{ avatarText(store.activeChat.contact.fullName) }}</span>
-              </VAvatar>
-            </VBadge>
 
-            <div class="flex-grow-1 ms-4 overflow-hidden">
-              <h6 class="text-base font-weight-regular text-medium-emphasis">
-                {{ store.activeChat.contact.fullName }}
-              </h6>
-              <span class="d-block text-sm text-truncate text-disabled">{{ store.activeChat.contact.role }}</span>
-            </div>
+          <div
+            v-for="(participant, index) in props.participantsData"
+            :key="index"
+          >
+            <VAvatar
+              size="40"
+              :variant="!participant.PRO_FILEPATH ? 'tonal' : undefined"
+              class="cursor-pointer"
+            >
+              <VImg
+                v-if="participant.PRO_FILEPATH"
+                :src="participant.PRO_FILEPATH"
+              />
+            </VAvatar>
           </div>
 
           <VSpacer />
-
-          <!-- Header right content -->
-          <div class="d-sm-flex align-center d-none">
-            <IconBtn>
-              <VIcon icon="mdi-phone" />
-            </IconBtn>
-            <IconBtn>
-              <VIcon icon="mdi-video-outline" />
-            </IconBtn>
-            <IconBtn>
-              <VIcon icon="mdi-magnify" />
-            </IconBtn>
-          </div>
-
-          <MoreBtn :menu-list="moreList" />
         </div>
 
         <VDivider />
@@ -220,20 +197,52 @@ openChatOfContact('1')
           :options="{ wheelPropagation: false }"
           class="flex-grow-6"
         >
-          <ChatLog />
+          <div class="chat-log pa-5">
+            <div
+              v-for="(msgGrp, index) in msgGroups"
+              :key="'msgGrp-' + index"
+              class="chat-group d-flex align-start"
+              :class="[
+                msgGrp.senderId !== connetId ? 'flex-row' : 'flex-row-reverse',
+                { 'mb-8': msgGroups?.length - 1 !== index }
+              ]"
+            >
+              <div
+                class="chat-avatar"
+                :class="msgGrp.senderId !== connetId ? 'me-4' : 'ms-4'"
+              >
+                <VAvatar size="32">
+                  <VImg :src="msgGrp.senderId === connetId ? connetAv : getProfileImagePath(msgGrp.senderId)" />
+                </VAvatar>
+              </div>
+              <div
+                class="chat-body d-inline-flex flex-column"
+                :class="msgGrp.senderId !== connetId ? 'align-start' : 'align-end'"
+              >
+                <p
+                  class="chat-content text-sm py-3 px-4 elevation-1"
+                  :class="[
+                    msgGrp.senderId === connetId ? 'bg-primary text-white chat-right' : 'bg-surface chat-left',
+                    { 'mb-3': msgGroups?.length - 1 !== index },
+                  ]"
+                >
+                  {{ msgGrp.messages[0].message }}
+                </p>
+                <div :class="{ 'text-right': msgGrp.senderId === connetId }">
+                  <span class="text-xs me-1 text-disabled">{{ formatDate(msgGrp.messages[msgGrp.messages.length - 1].time, { hour: 'numeric', minute: 'numeric' }) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </PerfectScrollbar>
 
         <!-- Message form -->
-        <VForm
-          class="chat-log-message-form mb-5 mx-5"
-          @submit.prevent="sendMessage"
-        >
+        <VForm class="chat-log-message-form mb-5 mx-5">
           <VTextField
-            :key="store.activeChat?.contact.id"
             v-model="msg"
             variant="solo"
             class="chat-message-input"
-            placeholder="Type your message..."
+            placeholder="메세지를 입력하세요"
             autofocus
           >
             <template #append-inner>
@@ -243,30 +252,11 @@ openChatOfContact('1')
                   size="22"
                 />
               </IconBtn>
-
-              <IconBtn
-                class="me-4"
-                @click="refInputEl?.click()"
-              >
-                <VIcon
-                  icon="mdi-attachment"
-                  size="22"
-                />
-              </IconBtn>
-
-              <VBtn @click="sendMessage">
-                Send
+              <VBtn @click="sendMessage(msg)">
+                보내기
               </VBtn>
             </template>
           </VTextField>
-
-          <input
-            ref="refInputEl"
-            type="file"
-            name="file"
-            accept=".jpeg,.png,.jpg,GIF"
-            hidden
-          >
         </VForm>
       </div>
     </VMain>
@@ -315,38 +305,8 @@ $chat-app-header-height: 68px;
     }
   }
 
-  .chat-list-header,
   .active-chat-header {
     @extend %chat-header;
-  }
-
-  .chat-list-search {
-    .v-field__outline__start {
-      flex-basis: 20px !important;
-      border-radius: 28px 0 0 28px !important;
-    }
-
-    .v-field__outline__end {
-      border-radius: 0 28px 28px 0 !important;
-    }
-
-    @include layoutsMixins.rtl {
-      .v-field__outline__start {
-        flex-basis: 20px !important;
-        border-radius: 0 28px 28px 0 !important;
-      }
-
-      .v-field__outline__end {
-        border-radius: 28px 0 0 28px !important;
-      }
-    }
-  }
-
-  .chat-list-sidebar {
-    .v-navigation-drawer__content {
-      display: flex;
-      flex-direction: column;
-    }
   }
 }
 
@@ -366,12 +326,21 @@ $chat-app-header-height: 68px;
   }
 }
 
-.chat-user-profile-badge {
-  .v-badge__badge {
-    /* stylelint-disable liberty/use-logical-spec */
-    min-width: 12px !important;
-    height: 0.75rem;
-    /* stylelint-enable liberty/use-logical-spec */
+.chat-log {
+  block-size: 500px; /* 원하는 높이로 설정 */
+  overflow-y: auto;
+
+  .chat-content {
+    border-end-end-radius: 6px;
+    border-end-start-radius: 6px;
+
+    &.chat-left {
+      border-start-end-radius: 6px;
+    }
+
+    &.chat-right {
+      border-start-start-radius: 6px;
+    }
   }
 }
 </style>
