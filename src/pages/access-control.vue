@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import UserList from '@/views/apps/roles/UserList.vue'
+import timelineCardHeader from '@images/cards/timeline-card-header.png'
 
 const currentTab = ref(0)
 </script>
 
 <template>
+  <VImg
+    cover
+    :src="timelineCardHeader"
+    style=" width: 100%; height: 50px; margin-bottom: 20px;"
+  />
   <VRow>
     <VCol
       cols="12"
       sm="4"
     >
+      <!-- Diary 위 이미지 -->
       <VTabs
         v-model="currentTab"
         direction="vertical"
