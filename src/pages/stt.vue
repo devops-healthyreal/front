@@ -1,23 +1,20 @@
 <script setup>
-import axios from '@axios'
-import { defineProps, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
-const props = defineProps({
-  transcript: String,
-  isRecognizing: Boolean,
-  startRecognition: Function,
-})
-
-
-let transcript = ref(props.transcript)
-let isRecognizing = ref(props.isRecognizing)
+let transcript = ref('')
+let isRecognizing = ref(false)
 let recognition
+let selectedVoice = ref(null)
+let voices = ref([])
+let ttsText = ref('')
+let synthesis, utterance, loadVoices, startSynthesis, stopSynthesis
 
+//stt
 if (!('webkitSpeechRecognition' in window)) {
   console.log('당신의 브라우저는 STT를 지원하지 않습니다.')
 } else {
   recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition || window.mozSpeechRecognition || window.msSpeechRecognition)()
-  recognition.lang = 'ko-KR'
+  recognition.lang = 'Microsoft Heami - Korean (Korean)'
   recognition.interimResults = true
 
   recognition.onspeechstart = () => {
@@ -30,22 +27,9 @@ if (!('webkitSpeechRecognition' in window)) {
     isRecognizing.value = false
   }
 
-  recognition.onresult = async event => {
+  recognition.onresult = event => {
     console.log('event.results:', event.results)
     transcript.value = Array.from(event.results).map(results => results[0].transcript).join("")
-
-    for (let i = event.resultIndex; i < event.results.length; ++i) {
-      if (event.results[i].isFinal) {
-        // ChatGPT 응답 받기 시작
-        try {
-          const response = await axios.post('YOUR_CHAT_GPT_API_URL', { transcript: transcript.value })
-
-          console.log(response.data)
-        } catch (error) {
-          console.error('ChatGPT에 요청 중 오류가 발생했습니다:', error)
-        }
-      }
-    }
   }
 
   recognition.onerror = event => {
@@ -63,4 +47,99 @@ const startRecognition = () => {
     isRecognizing.value = true
   }
 }
+
+//tts
+if ('speechSynthesis' in window) {
+  synthesis = window.speechSynthesis
+  utterance  = new SpeechSynthesisUtterance()
+
+  loadVoices = function() {
+    return new Promise(resolve => {
+      let voiceList = window.speechSynthesis.getVoices()
+      voices.value = voiceList.map(voice => ({ text: voice.name, value: voice.voiceURI }))
+      console.log('Loaded voices: ', voices.value)
+      resolve()
+    })
+  }
+}
+
+// Load voices when component is mounted
+onMounted(async () => {
+  window.speechSynthesis.onvoiceschanged = async () => {
+    await loadVoices()
+      
+    let voice = voices.value.find(voice => voice.text === 'Microsoft Heami - Korean (Korean)')
+    if (voice) { 
+      selectedVoice.value = voice.value
+    } else {
+      console.log('Desired voice not found')
+    }
+  }
+  window.speechSynthesis.getVoices()
+})
+  
+
+
+
+const readUserInput = () => {
+  if ('speechSynthesis' in window) {
+    utterance.text = ttsText.value
+    if (selectedVoice.value) {
+      utterance.voiceURI = selectedVoice.value
+    }
+    window.speechSynthesis.speak(utterance)
+  }
+}
+
+startSynthesis = function() {
+  ttsText.value = chatgpt.value
+  utterance.text = ttsText.value
+  if (selectedVoice.value) {
+    utterance.voiceURI = selectedVoice.value
+  }
+  window.speechSynthesis.speak(utterance)
+}
+
+stopSynthesis = function() {
+  window.speechSynthesis.cancel()
+}
 </script>
+
+
+
+
+
+<template>
+  <VCol>
+    <!-- STT -->
+    <VBtn
+      color="primary"
+      @click="startRecognition"
+    >
+      음성 인식 시작
+    </VBtn>
+    <p>인식 결과: {{ transcript }}</p>
+
+    <!-- TTS -->
+    <VTextField
+      id="input-tts"
+      v-model="ttsText"
+      label="TTS로 읽을 텍스트를 입력하세요."
+    />
+    <VBtn
+      color="primary"
+      @click="readUserInput"
+    >
+      읽어주기
+    </VBtn>
+    <VSelect
+      v-model="selectedVoice"
+      :items="voices.value"
+      item-text="text"
+      item-value="value"
+      label="음성 선택"
+    />
+  </VCol>
+</template>
+
+

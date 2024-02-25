@@ -10,9 +10,10 @@ import firebase from 'firebase/app'
 import 'firebase/messaging'
 
 
+
 //웹, 앱 알람 (서비스 워커 안에 파이어베이스 SDK 삽입)
-const firebaseApp = firebase.initializeApp(firebaseConfig)
-var messaging
+let firebaseApp = firebase.initializeApp(firebaseConfig)
+let messaging = firebase.messaging()
 if('serviceWorker' in navigator) {
   Notification.requestPermission().then(permission => {
     if (permission === 'granted') {
@@ -22,7 +23,8 @@ if('serviceWorker' in navigator) {
             console.log('등록 완료', registration)
             messaging = firebase.messaging()
             messaging = firebase.messaging(firebaseApp)
-            
+            console.log('firebase실행')
+
             return messaging.getToken(messaging, { vapidKey: config.vapidKey })
           })
           .then(token=>{console.log(token)})

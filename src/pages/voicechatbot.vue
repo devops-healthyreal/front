@@ -2,6 +2,9 @@
 import axios from '@axios'
 import { onMounted, ref } from 'vue'
 
+import.meta.env.VITE_APP_OPENAI_API_KEY
+
+
 let messages = ref([{ role: 'system', content: 'You are Helthy-Real\'s customer service chatbot.' }])
 let chatgpt = ref('')
 let selectedVoice = ref(null)
@@ -10,6 +13,11 @@ let isRecognizing = ref(false)
 let recognition
 let voices = ref([])
 let ttsText = ref('')
+const API_KEY = import.meta.env.VITE_APP_OPENAI_API_KEY
+
+console.log("api-key", import.meta.env.VITE_SOME_KEY)
+console.log("api-key", process.env.VITE_APP_OPENAI_API_KEY)
+console.log("api-key", API_KEY )
 
 //stt
 if (!('webkitSpeechRecognition' in window)) {
@@ -61,12 +69,47 @@ const startRecognition = () => {
   }
 }
 
+const sendToChatGPTWithInput = async () => {
+  try {
+    const userInput = document.getElementById('input-tts').value // 텍스트 필드에서 값을 가져옴
+
+    const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: 'You are Helthy-Real\'s customer service chatbot.' },
+        { role: 'user', content: userInput },
+      ],
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`,
+      },
+    }, console.log(API_KEY))
+
+    chatgpt.value = response.data.choices[0].message.content
+    messages.value.push({ role: 'assistant', content: chatgpt.value })
+    startSynthesis() // 응답을 TTS로 읽기 시작
+  } catch (error) {
+    console.error('API 요청 중 오류가 발생했습니다:', error)
+  }
+}
+
+
 //tts
 const sendToChatGPT = async transcript => {
   try {
-    const response = await axios.post('https://localhost:3333/chatgpt', {
-      transcript: transcript, // 사용자 메시지를 백엔드에 전달
-    })
+    const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: 'You are Helthy-Real\'s customer service chatbot.' },
+        { role: 'user', content: transcript },
+      ],
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`,
+      },
+    }, console.log(API_KEY))
 
     chatgpt.value = response.data.choices[0].message.content
     messages.value.push({ role: 'assistant', content: chatgpt.value })
@@ -190,7 +233,7 @@ onMounted(async () => {
           <VBtn
             id="startTtsBtn"
             class="btn-lg btn-dark mb-1"
-            @click="startSynthesis"
+            @click="sendToChatGPTWithInput"
           >
             TextToSpeech Start
           </VBtn>
