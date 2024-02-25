@@ -1,9 +1,8 @@
 <script setup>
-import { VDataTableServer } from 'vuetify/labs/VDataTable'
 import { paginationMeta } from '@/@fake-db/utils'
-import AddNewUserDrawer from '@/views/apps/user/list/AddNewUserDrawer.vue'
 import { useUserListStore } from '@/views/apps/user/useUserListStore'
 import { avatarText } from '@core/utils/formatters'
+import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
 const userListStore = useUserListStore()
 const searchQuery = ref('')
@@ -35,10 +34,7 @@ const headers = [
     title: 'ROLE',
     key: 'role',
   },
-  {
-    title: 'PLAN',
-    key: 'plan',
-  },
+
   {
     title: 'STATUS',
     key: 'status',
@@ -151,7 +147,7 @@ const addNewUser = userData => {
 
 <template>
   <section>
-    <VCard>
+    <VCard cols="8">
       <VCardText class="d-flex flex-wrap gap-4">
         <!-- 👉 Export button -->
         <VBtn
@@ -181,7 +177,7 @@ const addNewUser = userData => {
             density="compact"
             clearable
             clear-icon="mdi-close"
-            style="width: 6rem;"
+            style="width: 5rem;"
           />
         </div>
       </VCardText>
@@ -231,11 +227,6 @@ const addNewUser = userData => {
         <!-- Role -->
         <template #item.role="{ item }">
           <div class="d-flex gap-2">
-            <VIcon
-              :icon="resolveUserRoleVariant(item.raw.role).icon"
-              :color="resolveUserRoleVariant(item.raw.role).color"
-            />
-
             <span class="text-capitalize">{{ item.raw.role }}</span>
           </div>
         </template>
@@ -245,10 +236,6 @@ const addNewUser = userData => {
           <span class="text-sm">{{ item.raw.email }}</span>
         </template>
 
-        <!-- Plan -->
-        <template #item.plan="{ item }">
-          <span class="text-capitalize text-high-emphasis">{{ item.raw.currentPlan }}</span>
-        </template>
 
         <!-- Status -->
         <template #item.status="{ item }">
@@ -321,12 +308,6 @@ const addNewUser = userData => {
       </VDataTableServer>
       <!-- SECTION -->
     </VCard>
-
-    <!-- 👉 Add New User -->
-    <AddNewUserDrawer
-      v-model:isDrawerOpen="isAddNewUserDrawerVisible"
-      @user-data="addNewUser"
-    />
   </section>
 </template>
 
