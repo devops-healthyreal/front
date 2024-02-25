@@ -46,9 +46,24 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/tts',
-      name: 'TTS',
-      component: () => import(/* webpackChunkName: "tts" */ '../pages/tts.vue'),
+      path: '/voicechatbot',
+      name: 'voicechatbot',
+      component: () => import(/* webpackChunkName: "tts" */ '../pages/voicechatbot.vue'),
+    },
+    {
+      path: '/stt',
+      name: 'stt',
+      component: () => import(/* webpackChunkName: "tts" */ '../pages/stt.vue'),
+    },
+    {
+      path: '/stabilityVideoDifusiononlyfront',
+      name: 'stabilityVideoDifusiononlyfront',
+      component: () => import(/* webpackChunkName: "tts" */ '../pages/stabilityVideoDifusiononlyfront.vue'),
+    },
+    {
+      path: '/stabilityVideoDifusion',
+      name: 'stabilityVideoDifusion',
+      component: () => import(/* webpackChunkName: "tts" */ '../pages/stabilityVideoDifusion.vue'),
     },
     {
       path: '/apps/challengeList',
