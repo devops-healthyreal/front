@@ -50,6 +50,10 @@ const roomData = async () => {
   if (response.status === 200) {
     room.value = response.data
     console.log('방의 데이타는---', room.value)
+
+    if (!room.value) {
+      router.push({ name: 'challengeList' }) 
+    }
     pay.value = room.value.pfee
     challroomno.value = room.value.challNo
     console.log('참여비는?', pay.value, '방 번호는?', challroomno.value)
