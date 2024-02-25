@@ -35,6 +35,11 @@ export default [
     to: { name: 'faceTest' },
     icon: { icon: 'mdi-emoticon' },
   },
+  {
+    title: '지식인보기',
+    to: { name: 'exerRecommendView' },
+    icon: { icon: 'mdi-emoticon' },
+  },
 
   ...management,
 ]

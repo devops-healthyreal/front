@@ -2,8 +2,8 @@
 const props = defineProps({
   collapsed: {
     type: Boolean,
-    required: false,
-    default: false,
+    required: true,
+    default: true,
   },
   noActions: {
     type: Boolean,
@@ -12,8 +12,8 @@ const props = defineProps({
   },
   actionCollapsed: {
     type: Boolean,
-    required: false,
-    default: false,
+    required: true,
+    default: true,
   },
   actionRefresh: {
     type: Boolean,
@@ -75,10 +75,17 @@ const triggeredRemove = () => {
       <VCard v-bind="$attrs">
         <VCardItem>
           <VCardTitle v-if="props.title || $slots.title">
-            <!-- 👉 Title slot and prop -->
-            <slot name="title">
-              {{ props.title }}
-            </slot>
+            <VCol>
+              <!-- 👉 Title slot and prop -->
+              <VIcon
+                icon="mdi-help-circle-outline"
+                color="success"
+              />
+              <span>&nbsp;</span>
+              <slot name="title">
+                {{ props.title }}
+              </slot>
+            </VCol>
           </VCardTitle>
 
           <template #append>
