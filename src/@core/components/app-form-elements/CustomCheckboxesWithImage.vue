@@ -2,12 +2,6 @@
 import axios from '@axios'
 import { useStore } from 'vuex'
 
-// 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
-const store = useStore()
-const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=computed(() => userInfo.value.id)
-const name = computed(() => store.state.userStore.userInfo ? store.state.userStore.userInfo.name : null)
-
 const props = defineProps({
   selectedCheckbox: {
     type: Array,
@@ -25,6 +19,12 @@ const props = defineProps({
 
 const emit = defineEmits(['update:selectedCheckbox'])
 
+// 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=computed(() => userInfo.value.id)
+const name = computed(() => store.state.userStore.userInfo ? store.state.userStore.userInfo.name : null)
+
 const selectedOption = ref(structuredClone(toRaw(props.selectedCheckbox)))
 
 
@@ -35,53 +35,59 @@ watch(selectedOption, () => {
 const allergyFoodchk = ref([])
 const getallergyList = ref([])
 
-const checkval = (item) => {
-  console.log('값:', item.value, '이름:', item.name);
-  console.log('밀어넣은 옵션?:',selectedOption._rawValue);
-  const existingIndex = allergyFoodchk.value.findIndex((element) => element.hasOwnProperty(item.value) && element[item.value] === item.name);
+const checkval = item => {
+  console.log('값:', item.value, '이름:', item.name)
+  console.log('밀어넣은 옵션?:', selectedOption._rawValue)
+
+  const existingIndex = allergyFoodchk.value.findIndex(element => element.hasOwnProperty(item.value) && element[item.value] === item.name)
   if (existingIndex === -1) {
-    allergyFoodchk.value.push({ [item.value]: item.name });
+    allergyFoodchk.value.push({ [item.value]: item.name })
   } else {
-    allergyFoodchk.value = allergyFoodchk.value.filter((element, index) => index !== existingIndex);
+    allergyFoodchk.value = allergyFoodchk.value.filter((element, index) => index !== existingIndex)
   }
   allergyFoodchk.value.sort((a, b) => {
-    const valueA = Object.keys(a)[0];
-    const valueB = Object.keys(b)[0];
-    return valueA - valueB;
-  });
-  console.log('현재', allergyFoodchk.value);
-  sendAllergyList(allergyFoodchk);
-};
+    const valueA = Object.keys(a)[0]
+    const valueB = Object.keys(b)[0]
+    
+    return valueA - valueB
+  })
+  console.log('현재', allergyFoodchk.value)
+  sendAllergyList(allergyFoodchk)
+}
 
 
-const sendAllergyList = (val) => {
+const sendAllergyList = val => {
   emit('AllergyList', val)
 }
 
 const getuserAllergy = async() =>{
-  await axios.get('http://localhost:4000/GetMember/Allergy', { params: { id: connetId.value} })
-  .then(response => {
-    console.log(response.data)
-    if(response.data !== null){
-      getallergyList.value = response.data.map((item) => ({
-        value:item.allergy_no,
-        name:item.allergy_name
-      }))
-      console.log('여기까지 들어왔음', getallergyList._rawValue)
-      for (let i = 0; i < getallergyList._rawValue.length; i++) {
-        const selectedAllergy = getallergyList._rawValue[i];
-        // 기존에 체크한 알러지 정보를 selectedOption에 추가
-        selectedOption.value.push(selectedAllergy.value);
-        console.log('밀어넣은 옵션?:',selectedOption._rawValue);
-        // 추출한 값으로 원하는 작업 수행
-        console.log(selectedAllergy);
-        checkval(selectedAllergy)  
+  await axios.get('http://localhost:4000/GetMember/Allergy', { params: { id: connetId.value } })
+    .then(response => {
+      console.log(response.data)
+      if(response.data !== null){
+        getallergyList.value = response.data.map(item => ({
+          value: item.allergy_no,
+          name: item.allergy_name,
+        }))
+        console.log('여기까지 들어왔음', getallergyList._rawValue)
+        for (let i = 0; i < getallergyList._rawValue.length; i++) {
+          const selectedAllergy = getallergyList._rawValue[i]
+
+
+          // 기존에 체크한 알러지 정보를 selectedOption에 추가
+          selectedOption.value.push(selectedAllergy.value)
+          console.log('밀어넣은 옵션?:', selectedOption._rawValue)
+
+          // 추출한 값으로 원하는 작업 수행
+          console.log(selectedAllergy)
+          checkval(selectedAllergy)  
+        }
       }
-    }
-  }).catch(error => {
+    }).catch(error => {
       console.log('실패', error)
-  })
+    })
 }
+
 onMounted(getuserAllergy)
 </script>
 

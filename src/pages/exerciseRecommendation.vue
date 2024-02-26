@@ -18,6 +18,12 @@ const fetchProjectData = () => {
     })
   }
 }
+
+const kinCrawlingResult = ref([])
+
+const handleCrawlingComplete = result => {
+  kinCrawlingResult.value = result
+}
 </script>
 
 <template>
@@ -39,18 +45,35 @@ const fetchProjectData = () => {
               v-model="faqSearchQuery"
               subtitle="찾고 싶은 단어를 작성해 주세요"
               custom-class="mb-7"
+              @crawlingComplete="handleCrawlingComplete"
             />
+            <!-- {{ kinCrawlingResult }} -->
+            <!--
+              <div v-if="kinCrawlingResult.length">
+              <h2>Crawled Data:</h2>
+              <ul>
+              <li
+              v-for="(item, index) in kinCrawlingResult"
+              :key="index"
+              >
+              {{ item }}
+              </li>
+              </ul>
+              </div> 
+            -->
             <VCard
-              v-for="data in 20"
-              :key="data.index"
+              v-for="(data, index) in kinCrawlingResult"
+              :key="index"
               cols="12"
               style="margin: 20px 10px;"
             >
               <!-- 👉 Collapsible -->
               <AppCardActions
                 action-collapsed
-                title="지식인 질문삭제 어떻게 하나요?"
+                :title="data.title"
+                :hit="data.question_hit"
               >
+                <small>{{ data.question_content }}</small>
                 <!-- VCard부분에 포인트 커서 해놨어요 click 이벤트로 이동시키면 됩니다 -->
                 <VCard
                   style="margin: 10px;"
@@ -61,8 +84,8 @@ const fetchProjectData = () => {
                     <VAvatar
                       size="small"
                       color="success"
-                    />
-                    유저 이름
+                    />                    
+                    <a :href="data.url"> 더 자세하게 보고싶어요</a>
                   </VCol>
 
                   <!-- props로 지식인 내용 먼저 좀 뿌려주시면 될 것 같습니다 -->
@@ -70,43 +93,11 @@ const fetchProjectData = () => {
                     class="vcol-ellipsis"
                     style="height: 75px; font-size: 14px;"
                   >
-                    지식인에서 질문을 삭제하려면 다음 단계를 따르면 됩니다:
-
-                    ​
-
-                    1. 지식인 홈페이지에 로그인하세요.
-
-                    2. 삭제하려는 질문을 찾아 클릭하세요.
-
-                    3. 질문 페이지에서 수정 버튼을 클릭하세요.
-
-                    4. 수정 페이지에서 삭제 버튼을 클릭하세요.
-
-                    5. 삭제를 확인하는 팝업 창이 나타나면 예를 선택하세요.
-
-                    ​
-
-                    답변을 삭제하려면 답변을 작성한 사용자만이 삭제할 수 있습니다. 답변을 삭제하려면 다음 단계를 따르면 됩니다:
-
-                    ​
-
-                    1. 지식인 홈페이지에 로그인하세요.
-
-                    2. 삭제하려는 답변을 찾아 클릭하세요.
-
-                    3. 답변 페이지에서 수정 버튼을 클릭하세요.
-
-                    4. 수정 페이지에서 삭제 버튼을 클릭하세요.
-
-                    5. 삭제를 확인하는 팝업 창이 나타나면 예를 선택하세요.
-
-                    ​
-
-                    이렇게 하면 질문이나 답변이 지식인에서 삭제됩니다.
+                    {{ data.answer_content }}
                   </VCol>
                   <VCol>
                     <div style="display: flex; justify-content: space-between;">
-                      <span style="font-size: 12px; font-weight: bold;">2024.02.25</span>
+                      <span style="font-size: 12px; font-weight: bold;">{{ data.answer_date }}</span>
                       <strong style="color: #45d15a; font-size: 12px;">더보기</strong>
                     </div>
                   </VCol>

@@ -8,6 +8,7 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
+
 const isShareProjectDialogVisible = ref(false)
 const chatflag = ref(false) // 채팅방 열기&닫기 flag
 const room= ref([])
@@ -19,6 +20,8 @@ const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
 const participantsData = ref([])
 const openRoomYN = ref("") // 방공개여부
+let intervalId = null
+
 
 const capitalizedLabel = label => {
   const convertLabelText = label.toString()
@@ -64,7 +67,6 @@ const participants = async () => {
 
   if (response.status === 200) {
     participantsData.value = response.data
-    console.log(' 참여자 데이타는---', participantsData.value)
     await roomData()
   } else {
     console.log('참여자 데이타 가져오기 실패')
@@ -86,10 +88,11 @@ const roomData = async () => {
   if (response.status === 200) {
     room.value = response.data
     console.log(' 방의 데이타는---', room.value)
+    console.log(' 방의 데이타는---room', room)
 
     openRoomYN.value = room.value.ryn === 'Y'
 
-    //startCrawling()
+
     console.log("matearea", room.value.mateArea)
     console.log("getMonthFromDate(room.value.mateDate)", getMonthFromDate(room.value.mateDate))
     console.log("getdayFromDate(room.value.mateDate)", getdayFromDate(room.value.mateDate))
@@ -103,12 +106,14 @@ const deleteData = async () => {
   if(room.value.manager === connetId && participantsData.value.length == 1){
     const response = await axios.delete('http://localhost:4000/mroom/deleteRoom.do', { data: { id: connetId } })
 
+    stopMatching()
     console.log("방 나가기 성공")
     router.push({ name: 'mateList' }) //넘겨줄 Vue 경로 입력하기
 
   }else if(room.value.manager === connetId){
     const response = await axios.delete('http://localhost:4000/mroom/deleteManager.do', { data: { id: connetId } })
 
+    stopMatching()
     console.log("방장 나가기 성공")
     router.push({ name: 'mateList' }) //넘겨줄 Vue 경로 입력하
   }
@@ -149,15 +154,12 @@ const getdayFromDate = data => {
 }
 
 
-
-
-
 // 크롤링 함수
 function startCrawling(){
   crawlingData.value=""
   isLoading.value = true
   try{        
-    axios.post('http://127.0.0.1:5000/areaCrawling', { matearea: room.value.mateArea, matemonth: getMonthFromDate(room.value.mateDate), matedate: getdayFromDate(room.value.mateDate) })
+    axios.post('http://127.0.0.1:5000/areaCrawling', { matearea: room.value.mateArea.split(' ')[0].trim(), matemonth: getMonthFromDate(room.value.mateDate), matedate: getdayFromDate(room.value.mateDate) })
       .then(response => {
         // 서버로부터의 응답 처리
         console.log(response.data)//JSON.parse()
@@ -196,16 +198,65 @@ socket.addEventListener("message", async event => {
   }
 })
 
+socket.addEventListener("close", async event => {
+  await roomData()
+  await participants()
+})
+
 // 컴포넌트 해제 시 WebSocket 연결 종료
 onUnmounted(() => {
+  stopMatching()
   socket.close()
 })
 
 
-onMounted(async () => { await participants(), await roomData()})
+onMounted(async () => { await participants(), await roomData(), await startCrawling()})
+
+// 매칭 시작 함수
+const startMatching = async () => {
+  try {
+    // 서버에 매칭 요청
+    const response = await axios.post("http://localhost:4000/mroom/start.do", { roomNo: route.params.room, people: participantsData.value.length  })
+
+    if (response.status === 200) {
+      console.log('매칭이 시작되었습니다.')
+
+      // 로딩 시작
+      isLoading1.value = true
+      
+      // 매칭이 시작되면 1초마다 participants()와 roomData() 함수를 호출
+      intervalId = setInterval(async () => {
+        await participants()
+        await roomData()
+        if (!room.value) {
+          router.push({ name: 'mateList' })
+        }
+        if (room.value.mateCapacity === participantsData.value.length) {
+          stopMatching()
+        }
+      }, 1000)
+    } else {
+      console.log('매칭 시작에 실패하였습니다.')
+    }
+  } catch (error) {
+    console.error(`매칭 시작 중 에러 발생: ${error}`)
+  }
+}
+
+let isLoading1 = ref(false)  // 매칭 로딩 상태
+
+// 매칭 종료 함수
+const stopMatching = () => {
+  // 매칭이 종료되면 setInterval을 멈춤
+  if (intervalId) {
+    clearInterval(intervalId)
+    intervalId = null
+    
+    // 로딩 종료
+    isLoading1.value = false
+  }
+}
 </script>
-
-
 
 <template>
   <section>
@@ -314,7 +365,11 @@ onMounted(async () => { await participants(), await roomData()})
             </VBtn>
             
             <!-- 매칭잡기 버튼 방장만 가능하게 -->
-            <VBtn v-if="room.manager==connetId">
+            <VBtn
+              v-if="room.manager === connetId && room.mateCapacity != participantsData.length"
+              :loading="isLoading1"
+              @click="startMatching"
+            >
               매칭잡기
             </VBtn>
           </VCol>

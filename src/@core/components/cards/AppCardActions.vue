@@ -30,6 +30,11 @@ const props = defineProps({
     required: false,
     default: undefined,
   },
+  hit: {
+    type: String,
+    required: false,
+    default: undefined,
+  },
 })
 
 const emit = defineEmits([
@@ -85,7 +90,9 @@ const triggeredRemove = () => {
               <slot name="title">
                 {{ props.title }}
               </slot>
-            </VCol>
+              &nbsp;&nbsp;
+              <span style="font-size: 13px;">{{ props.hit }}</span>
+            </VCol>            
           </VCardTitle>
 
           <template #append>

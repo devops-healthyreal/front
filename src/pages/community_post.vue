@@ -802,6 +802,7 @@ const getMyList = async id => {
                           icon="mdi-chat-outline"
                           variant="text"
                           color="success"
+                          @click="openViewPostMoadl(item.bno);submitEdit(item.bno)"
                         />
                         <VCol>
                           좋아요 {{ item.likesnum }}개
