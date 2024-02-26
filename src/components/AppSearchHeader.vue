@@ -17,6 +17,10 @@ const props = defineProps({
     type: String,
     required: false,
   },
+  connetId: {
+    type: String,
+    required: true,
+  },
 })
 
 const emit = defineEmits(['crawlingComplete'])
@@ -31,6 +35,7 @@ const kincrawling = () => {
 // 검색 실행
   axios.get('http://localhost:5000/kinCrawling', { params: {
     search: searchKeyword.value,
+    id: props.connetId,
   } })
     .then(response => {
       // 검색 결과 처리
