@@ -311,10 +311,11 @@ const stopMatching = () => {
             <VIcon icon="mdi-human-female-female" /><span> : {{ room.mateCapacity }}명</span> &nbsp;&nbsp;
             <VIcon icon="mdi-calendar-range" /><span> : 시작날짜 : {{ formatDate(room.mateDate) }}</span>
           </VCol>
-          <div class="image-container">
+          <div style="height: 350px;">
             <VRow v-if="!crawlingData">
               <VProgressCircular
                 v-if="!isLoading"
+                style="margin-top: 175px;"
                 class="loading"
                 indeterminate
                 color="primary"
