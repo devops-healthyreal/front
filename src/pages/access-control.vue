@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import ReportUser from '@/pages/components/ReportUser.vue'
 import UserList from '@/views/apps/roles/UserList.vue'
 import ChartJsLineChart from '@/views/charts/chartjs/ChartJsLineChart.vue'
-import timelineCardHeader from '@images/cards/timeline-card-header.png'
+import controlHeader from '@images/pages/app-search-header-bg-light.png'
 
 const chartJsCustomColors = {
   white: '#fff',
@@ -29,20 +30,20 @@ const currentTab = ref(0)
 
 <template>
   <VRow>
-    <!--
-      <VCol
-      cols="2"
-      sm="2"
-      /> 
-    -->
     <VCol
-      cols="12"
+      cols="2"
+      md="2"
+    /> 
+   
+    <VCol
+      cols="8"
       sm="12"
+      md="8"
     >
       <VImg
         cover
-        :src="timelineCardHeader"
-        style=" height: 100px; margin-bottom: 20px;"
+        :src="controlHeader"
+        style=" height: 200px;padding-top: 230px; margin-top: 50px; margin-bottom: 20px;"
       />
       <VRow>
         <VCol
@@ -117,6 +118,9 @@ const currentTab = ref(0)
                   <span class="text-sm">Report user management</span>
                 </div>
               </div>
+              <VCard>
+                <ReportUser />
+              </VCard>
             </VWindowItem>
 
             <VWindowItem>
@@ -211,8 +215,8 @@ const currentTab = ref(0)
 
 <route lang="yaml">
   meta:
-    action: bleak
-    subject: bleak
-    menuType: horizontal
-    redirectIfLoggedIn: false
+    layout: blank
+    action: read
+    subject: Auth
+    redirectIfLoggedIn: true
   </route>

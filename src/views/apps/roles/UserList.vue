@@ -149,17 +149,6 @@ const addNewUser = userData => {
   <section>
     <VCard cols="8">
       <VCardText class="d-flex flex-wrap gap-4 ">
-        <!-- 👉 Export button -->
-        <VBtn
-          variant="outlined"
-          color="disabled"
-          prepend-icon="mdi-tray-arrow-up"
-        >
-          Export
-        </VBtn>
-
-        <VSpacer />
-
         <div class="app-user-search-filter d-flex align-center gap-6 ">
           <!-- 👉 Search  -->
           <VTextField
