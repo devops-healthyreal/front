@@ -17,7 +17,7 @@ const chartConfig = computed(() => getPolarChartConfig(vuetifyTheme.current.valu
 
 //평소 섭취하는 영양소의 비율을 나타내고자한 차트에요 원하면 바꿔도 괜찮아요
 const data = {
-  labels: ['탄수화물', '단백질', '지방', '미네랄', '비타민'],
+  labels: ['탄수화물', '단백질', '지방', '나트륨', '콜레스테롤'],
   datasets: [
     {
       borderWidth: 0,
