@@ -28,171 +28,191 @@ const currentTab = ref(0)
 </script>
 
 <template>
-  <VImg
-    cover
-    :src="timelineCardHeader"
-    style=" width: 100%; height: 50px; margin-bottom: 20px;"
-  />
   <VRow>
+    <!--
+      <VCol
+      cols="2"
+      sm="2"
+      /> 
+    -->
     <VCol
       cols="12"
-      sm="4"
+      sm="12"
     >
-      <!-- Diary 위 이미지 -->
-      <VTabs
-        v-model="currentTab"
-        direction="vertical"
-        class="v-tabs-pill"
-      >
-        <VTab>
-          <VIcon
-            start
-            icon="mdi-account-cancel-outline"
-          />
-          신고 유저
-        </VTab>
-
-        <VTab>
-          <VIcon
-            start
-            icon="mdi-account-eye-outline"
-            :size="22"
-          />
-          유저 관리
-        </VTab>
-
-        <VTab>
-          <VIcon
-            start
-            icon="mdi-chart-arc"
-            :size="22"
-          />
-          페이지 통계
-        </VTab>
-        <VTab>
-          <VIcon
-            start
-            icon="mdi-instagram"
-            :size="22"
-          />
-          게시글 관리
-        </VTab>
-      </VTabs>
-    </VCol>
-
-    <VCol
-      cols="12"
-      sm="8"
-    >
-      <VWindow v-model="currentTab">
-        <VWindowItem>
-          <div class="d-flex align-center mb-6">
-            <VAvatar
-              rounded
-              color="primary"
-              variant="tonal"
-              class="me-3"
-              size="large"
-            >
+      <VImg
+        cover
+        :src="timelineCardHeader"
+        style=" height: 100px; margin-bottom: 20px;"
+      />
+      <VRow>
+        <VCol
+          cols="8"
+          sm="4"
+        >
+          <VTabs
+            v-model="currentTab"
+            direction="vertical"
+            class="v-tabs-pill"
+          >
+            <VTab>
               <VIcon
-                :size="30"
+                start
                 icon="mdi-account-cancel-outline"
               />
-            </VAvatar>
+              신고 유저
+            </VTab>
 
-            <div>
-              <h6 class="text-h6">
-                신고 유저 관리
-              </h6>
-              <span class="text-sm">Report user management</span>
-            </div>
-          </div>
-        </VWindowItem>
-
-        <VWindowItem>
-          <div class="d-flex align-center mb-6">
-            <VAvatar
-              rounded
-              color="primary"
-              variant="tonal"
-              class="me-3"
-              size="large"
-            >
+            <VTab>
               <VIcon
-                :size="30"
+                start
                 icon="mdi-account-eye-outline"
+                :size="22"
               />
-            </VAvatar>
+              유저 관리
+            </VTab>
 
-            <div>
-              <h6 class="text-h6">
-                유저 관리
-              </h6>
-              <span class="text-sm">User Management</span>
-            </div>
-          </div>
-          <VCol cols="12">
-            <UserList />
-          </VCol>
-        </VWindowItem>
-
-        <VWindowItem>
-          <div class="d-flex align-center mb-6">
-            <VAvatar
-              rounded
-              color="primary"
-              variant="tonal"
-              class="me-3"
-              size="large"
-            >
+            <VTab>
               <VIcon
-                :size="30"
-                icon="mdi-account-eye-outline"
+                start
+                icon="mdi-chart-arc"
+                :size="22"
               />
-            </VAvatar>
-
-            <div>
-              <h6 class="text-h6">
-                페이지 통계
-              </h6>
-              <span class="text-sm">page statistics</span>
-            </div>
-          </div>
-          <VCol cols="12">
-            <VCard
-              title="Statistics"
-              subtitle="Commercial networks and enterprises"
-            >
-              <VCardText>
-                <ChartJsLineChart :colors="chartJsCustomColors" />
-              </VCardText>
-            </VCard>
-          </VCol>
-        </VWindowItem>
-        <VWindowItem>
-          <div class="d-flex align-center mb-6">
-            <VAvatar
-              rounded
-              color="primary"
-              variant="tonal"
-              class="me-3"
-              size="large"
-            >
+              페이지 통계
+            </VTab>
+            <VTab>
               <VIcon
-                :size="30"
-                icon="mdi-account-eye-outline"
+                start
+                icon="mdi-instagram"
+                :size="22"
               />
-            </VAvatar>
+              게시글 관리
+            </VTab>
+          </VTabs>
+        </VCol>
 
-            <div>
-              <h6 class="text-h6">
-                게시글 관리
-              </h6>
-              <span class="text-sm">Post Management</span>
-            </div>
-          </div>
-        </VWindowItem>
-      </VWindow>
+        <VCol
+          cols="12"
+          sm="8"
+        >
+          <VWindow v-model="currentTab">
+            <VWindowItem>
+              <div class="d-flex align-center mb-6">
+                <VAvatar
+                  rounded
+                  color="primary"
+                  variant="tonal"
+                  class="me-3"
+                  size="large"
+                >
+                  <VIcon
+                    :size="30"
+                    icon="mdi-account-cancel-outline"
+                  />
+                </VAvatar>
+
+                <div>
+                  <h6 class="text-h6">
+                    신고 유저 관리
+                  </h6>
+                  <span class="text-sm">Report user management</span>
+                </div>
+              </div>
+            </VWindowItem>
+
+            <VWindowItem>
+              <div class="d-flex align-center mb-6">
+                <VAvatar
+                  rounded
+                  color="primary"
+                  variant="tonal"
+                  class="me-3"
+                  size="large"
+                >
+                  <VIcon
+                    :size="30"
+                    icon="mdi-account-eye-outline"
+                  />
+                </VAvatar>
+
+                <div>
+                  <h6 class="text-h6">
+                    유저 관리
+                  </h6>
+                  <span class="text-sm">User Management</span>
+                </div>
+              </div>
+              <VCol cols="12">
+                <UserList />
+              </VCol>
+            </VWindowItem>
+
+            <VWindowItem>
+              <div class="d-flex align-center mb-6">
+                <VAvatar
+                  rounded
+                  color="primary"
+                  variant="tonal"
+                  class="me-3"
+                  size="large"
+                >
+                  <VIcon
+                    :size="30"
+                    icon="mdi-account-eye-outline"
+                  />
+                </VAvatar>
+
+                <div>
+                  <h6 class="text-h6">
+                    페이지 통계
+                  </h6>
+                  <span class="text-sm">page statistics</span>
+                </div>
+              </div>
+              <VCol cols="12">
+                <VCard
+                  title="Statistics"
+                  subtitle="Commercial networks and enterprises"
+                >
+                  <VCardText>
+                    <ChartJsLineChart :colors="chartJsCustomColors" />
+                  </VCardText>
+                </VCard>
+              </VCol>
+            </VWindowItem>
+            <VWindowItem>
+              <div class="d-flex align-center mb-6">
+                <VAvatar
+                  rounded
+                  color="primary"
+                  variant="tonal"
+                  class="me-3"
+                  size="large"
+                >
+                  <VIcon
+                    :size="30"
+                    icon="mdi-account-eye-outline"
+                  />
+                </VAvatar>
+
+                <div>
+                  <h6 class="text-h6">
+                    게시글 관리
+                  </h6>
+                  <span class="text-sm">Post Management</span>
+                </div>
+              </div>
+            </VWindowItem>
+          </VWindow>
+        </VCol>
+      </VRow>
     </VCol>
   </VRow>
 </template>
+
+<route lang="yaml">
+  meta:
+    action: bleak
+    subject: bleak
+    menuType: horizontal
+    redirectIfLoggedIn: false
+  </route>
