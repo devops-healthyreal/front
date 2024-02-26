@@ -322,17 +322,20 @@ const stopMatching = () => {
             </VRow>
             <VRow v-else>
               <VCol
-                v-for="data in crawlingData"
-                :key="data.index"
+                v-for="index in 3"
+                :key="index"
                 cols="4"
               >
-                <VCard cols="12">
+                <VCard
+                  cols="12"
+                  style="margin: 0 10px;"
+                >
                   <VCol
                     cols="12"
                     style=" display: flex;flex-wrap: wrap; align-items: center; justify-content: center;"
                   >
                     <img
-                      :src="data.src"
+                      :src="crawlingData[index].src"
                       alt="이미지"
                       style="width: 300px;height: 200px;object-fit: cover;"
                     >
@@ -342,14 +345,14 @@ const stopMatching = () => {
                     style="height: 50px;"
                   >
                     <a
-                      :href="data.link"
+                      :href="crawlingData[index].link"
                       class="my-custom-button"
-                    >{{ data.title }}</a>
+                    >{{ crawlingData[index].title }}</a>
                   </VCol>
                   <VCol cols="12">
-                    요금 : {{ data.pay }}         
+                    요금 : {{ crawlingData[index].pay }}         
                   </VCol>
-                  <!-- 금액 : {{data.pay}}  -->
+                  <!-- 금액 : {{crawlingData[index].pay}}  -->
                   <!-- </VCardItem> -->
                 </VCard>
               </VCol>
