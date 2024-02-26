@@ -359,7 +359,10 @@ const stopMatching = () => {
               </VCol>
             </VRow>
           </div>
-          <VColmateRoomParticipants :participants-data=" participantsData" />
+          <VColmateRoomParticipants
+            :participants-data=" participantsData" 
+            :room-data="roomData"
+          />
           <VCol
             cols="12"
             style="display: flex; justify-content: space-between;"

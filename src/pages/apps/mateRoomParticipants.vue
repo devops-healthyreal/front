@@ -12,6 +12,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  roomData: {
+    type: Object,
+    required: true,
+  },
 })
 
 const participantsData = ref([])
@@ -71,7 +75,7 @@ onUpdated(() => {
                 id="myButton"
                 size="small"
                 style="align-self: center;"
-                @click="deletepeople(participant.ID)"
+                @click="deletepeople(participant.ID) roomData()"
               >
                 강퇴하기
               </VBtn>
