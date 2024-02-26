@@ -3,6 +3,7 @@ import AppDateTimePicker from '@/@core/components/app-form-elements/AppDateTimeP
 import TextEmotionDetectionModal from '@/pages/components/diaryModal/TextEmotionDetectionModal.vue'
 import TextEmotionResultModal from '@/pages/components/diaryModal/TextEmotionResultModal.vue'
 import DiaryView from '@/pages/diaryView.vue'
+import Wordcloud from '@/pages/wordcloud.vue'
 import axios from '@axios'
 import DiaryPage from '@images/cards/DiaryPage.png'
 import { Quill, QuillEditor } from '@vueup/vue-quill'
@@ -42,6 +43,8 @@ const password = ref('Password')
 const refVForm = ref()
 const inputDiaryPhoto = ref(false)
 const clickedImageUrl = ref('')
+
+const testwordcloud = ref(false)
 
 const isSubmitConfirmModalVisible = ref(false) //등록 확인 모달창
 const isEmotionDetectDialogVisible = ref(false) //감정분석 api 요청 중일 때 로딩창
@@ -355,6 +358,14 @@ const postDiary = score => {
             <VCol cols="2">
               <VBtn 
                 style="margin-top: 600px;"
+                @click="testwordcloud = true"
+              >
+                단어 사용 빈도 분석 
+              </VBtn> 
+            </VCol> 
+            <VCol cols="2">
+              <VBtn 
+                style="margin-top: 600px;"
                 @click="readDiaryContent = true"
               >
                 일기 보기
@@ -377,6 +388,9 @@ const postDiary = score => {
           </VCol>
         </VCard>
         <!-- 일기 보기 버튼 끝 -->
+        <VCard v-if="testwordcloud">
+          <Wordcloud />
+        </VCard>
         <!-- 일기 쓰기 버튼 -->
         <VForm>
           <VCard v-if="writeDiaryContent">
