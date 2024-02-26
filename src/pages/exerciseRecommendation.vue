@@ -1,5 +1,6 @@
 <script setup>
 import UpdateExercise from '@/components/dialogs/UpdateExercise.vue'
+import { useStore } from 'vuex'
 
 const isUpgradeExercisePlan = ref(false)
 const isCheckedRecipe = ref(false)
@@ -9,6 +10,11 @@ const isCategory = ref(false)
 const router = useRoute()
 const connectionData = ref([])
 
+const store = useStore()
+
+// 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId = userInfo.value.id
 
 
 const fetchProjectData = () => {
@@ -44,6 +50,7 @@ const handleCrawlingComplete = result => {
             <AppSearchHeader
               v-model="faqSearchQuery"
               subtitle="찾고 싶은 단어를 작성해 주세요"
+              :connet-id="connetId"
               custom-class="mb-7"
               @crawlingComplete="handleCrawlingComplete"
             />
