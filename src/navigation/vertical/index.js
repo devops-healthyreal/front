@@ -34,11 +34,6 @@ export default [
     icon: { icon: 'mdi-account-check-outline' },
     meta: { counter: selfRouteCounter++ },
   },
-  {
-    title: '지식인보기',
-    to: { name: 'exerRecommendView' },
-    icon: { icon: 'mdi-emoticon' },
-  },
 
   ...management,
 ]
