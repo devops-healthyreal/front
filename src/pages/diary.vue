@@ -14,6 +14,7 @@ import { createApp, ref } from 'vue'
 import { useStore } from 'vuex'
 import SubmitConfirmModal from './components/diaryModal/SubmitConfirmModal.vue'
 
+
 const store = useStore()
 
 
@@ -54,6 +55,55 @@ const diary = ref('') //다이어리 콘텐츠 저장용
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId=computed(() => userInfo.value.id)
 const userId = ref(connetId)
+const inputEmotionPhoto = ref(false)
+const emotiondata=ref('')
+
+
+Quill.register("modules/emoji", Emoji)
+
+app.component('QuillEditor', QuillEditor)
+
+const imgUrlEmotion = ref([]) // 이미지 URL 담을 변수 -- 사진 여러개
+
+const uploadImgEmotion = e => {
+  const file = e.target.files[0] // 첫 번째 파일만 선택
+
+  console.log('함수 안의 파일명:', file)
+  
+  if (file) {
+    // 이미지 URL 생성
+    const imgEmotion = URL.createObjectURL(file)
+    
+    // 이미지 URL을 배열에 추가
+    imgUrlEmotion.value = [imgEmotion]
+    
+    // 파일을 formEmotion에 추가하고 서버로 업로드
+    const formEmotion = new FormData()
+
+    formEmotion.append('file', file)
+
+    axios.post('http://localhost:5000/test', formEmotion, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+      .then(response => {
+        console.log(response.data)
+        emotiondata.value=response.data
+
+      // 서버에서 받은 응답 처리
+      })
+      .catch(error => {
+        console.error(error)
+
+      // 오류 처리
+      })
+  } else {
+    // 파일이 선택되지 않은 경우
+    console.error('No file selected')
+  }
+}
+
 var files = [] //파일 리스트
 
 //사용자가 작성한 글을 html요소와 함께 저장 (view 용)
@@ -355,14 +405,7 @@ const postDiary = score => {
                 </VTooltip>
               </VBtn>
             </VCol>
-            <VCol cols="2">
-              <VBtn 
-                style="margin-top: 600px;"
-                @click="testwordcloud = true"
-              >
-                단어 사용 빈도 분석 
-              </VBtn> 
-            </VCol> 
+             
             <VCol cols="2">
               <VBtn 
                 style="margin-top: 600px;"
@@ -395,6 +438,7 @@ const postDiary = score => {
         <VForm>
           <VCard v-if="writeDiaryContent">
             <VCol cols="12">
+              {{ emotiondata.emotion }}
               <!-- 텍스트 영역 위 img 뿌려주는 공간 -->
               <Transition name="fade">
                 <VRow
@@ -459,6 +503,57 @@ const postDiary = score => {
                     </VBtn>
                   </VCol>
                   <VSpacer />
+                  <VCol cols="1">
+                    <VDialog
+                      v-model="inputEmotionPhoto"
+                      width="600"
+                    >
+                      <template #activator="{ props }">
+                        <VBtn 
+                          width="50" 
+                          v-bind="props "
+                        >
+                          감정분석
+                        </VBtn>
+                      </template>
+                      <!-- Dialog Content -->
+                      <VCard title="오늘의 얼굴을 보여주세요!!">
+                        <DialogCloseBtn
+                          variant="text"
+                          size="small"
+                          @click="inputEmotionPhoto = false"
+                        />
+                        <VCardText>
+                          Ai가 얼굴을 인식해 감정을 분석해줍니다
+                        </VCardText>
+                        <VImg 
+                          v-for="(url, index) in imgUrlEmotion" 
+                          :key="index"
+                          :src="url"
+                          style="width: 400px; height: 400px; align-self: center;"
+                        />
+                        <VCol cols="12">
+                          <VFileInput
+                            :rules="rules"
+                            label="Face IMG"
+                            type="file"
+                            accept="image/png, image/jpeg, image/bmp"
+                            placeholder="Pick an avatar"
+                            prepend-icon="mdi-camera-outline"
+                            @change="uploadImgEmotion"
+                          />
+                        </VCol>
+                        <VCol>
+                          <VBtn 
+                            block
+                            @click="inputEmotionPhoto=false"
+                          >
+                            확인
+                          </VBtn>
+                        </VCol>
+                      </VCard>
+                    </VDialog>
+                  </VCol>
                   <VCol cols="1">
                     <VBtn 
                       width="50"  
