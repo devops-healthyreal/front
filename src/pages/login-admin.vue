@@ -8,11 +8,13 @@ import authV2MaskDark from '@images/pages/auth-v2-mask-dark.png'
 import authV2MaskLight from '@images/pages/auth-v2-mask-light.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
-
 import {
   requiredValidatorId,
   requiredValidatorPw,
 } from '@validators'
+import { useStore } from 'vuex'
+
+const store = useStore()
 
 const router = useRouter()
 
@@ -25,15 +27,25 @@ const form = ref({
 const refVForm = ref()
 
 const id = ref('')
+const pwd = ref('')
 const password = ref('')
 const rememberMe = ref(false)
 const isPasswordVisible = ref(false)
 const authThemeImg = useGenerateImageVariant(authV2LoginIllustrationLight, authV2LoginIllustrationDark, authV2LoginIllustrationBorderedLight, authV2LoginIllustrationBorderedDark, true)
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
 
-const loginId = () => {
-  router.push({ path: "/access-control" })
+const adminLogin = () => {
+  const saveData = { id: id.value, pwd: pwd.value }
+
+  store.dispatch('adminLogin', saveData)
+  console.log("id", id.value)
+  console.log("pwd", pwd.value)
 }
+
+
+// const loginId = () => {
+//   router.push({ path: "/access-control" })
+// }
 
 const loginNext = () => {
   refVForm.value?.validate().then(({ valid: isValid }) => {
@@ -143,7 +155,7 @@ export default{
                 </VCol>
                 <VCol cols="12">
                   <VTextField
-                    v-model="form.password"
+                    v-model="pwd"
                     label="비밀번호"
                     :rules="[requiredValidatorPw]"
                     :type="isPasswordVisible ? 'text' : 'password'"
@@ -153,7 +165,7 @@ export default{
                 </VCol>                               
                 <VCol cols="12">
                   <div class="d-flex align-center flex-wrap mt-1 mb-4 justify-center">
-                    <VBtn @click="loginNext">
+                    <VBtn @click.prevent="adminLogin">
                       로그인
                     </VBtn>
                     <div @keydown="handleKeyDown" />

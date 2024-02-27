@@ -1,5 +1,5 @@
-import store from '@/store'
 import axios from '@axios'
+import jwtDecode from 'jwt-decode'
 import { setupLayouts } from 'virtual:generated-layouts'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useStore } from 'vuex'
@@ -19,27 +19,6 @@ const router = createRouter({
       redirect: () => ({ name: 'login', params: { tab: 'profile' } }),
       meta: { requiresAuth: false }, // 이 라우트는 로그인이 필요함을 나타냅니다.
     },
-    {
-      beforeEnter: (to, from, next) => {
-        if (store.state.loginStore.isLogin) {
-          console.log('로그인 된 상태')
-    
-          
-          
-        } else {
-          console.log('로그인 안 된 상태')
- 
-            .then(() => {
-              if (store.state.loginStore.isLogin) {
-                next() // 토큰이 유효하면 메인 페이지로 진행                
-              } else {
-                next({ name: 'login' }) // 토큰이 유효하지 않으면 로그인 페이지로 리다이렉트
-              }
-            })
-        }
-      },
-    },
-
     {
       path: '/pages/user-profile',
       redirect: () => ({ name: 'pages-user-profile-tab', params: { tab: 'profile' } }),
@@ -65,6 +44,43 @@ const router = createRouter({
       name: 'stabilityVideoDifusion',
       component: () => import(/* webpackChunkName: "tts" */ '../pages/stabilityVideoDifusion.vue'),
     },
+
+    {
+      path: '/access-control',
+      name: 'access-Control',
+      component: () => import(/* webpackChunkName: "tts" */ '../pages/access-control.vue'),
+      beforeEnter: (to, from, next) => {
+        const token = localStorage.getItem('access_token')
+
+        console.log("라우터 접근제한")
+        if (!token) {
+          alert('사용자 정보가 없습니다')
+          console.log("사용자 정보가 없습니다")
+          next('/login')
+          
+          return
+        }
+    
+        try {
+          const decodedToken = jwtDecode(token)
+    
+          if (decodedToken.authority !== 'ROLE_ADMIN') {
+            alert('권한없음')
+            console.log("권한없음")
+            next('/login') 
+            
+          } else {
+            console.log("확인")
+            next() // or wherever you want to redirect
+          }
+        } catch (error) {
+          alert('권한없음')
+          console.error('Invalid token', error)
+          next('/login')
+        }
+      },
+    },
+    
     {
       path: '/apps/challengeList',
       name: 'challengeList',
@@ -157,6 +173,7 @@ const router = createRouter({
     ...setupLayouts(routes),
   ],
 })
+
 
 
 // 이동 감지와 변경된 화면 체크

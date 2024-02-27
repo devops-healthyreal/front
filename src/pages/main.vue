@@ -14,6 +14,10 @@ const store = useStore()
 // computed를 import합니다.
 const userInfo = computed(() => store.state.userStore.userInfo)
 
+// const userInfo = computed(() => store.state.userStore.userInfo)
+// const connetId = userInfo.value.id
+
+
 const route = useRoute()
 const isDialogVisible = ref(false)
 const isPDialogVisible = ref(!isDialogVisible.value)
@@ -298,6 +302,44 @@ const dietPlansList = [
                   icon="mdi-microphone-outline"
                   color="success"
                 />
+              </VBtn>
+            </VCol>
+            <VCol cols="12">
+              <VBtn
+                id="startBtn"
+                class="btn-lg btn-dark"
+                @click="$router.push('/voicechatbot')"
+              >
+                voicechatbot
+              </VBtn>
+            </VCol>
+
+            <VCol cols="12">
+              <VBtn
+                id="startBtn"
+                class="btn-lg btn-dark"
+                @click="$router.push('/stt')"
+              >
+                stts
+              </VBtn>
+            </VCol>
+
+            <VCol cols="12">
+              <VBtn
+                id="startBtn"
+                class="btn-lg btn-dark"
+                @click="$router.push('/stabilityVideoDifusiononlyfront')"
+              >
+                stable video defusion only front
+              </VBtn>
+            </VCol>
+            <VCol cols="12">
+              <VBtn
+                id="startBtn"
+                class="btn-lg btn-dark"
+                @click="$router.push('/stabilityVideoDifusion')"
+              >
+                stable video defusion
               </VBtn>
             </VCol>
           </VRow>
