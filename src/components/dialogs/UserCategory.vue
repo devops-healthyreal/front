@@ -8,6 +8,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  dietPlansListtype: {
+    type: Number,
+    required: true,
+  },
 })
 
 
@@ -30,9 +34,20 @@ const currentTab = ref('tab-1')
         stacked
         style="margin-top: 50px;"
       >
+        <VTab @click="$emit('update:choicecategory', {choicecategory:'전체', dietType:dietPlansListtype})">
+          <VIcon icon="mdi-food-steak" />
+          <span>전체</span>
+        </VTab>
+      </VTabs>
+      <VTabs
+        v-model="currentTab"
+        grow
+        stacked
+        style="margin-top: 50px;"
+      >
         <VTab
           value="tab-1"
-          @click="$emit('update:choicecategory', '육류')"
+          @click="$emit('update:choicecategory', {choicecategory:'육류', dietType:dietPlansListtype})"
         >
           <VIcon
             icon="mdi-food-steak"
@@ -43,7 +58,7 @@ const currentTab = ref('tab-1')
       
         <VTab
           value="tab-2"
-          @click="$emit('update:choicecategory', '양식')"
+          @click="$emit('update:choicecategory', {choicecategory:'양식', dietType:dietPlansListtype})"
         >
           <VIcon
             icon="mdi-bread-slice"
@@ -54,7 +69,7 @@ const currentTab = ref('tab-1')
         
         <VTab
           value="tab-3"
-          @click="$emit('update:choicecategory', '다이어트')"
+          @click="$emit('update:choicecategory', {choicecategory:'다이어트', dietType:dietPlansListtype})"
         >
           <VIcon
             icon="mdi-egg-fried"
@@ -70,7 +85,7 @@ const currentTab = ref('tab-1')
       >
         <VTab
           value="tab-4"
-          @click="$emit('update:choicecategory', '영양식')"
+          @click="$emit('update:choicecategory', {choicecategory:'영양식', dietType:dietPlansListtype})"
         >
           <VIcon
             icon="mdi-seed"
@@ -81,7 +96,7 @@ const currentTab = ref('tab-1')
       
         <VTab
           value="tab-5"
-          @click="$emit('update:choicecategory', '일상')"
+          @click="$emit('update:choicecategory', {choicecategory:'일상', dietType:dietPlansListtype})"
         >
           <VIcon
             icon="mdi-land-plots-circle-variant"
@@ -92,7 +107,7 @@ const currentTab = ref('tab-1')
         
         <VTab
           value="tab-6"
-          @click="$emit('update:choicecategory', '찌개')"
+          @click="$emit('update:choicecategory', {choicecategory:'찌개', dietType:dietPlansListtype})"
         >
           <VIcon
             icon="mdi-beer"
