@@ -12,7 +12,6 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-
 })
 
 const participantsData = ref([])
