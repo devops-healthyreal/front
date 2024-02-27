@@ -11,8 +11,7 @@ import UserPaymentList from '@/views/apps/user/view/UserPaymentList.vue'
 import ApexChartAreaChart from '@/views/charts/apex-chart/ApexChartAreaChart.vue'
 import ChartJsPolarAreaChart from '@/views/charts/chartjs/ChartJsPolarAreaChart.vue'
 import ChartJsRadarChart from '@/views/charts/chartjs/ChartJsRadarChart.vue'
-import axios from '@axios'
-import { onMounted, ref, watchEffect } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { useStore } from 'vuex'
 
 const currentTab = ref('tab-1')
@@ -28,8 +27,8 @@ const route = useRoute()
 const userData = ref()
 const userTab = ref(null)
 
-const checkedItems = ref("")
-const checkedExerciseItems = ref("")
+const checkedItems = ref([])
+const checkedExerciseItems = ref([])
 
 function handleDataFromChild(data) {
   checkedItems.value = data
@@ -43,22 +42,7 @@ function handleDataFromChildExer (data) {
   console.log('여기다운동')
 }
 
-onMounted(async () => { await setting() })
 
-
-//이행률 데이터 가져오기
-const setting = async () => {
-  const response = await axios.post('http://localhost:4000/croom/implementationSetting.do',  { id: connetId } )
-  if (response.status === 200) {
-    checkedItems.value = response.data.eatting
-    checkedExerciseItems.value = response.data.exercise
-    console.log(' 이행률 데이타는---', response)
-    console.log(' checkedItems.value---', checkedItems.value)
-    console.log(' checkedExerciseItems.value---', checkedExerciseItems.value)
-  } else {
-    console.log('이행률 데이타 가져오기 실패')
-  }
-}
 
 
 const tabs = [
@@ -113,8 +97,6 @@ userListStore.fetchUser(Number(route.params.id)).then(response => {
   userData.value = response.data
 })
 
-
-// checkedItems의 변화를 감지하여 변경 사항을 업데이트합니다.
 watchEffect(async () => {
   if(checkedItems.value && Array.isArray(checkedItems.value)) {
     console.log('checkedItems가 변경되었습니다:', checkedItems.value.length)
@@ -125,21 +107,6 @@ watchEffect(async () => {
 
   console.log('checkedItems 초기화?:', checkedItems.value)
   console.log('checkedExerciseItems 초기화?:', checkedExerciseItems.value)
-
-  if(checkedItems.value  ){
-
-    const response = await axios.post('http://localhost:4000/croom/implementationFood.do', { 
-      foodCheckCount: checkedItems.value,
-      id: connetId, 
-    })
-  }
-  if( checkedExerciseItems.value ){
-
-    const response = await axios.post('http://localhost:4000/croom/implementationExercise.do', { 
-      exerciseCheckCount: checkedExerciseItems.value,
-      id: connetId, 
-    })
-  }
 })
 </script>
 
@@ -277,17 +244,11 @@ watchEffect(async () => {
           >
             <!-- 식단쪽 이행률 체크 타임라인 -->
             <VWindowItem value="tab-1">
-              <TimelineBasic
-                :checked-items="checkedItems"
-                @sendData="handleDataFromChild"
-              />
+              <TimelineBasic @sendData="handleDataFromChild" />
             </VWindowItem>
             <!-- 운동쪽 이행률 체크 타임라인 -->
             <VWindowItem value="tab-2">
-              <TimelineBasicExercise
-                :checked-exercise-items="checkedExerciseItems"
-                @sendDataExer="handleDataFromChildExer"
-              />
+              <TimelineBasicExercise @sendDataExer="handleDataFromChildExer" />
             </VWindowItem>
           </VWindow>
         </VWindowItem>
