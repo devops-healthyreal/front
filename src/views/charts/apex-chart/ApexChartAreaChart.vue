@@ -1,35 +1,54 @@
 <script lang="ts" setup>
+import axios from '@axios'
 import { getAreaChartSplineConfig } from '@core/libs/apex-chart/apexCharConfig'
+import { computed, onMounted, ref } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 import { useTheme } from 'vuetify'
+import { useStore } from 'vuex'
 
 const vuetifyTheme = useTheme()
 
 const chartConfig = computed(() => getAreaChartSplineConfig(vuetifyTheme.current.value))
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId = userInfo.value.id
 
-// data 하나하나가 그 달의 데이터라 보면 됩니다 간단하게 할 수 있을거라 믿어요!!
-const series = [
-  {
-    name: '체중',
-    data: [100, 120, 90, 170, 130, 160, 140, 240, 220, 180, 270, 280, 375],
-  },
-  {
-    name: '골격근량',
-    data: [60, 80, 70, 110, 80, 100, 90, 180, 160, 140, 200, 220, 275],
-  },
-  {
-    name: '체지방량',
-    data: [20, 40, 30, 70, 40, 60, 50, 140, 120, 100, 140, 180, 220],
-  },
-  {
-    name: 'BMI',
-    data: [23, 43, 40, 60, 83, 60, 30, 40, 80, 170, 140, 180, 220],
-  },
-  {
-    name: '체지방률',
-    data: [13, 15, 17, 28, 26, 30, 50, 110, 150, 90, 120, 100, 120],
-  },
-]
+const series=ref([])
+const isDataLoaded = ref(false)
+ 
+onMounted(async () => { await setting() })
+
+const setting = async () => {
+  const response = await axios.post('http://localhost:4000/Inbody/findAllInbody.do', { id: connetId })
+
+  console.log("인바디 전체 데이타!!response.data:", response.data)
+  console.log("response.data.map(item => item.inb_weight)", response.data.map(item => item.inb_weight))
+
+  series.value = [
+    {
+      name: '체중',
+      data: response.data.map(item => item.inb_weight),
+    },
+    {
+      name: '골격근량',
+      data: response.data.map(item => item.inb_smm),
+    },
+    {
+      name: '체지방량',
+      data: response.data.map(item => item.inb_bfm),
+    },
+    {
+      name: 'BMI',
+      data: response.data.map(item => item.inb_bmi),
+    },
+    {
+      name: '체지방률',
+      data: response.data.map(item => item.inb_pbf),
+    },
+  ]
+  
+  isDataLoaded.value = true
+}
 </script>
 
 <template>
