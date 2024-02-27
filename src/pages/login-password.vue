@@ -128,7 +128,10 @@ const login = () => {
                     style="justify-content: right;"
                   >
                     <VCol cols="12" />
-                    <VBtn @click.prevent="login">
+                    <VBtn
+                      type="submit"
+                      @click.prevent="login"
+                    >
                       다음
                     </VBtn>
                   </div>
@@ -178,3 +181,4 @@ meta:
   subject: Auth
   redirectIfLoggedIn: true
 </route>
+
