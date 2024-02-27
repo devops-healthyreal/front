@@ -98,6 +98,8 @@ const getEatingRecord = async () => {
       console.log('가져온 유저 Eating_Record', response.data.length)
 
       if(response.data.length > 0){
+        // 레시피 & 재료도 가져오기
+
         // 초기화
         dietinfo.value = [[], [], []]
 

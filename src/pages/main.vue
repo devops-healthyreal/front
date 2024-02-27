@@ -4,7 +4,6 @@ import Calendar from '@/pages/apps/calendar.vue'
 import Timeline from '@/pages/components/timeline.vue'
 import ResetPasswordDialog from '@/pages/resetPasswordDialog.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
-import axios from '@axios'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
@@ -21,6 +20,7 @@ const isPDialogVisible = ref(!isDialogVisible.value)
 
 const dietinfo = ref([])
 
+/*
 const getEatingRecord = async () => {
   if (!(userInfo.value && userInfo.value.id)) {
     router.go(0)
@@ -52,6 +52,7 @@ const getEatingRecord = async () => {
   }
   
 }
+*/
 
 onMounted(() => {
   if (!store.state.isLogin) {
@@ -67,7 +68,7 @@ onMounted(() => {
         console.log('2차') // 2차 출력됨
 
         // 다른 함수를 실행
-        getEatingRecord()
+        //getEatingRecord()
       })
   }
 })

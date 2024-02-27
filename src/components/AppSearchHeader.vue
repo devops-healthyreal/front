@@ -42,7 +42,10 @@ const kincrawling = () => {
   } })
     .then(response => {
       kincrawlingresult.value = response.data
-      emit('crawlingComplete', kincrawlingresult.value)
+
+      // emit('crawlingComplete', kincrawlingresult.value)
+
+      emit('crawlingComplete', { kinCrawling: kincrawlingresult.value, searchKeyword: searchKeyword.value })
     })
     .catch(error => {
       console.error(error)
@@ -53,6 +56,7 @@ const kincrawling = () => {
 }
 
 const exerciseDictionary = ['하체 운동', '상체 운동', '데드리프트', '체스트암', '스쿼트', '레그 익스텐션', '인클라인 덤벨 로우', '랫풀 다운', '시티드 로우', '리버스 플라이', '벤치프레스', '딥스', '런지', '런닝', '달리기', '유산소', '푸쉬업', '윗몸 일으키기', '줄넘기', '축구', '농구', '배구', '야구', '탁구']
+
 const showSuggestions = ref(false)
 const suggestions = ref([])
 let selectedSuggestion = ref(-1)
@@ -100,7 +104,7 @@ onMounted(() => {
   focusInput()
 })
 
-// Keydown event listener for arrow keys
+
 window.addEventListener('keydown', event => {
   if (event.key === 'ArrowDown') {
     moveDown()
@@ -110,7 +114,8 @@ window.addEventListener('keydown', event => {
     // Enter 키가 눌렸을 때 선택된 제안을 검색어로 설정하고 검색 실행
     if (selectedSuggestion.value !== -1) {
       searchKeyword.value = suggestions.value[selectedSuggestion.value]
-      kincrawling()
+      kincrawling() // Enter 키 눌렀을 때 크롤링 실행
+      event.preventDefault() // 기본 이벤트 방지
     }
   }
 })

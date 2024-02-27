@@ -3,6 +3,7 @@ import UpdateExercise from '@/components/dialogs/UpdateExercise.vue'
 import axios from '@axios'
 import defaultImg from '@images/userProfile/default.png'
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router' // vue-router에서 필요한 함수 가져오기
 import { useStore } from 'vuex'
 
 
@@ -10,8 +11,10 @@ const isUpgradeExercisePlan = ref(false)
 const isCheckedRecipe = ref(false)
 const isCheckedRestaurant = ref(false)
 const isCategory = ref(false)
+const isyoutubecrawling = ref(false)
 
-const router = useRoute()
+// const router = useRoute()
+const router = useRouter() // useRouter() 함수를 사용하여 router 객체 가져오기
 const connectionData = ref([])
 
 const store = useStore()
@@ -90,14 +93,60 @@ const fetchProjectData = () => {
 
 const kinCrawlingResult = ref([])
 
+const searchExercise = ref('')
+
 const handleCrawlingComplete = result => {
-  kinCrawlingResult.value = result
+  const { kinCrawling, searchKeyword } = result
+
+  kinCrawlingResult.value = kinCrawling
+
+  searchExercise.value = searchKeyword
+  isyoutubecrawling.value = !isyoutubecrawling.value
+
+  // kinCrawlingResult.value = result
 }
+
+watch(isyoutubecrawling, (newValue, oldValue) => {
+  if (newValue) {
+    randomyoutude()
+  }
+})
 
 const getUserAvatar = userId => {
   const user = users.value.find(user => user.id === userId)
   
   return user ? user.profilePath : defaultImg
+}
+
+const youtubedata = ref({})
+const video = ref('https://www.youtube.com/embed/kgvvdwQBSFQ')
+
+const randomyoutude = async () =>{
+  await axios.get('http://localhost:5000/youtudeCrawling', { params: { search: searchExercise.value } })
+    .then(response =>{
+      youtubedata.value = response.data
+      console.log('전달받은 유튜브 :', youtubedata.value)
+
+      // "v=" 다음의 인덱스와 "&pp" 다음의 인덱스를 찾습니다.
+      const startIndex = response.data.href.indexOf("v=") + 2
+      const endIndex = response.data.href.indexOf("&pp")
+
+      // "v=" 다음의 인덱스와 "&pp" 다음의 인덱스를 기반으로 문자열을 추출합니다.
+      const extractedValue = response.data.href.substring(startIndex, endIndex)
+
+      video.value = "https://www.youtube.com/embed/"+extractedValue
+
+    })
+}
+
+const goToDetailPage = data => {
+  // 클릭된 링크에 대한 처리
+  // 예를 들어, "/detail" 라우트로 이동하고 링크에 대한 정보를 전달할 수 있습니다.
+  console.log('들어왔나..?')
+
+  const jsonData = JSON.stringify(data) // 데이터를 JSON 문자열로 변환
+
+  router.push({ path: '/exerRecommendView', query: { data: jsonData } }) // JSON 문자열을 전달
 }
 </script>
 
@@ -123,20 +172,6 @@ const getUserAvatar = userId => {
               custom-class="mb-7"
               @crawlingComplete="handleCrawlingComplete"
             />
-            <!-- {{ kinCrawlingResult }} -->
-            <!--
-              <div v-if="kinCrawlingResult.length">
-              <h2>Crawled Data:</h2>
-              <ul>
-              <li
-              v-for="(item, index) in kinCrawlingResult"
-              :key="index"
-              >
-              {{ item }}
-              </li>
-              </ul>
-              </div> 
-            -->
             <VCard
               v-for="(data, index) in kinCrawlingResult"
               :key="index"
@@ -161,7 +196,12 @@ const getUserAvatar = userId => {
                       size="small"
                       color="success"
                     />                    
-                    <a :href="data.url"> 더 자세하게 보고싶어요</a>
+                    <span
+                      class="pointer-cursor"
+                      @click="goToDetailPage(data)"
+                    >
+                      더 자세하게 보고싶어요
+                    </span>
                   </VCol>
 
                   <!-- props로 지식인 내용 먼저 좀 뿌려주시면 될 것 같습니다 -->
@@ -190,11 +230,12 @@ const getUserAvatar = userId => {
         <iframe
           width="560"
           height="315"
-          src="https://www.youtube.com/embed/V1TzoKc99rE"
+          :src="video"
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen
         />
+        <!-- "https://www.youtube.com/embed/V1TzoKc99rE" -->
         <VCard
           flat
           :max-width="auto"
@@ -251,10 +292,12 @@ const getUserAvatar = userId => {
                   v-if="item.files && item.files.length >=2"
                   class="transparent-carousel"
                   show-arrows-on-hover
-                  color="success"
-                  cycle
-                  interval="2000"
+                  color="success"                  
                 >
+                  <!--
+                    cycle
+                    interval="2000" 
+                  -->
                   <VCarouselItem
                     v-for="(image, i) in item.files" 
                     :key="i"
