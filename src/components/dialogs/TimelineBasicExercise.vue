@@ -33,8 +33,8 @@ function sendDataToParent(value) {
   // 변경된 배열을 emit으로 전달
   emit('sendDataExer', checkedExerciseItems.value)
 
-  axios.post('http://localhost:4000/croom/implementationFood.do', {
-    foodCheckCount: checkedExerciseItems.value,
+  axios.post('http://localhost:4000/croom/implementationExercise.do', {
+    exerciseCheckCount: checkedExerciseItems.value,
     id: connetId,
   })
   console.log('여기도 갔나')
@@ -57,6 +57,12 @@ const setting = async () => {
       checkedExerciseItems.value = exerciseArray // 배열 할당
       console.log('이행률 데이터는---', response)
       console.log('checkedItems.value---', checkedExerciseItems.value)
+
+      exerciseArray.forEach(item => {
+        if (item === '1') isChecked1.value = true
+        else if (item === '2') isChecked2.value = true
+        else if (item === '3') isChecked3.value = true
+      })
     }
     emit('sendDataExer', checkedExerciseItems.value)
   } else {
