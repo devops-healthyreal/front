@@ -4,7 +4,6 @@ import Calendar from '@/pages/apps/calendar.vue'
 import Timeline from '@/pages/components/timeline.vue'
 import ResetPasswordDialog from '@/pages/resetPasswordDialog.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
-import axios from '@axios'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
@@ -12,9 +11,11 @@ import { useStore } from 'vuex'
 const router = useRouter()
 const store = useStore()
 
-// 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
-const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId = userInfo.value.id
+//로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
+
+// const userInfo = computed(() => store.state.userStore.userInfo)
+// const connetId = userInfo.value.id
+
 
 const route = useRoute()
 const isDialogVisible = ref(false)
@@ -22,27 +23,30 @@ const isPDialogVisible = ref(!isDialogVisible.value)
 
 const dietinfo = ref([])
 
-const getEatingRecord = async () => {
-  console.log('체크해보자 : ')
-  await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
-    .then(response => {
-      if(response.data.length > 0){
-        // 초기화
-        dietinfo.value = [[], [], []]
 
-        response.data.forEach(data => {
-          if (data.mealType === '아침') {
-            dietinfo.value[0] = data
-          } else if (data.mealType === '점심') {
-            dietinfo.value[1] = data
-          } else if (data.mealType === '저녁') {
-            dietinfo.value[2] = data
-          }
-        })
-      }
-      console.log('가져온 유저 Eating_Record', dietinfo.value)
-    })
-}
+
+
+// const getEatingRecord = async () => {
+//   console.log('체크해보자 : ')
+//   await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
+//     .then(response => {
+//       if(response.data.length > 0){
+//         // 초기화
+//         dietinfo.value = [[], [], []]
+
+//         response.data.forEach(data => {
+//           if (data.mealType === '아침') {
+//             dietinfo.value[0] = data
+//           } else if (data.mealType === '점심') {
+//             dietinfo.value[1] = data
+//           } else if (data.mealType === '저녁') {
+//             dietinfo.value[2] = data
+//           }
+//         })
+//       }
+//       console.log('가져온 유저 Eating_Record', dietinfo.value)
+//     })
+// }
 
 onMounted(async () => {
   if (!store.state.isLogin) {
@@ -52,6 +56,7 @@ onMounted(async () => {
     // 토큰을 이용해 사용자 정보를 가져옴
     await store.dispatch('getMemberInfo')    
   }
+
   getEatingRecord()
 })
 
@@ -280,6 +285,44 @@ const dietPlansList = [
                   icon="mdi-microphone-outline"
                   color="success"
                 />
+              </VBtn>
+            </VCol>
+            <VCol cols="12">
+              <VBtn
+                id="startBtn"
+                class="btn-lg btn-dark"
+                @click="$router.push('/voicechatbot')"
+              >
+                voicechatbot
+              </VBtn>
+            </VCol>
+
+            <VCol cols="12">
+              <VBtn
+                id="startBtn"
+                class="btn-lg btn-dark"
+                @click="$router.push('/stt')"
+              >
+                stts
+              </VBtn>
+            </VCol>
+
+            <VCol cols="12">
+              <VBtn
+                id="startBtn"
+                class="btn-lg btn-dark"
+                @click="$router.push('/stabilityVideoDifusiononlyfront')"
+              >
+                stable video defusion only front
+              </VBtn>
+            </VCol>
+            <VCol cols="12">
+              <VBtn
+                id="startBtn"
+                class="btn-lg btn-dark"
+                @click="$router.push('/stabilityVideoDifusion')"
+              >
+                stable video defusion
               </VBtn>
             </VCol>
           </VRow>

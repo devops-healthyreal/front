@@ -8,6 +8,8 @@ import axios from '@axios'
 import { config, firebaseConfig, getGoogleKey } from '@/config'
 import firebase from 'firebase/app'
 import 'firebase/messaging'
+import jwtDecode from 'jwt-decode'
+
 
 
 
@@ -70,7 +72,12 @@ const loginStore = {
 
       window.location.href="http://localhost:4000/logout"
     },
-
+    startLogin(state) {
+      state.isLoggingIn = true
+    },
+    endLogin(state) {
+      state.isLoggingIn = false
+    },
 
   },
   actions: {
@@ -129,6 +136,60 @@ const loginStore = {
         })
     },
 
+    async adminLogin(context, loginObj) {
+      const formdata = new FormData()
+
+      context.commit('startLogin')
+      formdata.append("id", loginObj['id'])
+      formdata.append("pwd", loginObj['pwd'])
+      console.log('formdata:', formdata)
+      try {
+        const res = await axios.post('http://localhost:4000/login', formdata, {
+          headers: {
+            'X-SKIP-INTERCEPTOR': true,
+            'Content-Type': 'multipart/form-data',
+          },
+          withCredentials: true,
+        }) 
+    
+        console.log('여기까지는 들어옴?', res)
+        console.log(formdata.get("id"))
+        foodRecommend(formdata.get("id"))
+    
+        // 응답 본문에서 토큰을 추출합니다.
+        const token = res.data
+    
+        const decodedToken = jwtDecode(token) // 토큰을 해독함
+    
+        const authority = decodedToken.authority // 해독된 토큰에서 권한 정보를 가져옴
+        if (authority !== 'ROLE_ADMIN') {
+          alert('권한이 없습니다.')
+          throw new Error('Access denied')
+        }
+        if(res.status === 200) { // 로그인 요청이 성공했을 때만 토큰을 저장하는 요청을 실행
+          await context.dispatch('saveToken', token)
+          alert("관리자 로그인 실행 관리자 페이지로 이동합니다.")
+
+          await router.push('/access-control')  // 관리자 페이지로 이동
+          context.commit('endLogin')
+        } else {
+          throw new Error('Login failed')
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          alert('아이디나 비밀번호를 확인해주세요.')
+        } else if (error.message === 'Invalid token specified: Cannot read properties of undefined (reading \'replace\')') {
+          alert('권한이 없습니다.')
+        } else {
+          console.log(error)
+        }
+      }
+    },
+    
+    
+
+
+
     updateUserInfo({ commit }, newUserInfo) {
       commit('loginSuccess', newUserInfo)  // 'loginSuccess' 뮤테이션 커밋
     },
@@ -139,23 +200,6 @@ const loginStore = {
       window.location.href = url
     },
   
-    
-    // isSocialLogin(context) {
-    //   axios.get('http://localhost:4000/user/isSocialLogin', {
-    //     withCredentials: true,
-    //   })
-    //     .then(res => {
-    //       const token = res.data
-
-    //       console.log("이거 실행되니?")
-    //       context.dispatch('saveToken', token) // 토큰을 저장함
-    //     })
-    //     .catch(error => {
-    //       console.log(error)
-    //       alert('소셜 로그인에 실패했습니다. 다시 시도해주세요.')
-    //     })
-    // },
-
 
     saveToken(context, token){
       if (token) { // 토큰 값이 제공된 경우만 로컬 스토리지에 저장
