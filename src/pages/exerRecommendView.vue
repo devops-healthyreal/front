@@ -16,6 +16,27 @@ const fetchProjectData = () => {
     })
   }
 }
+
+import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
+
+// URL 쿼리 매개변수를 저장할 변수를 생성합니다.
+const jsonData = ref(null)
+
+// useRoute 훅을 사용하여 route 객체를 가져옵니다.
+const route = useRoute()
+
+// 컴포넌트가 마운트될 때 URL 쿼리 매개변수를 확인하고 변수에 저장합니다.
+onMounted(() => {
+  if (route.query.data) {
+    try {
+      // URL의 data 매개변수 값을 JSON으로 파싱하여 jsonData 변수에 저장합니다.
+      jsonData.value = JSON.parse(route.query.data)
+    } catch (error) {
+      console.error('URL에서 데이터를 파싱하는 동안 오류가 발생했습니다:', error)
+    }
+  }
+})
 </script>
 
 <template>
@@ -27,107 +48,40 @@ const fetchProjectData = () => {
       <!-- 지식인 질문 부분 -->
       <VCol>
         <VCard
+          v-if="jsonData"
           cols="12"
           style="margin: 20px 10px;"
         >
-          <!-- 👉 Collapsible -->
+          <!-- 👉 Collapsible- -->
           <VCol style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
             <VIcon
               icon="mdi-help-circle-outline"
               color="success"
               style="font-size: 50px;"
             />
-            <strong style="font-size: 20px;">지식인 질문삭제 어떻게 하나요?</strong>
+            <strong style="font-size: 20px;">{{ jsonData.title }}</strong>
           </VCol>
           <VCol>
             <p style="margin: 0 20px;">
-              내용인데 뭘 넣어야할까요
+              {{ jsonData.question_content }}
             </p>
           </VCol>
-          <VCol style="margin: 0 10px;">
-            <VAvatar
-              color="success"
-              size="small"
-            />
-            <span style=" margin-left: 8px;font-size: 12px; font-weight: bold;"> 유저 이름 </span>
-            <span style=" margin-left: 8px;font-size: 12px; font-weight: bold;">2024.02.25</span>
-            <span style=" margin-left: 8px;font-size: 12px; font-weight: bold;">조회수</span>
-          </VCol>
-        </VCard>
-
-        <!-- 답변달기 버튼 추가? 부분 -->
-        <VCard
-          cols="12"
-          style="margin: 20px 10px;"
-        >
-          <VCol style="display: flex; justify-content: space-between;">
-            <VCol>
-              <span style="font-size: 14px; font-weight: bold;"> 답변하시면 내공 10점을 답변이 채택되면 내공 125점을 드립니다. </span>
-            </VCol>
-            <VBtn style="margin-top: 5px;">
-              답변하기
-            </VBtn> 
+          <VCol style="margin: 0 10px;">         
+            <span style=" margin-left: 8px;font-size: 12px; font-weight: bold;"> {{ jsonData.question_date }}</span>
+            <span style=" margin-left: 8px;font-size: 12px; font-weight: bold;">{{ jsonData.question_hit }}</span>
           </VCol>
         </VCard>
 
 
         <!-- 지식인 질문 부분 -->
-        <VCard style="margin: 10px;">
-          <!-- 답변해주는 유저의 사진 VAvatar에 넣어주시고 color 삭제해주세요. -->
-          <VCard
-            style="margin: 20px;"
-            class="pointer-cursor"
-          >
-            <VCol style="display: flex; justify-content: space-between;">
-              <VCol>
-                <VRow>유저 이름</VRow>
-                <VRow style="font-size: 12px;">
-                  <span>채택 답변 수</span>.<span>받은감사수</span>
-                </VRow>
-              </VCol>
-              <VAvatar
-                size="large"
-                color="success"
-              />
-            </VCol>
-          </VCard>
-
+        <VCard 
+          v-if="jsonData"
+          style="margin: 10px;"
+        >
           <!-- props로 지식인 내용 먼저 좀 뿌려주시면 될 것 같습니다 -->
           <VCol>
             <p style="margin: 0 20px;">
-              지식인에서 질문을 삭제하려면 다음 단계를 따르면 됩니다:
-
-              ​
-
-              1. 지식인 홈페이지에 로그인하세요.
-
-              2. 삭제하려는 질문을 찾아 클릭하세요.
-
-              3. 질문 페이지에서 수정 버튼을 클릭하세요.
-
-              4. 수정 페이지에서 삭제 버튼을 클릭하세요.
-
-              5. 삭제를 확인하는 팝업 창이 나타나면 예를 선택하세요.
-
-              ​
-
-              답변을 삭제하려면 답변을 작성한 사용자만이 삭제할 수 있습니다. 답변을 삭제하려면 다음 단계를 따르면 됩니다:
-
-              ​
-
-              1. 지식인 홈페이지에 로그인하세요.
-
-              2. 삭제하려는 답변을 찾아 클릭하세요.
-
-              3. 답변 페이지에서 수정 버튼을 클릭하세요.
-
-              4. 수정 페이지에서 삭제 버튼을 클릭하세요.
-
-              5. 삭제를 확인하는 팝업 창이 나타나면 예를 선택하세요.
-
-              ​
-
-              이렇게 하면 질문이나 답변이 지식인에서 삭제됩니다.
+              {{ jsonData.answer_content }}
             </p>
           </VCol>
           <VCol style="margin: 30px 50px 0;">
@@ -147,10 +101,22 @@ const fetchProjectData = () => {
           </VCol>
           <VCol style="margin: 0 20px;">
             <div style="display: flex; justify-content: space-between;">
-              <span style="font-size: 12px; font-weight: bold;">2024.02.25</span>
+              <span style="font-size: 12px; font-weight: bold;">{{ jsonData.answer_date }}</span>
             </div>
           </VCol>
         </VCard>
+        <VRow
+          v-if="jsonData"
+          justify="end"
+          style="margin: 20px;"
+        >
+          <VBtn             
+            target="_blank"
+            :href="jsonData.url"
+          >
+            해당 페이지로 이동하기
+          </VBtn>
+        </VRow>
       </VCol>
     </VCol>
   </section>
