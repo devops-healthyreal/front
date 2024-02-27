@@ -28,8 +28,8 @@ const route = useRoute()
 const userData = ref()
 const userTab = ref(null)
 
-const checkedItems = ref([])
-const checkedExerciseItems = ref([])
+const checkedItems = ref("")
+const checkedExerciseItems = ref("")
 
 function handleDataFromChild(data) {
   checkedItems.value = data
@@ -126,11 +126,16 @@ watchEffect(async () => {
   console.log('checkedItems 초기화?:', checkedItems.value)
   console.log('checkedExerciseItems 초기화?:', checkedExerciseItems.value)
 
-  if(checkedItems.value || checkedExerciseItems.value ){
-    console.log('여기 값이 들어와???-----')
+  if(checkedItems.value  ){
 
-    const response = await axios.post('http://localhost:4000/croom/implementation.do', { 
+    const response = await axios.post('http://localhost:4000/croom/implementationFood.do', { 
       foodCheckCount: checkedItems.value,
+      id: connetId, 
+    })
+  }
+  if( checkedExerciseItems.value ){
+
+    const response = await axios.post('http://localhost:4000/croom/implementationExercise.do', { 
       exerciseCheckCount: checkedExerciseItems.value,
       id: connetId, 
     })
