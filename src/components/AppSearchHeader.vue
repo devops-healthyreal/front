@@ -3,6 +3,7 @@ import axios from '@axios'
 import { useGenerateImageVariant } from '@core/composable/useGenerateImageVariant'
 import AppSearchHeaderBgDark from '@images/pages/app-search-header-bg-dark.png'
 import AppSearchHeaderBgLight from '@images/pages/app-search-header-bg-light.png'
+import { defineEmits, defineProps, onMounted, ref } from 'vue'
 
 const props = defineProps({
   title: {
@@ -30,29 +31,92 @@ defineOptions({ inheritAttrs: false })
 const themeBackgroundImg = useGenerateImageVariant(AppSearchHeaderBgLight, AppSearchHeaderBgDark)
 const searchKeyword = ref('')
 const kincrawlingresult = ref([])
+const loading = ref(false)
 
 const kincrawling = () => {
-// 검색 실행
+  showSuggestions.value = false
+  loading.value = true //로딩 시작
   axios.get('http://localhost:5000/kinCrawling', { params: {
     search: searchKeyword.value,
     id: props.connetId,
   } })
     .then(response => {
-      // 검색 결과 처리
       kincrawlingresult.value = response.data
-      console.log('검색어 크롤링 :', kincrawlingresult.value)
-      console.log(kincrawlingresult.value[0])
       emit('crawlingComplete', kincrawlingresult.value)
     })
     .catch(error => {
-      // 에러 처리
       console.error(error)
     })
+    .finally(() =>{
+      loading.value = false //로딩 상태 종료
+    })
 }
+
+const exerciseDictionary = ['하체 운동', '상체 운동', '데드리프트', '체스트암', '스쿼트', '레그 익스텐션', '인클라인 덤벨 로우', '랫풀 다운', '시티드 로우', '리버스 플라이', '벤치프레스', '딥스', '런지', '런닝', '달리기', '유산소', '푸쉬업', '윗몸 일으키기', '줄넘기', '축구', '농구', '배구', '야구', '탁구']
+const showSuggestions = ref(false)
+const suggestions = ref([])
+let selectedSuggestion = ref(-1)
+
+const handleInput = () => {
+  const inputText = searchKeyword.value.toLowerCase()
+  if (inputText === '') {
+    showSuggestions.value = false
+    suggestions.value = []
+  } else {
+    showSuggestions.value = true
+    suggestions.value = exerciseDictionary.filter(exercise =>
+      exercise.toLowerCase().includes(inputText),
+    )
+  }
+}
+
+const selectSuggestion = suggestion => {
+  searchKeyword.value = suggestion
+  showSuggestions.value = false
+}
+
+const moveDown = () => {
+  if (selectedSuggestion.value < suggestions.value.length - 1) {
+    selectedSuggestion.value++
+  }
+}
+
+const moveUp = () => {
+  if (selectedSuggestion.value > 0) {
+    selectedSuggestion.value--
+  }
+}
+
+const searchInput = ref(null)
+
+const focusInput = () => {
+  const input = searchInput.value
+  if (input) {
+    input.focus()
+  }
+}
+
+onMounted(() => {
+  focusInput()
+})
+
+// Keydown event listener for arrow keys
+window.addEventListener('keydown', event => {
+  if (event.key === 'ArrowDown') {
+    moveDown()
+  } else if (event.key === 'ArrowUp') {
+    moveUp()
+  } else if (event.key === 'Enter') {
+    // Enter 키가 눌렸을 때 선택된 제안을 검색어로 설정하고 검색 실행
+    if (selectedSuggestion.value !== -1) {
+      searchKeyword.value = suggestions.value[selectedSuggestion.value]
+      kincrawling()
+    }
+  }
+})
 </script>
 
 <template>
-  <!-- 👉 Search Banner  -->
   <VCard
     flat
     class="text-center search-header"
@@ -64,12 +128,12 @@ const kincrawling = () => {
         {{ props.title }}
       </h5>
 
-      <!-- 👉 Search Input -->
-      <!-- v-bind="$attrs" -->
-      <VTextField        
+      <VTextField
+        ref="searchInput"
         v-model="searchKeyword"
         placeholder="Search"
         class="search-header-input mx-auto my-3"
+        @input="handleInput"
         @keyup.enter="kincrawling"
       >
         <template #prepend-inner>
@@ -79,6 +143,28 @@ const kincrawling = () => {
           />        
         </template>
       </VTextField>
+
+      <!-- 로딩 표시 -->
+      <div
+        v-if="loading"
+        class="loading-indicator"
+      >
+        Loading...
+      </div>
+      
+      <ul
+        v-if="showSuggestions"
+        class="autocomplete-suggestions"
+      >
+        <li
+          v-for="(suggestion, index) in suggestions"
+          :key="suggestion"
+          :class="{ 'selected': index === selectedSuggestion }"
+          @click="selectSuggestion(suggestion)"
+        >
+          {{ suggestion }}
+        </li>
+      </ul>
 
       <p>{{ props.subtitle }}</p>
     </VCardText>
@@ -92,7 +178,6 @@ const kincrawling = () => {
   background-size: cover !important;
 }
 
-// search input
 .search-header-input {
   border-radius: 0.375rem;
   background-color: rgb(var(--v-theme-surface));
@@ -105,6 +190,36 @@ const kincrawling = () => {
   }
 }
 
+.autocomplete-suggestions {
+  position: absolute;
+  width: calc(100% - 2rem);
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 5px;
+  list-style-type: none;
+  padding-left: 0;
+  z-index: 1000;
+
+  li {
+    padding: 5px 10px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+  }
+
+  .selected {
+    background-color: #f0f0f0;
+  }
+}
+
+.loading-indicator {
+  margin-top: 1rem;
+}
 @media (max-width: 37.5rem) {
   .search-header {
     padding: 1.5rem !important;
