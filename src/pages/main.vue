@@ -120,6 +120,11 @@ const tabs = [
     color: 'warning',
   },
   {
+    icon: 'mdi-dumbbell',
+    title: '운동',
+    color: 'success',
+  },
+  {
     icon: 'mdi-map-check',
     title: '경로',
     color: 'success',
@@ -270,6 +275,12 @@ const dietPlansList = [
               </VCol>
             </VRow>
           </VWindowItem>
+          <!-- ------------------ 운동 ---------------------- -->
+          <VWindowItem>
+            <CrmActivityTimeline />
+          </VWindowItem>
+
+          <!-- ------------------경로-------------------- -->
           <VWindowItem>
             <CrmActivityTimeline />
           </VWindowItem>

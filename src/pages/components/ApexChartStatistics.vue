@@ -1,8 +1,8 @@
 <script setup>
-import { getRadialBarChartConfig } from '@core/libs/apex-chart/apexCharConfig';
-import { computed, defineProps } from 'vue';
-import VueApexCharts from 'vue3-apexcharts';
-import { useTheme } from 'vuetify';
+import { getRadialBarChartConfig } from '@core/libs/apex-chart/apexCharConfig'
+import { computed, defineProps } from 'vue'
+import VueApexCharts from 'vue3-apexcharts'
+import { useTheme } from 'vuetify'
 
 const props = defineProps({
   checkedItems: Array,
