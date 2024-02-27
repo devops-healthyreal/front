@@ -137,6 +137,7 @@ const stopDrag = event => {
 <style lang="scss">
 .icon-button {
   position: absolute;
+  z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;

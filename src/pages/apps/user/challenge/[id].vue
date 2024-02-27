@@ -2,7 +2,6 @@
 import ShareProjectDialogTemp from '@/components/dialogs/ShareProjectDialogTemp.vue'
 import Pricingtest from '@/components/dialogs/pricingtest.vue'
 import Chat from '@/pages/apps/challengeChat.vue'
-import { useUserListStore } from '@/views/apps/user/useUserListStore'
 import UserProfileForChellenge from '@/views/apps/user/view/UserProfileForChellenge.vue'
 import { getBarChartConfig } from '@core/libs/apex-chart/apexCharConfig' //차트 불러오기
 import axios from "axios"
@@ -12,10 +11,7 @@ import { useTheme } from 'vuetify' //차트 불러오기
 import { useStore } from 'vuex'
 
 const isShareProjectDialogVisible = ref(false)
-const userListStore = useUserListStore()
 const route = useRoute() //route객체
-const userData = ref()
-const userTab = ref(null)
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
@@ -54,6 +50,10 @@ const roomData = async () => {
   if (response.status === 200) {
     room.value = response.data
     console.log('방의 데이타는---', room.value)
+
+    if (!room.value) {
+      router.push({ name: 'challengeList' }) 
+    }
     pay.value = room.value.pfee
     challroomno.value = room.value.challNo
     console.log('참여비는?', pay.value, '방 번호는?', challroomno.value)
@@ -255,7 +255,11 @@ onUnmounted(() => {
         </VCard>
       </VCol> <!-- 전체 화면의 왼쪽 end -->
       <VCol cols="5">
-        <Chat />
+        <Chat
+          :participants-data=" participantsData"
+          :socket="socket"
+          :mate-no="route.params.id"
+        />
       </VCol>
     </VRow>
   </section>

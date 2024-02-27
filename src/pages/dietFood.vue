@@ -38,15 +38,20 @@ const fetchProjectData = () => {
   }
 }
 
-const choicecategory = ref('') // 선택된 값이 저장될 변수
+const choicecategorydata = ref({}) // 선택된 값이 저장될 변수
 const recipedatach = ref({})
+const updatediet = ref('')
+let selectedCategory = ref([]) // 선택한 카테고리를 저장할 변수 
 
 const handleChoiceCategory = value => {
-  choicecategory.value = value
-  console.log('선택한 카테고리:', value)
-}
+  // choicecategory.value = value
+  const { choicecategory, dietType } = value
 
-const updatediet = ref('')
+  choicecategorydata.value[dietType] = choicecategory
+  updatediet.value = dietType
+  selectedCategory.value[dietType] = choicecategory // 선택한 카테고리 저장
+  console.log('선택한 카테고리:', choicecategorydata.value, '선택한 index :', updatediet.value)
+}
 
 const handleRecipedatach = value =>{
   const { recipe, dietType } = value
@@ -137,6 +142,10 @@ const getrecipe = async (connetId, choicecategory, index) =>{
     })
 }
 
+const getcategory = async index =>{
+  console.log('들어온 인덱스:', index)
+  dietPlansListtype.value = index
+}
 
 // recipedata 배열에서 무작위로 5개 그룹을 선택하는 함수
 const getRandomGroups = () => {
@@ -247,9 +256,9 @@ watch(router, fetchProjectData, { immediate: true })
             style=" margin-top: 10px;margin-left: -74%;"
             color="warning"
             size="small"
-            @click="isCategory = true"
+            @click="isCategory = true, getcategory(list.index)"
           >
-            카테고리
+            {{ selectedCategory[list.index] || '카테고리' }} <!-- 선택한 카테고리를 표시 -->
           </VBtn>
           <VCardItem
             class="d-flex flex-column justify-center align-center"
@@ -330,8 +339,9 @@ watch(router, fetchProjectData, { immediate: true })
               color="warning"
               variant="elevated"
               style=" width: 90px;margin-right: 5px;"
-              @click="getrecipe(connetId, list.title == '아침 메뉴'? '양식': list.title == '점심 메뉴'?'찌개':'일상', list.index), isRecipe = true"
+              @click="getrecipe(connetId, choicecategorydata[list.index], list.index), isRecipe = true"
             >
+              <!-- @click="getrecipe(connetId, list.title == '아침 메뉴'? choicecategorydata[0]: list.title == '점심 메뉴'?choicecategorydata[1]:choicecategorydata[2], list.index), isRecipe = true" -->
               식단 재추천
             </VBtn>
             <VBtn
@@ -350,6 +360,7 @@ watch(router, fetchProjectData, { immediate: true })
     <UserCategory
       v-model:isDialogVisible="isCategory"
       :choicecategory="choicecategory"
+      :diet-plans-listtype="dietPlansListtype"
       @update:choicecategory="handleChoiceCategory"
     />
     <RecipeView

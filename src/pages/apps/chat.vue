@@ -148,17 +148,19 @@ socket.addEventListener('open', async function (event) {
       if (contact && contact.chat) {
         contact.chat.lastMessage = newMessageData
       }
+      
 
       // 메시지 보내는 란 초기화
       msg.value = ''
 
-      // 스크롤을 아래로 내리기
-      await nextTick()
-      scrollToBottomInChatLog()
-
     } catch (error) {
       console.error(`데이터를 가져오는데 실패했습니다: ${error}`)
     }
+    
+    setTimeout(() => {
+      scrollToBottomInChatLog()
+    }, 50)
+
   }
 
 })
@@ -214,9 +216,6 @@ const openChatOfContact = async userId => {
   if (vuetifyDisplays.smAndDown.value)
     isLeftSidebarOpen.value = false
 
-  // 스크롤바 아래로 내리기
-  await nextTick()
-  scrollToBottomInChatLog()
 }
 
 
@@ -239,9 +238,12 @@ socket.addEventListener('message', async event => {
     },
   }
 
-  receivedMessage.value.push(newMessage);
+  receivedMessage.value.push(newMessage)
 
   console.log("Updated messages:", receivedMessage.value)
+  setTimeout(() => {
+    scrollToBottomInChatLog()
+  }, 50)
 })
 
 // file input
@@ -327,7 +329,10 @@ const refInputEl = ref()
           :options="{ wheelPropagation: false }"
           class="flex-grow-1"
         >
-        <ChatLog :new-chat="newchat" :receivedMessage="receivedMessage" />
+          <ChatLog
+            :new-chat="newchat"
+            :received-message="receivedMessage"
+          />
         </PerfectScrollbar>
 
         <!-- Message form -->

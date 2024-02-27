@@ -30,6 +30,11 @@ const props = defineProps({
     required: false,
     default: undefined,
   },
+  hit: {
+    type: String,
+    required: false,
+    default: undefined,
+  },
 })
 
 const emit = defineEmits([
@@ -75,7 +80,7 @@ const triggeredRemove = () => {
       <VCard v-bind="$attrs">
         <VCardItem>
           <VCardTitle v-if="props.title || $slots.title">
-            <VCol>
+            <VCol style="height: 80px;">
               <!-- 👉 Title slot and prop -->
               <VIcon
                 icon="mdi-help-circle-outline"
@@ -85,7 +90,9 @@ const triggeredRemove = () => {
               <slot name="title">
                 {{ props.title }}
               </slot>
-            </VCol>
+              <br>&nbsp;
+              <span style=" color: #2aa749;font-size: 13px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ props.hit }}</span>
+            </VCol>            
           </VCardTitle>
 
           <template #append>

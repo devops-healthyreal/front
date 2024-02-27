@@ -22,8 +22,8 @@
   </div>
   <script type="module" src="/src/main.js"></script>
   <script>
-    const loaderColor = localStorage.getItem('materio-initial-loader-bg') || '#45D15A'
-    const primaryColor = localStorage.getItem('materio-initial-loader-color') || '#45D15A'
+    const loaderColor = localStorage.getItem('#45D15A') || '#45D15A'
+    const primaryColor = localStorage.getItem('#45D15A') || '#45D15A'
     if (loaderColor)
       document.documentElement.style.setProperty('--initial-loader-bg', loaderColor)
     if (primaryColor)

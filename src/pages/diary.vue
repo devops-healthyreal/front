@@ -13,6 +13,7 @@ import { createApp, ref } from 'vue'
 import { useStore } from 'vuex'
 import SubmitConfirmModal from './components/diaryModal/SubmitConfirmModal.vue'
 
+
 const store = useStore()
 
 
@@ -43,6 +44,8 @@ const refVForm = ref()
 const inputDiaryPhoto = ref(false)
 const clickedImageUrl = ref('')
 
+const testwordcloud = ref(false)
+
 const isSubmitConfirmModalVisible = ref(false) //등록 확인 모달창
 const isEmotionDetectDialogVisible = ref(false) //감정분석 api 요청 중일 때 로딩창
 const isResultDialogVisible = ref(false) //감정 분석 결과 보여주는 창
@@ -51,6 +54,68 @@ const diary = ref('') //다이어리 콘텐츠 저장용
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId=computed(() => userInfo.value.id)
 const userId = ref(connetId)
+const inputEmotionPhoto = ref(false)
+const emotiondata=ref('')
+const imageData = ref('')
+
+const getWordCloud = async () => {
+  await axios.post('http://localhost:5000/wordcloud', {
+    text: '<p>오늘은 학교에 다녀온 날이었습니다. 아침 일찍 일어나서 준비를 마치고 학교로 향했습니다. 학교에 도착하니 이미 많은 친구들이 모여있었고, 활기찬 분위기가 느껴졌습니다.</p><p>수업 시작 전에는 친구들과 이야기를 나누고 웃음 가득한 시간을 보냈습니다. 서로의 추억이 담긴 이야기를 나누며 학교 생활이 그리워졌던 순간이었습니다.</p><p>수업 시간에는 열심히 공부에 집중했습니다. 선생님들께서는 열정적으로 지식을 전달해 주셨고, 저희 학생들도 질문을 하며 적극적으로 수업에 참여했습니다. 새로운 지식을 습득하고 배우는 과정은 항상 흥미로웠습니다.</p><p>점심 시간에는 친구들과 함께 급식을 먹으며 이야기를 나누었습니다. 맛있는 음식을 함께 나누는 시간은 항상 즐거웠습니다. 함께 웃고 이야기하며 친밀감을 느낄 수 있어서 기분이 좋았습니다.</p>',
+  }).then(response => {
+    console.log('체크..', response.data)
+
+    // 여기서 가져온 데이터를 원하는 방식으로 처리할 수 있습니다.
+    imageData.value = 'data:image/png;base64,' + response.data.image // 이미지 데이터 저장 및 화면 업데이트
+  }).catch(error => {
+    console.error('워드 클라우드를 가져오는 동안 오류가 발생했습니다:', error)
+  })
+}
+
+Quill.register("modules/emoji", Emoji)
+
+app.component('QuillEditor', QuillEditor)
+
+const imgUrlEmotion = ref([]) // 이미지 URL 담을 변수 -- 사진 여러개
+
+const uploadImgEmotion = e => {
+  const file = e.target.files[0] // 첫 번째 파일만 선택
+
+  console.log('함수 안의 파일명:', file)
+  
+  if (file) {
+    // 이미지 URL 생성
+    const imgEmotion = URL.createObjectURL(file)
+    
+    // 이미지 URL을 배열에 추가
+    imgUrlEmotion.value = [imgEmotion]
+    
+    // 파일을 formEmotion에 추가하고 서버로 업로드
+    const formEmotion = new FormData()
+
+    formEmotion.append('file', file)
+
+    axios.post('http://localhost:5000/test', formEmotion, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+      .then(response => {
+        console.log(response.data)
+        emotiondata.value=response.data
+
+      // 서버에서 받은 응답 처리
+      })
+      .catch(error => {
+        console.error(error)
+
+      // 오류 처리
+      })
+  } else {
+    // 파일이 선택되지 않은 경우
+    console.error('No file selected')
+  }
+}
+
 var files = [] //파일 리스트
 
 //사용자가 작성한 글을 html요소와 함께 저장 (view 용)
@@ -352,6 +417,7 @@ const postDiary = score => {
                 </VTooltip>
               </VBtn>
             </VCol>
+             
             <VCol cols="2">
               <VBtn 
                 style="margin-top: 600px;"
@@ -377,6 +443,23 @@ const postDiary = score => {
           </VCol>
         </VCard>
         <!-- 일기 보기 버튼 끝 -->
+
+        <Transition name="fade">
+          <div
+            v-if="imageData"
+            style=" margin-bottom: 20px;text-align: center;"
+          >
+            <VCol style="margin-bottom: 20px;">
+              <strong style=" padding: 15px; border-radius: 8px; background-color: #33da00; color: white;">자주 사용한 단어</strong>
+            </VCol>
+            <img
+              :src="imageData"
+              alt="WordCloud"
+            >
+          </div>
+        </Transition>
+
+
         <!-- 일기 쓰기 버튼 -->
         <VForm>
           <VCard v-if="writeDiaryContent">
@@ -417,15 +500,114 @@ const postDiary = score => {
                 </VRow>
               </Transition>
             </VCol>
-            <VCol
-              cols="3"
-              style="margin-left: 12px;"
-            >
-              <AppDateTimePicker
-                id="date"
-                v-model="date"
-                :label="getTodayLabel()"
-              />
+            <VCol>
+              <VRow style="margin-left: 12px;">
+                <VCol cols="3">
+                  <AppDateTimePicker
+                    id="date"
+                    v-model="date"
+                    :label="getTodayLabel()"
+                  />
+                </VCol>
+                <VSpacer />
+                <VCol cols="1">
+                  <VBtn @click="getWordCloud">
+                    단어분석
+                  </VBtn> 
+                </VCol> 
+
+                <!-- -------------------- 감정분석------------------------ -->
+                <VCol cols="1">
+                  <VDialog
+                    v-model="inputEmotionPhoto"
+                    width="600"
+                  >
+                    <template #activator="{ props }">
+                      <VBtn 
+                        width="50" 
+                        v-bind="props "
+                      >
+                        감정분석
+                      </VBtn>
+                    </template>
+                    <!-- Dialog Content -->
+                    <VCard title="오늘의 얼굴을 보여주세요!!">
+                      <DialogCloseBtn
+                        variant="text"
+                        size="small"
+                        @click="inputEmotionPhoto = false"
+                      />
+                      <VCardText>
+                        Ai가 얼굴을 인식해 감정을 분석해줍니다
+                      </VCardText>
+                      <VImg 
+                        v-for="(url, index) in imgUrlEmotion" 
+                        :key="index"
+                        :src="url"
+                        style="width: 400px; height: auto; align-self: center;"
+                      />
+                      <VCol style="text-align: center;">
+                        {{ emotiondata.emotion }}
+                        <VIcon
+                          v-if="emotiondata.emotion == 'happy'"
+                          color="success"
+                          icon="mdi-emoticon-excited"
+                        />
+                        <VIcon
+                          v-if="emotiondata.emotion == 'sad'"
+                          color="info"
+                          icon="mdi-emoticon-sad"
+                        />
+                        <VIcon
+                          v-if="emotiondata.emotion == 'disgust'"
+                          color="error"
+                          icon="mdi-emoticon-dead"
+                        />
+                        <VIcon
+                          v-if="emotiondata.emotion == 'angry'"
+                          color="error"
+                          icon="mdi-emoticon-angry"
+                        />
+                        <VIcon
+                          v-if="emotiondata.emotion == 'fear'"
+                          color="info"
+                          icon="mdi-emoticon-frown"
+                        />
+                        <VIcon
+                          v-if="emotiondata.emotion == 'surprise'"
+                          color="warning"
+                          icon="mdi-robot-confused"
+                        />
+                        <VIcon
+                          v-if="emotiondata.emotion == 'neutral'"
+                          color="secondery"
+                          icon="mdi-emoticon-neutral"
+                        />
+                      </VCol>
+                      <VCol cols="12">
+                        <VFileInput
+                          :rules="rules"
+                          label="Face IMG"
+                          type="file"
+                          accept="image/png, image/jpeg, image/bmp"
+                          placeholder="Pick an avatar"
+                          prepend-icon="mdi-camera-outline"
+                          @change="uploadImgEmotion"
+                        />
+                      </VCol>
+                      <VCol>
+                        <VBtn 
+                          block
+                          @click="inputEmotionPhoto=false"
+                        >
+                          확인
+                        </VBtn>
+                      </VCol>
+                    </VCard>
+                  </VDialog>
+                </VCol>
+                <!-- -------------------- 감정분석------------------------ -->
+              </VRow>
             </VCol>
             <VCol>
               <VCol cols="12">
@@ -445,6 +627,7 @@ const postDiary = score => {
                     </VBtn>
                   </VCol>
                   <VSpacer />
+                  
                   <VCol cols="1">
                     <VBtn 
                       width="50"  
@@ -561,7 +744,7 @@ const postDiary = score => {
 .fade-enter,
 .fade-enter-active {
   opacity: 0;
-  transition: opacity 1s;
+  transition: opacity 0.5s;
 }
 
 .fade-enter-to {
@@ -571,7 +754,7 @@ const postDiary = score => {
 .fade-leave-active,
 .fade-leave {
   opacity: 1;
-  transition: opacity 1s;
+  transition: opacity 0.5s;
 }
 
 .fade-leave-to {

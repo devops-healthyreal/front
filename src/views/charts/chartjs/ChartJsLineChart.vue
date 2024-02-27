@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useTheme } from 'vuetify'
-import { getLineChartConfig } from '@core/libs/chartjs/chartjsConfig'
-import LineChart from '@core/libs/chartjs/components/LineChart'
+import { getLineChartConfig } from '@core/libs/chartjs/chartjsConfig';
+import LineChart from '@core/libs/chartjs/components/LineChart';
+import { useTheme } from 'vuetify';
 
-import type { ChartJsCustomColors } from '@/views/charts/chartjs/types'
+import type { ChartJsCustomColors } from '@/views/charts/chartjs/types';
 
 interface Props {
   colors: ChartJsCustomColors
@@ -13,28 +13,30 @@ const props = defineProps<Props>()
 
 const vuetifyTheme = useTheme()
 
+//labels는 x축에 있는 값
+//첫번째부터 식단, 운동, 마음돌봄
 const data = {
   labels: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140],
   datasets: [
     {
       fill: false,
-      tension: 0.5,
+      tension: 0.5, //값이 0에 가까워 질 수록 
       pointRadius: 1,
-      label: 'Europe',
+      label: '식단',
       pointHoverRadius: 5,
       pointStyle: 'circle',
       borderColor: props.colors.primary,
       backgroundColor: props.colors.primary,
-      pointHoverBorderWidth: 5,
+      pointHoverBorderWidth: 10,
       pointHoverBorderColor: props.colors.white,
       pointBorderColor: 'transparent',
       pointHoverBackgroundColor: props.colors.primary,
-      data: [80, 150, 180, 270, 210, 160, 160, 202, 265, 210, 270, 255, 290, 360, 375],
+      data: [80, 250, 180, 270, 210, 160, 160, 202, 265, 210, 270, 255, 290, 360, 375],
     },
     {
       fill: false,
       tension: 0.5,
-      label: 'Asia',
+      label: '운동',
       pointRadius: 1,
       pointHoverRadius: 5,
       pointStyle: 'circle',
@@ -50,7 +52,7 @@ const data = {
       fill: false,
       tension: 0.5,
       pointRadius: 1,
-      label: 'Africa',
+      label: '마음돌봄',
       pointHoverRadius: 5,
       pointStyle: 'circle',
       borderColor: props.colors.yellow,

@@ -148,19 +148,8 @@ const addNewUser = userData => {
 <template>
   <section>
     <VCard cols="8">
-      <VCardText class="d-flex flex-wrap gap-4">
-        <!-- 👉 Export button -->
-        <VBtn
-          variant="outlined"
-          color="disabled"
-          prepend-icon="mdi-tray-arrow-up"
-        >
-          Export
-        </VBtn>
-
-        <VSpacer />
-
-        <div class="app-user-search-filter d-flex align-center gap-6">
+      <VCardText class="d-flex flex-wrap gap-4 ">
+        <div class="app-user-search-filter d-flex align-center gap-6 ">
           <!-- 👉 Search  -->
           <VTextField
             v-model="searchQuery"
@@ -190,12 +179,12 @@ const addNewUser = userData => {
         :items-length="totalUsers"
         :headers="headers"
         show-select
-        class="text-no-wrap rounded-0"
+        class="text-no-wrap rounded-0 "
         @update:options="options = $event"
       >
         <!-- User -->
         <template #item.user="{ item }">
-          <div class="d-flex">
+          <div class="d-flex ">
             <VAvatar
               size="34"
               :variant="!item.raw.avatar ? 'tonal' : undefined"
@@ -322,5 +311,23 @@ const addNewUser = userData => {
 
 .user-list-name:not(:hover) {
   color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+}
+
+.scrollbar {
+  overflow-x: scroll;
+}
+
+/* 스크롤바의 폭 너비 */
+.scrollbar::-webkit-scrollbar {
+  inline-size: 10px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 10px; /* 스크롤바 둥근 테두리 */
+  background: rgb(247, 177, 177); /* 스크롤바 색상 */
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: rgba(220, 20, 60, 10%);  /* 스크롤바 뒷 배경 색상 */
 }
 </style>

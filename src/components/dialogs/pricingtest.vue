@@ -8,13 +8,16 @@ const props = defineProps({
   pay: {
     // pay props의 타입을 지정합니다. 필요에 따라 수정할 수 있습니다.
     type: Number,
+
     // 기본값을 설정할 수 있습니다. 필요에 따라 수정할 수 있습니다.
     default: null,
-  },challroomno:{
+  }, challroomno: {
     type: Number,
     default: null,
-  }
+  },
 })
+
+const BOOTPAY_API_KEY = import.meta.env.VITE_APP_BOOTPAY_API_KEY
 
 const store = useStore()
 
@@ -26,7 +29,7 @@ const payHandler = async () => {    //await과 함께 사용하는 함수
   let response // response 변수 선언
   try {
     response = await Bootpay.requestPayment({
-      "application_id": "65a88b6500be04001a1ab11b",  
+      "application_id": `${BOOTPAY_API_KEY}`,  
       "price": props.pay,
       "order_name": "HealthyReal 챌린지 "+props.challroomno,
       "order_id": "TEST_ORDER_ID",
@@ -36,6 +39,7 @@ const payHandler = async () => {    //await과 함께 사용하는 함수
       "tax_free": 0,
       "user": {
         "id": connetId,
+
         // "username": "김길동",
         // "phone": "01000000000",
         // "email": "test@test.com",

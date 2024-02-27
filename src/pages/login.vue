@@ -155,6 +155,7 @@ export default{
                     label="아이디"
                     type="id"
                     :rules="[requiredValidatorId]"
+                    @keyup.enter="loginNext"
                   />
                 </VCol>
                 <VCol cols="12">

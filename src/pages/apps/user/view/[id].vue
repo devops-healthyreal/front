@@ -54,7 +54,7 @@ const setting = async () => {
     checkedExerciseItems.value = response.data.exercise
     console.log(' 이행률 데이타는---', response)
     console.log(' checkedItems.value---', checkedItems.value)
-    console.log(' checkedItems.value---', checkedExerciseItems.value)
+    console.log(' checkedExerciseItems.value---', checkedExerciseItems.value)
   } else {
     console.log('이행률 데이타 가져오기 실패')
   }
@@ -116,19 +116,26 @@ userListStore.fetchUser(Number(route.params.id)).then(response => {
 
 // checkedItems의 변화를 감지하여 변경 사항을 업데이트합니다.
 watchEffect(async () => {
-  if(checkedItems.value && checkedItems.value && Array.isArray(checkedItems.value)) {
+  if(checkedItems.value && Array.isArray(checkedItems.value)) {
     console.log('checkedItems가 변경되었습니다:', checkedItems.value.length)
   }
-  if(checkedExerciseItems.value && checkedExerciseItems.value && Array.isArray(checkedExerciseItems.value)) {
+  if(checkedExerciseItems.value && Array.isArray(checkedExerciseItems.value)) {
     console.log('checkedExerciseItems가 변경되었습니다:', checkedExerciseItems.value.length)
   }
 
   console.log('checkedItems 초기화?:', checkedItems.value)
   console.log('checkedExerciseItems 초기화?:', checkedExerciseItems.value)
 
-  if(checkedItems.value != "" && checkedExerciseItems.value != "" ){
-    const response = await axios.post('http://localhost:4000/croom/implementation.do', { 
+  if(checkedItems.value  ){
+
+    const response = await axios.post('http://localhost:4000/croom/implementationFood.do', { 
       foodCheckCount: checkedItems.value,
+      id: connetId, 
+    })
+  }
+  if( checkedExerciseItems.value ){
+
+    const response = await axios.post('http://localhost:4000/croom/implementationExercise.do', { 
       exerciseCheckCount: checkedExerciseItems.value,
       id: connetId, 
     })
