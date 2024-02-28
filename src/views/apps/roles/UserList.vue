@@ -1,15 +1,10 @@
 <script setup>
 import { paginationMeta } from '@/@fake-db/utils'
-import { useUserListStore } from '@/views/apps/user/useUserListStore'
-import { avatarText } from '@core/utils/formatters'
+import axios from "axios"
+import { onMounted, ref } from 'vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
-const userListStore = useUserListStore()
 const searchQuery = ref('')
-const selectedRole = ref()
-const selectedPlan = ref()
-const selectedStatus = ref()
-const totalPage = ref(1)
 const totalUsers = ref(0)
 const users = ref([])
 
@@ -21,128 +16,59 @@ const options = ref({
   search: undefined,
 })
 
+
+//유저 데이터 가져오기
+const userData = async () => {
+  const response = await axios.get('http://localhost:4000/user/findAllUser')
+  if (response.status === 200) {
+    users.value = response.data.map(user => {
+      const date = new Date(user.REGIDATE)
+      const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+
+      return {
+        PROFILEIMAGE: user.PROFILEIMAGE,
+        NAME: user.NAME,
+        ID: user.ID,
+        B_DAY: user.B_DAY,
+        GOAL_NAME: user.GOAL_NAME,
+        REGIDATE: formattedDate,
+        GENDER: user.GENDER === 'M' ? '남자' : '여자',
+      }
+    })
+    totalUsers.value = users.value.length
+    
+  } else {
+    console.log('유저들의 데이타 가져오기 실패')
+  }
+
+}
+
+onMounted(async () => { await userData()})
+
 const headers = [
   {
-    title: 'USER',
+    title: '유저',
     key: 'user',
   },
   {
-    title: 'EMAIL',
-    key: 'email',
+    title: '가입목적',
+    key: 'GOAL_NAME',
   },
   {
-    title: 'ROLE',
-    key: 'role',
+    title: '성별',
+    key: 'GENDER',
   },
 
   {
-    title: 'STATUS',
-    key: 'status',
+    title: '생일',
+    key: 'B_DAY',
   },
+
   {
-    title: 'ACTION',
-    key: 'actions',
-    sortable: false,
+    title: '가입일',
+    key: 'REGIDATE',
   },
 ]
-
-// 👉 Fetching users
-const fetchUsers = () => {
-  userListStore.fetchUsers({
-    q: searchQuery.value,
-    status: selectedStatus.value,
-    plan: selectedPlan.value,
-    role: selectedRole.value,
-    options: options.value,
-  }).then(response => {
-    users.value = response.data.users
-    totalPage.value = response.data.totalPage
-    totalUsers.value = response.data.totalUsers
-  }).catch(error => {
-    console.error(error)
-  })
-}
-
-watchEffect(fetchUsers)
-
-// 👉 search filters
-const roles = [
-  {
-    title: 'Admin',
-    value: 'admin',
-  },
-  {
-    title: 'Author',
-    value: 'author',
-  },
-  {
-    title: 'Editor',
-    value: 'editor',
-  },
-  {
-    title: 'Maintainer',
-    value: 'maintainer',
-  },
-  {
-    title: 'Subscriber',
-    value: 'subscriber',
-  },
-]
-
-const resolveUserRoleVariant = role => {
-  const roleLowerCase = role.toLowerCase()
-  if (roleLowerCase === 'subscriber')
-    return {
-      color: 'primary',
-      icon: 'mdi-account-outline',
-    }
-  if (roleLowerCase === 'author')
-    return {
-      color: 'warning',
-      icon: 'mdi-cog-outline',
-    }
-  if (roleLowerCase === 'maintainer')
-    return {
-      color: 'success',
-      icon: 'mdi-chart-donut',
-    }
-  if (roleLowerCase === 'editor')
-    return {
-      color: 'info',
-      icon: 'mdi-pencil-outline',
-    }
-  if (roleLowerCase === 'admin')
-    return {
-      color: 'error',
-      icon: 'mdi-laptop',
-    }
-  
-  return {
-    color: 'primary',
-    icon: 'mdi-account-outline',
-  }
-}
-
-const resolveUserStatusVariant = stat => {
-  const statLowerCase = stat.toLowerCase()
-  if (statLowerCase === 'pending')
-    return 'warning'
-  if (statLowerCase === 'active')
-    return 'success'
-  if (statLowerCase === 'inactive')
-    return 'secondary'
-  
-  return 'primary'
-}
-
-const isAddNewUserDrawerVisible = ref(false)
-
-const addNewUser = userData => {
-  userListStore.addUser(userData)
-
-  // refetch User
-  fetchUsers()
-}
 </script>
 
 <template>
@@ -153,20 +79,9 @@ const addNewUser = userData => {
           <!-- 👉 Search  -->
           <VTextField
             v-model="searchQuery"
-            placeholder="Search User"
+            placeholder="찾을 유저"
             density="compact"
             style="width: 8rem;"
-          />
-
-          <!-- 👉 Add user button -->
-          <VSelect
-            v-model="selectedRole"
-            label="Select Role"
-            :items="roles"
-            density="compact"
-            clearable
-            clear-icon="mdi-close"
-            style="width: 5rem;"
           />
         </div>
       </VCardText>
@@ -187,71 +102,45 @@ const addNewUser = userData => {
           <div class="d-flex ">
             <VAvatar
               size="34"
-              :variant="!item.raw.avatar ? 'tonal' : undefined"
-              :color="!item.raw.avatar ? resolveUserRoleVariant(item.raw.role).color : undefined"
+              :variant="!item.raw.PROFILEIMAGE ? 'tonal' : undefined"
               class="me-3"
             >
               <VImg
-                v-if="item.raw.avatar"
-                :src="item.raw.avatar"
+                v-if="item.raw.PROFILEIMAGE"
+                :src="item.raw.PROFILEIMAGE"
               />
-              <span v-else>{{ avatarText(item.raw.fullName) }}</span>
             </VAvatar>
 
             <div class="d-flex flex-column">
               <h6 class="text-sm font-weight-medium">
-                <RouterLink
-                  :to="{ name: 'apps-user-view-id', params: { id: item.raw.id } }"
-                  class="font-weight-medium user-list-name"
-                >
-                  {{ item.raw.fullName }}
-                </RouterLink>
+                {{ item.raw.ID }}
               </h6>
 
-              <span class="text-xs text-medium-emphasis">@{{ item.raw.username }}</span>
+              <span class="text-xs text-medium-emphasis">{{ item.raw.NAME }}</span>
             </div>
           </div>
         </template>
 
-        <!-- Role -->
-        <template #item.role="{ item }">
+
+        <template #item.GOAL_NAME="{ item }">
           <div class="d-flex gap-2">
-            <span class="text-capitalize">{{ item.raw.role }}</span>
+            <span class="text-capitalize">{{ item.raw.GOAL_NAME }}</span>
           </div>
         </template>
 
-        <!-- email -->
-        <template #item.email="{ item }">
-          <span class="text-sm">{{ item.raw.email }}</span>
+        <template #item.GENDER="{ item }">
+          <span class="text-sm">{{ item.raw.GENDER }}</span>
         </template>
 
 
-        <!-- Status -->
-        <template #item.status="{ item }">
-          <VChip
-            :color="resolveUserStatusVariant(item.raw.status)"
-            density="comfortable"
-            class="text-capitalize"
-          >
-            {{ item.raw.status }}
-          </VChip>
+        <template #item.B_DAY="{ item }">
+          <span class="text-sm">{{ item.raw.B_DAY }}</span>
         </template>
 
-        <!-- Actions -->
-        <template #item.actions="{ item }">
-          <VBtn
-            icon
-            variant="text"
-            size="small"
-            color="medium-emphasis"
-            :to="{ name: 'apps-user-view-id', params: { id: item.raw.id } }"
-          >
-            <VIcon
-              size="24"
-              icon="mdi-eye-outline"
-            />
-          </VBtn>
+        <template #item.REGIDATE="{ item }">
+          <span class="text-sm">{{ item.raw.REGIDATE }}</span>
         </template>
+
 
         <!-- Pagination -->
         <template #bottom>

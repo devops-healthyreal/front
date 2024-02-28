@@ -391,7 +391,7 @@ export const getDonutChartConfig = themeColors => {
     ],
   }
 }
-export const getAreaChartSplineConfig = themeColors => {
+export const getAreaChartSplineConfig = (themeColors, categories) => {
   const areaColors = {
     series5: '#99ff99',
     series4: '#00ffff',
@@ -452,21 +452,7 @@ export const getAreaChartSplineConfig = themeColors => {
       labels: {
         style: { colors: themeDisabledTextColor },
       },
-      categories: [
-        '23/2',
-        '23/3',
-        '23/4',
-        '23/5',
-        '23/6',
-        '23/7',
-        '23/8',
-        '23/9',
-        '23/10',
-        '23/11',
-        '23/12',
-        '24/1',
-        '24/2',
-      ],
+      categories: categories,
     },
   }
 }
