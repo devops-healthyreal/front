@@ -7,6 +7,7 @@ import controlHeader from '@images/pages/app-search-header-bg-light.png'
 import defaultImg from '@images/userProfile/default.png'
 import { onMounted, reactive, ref } from 'vue'
 
+
 const chartJsCustomColors = {
   white: '#fff',
   yellow: '#ffe802',
@@ -143,7 +144,7 @@ const getData = async function() {
                 start
                 icon="mdi-account-cancel-outline"
               />
-              신고 유저
+              블랙리스트
             </VTab>
 
             <VTab>
