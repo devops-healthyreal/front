@@ -156,7 +156,7 @@ onUnmounted(() => {
           <!-- 참가비 시작 -->
           <VCol>
             <VAlert type="warning">
-              참가비는 하루 전 <strong>자동 결제</strong> 됩니다
+              참가비는 <strong>하루 전</strong>까지 결제하셔야 합니다
             </VAlert>
           </VCol>
           <!-- 참가비 끝 -->

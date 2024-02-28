@@ -8,6 +8,14 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  bfood: {
+    type: Array,
+    required: true,
+  },
+  selectcurr: {
+    type: String,
+    required: true,
+  },
 })
 
 const emit = defineEmits(['update:isDialogVisible'])
@@ -47,60 +55,53 @@ const dialogVisibleUpdate = val => {
                 <tr>
                   <th class="text-center">
                     <VIcon icon="mdi-clock-time-five" />
-                    &nbsp; 시간 
+                    &nbsp; 시간
                     <br>
                     recommend
                   </th>
                   <th class="text-center">
-                    탄수화물
-                    <br>
-                    315g
+                    탄수화물 
                   </th>
                   <th class="text-center">
                     단백질
-                    <br>
-                    315g
                   </th>
                   <th class="text-center">
                     지방
-                    <br>
-                    315g
                   </th>
                   <th class="text-center">
-                    비타민
-                    <br>
-                    315g
+                    나트륨
                   </th>
                   <th class="text-center">
-                    무기질
-                    <br>
-                    315g
+                    콜레스트롤                 
                   </th>
                 </tr>
               </thead>
 
               <tbody>
-                <tr
+                <!--
+                  <tr
                   v-for="item in mealsData"
                   :key="item.time"
-                >
+                  > 
+                -->
+                <tr>
                   <td>
-                    {{ item.time }}
+                    {{ selectcurr }}
                   </td>
                   <td>
-                    {{ item.carbo }}
+                    {{ bfood.carbohydrate }}
                   </td>
                   <td>
-                    {{ item.protein }}
+                    {{ bfood.protein }}
                   </td>
                   <td>
-                    {{ item.fat }}
+                    {{ bfood.fat }}
                   </td>
                   <td>
-                    {{ item.vita }}
+                    {{ bfood.sodium }}
                   </td>
                   <td>
-                    {{ item.mineral }}
+                    {{ bfood.cholesterol }}
                   </td>
                 </tr>
               </tbody>
