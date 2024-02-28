@@ -2,7 +2,10 @@
 import ReportUser from '@/pages/components/ReportUser.vue'
 import UserList from '@/views/apps/roles/UserList.vue'
 import ChartJsLineChart from '@/views/charts/chartjs/ChartJsLineChart.vue'
+import axios from '@axios'
 import controlHeader from '@images/pages/app-search-header-bg-light.png'
+import defaultImg from '@images/userProfile/default.png'
+import { onMounted, reactive, ref } from 'vue'
 
 const chartJsCustomColors = {
   white: '#fff',
@@ -26,6 +29,86 @@ const chartJsCustomColors = {
 }
 
 const currentTab = ref(0)
+
+const state = reactive({
+  items: [],
+})
+
+onMounted(async () => {
+  getData()
+})
+
+const users = ref([])
+
+//삭제코드
+const deleteItem = async bno => {
+  try {
+    const response = await axios.get(`http://localhost:4000/bbs/${bno}/Delete.do`)
+    if (response.data === 1) {
+      const bnoInt = parseInt(bno) // bno를 숫자로 변환
+
+      state.items = state.items.filter(item => item.bno !== bnoInt) // items 배열에서 삭제된 항목 제거
+    } else {
+      console.log(response.data, "response.data")
+      alert('삭제에 실패했습니다.')
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const getUserAvatar = userId => {
+  const user = users.value.find(user => user.id === userId)
+  
+  return user ? user.profilePath : defaultImg
+}
+
+const getData = async function() {
+  try {
+    const response = await axios.post('http://localhost:4000/bbs/List.do', {
+      selectedItems: ["운동", "식단", "심리"],
+    })
+
+    // 응답 처리
+    if (response.status === 200) {
+      
+      state.items = response.data // 데이터 저장
+      console.log('데이터 받기 성공', state.items)
+
+      const tempUserKeys = []
+      for(var i=0; i<state.items.length; i++){
+        tempUserKeys[i] = state.items[i].id
+      }
+      const tempUserKeysSet = new Set(tempUserKeys) //중복 아이디 제거
+      const temp = [...tempUserKeysSet] //ids
+
+      /*
+      temp의 앞에 현재 서비스를 이용 중인 유저의 아이디가 들어가야 함.
+      뿌려주는 게시글 작성자들의 목록을 불러옴.
+      */
+      console.log(temp)
+      axios.post("http://localhost:4000/bbs/userProfile", JSON.stringify ({
+        ids: temp,
+      }), { headers: { 'Content-Type': 'application/json' },
+        withCredentials: true,
+      })
+        .then(resp=>{
+          console.log('요청받은 값:', resp.data)
+          users.value = resp.data
+          for (const i of users.value){
+            console.log('유저 아이디:', i.id, '\n유저 프로필:', i.profilePath)
+            console.log('체크', i)
+          }
+        })
+        .catch(err=>console.log(err))
+      console.log('데이터 체크', response.data)
+    } else {
+      console.log('데이터 전송 실패')
+    }
+  } catch (error) {
+    console.error(`데이터 전송 실패: ${error}`)
+  }
+}
 </script>
 
 <template>
@@ -205,6 +288,114 @@ const currentTab = ref(0)
                   <span class="text-sm">Post Management</span>
                 </div>
               </div>
+              <VCard
+                flat
+                :max-width="auto"
+                class="mt-1 mt-sm- pa-0 custom-scrollbar"
+                style="height: 600px; overflow-y: auto;"
+              >
+                <!-- 게시물 작성 공간 -->
+                <VCol v-if="state.items.length > 0">
+                  <!-- 게시물이 있을 때의 템플릿 -->
+                  <VCol
+                    v-for="(item, index) in state.items"
+                    :key="index"
+                    cols="12"
+                  >
+                    <VCard>
+                      <VCol>
+                        <VRow>
+                          <VCol cols="1">
+                            <VAvatar 
+                              class="text-sm pointer-cursor"
+                              :image="getUserAvatar(item.id)"
+                            />
+                          </VCol>
+                          <VCol cols="4">
+                            <VCol cols="12">
+                              <VCardSubtitle
+                                class="text-sm pointer-cursor"
+                                style="margin-left: -5%;"
+                              >
+                                {{ item.id }}  <!-- 유저 닉네임 뿌려주기 -->
+                              </VCardSubtitle>
+                              <VBtn
+                                class="d-flex justify-end"
+                                @click="deleteItem(item.bno)"
+                              >
+                                <VIcon icon="mdi-delete-outline" />
+                                삭제하기
+                              </VBtn>
+                            </VCol>
+                          </VCol>
+                        </VRow>
+                      </VCol>
+                      <!-- 사진 부분 -->
+                      <VCol
+                        v-if="item.files && item.files.length ==1"
+                        class="transparent-carousel"
+                        show-arrows-on-hover
+                      >
+                        <VCol
+                          v-for="(image, i) in item.files" 
+                          :key="i"
+                          :class="{'active-slide': i === activeIndex}"
+                        >
+                          <VImg
+                            :src="image"
+                            class="pointer-cursor"
+                          />
+                        </VCol>
+                      </VCol>
+                      <VCarousel
+                        v-if="item.files && item.files.length >=2"
+                        class="transparent-carousel"
+                        show-arrows-on-hover
+                        color="success"                  
+                      >
+                        <!--
+                          cycle
+                          interval="2000" 
+                        -->
+                        <VCarouselItem
+                          v-for="(image, i) in item.files" 
+                          :key="i"
+                          :class="{'active-slide': i === activeIndex}"
+                        >
+                          <VImg
+                            :src="image"
+                            class="pointer-cursor"
+                            open-view-post-moadl
+                          />
+                        </VCarouselItem>
+                      </VCarousel>
+                      <VCardItem>
+                        <VCardTitle class="pointer-cursor">
+                          {{ item.content }}
+                        </VCardTitle> 
+                      </VCardItem>
+                    </VCard>
+                  </VCol> 
+                </VCol>
+
+                <VCol
+                  v-if="true"
+                  class="d-flex justify-center align-center"
+                  style="height: 300px;"
+                >
+                  <!-- 게시물이 없을 때의 템플릿 -->
+                  <VCol
+                    v-if="state.items.length <= 0"
+                    class="d-flex flex-column align-center justify-center"
+                    style="height: 100%;"
+                  >
+                    <VCardTitle class="headline font-weight-bold">
+                      등록된 게시물이 없습니다
+                    </VCardTitle>
+                    <VCardText>새로운 게시물을 작성해보세요!</VCardText>
+                  </VCol>
+                </VCol>
+              </VCard>
             </VWindowItem>
           </VWindow>
         </VCol>
