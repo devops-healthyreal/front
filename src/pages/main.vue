@@ -7,6 +7,9 @@ import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import { startRecognition } from './stt.js'
+import { startSynthesis } from './tts.js'
+
 
 const router = useRouter()
 const store = useStore()
@@ -292,7 +295,9 @@ const dietPlansList = [
               <VBtn
                 style="height: 40px;"
                 variant="text"
+                @click="startSynthesis('오늘의 스케줄을 시작합니다.')"
               >
+                >
                 <VIcon
                   start
                   icon="mdi-contactless-payment-circle-outline"
@@ -306,51 +311,13 @@ const dietPlansList = [
                 style=" height: 45px; margin-top: 4px;margin-left: 48px;"
                 variant="text"
                 class="btn-lg btn-dark"
-                @click="$router.push('/tts')"
+                @click="startRecognition"
               >
                 <VIcon
                   size="x-large"
                   icon="mdi-microphone-outline"
                   color="success"
                 />
-              </VBtn>
-            </VCol>
-            <VCol cols="12">
-              <VBtn
-                id="startBtn"
-                class="btn-lg btn-dark"
-                @click="$router.push('/voicechatbot')"
-              >
-                voicechatbot
-              </VBtn>
-            </VCol>
-
-            <VCol cols="12">
-              <VBtn
-                id="startBtn"
-                class="btn-lg btn-dark"
-                @click="$router.push('/stt')"
-              >
-                stts
-              </VBtn>
-            </VCol>
-
-            <VCol cols="12">
-              <VBtn
-                id="startBtn"
-                class="btn-lg btn-dark"
-                @click="$router.push('/stabilityVideoDifusiononlyfront')"
-              >
-                stable video defusion only front
-              </VBtn>
-            </VCol>
-            <VCol cols="12">
-              <VBtn
-                id="startBtn"
-                class="btn-lg btn-dark"
-                @click="$router.push('/stabilityVideoDifusion')"
-              >
-                stable video defusion
               </VBtn>
             </VCol>
           </VRow>
