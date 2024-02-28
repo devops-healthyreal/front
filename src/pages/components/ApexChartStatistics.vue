@@ -123,7 +123,7 @@ const series = computed(() => {
   >
     <!-- 식단쪽 이행률 체크 타임라인 -->
     <VWindowItem value="tab-1">
-      <TimelineBasic 
+      <TimelineBasicFood 
         :checked-items="checkedItems"
         @sendData="handleDataFromChild"
       />
