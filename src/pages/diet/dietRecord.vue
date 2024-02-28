@@ -24,6 +24,15 @@ const uploadImg = (e, tagId) =>{
   console.log('함수끝')
 }
 
+const selectitem = ref(['아침', '점심', '저녁'])
+const selectcurr = ref('')
+
+// const onchangeselect = value =>{
+//   const 
+// }
+
+const before_food = ref('')
+
 const foodocr = imageFile => {
   console.log('foodocr 실행', imageFile)
   try {
@@ -40,13 +49,23 @@ const foodocr = imageFile => {
       axios
         .post('http://127.0.0.1:5000/foodOcr', formdata)
         .then(response => {          
-          console.log(response.data.base64)
+          // console.log(response.data.base64)
           
           return response.data
         })
         .then(data => {
           document.querySelector('#imgBefore').src = 'data:image/jpeg;base64,' + data.base64
           console.log('여기까지 들어옴', data)
+
+
+          // before_food.value = data.detected_food_names[0].replace(/"/g, '')
+          before_food.value = data.detected_food_names[0]?.replace(/"/g, '').trim() // optional chaining 사용
+
+          if(before_food.value){
+            getfoodinfostart(before_food.value)
+          }else{
+            console.error('음식을 인식할 수 없습니다.')
+          }
         })
     }
     reader.readAsDataURL(imageFile) // 이미지 파일을 읽고 base64 인코딩된 데이터를 얻음
@@ -54,6 +73,16 @@ const foodocr = imageFile => {
     console.log('뭔데..')
     console.error(e)
   }
+}
+
+const bfood = ref('')
+
+const getfoodinfostart = async data =>{
+  await axios.get('http://localhost:4000/foodlist/foodinfo.do', { params: { foodname: data } })
+    .then(response => {
+      console.log('받은 데이터 :', response.data)
+      bfood.value = response.data
+    })
 }
 
 const makeDisable = () => {
@@ -95,6 +124,14 @@ const isNutrientAnalysisVisible = ref(false) //모달창 컨트롤 변수
           class="text-high-emphasis text-center"
           :style="{'width':'80%', 'margin-bottom':'100px'}"
         >
+          <VCol>
+            <VSelect
+              v-model="selectcurr"
+              :items="selectitem"
+              label="식사을 선택해주세요"
+              placeholder="식사을 선택해주세요"
+            />
+          </VCol>
           <!-- 식전사진 업로드 -->
           <div :style="{'margin':'30px'}">
             <h2>식전 사진</h2>
@@ -122,8 +159,14 @@ const isNutrientAnalysisVisible = ref(false) //모달창 컨트롤 변수
             </label>
           </VCardItem>
           <VCardText>
-            <p class="text-base clamp-text">
+            <p
+              v-if="before_food == ''"
+              class="text-base clamp-text"
+            >
               음식이 모두 보이도록<br>사진을 업로드해주세요.
+            </p>
+            <p v-else>
+              확인된 음식 : {{ before_food }}
             </p>
             <VBtn @click="handleUpload('filebtn')">
               upload
@@ -143,37 +186,62 @@ const isNutrientAnalysisVisible = ref(false) //모달창 컨트롤 변수
         >
           <!-- 식후사진 업로드 -->
           <div :style="{'display':'flex', 'justify-content':'center','margin':'30px'}">
-            <strong style="font-size: x-large;">식후 사진</strong>
-          </div>
-          <VCardItem :style="{'margin-top':'10px'}">
-            <input
+            <strong style="font-size: x-large;">{{ bfood? bfood[0].foodname:'' }} 식품 정보</strong>            
+          </div>          
+          <VCardItem
+            v-if="bfood"
+            :style="{'margin-top':'10px'}"
+          >
+            <VCol>
+              칼로리 : {{ bfood[0].calory }} ㎉
+            </VCol>
+            <VCol>            
+              탄수화물 : {{ bfood[0].carbohydrate }} g
+            </VCol>
+            <VCol>            
+              단백질 : {{ bfood[0].protein }} g
+            </VCol>
+            <VCol>            
+              지방 : {{ bfood[0].fat }} g
+            </VCol>
+            <VCol>            
+              나트륨 : {{ bfood[0].sodium }} ㎎
+            </VCol>
+            <VCol>            
+              콜레스트롤 : {{ bfood[0].cholesterol }} ㎎
+            </VCol>
+            <!--
+              <input
               id="filebtnAfter"
               type="file"
               accept="image/*"
               hidden
               @change="uploadImg($event,'imgAfter')"
-            > 
-            <label
+              > 
+              <label
               for="filebtnAfter"
               class="input-plus"
-            >
+              >
               <div :style="{ 'width':'100%', 'height':'300px', 'display':'flex','justify-content': 'center','align-items': 'center'}">
-                <img
-                  id="imgAfter"
-                  :style="{'width':'50px', 'height':'60px'}"
-                  src="@images/noimage.png"
-                >
+              <img
+              id="imgAfter"
+              :style="{'width':'50px', 'height':'60px'}"
+              src="@images/noimage.png"
+              >
               </div>
-            </label>
+              </label> 
+            -->
           </VCardItem>
-          <VCardText>
+          <!--
+            <VCardText>
             <p class="text-base clamp-text">
-              식전 사진과 같은 구도로 찍은 사진을 <br>업로드해주세요.
+            식전 사진과 같은 구도로 찍은 사진을 <br>업로드해주세요.
             </p>
             <VBtn @click="handleUpload('filebtnAfter')">
-              upload
+            upload
             </VBtn>
-          </VCardText>
+            </VCardText> 
+          -->
 
           <ShareProjectDialog v-model:isDialogVisible="isShareProjectDialogVisible" />
         </VCard> <!-- 식후사진 업로드 end -->
@@ -182,12 +250,16 @@ const isNutrientAnalysisVisible = ref(false) //모달창 컨트롤 변수
     <VRow :style="{'display':'flex', 'justify-content': 'center'}">
       <VBtn
         :disabled="isSubmitDisabled"
-        :style="{'margin-bottom':'50px'}"
+        :style="{'margin-bottom':'50px'}"        
         @click="isNutrientAnalysisVisible = !isNutrientAnalysisVisible"
       >
         SUBMIT
       </VBtn>
-      <NutrientAnalysis v-model:isDialogVisible="isNutrientAnalysisVisible" />
+      <NutrientAnalysis
+        v-model:isDialogVisible="isNutrientAnalysisVisible"
+        :bfood="bfood[0]"
+        :selectcurr="selectcurr"
+      />
     </VRow>
   </VCard>
 </template>
