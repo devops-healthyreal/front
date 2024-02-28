@@ -143,56 +143,60 @@ const logout = async () => {
           <VDivider class="my-2" />
 
           <!-- 👉 Profile -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="mdi-account-outline"
-                size="22"
-              />
-            </template>
+          <RouterLink
+            :to="{ name: 'apps-user-view-id', params: { id: 22 } }"
+            style="color: rgb(83, 83, 83);"
+          >
+            <VListItem
+              link
+              @click="myprofile"
+            >
+              <template #prepend>
+                <VIcon
+                  class="me-2"
+                  icon="mdi-face-man-shimmer-outline"
+                  size="22"
+                />
+              </template>
 
-            <VListItemTitle>Profile</VListItemTitle>
-          </VListItem>
+              <VListItemTitle>마이페이지</VListItemTitle>
+            </VListItem>
+          </RouterLink>
 
-          <!-- 👉 Settings -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="mdi-cog-outline"
-                size="22"
-              />
-            </template>
+          <RouterLink
+            :to="{ name: 'community_post' }"
+            style="color: rgb(83, 83, 83);"
+          >
+            <!-- 👉 Settings -->
+            <VListItem link>
+              <template #prepend>
+                <VIcon
+                  class="me-2"
+                  icon="mdi-instagram"
+                  size="22"
+                />
+              </template>
+              <VListItemTitle>게시물</VListItemTitle>
+            </VListItem>
+          </RouterLink>
 
-            <VListItemTitle>Settings</VListItemTitle>
-          </VListItem>
+          <!-- 채팅 -->
+          <RouterLink
+            :to="{ name: 'apps-chat' }"
+            style="color: rgb(83, 83, 83);"
+          >
+            <VListItem link>
+              <template #prepend>
+                <VIcon
+                  class="me-2"
+                  icon="mdi-message-text"
+                  size="22"
+                />
+              </template>
 
-          <!-- 👉 Pricing -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="mdi-currency-usd"
-                size="22"
-              />
-            </template>
-
-            <VListItemTitle>Pricing</VListItemTitle>
-          </VListItem>
-
-          <!-- 👉 FAQ -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="mdi-help-circle-outline"
-                size="22"
-              />
-            </template>
-
-            <VListItemTitle>FAQ</VListItemTitle>
-          </VListItem>
+              <VListItemTitle>채팅</VListItemTitle>
+            </VListItem>
+          </RouterLink>
 
           <!-- Divider -->
           <VDivider class="my-2" />
