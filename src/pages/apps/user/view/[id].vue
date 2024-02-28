@@ -153,18 +153,6 @@ watchEffect(async () => {
             <VCardItem class="d-flex flex-wrap justify-space-between gap-4">
               <VCardTitle>Inbody 변화</VCardTitle>
               <VCardSubtitle>몸의 변화를 그래프로 보세요</VCardSubtitle>
-
-              <template #append>
-                <div class="date-picker-wrapper">
-                  <AppDateTimePicker
-                    style="width: 150px;"
-                    model-value="2022-06-09"
-                    prepend-inner-icon="mdi-calendar-blank-outline"
-                    density="compact"
-                    :config="{ position: 'auto right' }"
-                  />
-                </div>
-              </template>
             </VCardItem>
 
             <VCardText>
