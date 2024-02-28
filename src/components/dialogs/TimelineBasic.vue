@@ -16,10 +16,13 @@ const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId=userInfo.value.id
 
-const checkedItems = ref([])
+
+
 
 // 여기에 checkedItem에 체크박스 value 저장 저장된 배열 [id].vue에 emit으로 데이터 보냄
 const sendDataToParent = value => {
+  const checkedItems = ref(props.checkedItems)
+
   console.log(value)
   if (checkedItems.value.includes(value)) {
     // 이미 포함된 경우 해당 값을 제거한 새 배열 생성
@@ -41,31 +44,8 @@ const sendDataToParent = value => {
   console.log('여기도 갔나')
 }
 
-const isCheckedB = ref(false)
-const isCheckedL = ref(false)
-const isCheckedD = ref(false)
 
 
-onMounted(async () => { await setting() })
-
-const setting = async () => {
-  const response = await axios.post('http://localhost:4000/croom/implementationSetting.do', { id: connetId })
-
-  if (response.status === 200) {
-    const eattingString = response.data.eatting // 문자열 "[B,D,L]"
-
-    if (eattingString && eattingString.length > 2) { // 문자열이 "[B,D,L]" 형태보다 길 때만 처리
-      const eattingArray = eattingString.substring(1, eattingString.length - 1).split(',').map(item => item.trim()) // "[B, D, L]" -> "B, D, L" -> ["B", "D", "L"]
-
-      checkedItems.value = eattingArray // 배열 할당
-      console.log('이행률 데이터는---', response)
-      console.log('checkedItems.value---', checkedItems.value)
-    }
-    emit('sendData', checkedItems.value)
-  } else {
-    console.error('이행률 데이터 가져오기 실패')
-  }
-}
 
 
 
@@ -95,6 +75,20 @@ const getEatingRecord = async () => {
 
 onMounted(async () => {
   await getEatingRecord()
+  
+  const isCheckedB = ref(false)
+  const isCheckedL = ref(false)
+  const isCheckedD = ref(false)
+
+  if (props.checkedItems.includes('B')) {
+    isCheckedB.value = true
+  }
+  if (props.checkedItems.includes('L')) {
+    isCheckedL.value = true
+  }
+  if (props.checkedItems.includes('D')) {
+    isCheckedD.value = true
+  }
 })
 </script>
 
@@ -146,7 +140,7 @@ onMounted(async () => {
                 color="warning"
                 class="BCheckbox"
                 value="B"
-                :checked="checkedItems.includes('B')"
+                :checked="isCheckedB"
                 @click="sendDataToParent('B')"
               />
             </div>
@@ -191,7 +185,7 @@ onMounted(async () => {
                 v-model="isCheckedL"
                 color="warning" 
                 value="L"
-                :checked="checkedItems.includes('L')"
+                :checked="isCheckedL"
                 @click="sendDataToParent('L')"
               />
             </div>
@@ -235,7 +229,7 @@ onMounted(async () => {
                 v-model="isCheckedD"
                 color="warning" 
                 value="D"
-                :checked="checkedItems.includes('D')"
+                :selecled="isCheckedD"
                 @click="sendDataToParent('D')"
               />
             </div>
