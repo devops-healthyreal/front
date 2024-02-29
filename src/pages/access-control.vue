@@ -293,7 +293,7 @@ const getData = async function() {
                 flat
                 :max-width="auto"
                 class="mt-1 mt-sm- pa-0 custom-scrollbar"
-                style="height: 600px; overflow-y: auto;"
+                style="height: 750px; overflow-y: auto;"
               >
                 <!-- 게시물 작성 공간 -->
                 <VCol v-if="state.items.length > 0">
