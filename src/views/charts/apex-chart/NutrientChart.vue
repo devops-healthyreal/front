@@ -5,7 +5,7 @@ import VueApexCharts from 'vue3-apexcharts'
 import { useTheme } from 'vuetify'
 
 const props = defineProps({
-  bfood: {
+  userdietinfo: {
     type: Array,
     required: true,
   },
@@ -13,6 +13,25 @@ const props = defineProps({
 
 const vuetifyTheme = useTheme()
 
+const totalCarbohydrate = computed(() => {
+  return props.userdietinfo.reduce((acc, item) => acc + item['carbohydrate'], 0)
+})
+
+const totalProtein = computed(() => {
+  return props.userdietinfo.reduce((acc, item) => acc + item['protein'], 0)
+})
+
+const totalFat = computed(() => {
+  return props.userdietinfo.reduce((acc, item) => acc + item['fat'], 0)
+})
+
+const totalSodium = computed(() => {
+  return props.userdietinfo.reduce((acc, item) => acc + parseInt(item['sodium']), 0) / 1000
+})
+
+const totalCholesterol = computed(() => {
+  return props.userdietinfo.reduce((acc, item) => acc + parseInt(item['cholesterol']), 0) / 1000
+})
 
 //오늘의 날짜 구하기
 var today = new Date()
@@ -24,9 +43,7 @@ var dateString = year + '-' + month  + '-' + day
 const series = [
   {
     name: dateString,
-
-    // data: [65, 46, 42, 25, 58],
-    data: [props.bfood['carbohydrate'], props.bfood['protein'], props.bfood['fat'], props.bfood['sodium']/1000, props.bfood['cholesterol']/1000],
+    data: [totalCarbohydrate.value, totalProtein.value, totalFat.value, totalSodium.value, totalCholesterol.value],
   },
 ]
 
