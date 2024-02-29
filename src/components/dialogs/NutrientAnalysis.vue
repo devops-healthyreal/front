@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { mealsData } from '@/@fake-db/mealTable'
 import NutrientChart from '@/views/charts/apex-chart/NutrientChart.vue'
 import CalorieChart from '@/views/charts/chartjs/CalorieChart.vue'
 
@@ -45,7 +44,7 @@ const dialogVisibleUpdate = val => {
             title="주요 영양소"
             :style="{'margin-top':'20px'}"
           >
-            <NutrientChart />
+            <NutrientChart :bfood="bfood" />
             <!-- 식단 테이블 -->
             <VTable
               height="250"
@@ -98,10 +97,10 @@ const dialogVisibleUpdate = val => {
                     {{ bfood.fat }}
                   </td>
                   <td>
-                    {{ bfood.sodium }}
+                    {{ bfood.sodium/1000 }}
                   </td>
                   <td>
-                    {{ bfood.cholesterol }}
+                    {{ bfood.cholesterol/1000 }}
                   </td>
                 </tr>
               </tbody>
@@ -116,7 +115,10 @@ const dialogVisibleUpdate = val => {
             title="칼로리 분석"
           >
             <VCardItem>
-              <CalorieChart />
+              <CalorieChart
+                :bfood="bfood"
+                :selectcurr="selectcurr"
+              />
             </VCardItem>
             <!-- 칼로리 테이블 -->
             <VTable
@@ -137,15 +139,12 @@ const dialogVisibleUpdate = val => {
               </thead>
 
               <tbody>
-                <tr
-                  v-for="item in mealsData"
-                  :key="item.time"
-                >
+                <tr>
                   <td>
-                    {{ item.time }}
+                    {{ selectcurr }}
                   </td>
                   <td>
-                    {{ item.calorie }}
+                    {{ bfood.calory }}
                   </td>
                 </tr>
               </tbody>

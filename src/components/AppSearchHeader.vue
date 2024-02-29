@@ -156,25 +156,34 @@ window.addEventListener('keydown', event => {
               v-for="(suggestion, index) in suggestions"
               :key="suggestion"
               :class="{ 'selected': index === selectedSuggestion }"
+              style="background-color: rgb(255, 255, 255); color: rgb(3, 141, 37);"
               @click="selectSuggestion(suggestion)"
             >
-              {{ suggestion }}
+              <strong>{{ suggestion }}</strong>
             </li>
           </ul>
         </Transition>
       </VTextField>
-
       <!-- 로딩 표시 -->
       <div
         v-if="loading"
         class="loading-indicator"
+        style="font-weight: bold;"
       >
         Loading...
       </div>
+      <VProgressLinear
+        v-if="loading"
+        indeterminate
+        color="primary"
+      />
       
       
 
-      <p v-if="!loading">
+      <p
+        v-if="!loading"
+        style="font-weight: bold;"
+      >
         {{ props.subtitle }}
       </p>
     </VCardText>
@@ -209,7 +218,7 @@ window.addEventListener('keydown', event => {
   inline-size: calc(100% - 2rem);
   list-style-type: none;
   margin-block-start: 5px;
-  max-block-size: 200px;
+  max-block-size: 300px;
   opacity: 1;
   overflow-y: auto;
   padding-inline-start: 0;

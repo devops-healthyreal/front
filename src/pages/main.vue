@@ -4,6 +4,7 @@ import Calendar from '@/pages/apps/calendar.vue'
 import Timeline from '@/pages/components/timeline.vue'
 import ResetPasswordDialog from '@/pages/resetPasswordDialog.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
+import axios from '@axios'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
@@ -17,9 +18,6 @@ const store = useStore()
 // computed를 import합니다.
 const userInfo = computed(() => store.state.userStore.userInfo)
 
-// const userInfo = computed(() => store.state.userStore.userInfo)
-// const connetId = userInfo.value.id
-
 
 const route = useRoute()
 const isDialogVisible = ref(false)
@@ -27,7 +25,7 @@ const isPDialogVisible = ref(!isDialogVisible.value)
 
 const dietinfo = ref([])
 
-/*
+
 const getEatingRecord = async () => {
   if (!(userInfo.value && userInfo.value.id)) {
     router.go(0)
@@ -40,6 +38,7 @@ const getEatingRecord = async () => {
     console.log('체크해보자 : ')
     await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
       .then(response => {
+        console.log(response)
         if(response.data.length > 0){
           // 초기화
           dietinfo.value = [[], [], []]
@@ -58,7 +57,7 @@ const getEatingRecord = async () => {
       })
   }
   
-}*/
+}
 
 onMounted(() => {
   if (!store.state.isLogin) {
@@ -72,11 +71,13 @@ onMounted(() => {
       })
       .then(() => {
         console.log('2차') // 2차 출력됨
+        
 
         // 다른 함수를 실행
-        //getEatingRecord()
+        getEatingRecord()
       })
   }
+  
 })
 
 
