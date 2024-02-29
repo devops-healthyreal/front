@@ -312,22 +312,21 @@ const getData = async function() {
                               :image="getUserAvatar(item.id)"
                             />
                           </VCol>
-                          <VCol cols="4">
-                            <VCol cols="12">
-                              <VCardSubtitle
-                                class="text-sm pointer-cursor"
-                                style="margin-left: -5%;"
-                              >
-                                {{ item.id }}  <!-- 유저 닉네임 뿌려주기 -->
-                              </VCardSubtitle>
-                              <VBtn
-                                class="d-flex justify-end"
-                                @click="deleteItem(item.bno)"
-                              >
-                                <VIcon icon="mdi-delete-outline" />
-                                삭제하기
-                              </VBtn>
-                            </VCol>
+                          <VCol cols="9">
+                            <VCardSubtitle
+                              class="text-sm pointer-cursor"
+                              style="margin-top: 10px;"
+                            >
+                              <strong>{{ item.id }}</strong>  <!-- 유저 닉네임 뿌려주기 -->
+                            </VCardSubtitle>
+                          </VCol>
+                          <VCol cols="1">
+                            <VBtn
+                              variant="tonal"
+                              @click="deleteItem(item.bno)"
+                            >
+                              <VIcon icon="mdi-delete-outline" />
+                            </VBtn>
                           </VCol>
                         </VRow>
                       </VCol>
