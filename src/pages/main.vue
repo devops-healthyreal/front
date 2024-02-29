@@ -18,6 +18,9 @@ const store = useStore()
 // computed를 import합니다.
 const userInfo = computed(() => store.state.userStore.userInfo)
 
+// const userInfo = computed(() => store.state.userStore.userInfo)
+// const connetId = userInfo.value.id
+
 
 const route = useRoute()
 const isDialogVisible = ref(false)
@@ -27,20 +30,18 @@ const dietinfo = ref([])
 
 
 const getEatingRecord = async () => {
-  if (!(userInfo.value && userInfo.value.id)) {
-    router.go(0)
-  }
+
   if (userInfo.value && userInfo.value.id) {
 
     const connetId = userInfo.value.id
 
     console.log('4차')
-    console.log('체크해보자 : ')
+    console.log('체크해보자 : '+connetId)
     await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
       .then(response => {
-        console.log(response)
         if(response.data.length > 0){
           // 초기화
+          console.log('여긴안돼')
           dietinfo.value = [[], [], []]
 
           response.data.forEach(data => {
@@ -51,7 +52,33 @@ const getEatingRecord = async () => {
             } else if (data.mealType === '저녁') {
               dietinfo.value[2] = data
             }
+            
           })
+        }
+        else{
+          axios.get("http://localhost:4000/dietfood/search.do", { params: { 'id': connetId } })
+            .then(response => {
+              console.log('응답받은 행:', response.data)
+              if(response.data === 0){
+                axios.get("http://localhost:5000/food_recommend", { params: { 'id': connetId } })
+                  .then(response=>{
+
+                    dietinfo.value = [[], [], []]
+    
+                    response.data.forEach(data => {
+                      if (data.mealType === '아침') {
+                        dietinfo.value[0] = data
+                      } else if (data.mealType === '점심') {
+                        dietinfo.value[1] = data
+                      } else if (data.mealType === '저녁') {
+                        dietinfo.value[2] = data
+                      }
+                    })
+                  })
+              }
+
+              router.go(0)
+            })
         }
         console.log('가져온 유저 Eating_Record', dietinfo.value)
       })
@@ -71,13 +98,18 @@ onMounted(() => {
       })
       .then(() => {
         console.log('2차') // 2차 출력됨
-        
+        if(store.state.userStore.userInfo != null){
+          console.log(store.state.userStore.userInfo.id)
 
-        // 다른 함수를 실행
-        getEatingRecord()
+          // 다른 함수를 실행
+          getEatingRecord()
+        }
+        else{
+          router.go(0)
+        }
       })
+
   }
-  
 })
 
 
