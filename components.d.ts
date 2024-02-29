@@ -87,7 +87,6 @@ declare module '@vue/runtime-core' {
     'TermsAndConditions copy': typeof import('./src/views/demos/register/TermsAndConditions copy.vue')['default']
     TheCustomizer: typeof import('./src/@core/components/TheCustomizer.vue')['default']
     ThemeSwitcher: typeof import('./src/@core/components/ThemeSwitcher.vue')['default']
-    TimelineBasic: typeof import('./src/components/dialogs/TimelineBasic.vue')['default']
     TimelineBasicExercise: typeof import('./src/components/dialogs/TimelineBasicExercise.vue')['default']
     TimelineBasicFood: typeof import('./src/components/dialogs/TimelineBasicFood.vue')['default']
     TwoFactorAuthDialog: typeof import('./src/components/dialogs/TwoFactorAuthDialog.vue')['default']
