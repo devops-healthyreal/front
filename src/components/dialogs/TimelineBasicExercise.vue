@@ -108,7 +108,6 @@ onMounted(async () => {
               <VCheckbox
                 v-model="isChecked1"
                 color="info" 
-                value="1"
                 :checked="isChecked1"
                 @click="sendDataToParent('1')"
               />
@@ -153,7 +152,6 @@ onMounted(async () => {
                 v-model="isChecked2"
                 :selecled="isChecked2"
                 color="info" 
-                value="2"
                 @click="sendDataToParent('2')"
               />
             </div>
@@ -196,7 +194,6 @@ onMounted(async () => {
                 v-model="isChecked3"
                 :checked="checkedExerciseItems.includes('3')"
                 color="info" 
-                value="3"
                 @click="sendDataToParent('3')"
               />
             </div>

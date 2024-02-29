@@ -166,11 +166,7 @@ userListStore.fetchUser(Number(route.params.id)).then(response => {
 
         <VWindowItem>
           <VCard style="margin-bottom: 50px;">
-            <ApexChartStatistics
-              :checked-items="checkedItems"
-              :checked-exercise-items="checkedExerciseItems"
-              style="margin: 50px 0;"
-            /> <!-- 차트 -->
+            <ApexChartStatistics style="margin: 50px 0;" />
           </VCard>
         </VWindowItem>
 
