@@ -108,12 +108,17 @@ const handleUpload = tagId => {
 const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 1000000 || 'Avatar size should be less than 1 MB!']
 const isNutrientAnalysisVisible = ref(false) //모달창 컨트롤 변수
 
+
+const userdietinfo = ref([])
+
 const handleSubmit = async(connetId, selectcurr, bfood) =>{
   isNutrientAnalysisVisible.value = !isNutrientAnalysisVisible.value
   console.log('유저 ID :', connetId, '음식 :', bfood, '식사타입:', selectcurr)
-  await axios.get('http://localhost:4000/saverecord/dietinfo.do', { params: { id: connetId, bfood: bfood, dietType: selectcurr } })
+  await axios.get('http://localhost:4000/saverecord/dietinfo.do', { params: { id: connetId, ae_foodname: bfood, ae_diettype: selectcurr } })
     .then(response => {
-      console.log('받은 데이터 :', response.data)
+      console.log('받은 데이터 :', response.data) //오늘의 식사 data를 넘겨받음
+      console.log('받은 첫번째 데이터 :', response.data[0])
+      userdietinfo.value = response.data
     })
 }
 </script>
@@ -220,10 +225,10 @@ const handleSubmit = async(connetId, selectcurr, bfood) =>{
               지방 : {{ bfood[0].fat }} g
             </VCol>
             <VCol>            
-              나트륨 : {{ bfood[0].sodium }} ㎎
+              나트륨 : {{ bfood[0].sodium/1000 }} g
             </VCol>
             <VCol>            
-              콜레스트롤 : {{ bfood[0].cholesterol }} ㎎
+              콜레스트롤 : {{ bfood[0].cholesterol/1000 }} g
             </VCol>
             <!--
               <input
@@ -266,7 +271,7 @@ const handleSubmit = async(connetId, selectcurr, bfood) =>{
       <VBtn
         :disabled="isSubmitDisabled"
         :style="{'margin-bottom':'50px'}"        
-        @click="handleSubmit(connetId, selectcurr, bfood)"
+        @click="handleSubmit(connetId, selectcurr, bfood[0].foodname)"
       >
         <!-- @click="isNutrientAnalysisVisible = !isNutrientAnalysisVisible" -->
         SUBMIT
@@ -274,6 +279,7 @@ const handleSubmit = async(connetId, selectcurr, bfood) =>{
       <NutrientAnalysis
         v-model:isDialogVisible="isNutrientAnalysisVisible"
         :bfood="bfood[0]"
+        :userdietinfo="userdietinfo"
         :selectcurr="selectcurr"
       />
     </VRow>
