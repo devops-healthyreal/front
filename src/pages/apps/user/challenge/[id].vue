@@ -20,7 +20,7 @@ const router = useRouter()
 const participantsData = ref([])
 const room= ref([])
 
-const state = ref(true)
+const state = ref(false)
 
 //참가자 데이터 가져오기
 const participants = async () => {
@@ -60,7 +60,7 @@ const roomData = async () => {
       challroomno.value = room.value.challNo
       console.log('참여비는?', pay.value, '방 번호는?', challroomno.value)
       if(new Date(room.value.cstartDate) >= new Date().setHours(0, 0, 0, 0)){
-        state.value = false
+        state.value = true
       }
     } else {
       console.log('방의 데이타 가져오기 실패')
@@ -77,8 +77,6 @@ onMounted(async () => { await participants(), await roomData() })
 //차트 불러오기 용
 
 const vuetifyTheme = useTheme()
-
-const horizontalBarChartConfig = computed(() => getBarChartConfig(vuetifyTheme.current.value))
 
 console.log('test:', vuetifyTheme.current.value)
 
