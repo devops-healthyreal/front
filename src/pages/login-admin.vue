@@ -165,7 +165,10 @@ export default{
                 </VCol>                               
                 <VCol cols="12">
                   <div class="d-flex align-center flex-wrap mt-1 mb-4 justify-center">
-                    <VBtn @click.prevent="adminLogin">
+                    <VBtn
+                      type="submit"
+                      @click.prevent="adminLogin"
+                    >
                       로그인
                     </VBtn>
                     <div @keydown="handleKeyDown" />
