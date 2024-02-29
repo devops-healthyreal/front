@@ -6,7 +6,9 @@ import axios from '@axios'
 import controlHeader from '@images/pages/app-search-header-bg-light.png'
 import defaultImg from '@images/userProfile/default.png'
 import { onMounted, reactive, ref } from 'vue'
+import { useStore } from 'vuex'
 
+const store = useStore()
 
 const chartJsCustomColors = {
   white: '#fff',
@@ -110,6 +112,20 @@ const getData = async function() {
     console.error(`데이터 전송 실패: ${error}`)
   }
 }
+
+
+// -------------------------------------------------------------------------------
+const logout = async () => {
+  try {
+    console.log("이게 실행 안되는거지?")
+    localStorage.removeItem('User-Token')
+    await store.dispatch('logout') // 'loginStore/logout' 액션 디스패치
+    await store.dispatch('userlogout')
+  } catch (error) {
+    console.log('')
+    console.error(error)
+  }
+}
 </script>
 
 <template>
@@ -129,6 +145,7 @@ const getData = async function() {
         :src="controlHeader"
         style=" height: 200px;padding-top: 230px; margin-top: 50px; margin-bottom: 20px;"
       />
+      
       <VRow>
         <VCol
           cols="8"
@@ -400,6 +417,14 @@ const getData = async function() {
           </VWindow>
         </VCol>
       </VRow>
+      <VBtn @click="logout">
+        <VIcon
+          start
+          icon="mdi-logout"
+          :size="22"
+        />
+        로그아웃
+      </VBtn>
     </VCol>
   </VRow>
 </template>
