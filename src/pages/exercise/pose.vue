@@ -65,22 +65,58 @@ const capitalizedLabel = label => {
 </script>
 
 <template>
-  <VContainer style="margin-right: 00;margin-left: -500px;">
+  <VContainer>
     <!-- fluid 속성 추가 -->
     <VRow>
-      <VCol style="width: 2500px;">
-        <VLayout
-         
-          class="chat-app-layout bg-surface"
-          :style="{'height':'1050px','margin-right':'200px','width':'2250px'}"
-        >
+      <VCol
+        v-show="isVisible"
+        :style="{'opacity':'0.7','position':'relative'}"
+      >
+        <!--
+          <VDialog
+          v-model="isVisible"
+          :style="{'width':'100%'}"
+          >
+        -->
+        <VCard>
+          <!-- 운동 순서에 대한 메뉴창 -->
+          <VCardItem>
+            <AppStepper
+              v-model:current-step="currentStep"
+              direction="horizontal"
+              :items="exerciseSteps"
+              :style="{'height':'100%'}"
+            />
+          </VCardItem>
+          <VCardItem :style="{'margin-top':'10px'}">
+            <VCol style="margin-bottom: -20px;">
+              <strong style="width: 90%; margin-right: 35%; margin-left: 5%; color: black; font-size: 25px;">
+                <VIcon icon="mdi-clock-time-eight" />
+                time
+              </strong>
+              <strong
+                id="sec"
+                style=" margin-top: 10px;color: black;font-size: 25px;"
+              >
+                {{ time }}
+              </strong>
+            </VCol>
+            <br>
+            <hr :style="{'width':'90%','margin':'auto'}">
+          </VCardItem>
+        </VCard>
+      <!-- </VDialog> -->
+      </VCol>
+    </VRow>
+    <VRow>
+      <VCol>
+        <VLayout class="chat-app-layout bg-surface">
           <VCol
             cols="2"
             :style="{'background-color':'#FFFFF2'}"
           >
             <!-- 몇 세트인지에 대한 메뉴창 -->
             <VSwitch
-            
               v-model="toggleSwitch"
               :label="capitalizedLabel(toggleSwitch)"
             />
@@ -92,43 +128,7 @@ const capitalizedLabel = label => {
             />
           </VCol> <!-- 몇 세트인지에 대한 메뉴창 end -->
     
-          <VCol
-            v-show="isVisible"
-            :cols="menuSize"
-            :style="{'opacity':'0.5','position':'relative'}"
-          >
-            <!--
-              <VDialog
-              v-model="isVisible"
-              :style="{'width':'100%'}"
-              >
-            -->
-            <VCard>
-              <!-- 운동 순서에 대한 메뉴창 -->
-              <VCardItem>
-                <AppStepper
-                  v-model:current-step="currentStep"
-                  direction="vertical"
-                  :items="exerciseSteps"
-                  :style="{'height':'100%'}"
-                />
-              </VCardItem>
-              <VCardItem :style="{'margin-top':'10px'}">
-                <h3 :style="{'width':'90%','margin':'auto'}">
-                  <VIcon icon="mdi-clock-time-eight" />
-                  time
-                </h3>
-                <hr :style="{'width':'90%','margin':'auto'}">
-                <h2
-                  id="sec"
-                  :style="{'width':'90%','display':'flex', 'justify-content':'center'}"
-                >
-                  {{ time }}
-                </h2>
-              </VCardItem>
-            </VCard>
-            <!-- </VDialog> -->
-          </VCol> <!--  운동 순서에 대한 메뉴창 end -->
+          <!--  운동 순서에 대한 메뉴창 end -->
           <VCol cols="5">
             <!-- <VCol :cols="9-menuSize"> -->
             <!-- 운동 자세 영상 -->
