@@ -81,6 +81,9 @@ const searchItems = computed(() => {
   return state.items
 })
 
+
+// ---------------------------------------------------------------------------------------
+
 const getData = async function() {
   try {
     const response = await axios.post('http://localhost:4000/bbs/List.do', {
@@ -155,6 +158,66 @@ const getData = async function() {
     console.error(`데이터 전송 실패: ${error}`)
   }
 }
+
+// ---------------------------------------------------------------------------------------
+
+
+//스크롤 이벤트 리스터 추가 - 화면 하단에 스크롤 도착 시 loadMore()함수 호출
+const scrollTimeout = ref(null)
+
+
+const handleScroll = () => {
+  if(scrollTimeout.value !== null) 
+    clearTimeout(scrollTimeout.value)  
+
+  
+
+  scrollTimeout.value = setTimeout(function() {
+    // 스크롤이 페이지 하단에서 100px 이내로 가까워졌을 때 loadMore 함수 호출
+    if ((window.innerHeight + document.documentElement.scrollTop) >= (document.documentElement.offsetHeight - 100)) {
+      loadMore()
+    }
+  }, 150)
+}
+
+
+//이벤트 리스터 추가 
+onMounted(() => {
+  getData(), // 컴포넌트가 마운트될 때 getData 함수 실행
+  getComment()
+
+  // 그 후 매 5초마다 getData 함수를 반복해서 실행
+  //setInterval(getData, 5000)
+  
+  window.addEventListener('scroll', handleScroll)
+})
+
+// 이벤트 리스너 제거
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
+
+//게시글 반복할 배열의 길이 설정 + 무한 스크롤로 사용하는 배열 저장용
+
+const items = ref(Array.from({ length: 5 }))
+
+// 스크롤 하단에 내렸을때 호출되는 함수 정리
+
+const loadMore = () => {
+  //moreItems로 새로 추가할 배열의 길이 설정
+
+  const moreItems = Array.from({ length: 5 })
+  
+  //items 배열에 moreItems 배열 추가해서 화면에 표시되는 게시글 추가
+
+  items.value = items.value.concat(moreItems)
+  console.log("leadMore..")
+}
+
+
+// ---------------------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------
 
 const getUserAvatar = userId => {
   const user = users.value.find(user => user.id === userId)
@@ -331,58 +394,6 @@ const insertComment = async (bno, comment, type, parent_comment) => {
 
 
 //////////////////////////////////////
-
-
-//스크롤 이벤트 리스터 추가 - 화면 하단에 스크롤 도착 시 loadMore()함수 호출
-const scrollTimeout = ref(null)
-
-
-const handleScroll = () => {
-  if(scrollTimeout.value !== null) 
-    clearTimeout(scrollTimeout.value)  
-
-  
-
-  scrollTimeout.value = setTimeout(function() {
-    // 스크롤이 페이지 하단에서 100px 이내로 가까워졌을 때 loadMore 함수 호출
-    if ((window.innerHeight + document.documentElement.scrollTop) >= (document.documentElement.offsetHeight - 100)) {
-      loadMore()
-    }
-  }, 150)
-}
-
-//이벤트 리스터 추가 
-onMounted(() => {
-  getData(), // 컴포넌트가 마운트될 때 getData 함수 실행
-  getComment()
-
-  // 그 후 매 5초마다 getData 함수를 반복해서 실행
-  //setInterval(getData, 5000)
-  
-  window.addEventListener('scroll', handleScroll)
-})
-
-// 이벤트 리스너 제거
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
-
-//게시글 반복할 배열의 길이 설정 + 무한 스크롤로 사용하는 배열 저장용
-
-const items = ref(Array.from({ length: 5 }))
-
-// 스크롤 하단에 내렸을때 호출되는 함수 정리
-
-const loadMore = () => {
-  //moreItems로 새로 추가할 배열의 길이 설정
-
-  const moreItems = Array.from({ length: 5 })
-  
-  //items 배열에 moreItems 배열 추가해서 화면에 표시되는 게시글 추가
-
-  items.value = items.value.concat(moreItems)
-  console.log("leadMore..")
-}
 
 const modalControll = ref(false)
 

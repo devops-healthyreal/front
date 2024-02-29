@@ -190,6 +190,29 @@ router.beforeEach((to, from, next) => {
   if (from.fullPath=='/community/user/mate'){
     isMatescreenchanged.value = true
   }
+
+  
+  let counter = ''
+
+  if (to.fullPath.includes('/community/user/friend') ||
+    to.fullPath.includes('/community_post') ||
+    to.fullPath.includes('/apps/chat') ||
+    to.fullPath.includes('/apps/user/mate/') ||
+    to.fullPath.includes('/apps/user/challenge')) {
+    counter = 'community'
+  } else if (to.fullPath.includes('/exercise/map') ||
+           to.fullPath.includes('/exercise/pose') ||
+           to.fullPath.includes('/exerciserecommendation')) {
+    counter = 'exercise'
+  } else if (to.fullPath.includes('/diet') ||
+           to.fullPath.includes('/dietfood')) {
+    counter = 'diet'
+  } else if (to.fullPath.includes('/diary')) {
+    counter = 'diary'
+  }
+  const response = axios.post('http://localhost:4000/tab/count.do', { counter: counter })
+
+
   next()
 })
 
