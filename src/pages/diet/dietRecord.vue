@@ -1,6 +1,11 @@
 <script setup>
 import NutrientAnalysis from '@/components/dialogs/NutrientAnalysis.vue'
 import axios from '@axios'
+import { useStore } from 'vuex'
+
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=computed(() => userInfo.value.id)
 
 //영양소 분석 모달창
 const isSubmitDisabled = ref(true) //submit버튼 활성화 컨트롤 변수
@@ -54,7 +59,8 @@ const foodocr = imageFile => {
           return response.data
         })
         .then(data => {
-          document.querySelector('#imgBefore').src = 'data:image/jpeg;base64,' + data.base64
+          // 결과 사진을 보여주고 싶으면 주고 해제하면 됨
+          // document.querySelector('#imgBefore').src = 'data:image/jpeg;base64,' + data.base64
           console.log('여기까지 들어옴', data)
 
 
@@ -101,6 +107,15 @@ const handleUpload = tagId => {
 
 const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 1000000 || 'Avatar size should be less than 1 MB!']
 const isNutrientAnalysisVisible = ref(false) //모달창 컨트롤 변수
+
+const handleSubmit = async(connetId, selectcurr, bfood) =>{
+  isNutrientAnalysisVisible.value = !isNutrientAnalysisVisible.value
+  console.log('유저 ID :', connetId, '음식 :', bfood, '식사타입:', selectcurr)
+  await axios.get('http://localhost:4000/saverecord/dietinfo.do', { params: { id: connetId, bfood: bfood, dietType: selectcurr } })
+    .then(response => {
+      console.log('받은 데이터 :', response.data)
+    })
+}
 </script>
 
 <template>
@@ -251,8 +266,9 @@ const isNutrientAnalysisVisible = ref(false) //모달창 컨트롤 변수
       <VBtn
         :disabled="isSubmitDisabled"
         :style="{'margin-bottom':'50px'}"        
-        @click="isNutrientAnalysisVisible = !isNutrientAnalysisVisible"
+        @click="handleSubmit(connetId, selectcurr, bfood)"
       >
+        <!-- @click="isNutrientAnalysisVisible = !isNutrientAnalysisVisible" -->
         SUBMIT
       </VBtn>
       <NutrientAnalysis

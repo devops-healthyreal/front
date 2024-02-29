@@ -1,23 +1,32 @@
 <script setup lang="ts">
-import { getHorizontalBarChartConfig } from '@core/libs/chartjs/chartjsConfig';
-import BarChart from '@core/libs/chartjs/components/BarChart';
-import { computed } from 'vue';
-import { useTheme } from 'vuetify';
+import { getHorizontalBarChartConfig } from '@core/libs/chartjs/chartjsConfig'
+import BarChart from '@core/libs/chartjs/components/BarChart'
+import { computed } from 'vue'
+import { useTheme } from 'vuetify'
 
-
+const props = defineProps({
+  bfood: {
+    type: Array,
+    required: true,
+  },
+  selectcurr: {
+    type: String,
+    required: true,
+  },
+})
 
 const vuetifyTheme = useTheme()
 
 const chartOptions = computed(() => getHorizontalBarChartConfig(vuetifyTheme.current.value))
 
-var currCalorie = 1000; //현재 칼로리
-var recommCalorie = 2100; //권장 칼로리
-var barColor = '#87DBC6';
-if (currCalorie > recommCalorie) {
-  barColor = '#FD696E';
+var currCalorie = 1000
+var recommCalorie = 2100 //권장 칼로리
+var barColor = '#87DBC6'
+if (currCalorie.value > recommCalorie) {
+  barColor = '#FD696E'
 }
-else if (currCalorie < recommCalorie) {
-  barColor = '#A8FED7';
+else if (currCalorie.value < recommCalorie) {
+  barColor = '#A8FED7'
 }
 
 const data = {
@@ -35,7 +44,7 @@ const data = {
       backgroundColor: barColor,
       label: '누적 칼로리',
       borderColor: 'transparent',
-      data: [currCalorie],
+      data: [props.bfood['calory']],
     },
   ],
 }
@@ -45,6 +54,7 @@ const data = {
   <BarChart
     :height="300"
     :chart-data="data"
+    :bfood="bfood"
     :chart-options="chartOptions"
   />
 </template>
