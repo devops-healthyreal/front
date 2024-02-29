@@ -5,14 +5,17 @@ import { computed } from 'vue'
 import { useTheme } from 'vuetify'
 
 const props = defineProps({
-  bfood: {
+  userdietinfo: {
     type: Array,
     required: true,
   },
-  selectcurr: {
-    type: String,
-    required: true,
-  },
+})
+
+/// userdietinfo 배열의 각 객체의 calory 속성을 합산하여 totalCalories 변수에 할당
+// const totalCalories = props.userdietinfo.reduce((acc, item) => acc + item.calory, 0)
+/// userdietinfo 배열의 각 객체의 calory 속성을 합산하여 totalCalories 변수에 할당
+const totalCalories = computed(() => {
+  return props.userdietinfo.reduce((acc, item) => acc + item['calory'], 0)
 })
 
 const vuetifyTheme = useTheme()
@@ -44,17 +47,17 @@ const data = {
       backgroundColor: barColor,
       label: '누적 칼로리',
       borderColor: 'transparent',
-      data: [props.bfood['calory']],
+      data: [totalCalories.value],
     },
   ],
 }
 </script>
 
 <template>
+  <!-- 여기다 {{ userdietinfo }} -->
   <BarChart
     :height="300"
     :chart-data="data"
-    :bfood="bfood"
     :chart-options="chartOptions"
   />
 </template>

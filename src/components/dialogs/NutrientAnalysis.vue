@@ -15,6 +15,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  userdietinfo: {
+    type: Array,
+    required: true,
+  },
 })
 
 const emit = defineEmits(['update:isDialogVisible'])
@@ -44,7 +48,7 @@ const dialogVisibleUpdate = val => {
             title="주요 영양소"
             :style="{'margin-top':'20px'}"
           >
-            <NutrientChart :bfood="bfood" />
+            <NutrientChart :userdietinfo="userdietinfo" />
             <!-- 식단 테이블 -->
             <VTable
               height="250"
@@ -77,30 +81,28 @@ const dialogVisibleUpdate = val => {
               </thead>
 
               <tbody>
-                <!--
-                  <tr
-                  v-for="item in mealsData"
-                  :key="item.time"
-                  > 
-                -->
-                <tr>
+                <tr
+                  v-for="(item, index) in userdietinfo"
+                  :key="index"
+                >
+                  <!-- <tr> -->
                   <td>
-                    {{ selectcurr }}
+                    {{ item.ae_diettype }}
                   </td>
                   <td>
-                    {{ bfood.carbohydrate }}
+                    {{ item.carbohydrate }}
                   </td>
                   <td>
-                    {{ bfood.protein }}
+                    {{ item.protein }}
                   </td>
                   <td>
-                    {{ bfood.fat }}
+                    {{ item.fat }}
                   </td>
                   <td>
-                    {{ bfood.sodium/1000 }}
+                    {{ item.sodium/1000 }}
                   </td>
                   <td>
-                    {{ bfood.cholesterol/1000 }}
+                    {{ item.cholesterol/1000 }}
                   </td>
                 </tr>
               </tbody>
@@ -115,10 +117,7 @@ const dialogVisibleUpdate = val => {
             title="칼로리 분석"
           >
             <VCardItem>
-              <CalorieChart
-                :bfood="bfood"
-                :selectcurr="selectcurr"
-              />
+              <CalorieChart :userdietinfo="userdietinfo" />
             </VCardItem>
             <!-- 칼로리 테이블 -->
             <VTable
@@ -139,12 +138,15 @@ const dialogVisibleUpdate = val => {
               </thead>
 
               <tbody>
-                <tr>
+                <tr
+                  v-for="(item, index) in userdietinfo"
+                  :key="index"
+                >
                   <td>
-                    {{ selectcurr }}
+                    {{ item.ae_diettype }}
                   </td>
                   <td>
-                    {{ bfood.calory }}
+                    {{ item.calory }}
                   </td>
                 </tr>
               </tbody>
