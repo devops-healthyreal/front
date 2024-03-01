@@ -208,35 +208,30 @@ const sendDataToParent = value => {
                 <span class="app-timeline-title">
                   아침 식단
                 </span>
-                <span class="app-timeline-meta">{{ dietinfo[0]?.eating_foodname }}, kcal</span>
-              </div>
-
-
-              <!-- 👉 Divider -->
-              <VDivider class="my-2" />
-
-              <!-- 👉 Person -->
-              <div class="d-flex justify-space-between align-center flex-wrap">
-                <!-- 👉 Avatar & Personal Info -->
-                <span class="d-flex align-bottom mt-2">
-                  <div>
-                    <img
-                      id="diaryImages"
-                      :src="dietinfo[0]?.recipe_img"
-                      style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
-                    >
-                  </div>
-                </span>
-
-                <!-- 👉 Person Actions -->
-                <div>
+                <div class="d-flex">
+                  <span class="app-timeline-meta align-self-center">{{ dietinfo[0]?.eating_foodname }}, kcal</span>
                   <VCheckbox
                     id="checkboxB"
                     v-model="isBChecked"
+                    style="margin-left: 10px;"
                     color="warning"
                     class="BCheckbox"
                     @click="sendDataToParent('B')"
                   />
+                </div>
+              </div>
+              <!-- 👉 Divider -->
+              <VDivider class="my-2" />
+
+              <!-- 👉 Person -->
+              <div class="d-flex align-center justify-center flex-wrap">
+                <!-- 👉 Avatar & Personal Info -->
+                <div>
+                  <img
+                    id="diaryImages"
+                    :src="dietinfo[0]?.recipe_img"
+                    style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
+                  >
                 </div>
               </div>
             </VTimelineItem>
@@ -252,7 +247,16 @@ const sendDataToParent = value => {
                 <span class="app-timeline-title">
                   점심 식단
                 </span>
-                <span class="app-timeline-meta">{{ dietinfo[1]?.eating_foodname }}, kcal</span>
+                <div class="d-flex">
+                  <span class="app-timeline-meta align-self-center">{{ dietinfo[1]?.eating_foodname }}, kcal</span>
+                  <VCheckbox
+                    id="checkboxL"
+                    v-model="isLChecked"
+                    style="margin-left: 10px;"
+                    color="warning" 
+                    @click="sendDataToParent('L')"
+                  />
+                </div>
               </div>
 
 
@@ -260,26 +264,13 @@ const sendDataToParent = value => {
               <VDivider class="my-2" />
 
               <!-- 👉 Person -->
-              <div class="d-flex justify-space-between align-center flex-wrap">
-                <!-- 👉 Avatar & Personal Info -->
-                <span class="d-flex align-bottom mt-2">
-                  <div>
-                    <img
-                      id="diaryImages"
-                      :src="dietinfo[1]?.recipe_img"
-                      style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
-                    >
-                  </div>
-                </span>
-
-                <!-- 👉 Person Actions -->
+              <div class="d-flex align-center justify-center flex-wrap">
                 <div>
-                  <VCheckbox
-                    id="checkboxL"
-                    v-model="isLChecked"
-                    color="warning" 
-                    @click="sendDataToParent('L')"
-                  />
+                  <img
+                    id="diaryImages"
+                    :src="dietinfo[1]?.recipe_img"
+                    style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
+                  >
                 </div>
               </div>
             </VTimelineItem>
@@ -291,10 +282,19 @@ const sendDataToParent = value => {
             >
               <!-- 👉 Header -->
               <div class="d-flex justify-space-between align-center gap-2 flex-wrap">
-                <span class="app-timeline-title">
+                <span class="app-timeline-title ">
                   저녁 식단
                 </span>
-                <span class="app-timeline-meta">{{ dietinfo[2]?.eating_foodname }}, kcal</span>
+                <div class="d-flex">
+                  <span class="app-timeline-meta align-self-center">{{ dietinfo[2]?.eating_foodname }}, kcal</span>
+                  <VCheckbox
+                    id="checkboxD"
+                    v-model="isDChecked"
+                    style="margin-left: 10px;"
+                    color="warning" 
+                    @click="sendDataToParent('D')"
+                  />
+                </div>
               </div>
 
 
@@ -302,27 +302,13 @@ const sendDataToParent = value => {
               <VDivider class="my-2" />
 
               <!-- 👉 Person -->
-              <div class="d-flex justify-space-between align-center flex-wrap">
+              <div class="d-flex align-center justify-center flex-wrap">
                 <!-- 👉 Avatar & Personal Info -->
-                <span class="d-flex align-bottom mt-2">
-                  <div>
-                    <img
-                      id="diaryImages"
-                      :src="dietinfo[2]?.recipe_img"
-                      style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
-                    >
-                  </div>
-                </span>
-
-                <!-- 👉 Person Actions -->
-                <div>
-                  <VCheckbox
-                    id="checkboxD"
-                    v-model="isDChecked"
-                    color="warning" 
-                    @click="sendDataToParent('D')"
-                  />
-                </div>
+                <img
+                  id="diaryImages"
+                  :src="dietinfo[2]?.recipe_img"
+                  style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
+                >
               </div>
             </VTimelineItem>
           </VTimeline>
