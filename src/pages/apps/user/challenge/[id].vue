@@ -20,6 +20,8 @@ const router = useRouter()
 const participantsData = ref([])
 const room= ref([])
 
+const state = ref(false)
+
 //참가자 데이터 가져오기
 const participants = async () => {
 
@@ -43,23 +45,29 @@ const challroomno = ref('')
 const roomData = async () => {
   
   console.log("challNo----", route.params.id)
+  try{
+    const response = await axios.post('http://localhost:4000/croom/roomData.do', { challNo: route.params.id })
 
-  const response = await axios.post('http://localhost:4000/croom/roomData.do', { challNo: route.params.id })
 
+    if (response.status === 200) {
+      room.value = response.data
+      console.log('방의 데이타는---', room.value)
 
-  if (response.status === 200) {
-    room.value = response.data
-    console.log('방의 데이타는---', room.value)
-
-    if (!room.value) {
+      if (!room.value) {
+        router.push({ name: 'challengeList' }) 
+      }
+      pay.value = room.value.pfee
+      challroomno.value = room.value.challNo
+      console.log('참여비는?', pay.value, '방 번호는?', challroomno.value)
+      if(new Date(room.value.cstartDate) >= new Date().setHours(0, 0, 0, 0)){
+        state.value = true
+      }
+    } else {
+      console.log('방의 데이타 가져오기 실패')
       router.push({ name: 'challengeList' }) 
     }
-    pay.value = room.value.pfee
-    challroomno.value = room.value.challNo
-    console.log('참여비는?', pay.value, '방 번호는?', challroomno.value)
-
-  } else {
-    console.log('방의 데이타 가져오기 실패')
+  } catch(e){
+    router.push({ name: 'challengeList' }) 
   }
 
 }
@@ -69,8 +77,6 @@ onMounted(async () => { await participants(), await roomData() })
 //차트 불러오기 용
 
 const vuetifyTheme = useTheme()
-
-const horizontalBarChartConfig = computed(() => getBarChartConfig(vuetifyTheme.current.value))
 
 console.log('test:', vuetifyTheme.current.value)
 
@@ -246,10 +252,11 @@ onUnmounted(() => {
             </VBtn>
             <ShareProjectDialogTemp v-model:isDialogVisible="isShareProjectDialogVisible" />
             <VBtn
+              v-if="state"
               :style="{'margin-left':'10px'}"
               @click="deleteData"
             >
-              나가기
+              나가기 
             </VBtn>
           </VCol>
         </VCard>

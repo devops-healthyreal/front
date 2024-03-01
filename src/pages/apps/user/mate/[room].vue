@@ -79,27 +79,31 @@ let isLoading = ref(true)  // 로딩 상태를 나타내는 데이터 추가
 
 //방 데이터 가져오기
 const roomData = async () => {
+  try{
 
-  console.log("challNo----", route.params.room)
+    console.log("challNo----", route.params.room)
 
-  const response = await axios.post('http://localhost:4000/mroom/roomData.do', { challNo: route.params.room })
-
-
-  if (response.status === 200) {
-    room.value = response.data
-    console.log(' 방의 데이타는---', room.value)
-    console.log(' 방의 데이타는---room', room)
-
-    openRoomYN.value = room.value.ryn === 'Y'
+    const response = await axios.post('http://localhost:4000/mroom/roomData.do', { challNo: route.params.room })
 
 
-    console.log("matearea", room.value.mateArea)
-    console.log("getMonthFromDate(room.value.mateDate)", getMonthFromDate(room.value.mateDate))
-    console.log("getdayFromDate(room.value.mateDate)", getdayFromDate(room.value.mateDate))
-  } else {
-    console.log('방의 데이타 가져오기 실패')
+    if (response.status === 200) {
+      room.value = response.data
+      console.log(' 방의 데이타는---', room.value)
+      console.log(' 방의 데이타는---room', room)
+
+      openRoomYN.value = room.value.ryn === 'Y'
+
+
+      console.log("matearea", room.value.mateArea)
+      console.log("getMonthFromDate(room.value.mateDate)", getMonthFromDate(room.value.mateDate))
+      console.log("getdayFromDate(room.value.mateDate)", getdayFromDate(room.value.mateDate))
+    } else {
+      console.log('방의 데이타 가져오기 실패')
+      router.push({ name: 'mateList' })
+    }
+  }catch(e){
+    router.push({ name: 'mateList' })
   }
-
 }
 
 const deleteData = async () => {
