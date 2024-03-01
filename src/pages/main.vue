@@ -177,24 +177,22 @@ const iconss = [
 
 const dietPlansList = [
   {
-    desc: 'Standard - $99/month',
     title: '아침 메뉴',
-    content: '아침 메뉴 설명',
     index: 0,
   },
   {
-    desc: 'Basic - $0/month',
     title: '점심 메뉴',
-    content: '점심 메뉴 설명',
     index: 1,
   },
   {
-    desc: 'Enterprise - $499/month',
     title: '저녁 메뉴',
-    content: '저녁 메뉴 설명',
     index: 2,
   },
 ]
+
+const moveRecipe = () => {
+  router.push({ path: "/dietfood" })
+}
 </script>
 
 <template>
@@ -252,7 +250,10 @@ const dietPlansList = [
                 cols="12"
                 md="4"
               >
-                <VCard class="text-center">
+                <VCard
+                  class="text-center"
+                  @click="moveRecipe"
+                >
                   <VCardItem class="d-flex flex-column justify-center align-center">
                     <VAvatar
                       variant="tonal"
@@ -276,7 +277,7 @@ const dietPlansList = [
                     </h6>
                   </VCardItem>
                   <VCardText>
-                    <span v-if="dietinfo.length > 0">{{ list.index == 0? '아침 메뉴': list.index == 1? '점심 메뉴' : '저녁 메뉴' }} 설명</span>
+                    <span v-if="dietinfo.length > 0">{{ dietinfo[list.index].recipe_title }}</span>
                   </VCardText>
                   <VCardText>
                     <span>
