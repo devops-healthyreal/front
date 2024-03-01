@@ -76,8 +76,6 @@ const getEatingRecord = async () => {
                     })
                   })
               }
-
-              router.go(0)
             })
         }
         console.log('가져온 유저 Eating_Record', dietinfo.value)

@@ -29,13 +29,9 @@ function handleDataFromChildExer (data) {
 }
 
 //-----------------------------------------------------------------------------------------
-onMounted(() => {
-  setting().then(() => {
-    if (!Array.isArray(checkedItems.value)) {
-      checkedItems.value = []  // 배열이 아닌 경우 빈 배열을 할당
-    }
-    getEatingRecord()
-  })
+onMounted( async () => {
+  await setting(), await getEatingRecord()
+  
 })
 
 
@@ -47,6 +43,9 @@ const setting = async () => {
 
   console.log(response)
   if (response.status === 200) {
+    checkedItems.value = []
+    checkedExerciseItems.value= []
+ 
     const exerciseString = response.data.exercise 
     const eattingString = response.data.eatting
 
@@ -55,18 +54,31 @@ const setting = async () => {
       const exerciseArray = exerciseString.substring(1, exerciseString.length - 1).split(',').map(item => item.trim()) // "[B, D, L]" -> "B, D, L" -> ["B", "D", "L"]
 
       checkedExerciseItems.value = exerciseArray // 배열 할당
+      if (checkedExerciseItems.value[0] == "") {
+        checkedExerciseItems.value.splice(0, 1)
+      }
       console.log('이행률 데이터는---', response)
       console.log('checkedExerciseItems.value---', checkedExerciseItems.value)
 
       const eattingArray = eattingString.substring(1, eattingString.length - 1).split(',').map(item => item.trim())
 
       checkedItems.value = eattingArray // 배열 할당
+
+      if(eattingArray[0] == ""){
+        checkedItems.value =[]
+      }
+
       console.log('이행률 데이터는---', response)
       console.log('checkedItems.value---', checkedItems.value)
       
     }else{
-      checkedExerciseItems.value = exerciseArray
-      checkedItems.value = eattingArray 
+      
+      if (Array.isArray(checkedItems.value)){
+        checkedItems.value = eattingString
+      } 
+      if (Array.isArray(checkedExerciseItems.value)){
+        checkedExerciseItems.value = exerciseString
+      } 
     }
     
   } else {
@@ -131,6 +143,10 @@ const getEatingRecord = async () => {
 //-----------------------------------------------------------------------------------------
 
 const sendDataToParent = value => {
+  if (!Array.isArray(checkedItems.value)) {
+    checkedItems.value = []
+  }
+
   // 배열인지 확인
   if (Array.isArray(checkedItems.value)) {
     if (checkedItems.value.includes(value)) {

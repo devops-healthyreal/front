@@ -3,6 +3,7 @@ import ChatContact from '@/views/apps/chat/ChatContact.vue'
 import useDatabase from '@/views/apps/chat/chatData.js'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { useChat } from './useChat'
+import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
   search: {
@@ -25,11 +26,21 @@ const online = {
   status: 'online',
 }
 
+
 const { database, chatsContacts, connetId } = useDatabase()
 
 
 const { resolveAvatarBadgeVariant } = useChat()
 const search = useVModel(props, 'search', emit)
+
+// 필터링된 채팅 목록
+const filteredChatsContacts = computed(() => {
+  return chatsContacts.value.filter(contact => contact.fullName.includes(search.value))
+})
+
+watch(search, newVal => {
+  console.log("데이터확인 ", chatsContacts.value)  // 로그 출력
+}, { immediate: true })
 </script>
 
 <template>
@@ -55,11 +66,12 @@ const search = useVModel(props, 'search', emit)
     </VBadge>
 
     <VTextField
-      v-model="search"
+      :model-value="search"
       density="compact"
       placeholder="Search..."
       prepend-inner-icon="mdi-magnify"
       class="ms-4 me-1 chat-list-search"
+      @update:model-value="$emit('update:search', $event)"
     />
 
     <IconBtn
@@ -83,7 +95,7 @@ const search = useVModel(props, 'search', emit)
       <span class="chat-contact-header d-block text-primary text-xl font-weight-medium">채팅 목록</span>
     </li>
     <ChatContact
-      v-for="contact in chatsContacts"
+      v-for="contact in filteredChatsContacts"
       :key="`chat-${contact.id}`"
       :user="contact"
       is-chat-contact

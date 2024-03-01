@@ -22,6 +22,9 @@ const connetId=userInfo.value.id
 // 여기에 checkedItem에 체크박스 value 저장 저장된 배열 [id].vue에 emit으로 데이터 보냄
 function sendDataToParent(value) {
   const checkedExerciseItems = ref(props.checkedExerciseItems)
+  if (!Array.isArray(checkedExerciseItems.value)) {
+    checkedExerciseItems.value = []
+  }
 
   if (checkedExerciseItems.value.includes(value)) {
     // 이미 포함된 경우 해당 값을 제거한 새 배열 생성
