@@ -217,6 +217,7 @@ const updateuserdata = async (colname, newcolval, id) => {
             v-model="heightval"
             style="margin-top: 10px;"
             :readonly="editClick3"
+            prepend-inner-icon=" mdi-human-male-height"
             :placeholder="memberdata.height"
           />
         </VCol>
@@ -245,6 +246,7 @@ const updateuserdata = async (colname, newcolval, id) => {
             v-model="weightval"
             style="margin-top: 10px;"
             :readonly="editClick4"
+            prepend-inner-icon="mdi-weight-kilogram"
             :placeholder="memberdata.weight"
           />
         </VCol>
@@ -274,6 +276,7 @@ const updateuserdata = async (colname, newcolval, id) => {
             v-model="telval"
             style="margin-top: 10px;"
             :readonly="editClick5"
+            prepend-inner-icon="mdi-phone"
             :placeholder="memberdata.tel"
           />
         </VCol>
@@ -299,6 +302,7 @@ const updateuserdata = async (colname, newcolval, id) => {
             v-model="b_dayval"
             style="margin-top: 10px;"
             :readonly="editClick6"
+            prepend-inner-icon="mdi-cake-variant"
             :placeholder="memberdata.b_day"
           />
         </VCol>
