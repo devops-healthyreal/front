@@ -228,7 +228,7 @@ const handleSubmit = async(connetId, selectcurr, bfood) =>{
               음식이 모두 보이도록<br>사진을 업로드해주세요.
             </p>
             <p v-else>
-              확인된 음식 : {{ all_food_values }}
+              확인된 음식 : {{ all_food_values.join(', ') }}
             </p>
             <VBtn @click="handleUpload('filebtn')">
               upload

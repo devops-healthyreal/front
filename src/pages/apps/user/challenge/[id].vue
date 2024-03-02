@@ -1,9 +1,7 @@
 <script setup>
-import ShareProjectDialogTemp from '@/components/dialogs/ShareProjectDialogTemp.vue'
 import Pricingtest from '@/components/dialogs/pricingtest.vue'
 import Chat from '@/pages/apps/challengeChat.vue'
 import UserProfileForChellenge from '@/views/apps/user/view/UserProfileForChellenge.vue'
-import { getBarChartConfig } from '@core/libs/apex-chart/apexCharConfig' //차트 불러오기
 import axios from "axios"
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -148,6 +146,11 @@ socket.addEventListener("message", async event => {
 onUnmounted(() => {
   socket.close()
 })
+
+const handleInviteUpdate = async () => {
+  console.log('이벤트 발생해???')
+  await participants()
+}
 </script>
 
 <template>
@@ -247,10 +250,18 @@ onUnmounted(() => {
                 :challroomno="challroomno"
               />
             </VCol>
-            <VBtn @click="isShareProjectDialogVisible = !isShareProjectDialogVisible">
+            <VBtn 
+              v-if="participantsData.length < room.challCapacity"
+              @click="isShareProjectDialogVisible = !isShareProjectDialogVisible"
+            >
               초대하기
             </VBtn>
-            <ShareProjectDialogTemp v-model:isDialogVisible="isShareProjectDialogVisible" />
+            <ShareProjectDialogTempChall
+              v-model:isDialogVisible="isShareProjectDialogVisible"
+              :participants-data=" participantsData"
+              :mate-no="route.params.id"
+              @inviteUpdate="handleInviteUpdate"
+            />
             <VBtn
               v-if="state"
               :style="{'margin-left':'10px'}"

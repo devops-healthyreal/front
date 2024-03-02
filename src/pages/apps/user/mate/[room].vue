@@ -31,6 +31,7 @@ const capitalizedLabel = label => {
 
 const isareaCrawlingResultDialogVisible = ref(false)
 
+
 function togglechatFlag() {
   chatflag.value = !chatflag.value
   if(chatflag.value){
@@ -260,6 +261,11 @@ const stopMatching = () => {
     isLoading1.value = false
   }
 }
+
+const handleInviteUpdate = async () => {
+  console.log('이벤트 발생해???')
+  await participants()
+}
 </script>
 
 <template>
@@ -274,12 +280,18 @@ const stopMatching = () => {
             <VRow style="display: flex; justify-content: space-between;">
               <VCol cols="7">
                 <VBtn
+                  v-if="participantsData.length < room.mateCapacity"
                   style=" width: 90px;"
                   @click="isShareProjectDialogVisible = !isShareProjectDialogVisible"
                 >
                   초대하기
                 </VBtn>
-                <ShareProjectDialogTemp v-model:isDialogVisible="isShareProjectDialogVisible" />
+                <ShareProjectDialogTemp
+                  v-model:isDialogVisible="isShareProjectDialogVisible"
+                  :participants-data=" participantsData"
+                  :mate-no="route.params.room"
+                  @inviteUpdate="handleInviteUpdate"
+                />
                 <VBtn
                   style=" width: 90px;margin-left: 10px;"
                   @click="isareaCrawlingResultDialogVisible = !isareaCrawlingResultDialogVisible;"
