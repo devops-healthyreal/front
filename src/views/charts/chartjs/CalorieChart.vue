@@ -15,7 +15,7 @@ const props = defineProps({
 // const totalCalories = props.userdietinfo.reduce((acc, item) => acc + item.calory, 0)
 /// userdietinfo 배열의 각 객체의 calory 속성을 합산하여 totalCalories 변수에 할당
 const totalCalories = computed(() => {
-  return props.userdietinfo.reduce((acc, item) => acc + item['calory'], 0)
+  return props.userdietinfo.reduce((acc, item) => acc + item['total_calory'], 0)
 })
 
 const vuetifyTheme = useTheme()

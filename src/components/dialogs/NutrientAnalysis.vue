@@ -1,22 +1,14 @@
 <script setup lang="ts">
-import NutrientChart from '@/views/charts/apex-chart/NutrientChart.vue'
-import CalorieChart from '@/views/charts/chartjs/CalorieChart.vue'
+import NutrientChart from '@/views/charts/apex-chart/NutrientChart.vue';
+import CalorieChart from '@/views/charts/chartjs/CalorieChart.vue';
 
 const props = defineProps({
   isDialogVisible: {
     type: Boolean,
     required: true,
   },
-  bfood: {
-    type: Array,
-    required: true,
-  },
-  selectcurr: {
-    type: String,
-    required: true,
-  },
   userdietinfo: {
-    type: Array,
+    type: Array as PropType<Array<{ ae_diettype: string, carbohydrate: number, protein: number, fat: number, sodium: number, cholesterol: number }>>,
     required: true,
   },
 })
@@ -26,6 +18,7 @@ const emit = defineEmits(['update:isDialogVisible'])
 const dialogVisibleUpdate = val => {
   emit('update:isDialogVisible', val)
 }
+
 </script>
 
 <template>
@@ -90,19 +83,19 @@ const dialogVisibleUpdate = val => {
                     {{ item.ae_diettype }}
                   </td>
                   <td>
-                    {{ item.carbohydrate }}
+                    {{ item.total_carbohydrate}}
                   </td>
                   <td>
-                    {{ item.protein }}
+                    {{ item.total_protein }}
                   </td>
                   <td>
-                    {{ item.fat }}
+                    {{ item.total_fat }}
                   </td>
                   <td>
-                    {{ item.sodium/1000 }}
+                    {{ item.total_sodium/1000 }}
                   </td>
                   <td>
-                    {{ item.cholesterol/1000 }}
+                    {{ item.total_cholesterol/1000 }}
                   </td>
                 </tr>
               </tbody>
@@ -146,7 +139,7 @@ const dialogVisibleUpdate = val => {
                     {{ item.ae_diettype }}
                   </td>
                   <td>
-                    {{ item.calory }}
+                    {{ item.total_calory }}
                   </td>
                 </tr>
               </tbody>
