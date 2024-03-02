@@ -11,6 +11,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { startRecognition } from './stt.js'
 import { startSynthesis } from './tts.js'
+import mainImg from "@images/cards/card-meetup_copy_1.jpg"
 
 
 const router = useRouter()
@@ -196,6 +197,10 @@ const moveRecipe = () => {
 
 <template>
   <section>
+    <VImg
+      :src="mainImg"
+      style="width: auto; margin-bottom: 30px;"
+    />
     <VRow class="fill-height">
       <VCol
         cols="12"
