@@ -84,6 +84,7 @@ const getData = async function() {
   try {
     const response = await axios.post('http://localhost:4000/bbs/List.do', {
       selectedItems: selected.value,
+      id: userId.value,
     }, {
       headers: {
         'Content-Type': 'application/json',
@@ -100,6 +101,12 @@ const getData = async function() {
       const tempUserKeys = []
       for(var i=0; i<state.items.length; i++){
         tempUserKeys[i] = state.items[i].id
+        if(state.items[i].isSubto === 1) {
+          isSubscribed.value[tempUserKeys[i]] = ref(true)
+        }
+        else{
+          isSubscribed.value[tempUserKeys[i]] = ref(false)
+        }
       }
       const tempUserKeysSet = new Set(tempUserKeys) //중복 아이디 제거
       const temp = [...tempUserKeysSet] //ids
@@ -146,6 +153,15 @@ const getData = async function() {
       //   .catch(err=>console.log(err))
       // console.log(state.items[1].files)
       // console.log("isSubscribed:", isSubscribed)
+      axios.get("http://localhost:4000/comm/subscribe", { params: {
+        id: userId.value,
+      } })
+        .then(res=>{
+          console.log("구독한 목록:", res.data)
+          users.value = res.data.subTo
+        })
+        .catch(err=>console.error(err))
+
       console.log("userId.value:", userId.value)
       axios.get("http://localhost:4000/comm/friend/random", { params: {
         id: userId.value,
@@ -153,7 +169,7 @@ const getData = async function() {
         .then(res=>{
           for(const key of Object.keys(res.data)){
             usersView.value.push({ id: key, profilePath: res.data[key] })
-            isInvited[key] = ref(false)
+            isInvited[key] = ref(true)
           }
           console.log("응답값:", usersView.value)
         })
@@ -167,10 +183,22 @@ const getData = async function() {
   } //catch
 }
 
-const getUserAvatar = userId => {
-  const user = users.value.find(user => user.id === userId)
+// const getUserAvatar = userId => {
+//   const user = users.value.find(user => user.id === userId)
   
-  return user ? user.profilePath : defaultImg
+//   return user ? user.profilePath : defaultImg
+// }
+
+const getUserAvatar = user => {
+  console.log('getUserAvatar:', user.profilePath)
+  if(user.profilePath !== undefined) {
+    console.log('getUserAvatar if문 안으로 들어옴')
+    
+    return user.profilePath
+  }
+  console.log('getUserAvatar if문 밖')
+  
+  return defaultImg
 }
 
 //////////////////////////////////////
@@ -296,7 +324,9 @@ const getComment = async function() {
   }
 }
 
-
+const test2 = val => {
+  console.log('왜 사진이 안뜨지', val)
+}
 
 //댓글 입력
 const searchuser = userInfo.value.id //현재 접속중인 유저 아이디
@@ -435,11 +465,8 @@ const subscribe = (name, check) => {
       userId: connetId,
       subToId: name,
     }), { headers: { 'Content-Type': 'application/json' } })
-      .then(
-        console.log('error'),
-
-        //sendCommReqMessage(connetId, name),
-        
+      .then( ()=>
+        users.value.push({ subscribe_id: name, profilePath: getUserAvatar(name) }),
       )
       .catch(err=>console.log(err))
   }
@@ -451,6 +478,13 @@ const subscribe = (name, check) => {
         subToId: name,
       },
     }, { headers: { "Content-Type": `application/json` } })
+      .then(()=>{
+        for(var i=0; i<users.value.length; i++) {
+          if(users.value[i].subscribe_id === name) {
+            users.value.splice(i, 1)
+          }
+        }
+      })
       .catch(err=>console.log(err))
   }
   console.log('클릭후:', isSubscribed.value[name])
@@ -593,7 +627,7 @@ const test = val => {
             >
               <VCol
                 v-for="user in users"
-                :key="user.id"
+                :key="user.subscribe_id"
                 cols="auto"
                 class="ma-2"
               >
@@ -601,15 +635,15 @@ const test = val => {
                   <VListItemContent class="d-flex flex-column align-center text-center">
                     <VAvatar 
                       class="text-sm pointer-cursor"
-                      :image="user.profilePath"
-                      @click="getMyList(user.id)"                      
+                      :image="getUserAvatar(user)"
+                      @click="getMyList(user.subscribe_id)"                      
                     />
                     <VListItemTitle 
                       class="text-sm pointer-cursor"
-                      @click="getMyList(user.id)"   
+                      @click="getMyList(user.subscribe_id)"   
                       @mouseover="size"  
                     >
-                      {{ user.id }}
+                      {{ user.subscribe_id }}
                     </VListItemTitle>
                   </VListItemContent>
                 </VListItem>
@@ -675,7 +709,7 @@ const test = val => {
                           <VCol cols="1">
                             <VAvatar 
                               class="text-sm pointer-cursor"
-                              :image="getUserAvatar(item.id)"
+                              :image="item.profilepath"
                               @click="openUserProfileModal(item)"
                             />
                           </VCol>
@@ -744,12 +778,6 @@ const test = val => {
                                         <VIcon icon="mdi-delete-outline" />
                                       </template>
                                       <VListItemTitle>삭제하기</VListItemTitle>
-                                    </VListItem>
-                                    <VListItem @click="editingModal=true">
-                                      <template #prepend>
-                                        <VIcon icon="mdi-account-alert" />
-                                      </template>
-                                      <VListItemTitle>신고하기</VListItemTitle>
                                     </VListItem>
                                   </VList>
                                 </VMenu>
@@ -910,6 +938,8 @@ const test = val => {
                 v-show="isInvited[member.id].value"
                 id="myButton"
                 width="40"
+                variant="tonal"
+                size="small"
                 @click="requestFriend(member.id)"
               >
                 친구요청
@@ -921,34 +951,12 @@ const test = val => {
               />
               <VBtn
                 v-show="!isInvited[member.id].value"
+                size="small"
                 width="40"
                 disabled="true"
               >
                 신청완료
               </VBtn>
-              <!-- 구독 버튼 -->
-              <!--
-                <VBtn
-                v-show="!isSubscribed[member.id].value"
-                id="myButton"
-                width="40"
-                style="margin-left: 5px;"
-                variant="outlined"
-                @click="subscribe(member.id, 1)"
-                >
-                구독
-                </VBtn>
-                <VBtn
-                v-show="isSubscribed[member.id].value"
-                id="myButton"
-                style="margin-left: 5px;"
-                variant="tonal"
-                @click="subscribe(member.id, 0)"
-                >
-                <VIcon icon="mdi-bell" />
-                구독중
-                </VBtn>
-              -->
               <VSnackbar
                 v-model="isSnackbarVisible"
                 :timeout="800"
