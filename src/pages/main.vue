@@ -1,4 +1,5 @@
 <script setup>
+import ExerciseMainVue from '@/components/ExerciseMain.vue'
 import LoadingModal from '@/pages/LoadingModal.vue'
 import Calendar from '@/pages/apps/calendar.vue'
 import Timeline from '@/pages/components/timeline.vue'
@@ -247,6 +248,7 @@ const moveRecipe = () => {
                 :key="list.index"
                 cols="12"
                 md="4"
+                style="height: 400px;"
               >
                 <VCard
                   class="text-center"
@@ -274,37 +276,8 @@ const moveRecipe = () => {
                       <span v-else>{{ list.index == 0? '아침': list.index == 1? '점심' : '저녁' }} 메뉴</span>
                     </h6>
                   </VCardItem>
-                  <VCardText>
+                  <VCardText style="height: 100px;">
                     <span v-if="dietinfo.length > 0">{{ dietinfo[list.index].recipe_title }}</span>
-                  </VCardText>
-                  <VCardText>
-                    <span>
-                      <div
-                        v-for="(gro, index) in dietPlansList[list.index]"
-                        :key="index"
-                      >
-                        <div v-if="index == 0 && gro.RECIPE_SEQ && gro.RECIPE_SEQ.length > 0">
-                          <br><strong style="margin: 0 20px;">[조리순서]</strong>
-                          <div
-                            style="max-height: 200px; overflow-y: auto;"
-                            class="scrollbar"
-                          >
-                            <p
-                              v-for="(seq, seqIndex) in gro.RECIPE_SEQ.split('||')"
-                              :key="seqIndex"
-                              style="margin: 10px 20px;"
-                            >
-                              {{ seqIndex + 1 }} ) {{ seq }}
-                            </p>
-                          </div>
-                          <br>
-                          <strong style="margin: 10px 20px;">[재료]</strong>
-                        </div>
-                        <span v-if="gro.FOODNAME">
-                          - {{ gro.INGREDIENT }} - {{ gro.RI_AMOUNT }}
-                        </span>
-                      </div>
-                    </span>
                   </VCardText>
                 </VCard>
               </VCol>
@@ -312,7 +285,7 @@ const moveRecipe = () => {
           </VWindowItem>
           <!-- ------------------ 운동 ---------------------- -->
           <VWindowItem>
-            <CrmActivityTimeline />
+            <ExerciseMainVue />
           </VWindowItem>
 
           <!-- ------------------경로-------------------- -->
@@ -329,7 +302,6 @@ const moveRecipe = () => {
                 variant="text"
                 @click="startSynthesis('오늘의 스케줄을 시작합니다.')"
               >
-                >
                 <VIcon
                   start
                   icon="mdi-contactless-payment-circle-outline"

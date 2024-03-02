@@ -13,6 +13,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:isDialogVisible'])
 
+
 const router = useRouter()
 const selectedPlan = ref('randam')
 
@@ -110,22 +111,12 @@ const getData = async obj => {
             color="error"
             variant="tonal"
             class="mt-3"
-            @click="isConfirmDialogVisible = true"
+            @click="$emit('update:isDialogVisible', false)"
           >
             취소
           </VBtn>
         </div>
       </VCardText>
-
-      <!-- 👉 Confirm Dialog -->
-      <ConfirmDialog
-        v-model:isDialogVisible="isConfirmDialogVisible"
-        cancel-title="Not Cancelled"
-        confirm-title="Cancelled"
-        confirm-msg="운동 추천을 취소하셨습니다!"
-        confirmation-question="운동 추천을 취소하시겠습니까?"
-        cancel-msg="취소되지 않았습니다!!"
-      />
     </VCard>
   </VDialog>
 </template>
