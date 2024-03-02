@@ -14,23 +14,23 @@ const props = defineProps({
 const vuetifyTheme = useTheme()
 
 const totalCarbohydrate = computed(() => {
-  return props.userdietinfo.reduce((acc, item) => acc + item['carbohydrate'], 0)
+  return props.userdietinfo.reduce((acc, item) => acc + item['total_carbohydrate'], 0)
 })
 
 const totalProtein = computed(() => {
-  return props.userdietinfo.reduce((acc, item) => acc + item['protein'], 0)
+  return props.userdietinfo.reduce((acc, item) => acc + item['total_protein'], 0)
 })
 
 const totalFat = computed(() => {
-  return props.userdietinfo.reduce((acc, item) => acc + item['fat'], 0)
+  return props.userdietinfo.reduce((acc, item) => acc + item['total_fat'], 0)
 })
 
 const totalSodium = computed(() => {
-  return props.userdietinfo.reduce((acc, item) => acc + parseInt(item['sodium']), 0) / 1000
+  return props.userdietinfo.reduce((acc, item) => acc + parseInt(item['total_sodium']), 0) / 1000
 })
 
 const totalCholesterol = computed(() => {
-  return props.userdietinfo.reduce((acc, item) => acc + parseInt(item['cholesterol']), 0) / 1000
+  return props.userdietinfo.reduce((acc, item) => acc + parseInt(item['total_cholesterol']), 0) / 1000
 })
 
 //오늘의 날짜 구하기
