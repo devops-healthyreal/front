@@ -12,8 +12,8 @@ export default [
     icon: { icon: 'mdi-weight-lifter' }, // icon
     children: [
       { title: '운동 경로 보기', meta: { counter: mapRecRouteCounter++ }, to: { name: 'exercise-map-recommend', params: { recommend: 'reco' } }, icon: { icon: 'mdi-map-check' } }, //test폴더 안의 test.vue 파일을 의미 아이콘 사용 불가
-      { title: '운동 자세 분석', meta: { counter: poseRouteCounter++ }, to: 'exercise-pose', icon: { icon: 'mdi-dumbbell' } }, //test폴더 안의 test2.vue 파일을 의미
-      { title: '운동추천', meta: { counter: exerRecRouteCounter++ }, to: { name: 'exerciseRecommendation' }, icon: { icon: 'mdi-dumbbell'  } },
+      { title: '운동 자세 분석', meta: { counter: poseRouteCounter++ }, to: 'exercise-pose', icon: { icon: 'mdi-human-male-board-poll' } }, //test폴더 안의 test2.vue 파일을 의미
+      { title: '운동추천', meta: { counter: exerRecRouteCounter++ }, to: { name: 'exerciseRecommendation' }, icon: { icon: 'mdi-motion-sensor'  } },
     ],
   },
   {

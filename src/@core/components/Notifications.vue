@@ -1,5 +1,6 @@
 <script setup>
 import axios from '@axios'
+import { useRouter } from 'vue-router'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { useStore } from 'vuex'
 
@@ -30,6 +31,8 @@ const emit = defineEmits([
   'click:notification',
 ])
 
+const router = useRouter()
+
 const store = useStore()
 
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
@@ -57,6 +60,15 @@ function getTimeDiffString(triggerDate) {
 }
 
 const updatenotic = async (notification, trigger_pk, index) => {
+  if(notification.notic_type == 1){
+    console.log('알림이 발생된 게시물', notification.bbs_no)
+
+    // router.push({ name: 'ViewPostPage', params: { bno: notification.bbs_no }  })
+  }else if(notification.notic_type == 2){
+    console.log('알림이 발생된 게시물', notification.trigger_no)
+
+    // router.push({ path: "/community_post", query: { bno: notification.trigger_no }  })
+  }
   await axios.get('http://localhost:4000/Notic/Update.do', { params: { trigger_pk: trigger_pk } })
     .then(response => {
       console.log('성공')
@@ -68,8 +80,10 @@ const updatenotic = async (notification, trigger_pk, index) => {
       console.log('실패', error)
     })
 }
-const removenotic = async (trigger_pk) => {
-  console.log('지울 trigger_pk:',trigger_pk)
+
+const removenotic = async trigger_pk => {
+  console.log('지울 trigger_pk:', trigger_pk)
+
   // await axios.get('http://localhost:4000/Notic/Delete.do', { params: { trigger_pk: trigger_pk } })
   // .then(response => {
   //   console.log('성공')
@@ -161,8 +175,8 @@ const removenotic = async (trigger_pk) => {
                 <VListItemTitle>
                   <VChip color="error">
                     {{ notification.notic_trigger_user }}
-                  </VChip> 
-                  <small>{{ notification.notic_type===1? '님께서 댓글을 달았습니다.': '님께서 좋아요를 눌렀습니다.' }}</small>                  
+                  </VChip>
+                  <small>{{ notification.notic_type===1? '님께서 댓글을 달았습니다.': '님께서 좋아요를 눌렀습니다.' }}</small>
                 </VListItemTitle>
                 
                 <!-- <VListItemSubtitle>{{ notification.ccomment }}</VListItemSubtitle> -->

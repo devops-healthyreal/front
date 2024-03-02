@@ -6,6 +6,9 @@ import axios from '@axios'
 import controlHeader from '@images/pages/app-search-header-bg-light.png'
 import defaultImg from '@images/userProfile/default.png'
 import { onMounted, reactive, ref } from 'vue'
+import { useStore } from 'vuex'
+
+const store = useStore()
 
 const chartJsCustomColors = {
   white: '#fff',
@@ -109,6 +112,20 @@ const getData = async function() {
     console.error(`데이터 전송 실패: ${error}`)
   }
 }
+
+
+// -------------------------------------------------------------------------------
+const logout = async () => {
+  try {
+    console.log("이게 실행 안되는거지?")
+    localStorage.removeItem('User-Token')
+    await store.dispatch('logout') // 'loginStore/logout' 액션 디스패치
+    await store.dispatch('userlogout')
+  } catch (error) {
+    console.log('')
+    console.error(error)
+  }
+}
 </script>
 
 <template>
@@ -128,6 +145,7 @@ const getData = async function() {
         :src="controlHeader"
         style=" height: 200px;padding-top: 230px; margin-top: 50px; margin-bottom: 20px;"
       />
+      
       <VRow>
         <VCol
           cols="8"
@@ -143,7 +161,7 @@ const getData = async function() {
                 start
                 icon="mdi-account-cancel-outline"
               />
-              신고 유저
+              블랙리스트
             </VTab>
 
             <VTab>
@@ -292,7 +310,7 @@ const getData = async function() {
                 flat
                 :max-width="auto"
                 class="mt-1 mt-sm- pa-0 custom-scrollbar"
-                style="height: 600px; overflow-y: auto;"
+                style="height: 750px; overflow-y: auto;"
               >
                 <!-- 게시물 작성 공간 -->
                 <VCol v-if="state.items.length > 0">
@@ -311,22 +329,21 @@ const getData = async function() {
                               :image="getUserAvatar(item.id)"
                             />
                           </VCol>
-                          <VCol cols="4">
-                            <VCol cols="12">
-                              <VCardSubtitle
-                                class="text-sm pointer-cursor"
-                                style="margin-left: -5%;"
-                              >
-                                {{ item.id }}  <!-- 유저 닉네임 뿌려주기 -->
-                              </VCardSubtitle>
-                              <VBtn
-                                class="d-flex justify-end"
-                                @click="deleteItem(item.bno)"
-                              >
-                                <VIcon icon="mdi-delete-outline" />
-                                삭제하기
-                              </VBtn>
-                            </VCol>
+                          <VCol cols="9">
+                            <VCardSubtitle
+                              class="text-sm pointer-cursor"
+                              style="margin-top: 10px;"
+                            >
+                              <strong>{{ item.id }}</strong>  <!-- 유저 닉네임 뿌려주기 -->
+                            </VCardSubtitle>
+                          </VCol>
+                          <VCol cols="1">
+                            <VBtn
+                              variant="tonal"
+                              @click="deleteItem(item.bno)"
+                            >
+                              <VIcon icon="mdi-delete-outline" />
+                            </VBtn>
                           </VCol>
                         </VRow>
                       </VCol>
@@ -400,6 +417,14 @@ const getData = async function() {
           </VWindow>
         </VCol>
       </VRow>
+      <VBtn @click="logout">
+        <VIcon
+          start
+          icon="mdi-logout"
+          :size="22"
+        />
+        로그아웃
+      </VBtn>
     </VCol>
   </VRow>
 </template>

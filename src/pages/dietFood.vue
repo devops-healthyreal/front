@@ -95,7 +95,7 @@ const getEatingRecord = async () => {
   console.log('체크해보자 : ', connetId)
   await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
     .then(response => {    
-      console.log('가져온 유저 Eating_Record', response.data.length)
+      console.log('가져온 유저 Eating_Record', response.data)
 
       if(response.data.length > 0){
         // 레시피 & 재료도 가져오기
@@ -301,8 +301,43 @@ watch(router, fetchProjectData, { immediate: true })
             <span v-else>{{ list.content }}</span>
           </VCardText>
 
-          <VCardText>
-            <span v-if="!(recipedatach[list.index] && recipedatach[list.index].length)">레시피</span>
+          <VCardText
+            v-if="(dietinfo[list.index] && dietinfo[list.index] != '') && !(recipedatach[list.index] && recipedatach[list.index].length)"
+            style="height: 500px;"
+          >
+            <span>
+              <div>
+                <div v-if="dietinfo[list.index]">
+                  <br><strong style="margin: 0 20px;">[조리순서]</strong>
+                  <div
+                    style="max-height: 200px; overflow-y: auto;"
+                    class="scrollbar"
+                  >
+                    <p
+                      v-for="(seq, seqIndex) in dietinfo[list.index].recipe_seq.split('||')"
+                      :key="seqIndex"
+                      style="margin: 10px 20px;"
+                    >
+                      {{ seqIndex + 1 }} ) {{ seq }}
+                    </p>
+                  </div> 
+                 
+                  <br>
+                  <strong style="margin: 10px 20px;">[재료]</strong>
+                </div>
+                
+                
+                
+                <span
+                  v-for="(jaro, ind) in dietinfo[list.index].ingredients"
+                  :key="ind"
+                >
+                  - {{ jaro.ingredient }} - {{ jaro.ri_amount }}<br>
+                </span>  
+               
+               
+              </div>
+            </span>
           </VCardText>
           <VCardText
             v-if="(recipedatach[list.index] && recipedatach[list.index].length)"

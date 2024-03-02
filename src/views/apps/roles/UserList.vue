@@ -1,12 +1,16 @@
 <script setup>
 import { paginationMeta } from '@/@fake-db/utils'
 import axios from "axios"
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
+
 
 const searchQuery = ref('')
 const totalUsers = ref(0)
 const users = ref([])
+const totalPage = ref(1)
+const selectedUser = ref([])
+const selectedPlan = ref()
 
 const options = ref({
   page: 1,
@@ -14,8 +18,25 @@ const options = ref({
   sortBy: [],
   groupBy: [],
   search: undefined,
+
 })
 
+const checkedRows = ref([])
+
+// items 배열이 변경될 때마다 watch하여 체크된 행을 초기화
+watch(() => users, () => {
+  checkedRows.value = []
+})
+
+// 체크박스가 토글될 때마다 처리하는 함수
+const handleCheckboxToggle = rowIndex => {
+  // 체크된 유저의 ID를 받아오는 예시
+  console.log(rowIndex.value.ID)
+
+  checkedRows.value.push(rowIndex.value.ID)
+
+  console.log(checkedRows.value)
+}
 
 //유저 데이터 가져오기
 const userData = async () => {
@@ -33,6 +54,7 @@ const userData = async () => {
         GOAL_NAME: user.GOAL_NAME,
         REGIDATE: formattedDate,
         GENDER: user.GENDER === 'M' ? '남자' : '여자',
+        checked: false, // 각 행의 체크박스 상태를 관리하는 속성 추가
       }
     })
     totalUsers.value = users.value.length
@@ -43,7 +65,9 @@ const userData = async () => {
 
 }
 
-onMounted(async () => { await userData()})
+onMounted(async () => { 
+  await userData()
+})
 
 const headers = [
   {
@@ -74,16 +98,20 @@ const headers = [
 <template>
   <section>
     <VCard cols="8">
-      <VCardText class="d-flex flex-wrap gap-4 ">
-        <div class="app-user-search-filter d-flex align-center gap-6 ">
+      <VCardText
+        class="d-flex flex-wrap gap-4 "
+        style="display: flex; justify-content: space-between;"
+      >
+        <div class="app-user-search-filter   ">
           <!-- 👉 Search  -->
           <VTextField
             v-model="searchQuery"
             placeholder="찾을 유저"
             density="compact"
-            style="width: 8rem;"
+            style="width: 12rem;"
           />
         </div>
+        <VBtn>신고</VBtn>
       </VCardText>
 
       <!-- SECTION datatable -->
@@ -93,7 +121,6 @@ const headers = [
         :items="users"
         :items-length="totalUsers"
         :headers="headers"
-        show-select
         class="text-no-wrap rounded-0 "
         @update:options="options = $event"
       >
@@ -113,6 +140,7 @@ const headers = [
 
             <div class="d-flex flex-column">
               <h6 class="text-sm font-weight-medium">
+                {{ selectedUser.value }}
                 {{ item.raw.ID }}
               </h6>
 
@@ -138,8 +166,20 @@ const headers = [
         </template>
 
         <template #item.REGIDATE="{ item }">
-          <span class="text-sm">{{ item.raw.REGIDATE }}</span>
+          <VRow>
+            <VCol class="text-sm">
+              {{ item.raw.REGIDATE }}
+            </VCol>
+            <span>
+              <VCheckbox
+                v-model="item.raw.checked"
+                :value="item.raw.ID"
+                @click="handleCheckboxToggle(item)"
+              />
+            </span>
+          </VRow>
         </template>
+
 
 
         <!-- Pagination -->

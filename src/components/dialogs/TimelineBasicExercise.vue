@@ -22,6 +22,9 @@ const connetId=userInfo.value.id
 // 여기에 checkedItem에 체크박스 value 저장 저장된 배열 [id].vue에 emit으로 데이터 보냄
 function sendDataToParent(value) {
   const checkedExerciseItems = ref(props.checkedExerciseItems)
+  if (!Array.isArray(checkedExerciseItems.value)) {
+    checkedExerciseItems.value = []
+  }
 
   if (checkedExerciseItems.value.includes(value)) {
     // 이미 포함된 경우 해당 값을 제거한 새 배열 생성
@@ -83,7 +86,16 @@ onMounted(async () => {
             <span class="app-timeline-title">
               운동 1
             </span>
-            <span class="app-timeline-meta">운동명, 시간당 소모칼로리</span>
+            <div class="d-flex">
+              <span class="app-timeline-meta align-self-center">운동명, 시간당 소모칼로리</span>
+              <VCheckbox
+                v-model="isChecked1"
+                color="info" 
+                style="margin-left: 10px;"
+                :checked="isChecked1"
+                @click="sendDataToParent('1')"
+              />
+            </div>
           </div>
 
 
@@ -91,28 +103,13 @@ onMounted(async () => {
           <VDivider class="my-2" />
 
           <!-- 👉 Person -->
-          <div class="d-flex justify-space-between align-center flex-wrap">
+          <div class="d-flex align-center justify-center flex-wrap">
             <!-- 👉 Avatar & Personal Info -->
-            <span class="d-flex align-bottom mt-2">
-              <div>
-                <img
-                  id="diaryImages"
-                  :src="food"
-                  style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
-                >
-              </div>
-            </span>
-
-            <!-- 👉 Person Actions -->
-            <div>
-              <VCheckbox
-                v-model="isChecked1"
-                color="info" 
-                value="1"
-                :checked="isChecked1"
-                @click="sendDataToParent('1')"
-              />
-            </div>
+            <img
+              id="diaryImages"
+              :src="food"
+              style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
+            >
           </div>
         </VTimelineItem>
         <!-- !SECTION -->
@@ -127,7 +124,16 @@ onMounted(async () => {
             <span class="app-timeline-title">
               운동 2
             </span>
-            <span class="app-timeline-meta">운동명, 시간당 소모칼로리</span>
+            <div class="d-flex">
+              <span class="app-timeline-meta align-self-center">운동명, 시간당 소모칼로리</span>
+              <VCheckbox
+                v-model="isChecked2"
+                :selecled="isChecked2"
+                style="margin-left: 10px;"
+                color="info" 
+                @click="sendDataToParent('2')"
+              />
+            </div>
           </div>
 
 
@@ -135,28 +141,13 @@ onMounted(async () => {
           <VDivider class="my-2" />
 
           <!-- 👉 Person -->
-          <div class="d-flex justify-space-between align-center flex-wrap">
+          <div class="d-flex align-center justify-center flex-wrap">
             <!-- 👉 Avatar & Personal Info -->
-            <span class="d-flex align-bottom mt-2">
-              <div>
-                <img
-                  id="diaryImages"
-                  :src="food2"
-                  style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
-                >
-              </div>
-            </span>
-
-            <!-- 👉 Person Actions -->
-            <div>
-              <VCheckbox
-                v-model="isChecked2"
-                :selecled="isChecked2"
-                color="info" 
-                value="2"
-                @click="sendDataToParent('2')"
-              />
-            </div>
+            <img
+              id="diaryImages"
+              :src="food2"
+              style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
+            >
           </div>
         </VTimelineItem>
 
@@ -170,7 +161,16 @@ onMounted(async () => {
             <span class="app-timeline-title">
               운동 3
             </span>
-            <span class="app-timeline-meta">운동명, 시간당 소모칼로리</span>
+            <div class="d-flex">
+              <span class="app-timeline-meta align-self-center">운동명, 시간당 소모칼로리</span>
+              <VCheckbox
+                v-model="isChecked3"
+                :selecled="isChecked3"
+                style="margin-left: 10px;"
+                color="info" 
+                @click="sendDataToParent('3')"
+              />
+            </div>
           </div>
 
 
@@ -178,28 +178,13 @@ onMounted(async () => {
           <VDivider class="my-2" />
 
           <!-- 👉 Person -->
-          <div class="d-flex justify-space-between align-center flex-wrap">
+          <div class="d-flex align-center justify-center flex-wrap">
             <!-- 👉 Avatar & Personal Info -->
-            <span class="d-flex align-bottom mt-2">
-              <div>
-                <img
-                  id="diaryImages"
-                  :src="food3"
-                  style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
-                >
-              </div>
-            </span>
-
-            <!-- 👉 Person Actions -->
-            <div>
-              <VCheckbox
-                v-model="isChecked3"
-                :checked="checkedExerciseItems.includes('3')"
-                color="info" 
-                value="3"
-                @click="sendDataToParent('3')"
-              />
-            </div>
+            <img
+              id="diaryImages"
+              :src="food3"
+              style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
+            >
           </div>
         </VTimelineItem>
       </VTimeline>

@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { mealsData } from '@/@fake-db/mealTable'
-import NutrientChart from '@/views/charts/apex-chart/NutrientChart.vue'
-import CalorieChart from '@/views/charts/chartjs/CalorieChart.vue'
+import NutrientChart from '@/views/charts/apex-chart/NutrientChart.vue';
+import CalorieChart from '@/views/charts/chartjs/CalorieChart.vue';
 
 const props = defineProps({
   isDialogVisible: {
     type: Boolean,
+    required: true,
+  },
+  userdietinfo: {
+    type: Array as PropType<Array<{ ae_diettype: string, carbohydrate: number, protein: number, fat: number, sodium: number, cholesterol: number }>>,
     required: true,
   },
 })
@@ -15,6 +18,7 @@ const emit = defineEmits(['update:isDialogVisible'])
 const dialogVisibleUpdate = val => {
   emit('update:isDialogVisible', val)
 }
+
 </script>
 
 <template>
@@ -37,7 +41,7 @@ const dialogVisibleUpdate = val => {
             title="주요 영양소"
             :style="{'margin-top':'20px'}"
           >
-            <NutrientChart />
+            <NutrientChart :userdietinfo="userdietinfo" />
             <!-- 식단 테이블 -->
             <VTable
               height="250"
@@ -47,60 +51,51 @@ const dialogVisibleUpdate = val => {
                 <tr>
                   <th class="text-center">
                     <VIcon icon="mdi-clock-time-five" />
-                    &nbsp; 시간 
+                    &nbsp; 시간
                     <br>
                     recommend
                   </th>
                   <th class="text-center">
-                    탄수화물
-                    <br>
-                    315g
+                    탄수화물 
                   </th>
                   <th class="text-center">
                     단백질
-                    <br>
-                    315g
                   </th>
                   <th class="text-center">
                     지방
-                    <br>
-                    315g
                   </th>
                   <th class="text-center">
-                    비타민
-                    <br>
-                    315g
+                    나트륨
                   </th>
                   <th class="text-center">
-                    무기질
-                    <br>
-                    315g
+                    콜레스트롤                 
                   </th>
                 </tr>
               </thead>
 
               <tbody>
                 <tr
-                  v-for="item in mealsData"
-                  :key="item.time"
+                  v-for="(item, index) in userdietinfo"
+                  :key="index"
                 >
+                  <!-- <tr> -->
                   <td>
-                    {{ item.time }}
+                    {{ item.ae_diettype }}
                   </td>
                   <td>
-                    {{ item.carbo }}
+                    {{ item.total_carbohydrate}}
                   </td>
                   <td>
-                    {{ item.protein }}
+                    {{ item.total_protein }}
                   </td>
                   <td>
-                    {{ item.fat }}
+                    {{ item.total_fat }}
                   </td>
                   <td>
-                    {{ item.vita }}
+                    {{ item.total_sodium/1000 }}
                   </td>
                   <td>
-                    {{ item.mineral }}
+                    {{ item.total_cholesterol/1000 }}
                   </td>
                 </tr>
               </tbody>
@@ -115,7 +110,7 @@ const dialogVisibleUpdate = val => {
             title="칼로리 분석"
           >
             <VCardItem>
-              <CalorieChart />
+              <CalorieChart :userdietinfo="userdietinfo" />
             </VCardItem>
             <!-- 칼로리 테이블 -->
             <VTable
@@ -137,14 +132,14 @@ const dialogVisibleUpdate = val => {
 
               <tbody>
                 <tr
-                  v-for="item in mealsData"
-                  :key="item.time"
+                  v-for="(item, index) in userdietinfo"
+                  :key="index"
                 >
                   <td>
-                    {{ item.time }}
+                    {{ item.ae_diettype }}
                   </td>
                   <td>
-                    {{ item.calorie }}
+                    {{ item.total_calory }}
                   </td>
                 </tr>
               </tbody>

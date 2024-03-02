@@ -1,14 +1,17 @@
 <script setup>
+import ExerciseMainVue from '@/components/ExerciseMain.vue'
 import LoadingModal from '@/pages/LoadingModal.vue'
 import Calendar from '@/pages/apps/calendar.vue'
 import Timeline from '@/pages/components/timeline.vue'
 import ResetPasswordDialog from '@/pages/resetPasswordDialog.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
+import axios from '@axios'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { startRecognition } from './stt.js'
 import { startSynthesis } from './tts.js'
+import mainImg from "@images/cards/card-meetup_copy_1.jpg"
 
 
 const router = useRouter()
@@ -27,21 +30,20 @@ const isPDialogVisible = ref(!isDialogVisible.value)
 
 const dietinfo = ref([])
 
-/*
+
 const getEatingRecord = async () => {
-  if (!(userInfo.value && userInfo.value.id)) {
-    router.go(0)
-  }
+
   if (userInfo.value && userInfo.value.id) {
 
     const connetId = userInfo.value.id
 
     console.log('4차')
-    console.log('체크해보자 : ')
+    console.log('체크해보자 : '+connetId)
     await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
       .then(response => {
         if(response.data.length > 0){
           // 초기화
+          console.log('여긴안돼')
           dietinfo.value = [[], [], []]
 
           response.data.forEach(data => {
@@ -52,13 +54,37 @@ const getEatingRecord = async () => {
             } else if (data.mealType === '저녁') {
               dietinfo.value[2] = data
             }
+            
           })
+        }
+        else{
+          axios.get("http://localhost:4000/dietfood/search.do", { params: { 'id': connetId } })
+            .then(response => {
+              console.log('응답받은 행:', response.data)
+              if(response.data === 0){
+                axios.get("http://localhost:5000/food_recommend", { params: { 'id': connetId } })
+                  .then(response=>{
+
+                    dietinfo.value = [[], [], []]
+    
+                    response.data.forEach(data => {
+                      if (data.mealType === '아침') {
+                        dietinfo.value[0] = data
+                      } else if (data.mealType === '점심') {
+                        dietinfo.value[1] = data
+                      } else if (data.mealType === '저녁') {
+                        dietinfo.value[2] = data
+                      }
+                    })
+                  })
+              }
+            })
         }
         console.log('가져온 유저 Eating_Record', dietinfo.value)
       })
   }
   
-}*/
+}
 
 onMounted(() => {
   if (!store.state.isLogin) {
@@ -72,10 +98,17 @@ onMounted(() => {
       })
       .then(() => {
         console.log('2차') // 2차 출력됨
+        if(store.state.userStore.userInfo != null){
+          console.log(store.state.userStore.userInfo.id)
 
-        // 다른 함수를 실행
-        //getEatingRecord()
+          // 다른 함수를 실행
+          getEatingRecord()
+        }
+        else{
+          router.go(0)
+        }
       })
+
   }
 })
 
@@ -144,28 +177,30 @@ const iconss = [
 
 const dietPlansList = [
   {
-    desc: 'Standard - $99/month',
     title: '아침 메뉴',
-    content: '아침 메뉴 설명',
     index: 0,
   },
   {
-    desc: 'Basic - $0/month',
     title: '점심 메뉴',
-    content: '점심 메뉴 설명',
     index: 1,
   },
   {
-    desc: 'Enterprise - $499/month',
     title: '저녁 메뉴',
-    content: '저녁 메뉴 설명',
     index: 2,
   },
 ]
+
+const moveRecipe = () => {
+  router.push({ path: "/dietfood" })
+}
 </script>
 
 <template>
   <section>
+    <VImg
+      :src="mainImg"
+      style="width: auto; margin-bottom: 30px;"
+    />
     <VRow class="fill-height">
       <VCol
         cols="12"
@@ -218,8 +253,12 @@ const dietPlansList = [
                 :key="list.index"
                 cols="12"
                 md="4"
+                style="height: 400px;"
               >
-                <VCard class="text-center">
+                <VCard
+                  class="text-center"
+                  @click="moveRecipe"
+                >
                   <VCardItem class="d-flex flex-column justify-center align-center">
                     <VAvatar
                       variant="tonal"
@@ -242,37 +281,8 @@ const dietPlansList = [
                       <span v-else>{{ list.index == 0? '아침': list.index == 1? '점심' : '저녁' }} 메뉴</span>
                     </h6>
                   </VCardItem>
-                  <VCardText>
-                    <span v-if="dietinfo.length > 0">{{ list.index == 0? '아침 메뉴': list.index == 1? '점심 메뉴' : '저녁 메뉴' }} 설명</span>
-                  </VCardText>
-                  <VCardText>
-                    <span>
-                      <div
-                        v-for="(gro, index) in dietPlansList[list.index]"
-                        :key="index"
-                      >
-                        <div v-if="index == 0 && gro.RECIPE_SEQ && gro.RECIPE_SEQ.length > 0">
-                          <br><strong style="margin: 0 20px;">[조리순서]</strong>
-                          <div
-                            style="max-height: 200px; overflow-y: auto;"
-                            class="scrollbar"
-                          >
-                            <p
-                              v-for="(seq, seqIndex) in gro.RECIPE_SEQ.split('||')"
-                              :key="seqIndex"
-                              style="margin: 10px 20px;"
-                            >
-                              {{ seqIndex + 1 }} ) {{ seq }}
-                            </p>
-                          </div>
-                          <br>
-                          <strong style="margin: 10px 20px;">[재료]</strong>
-                        </div>
-                        <span v-if="gro.FOODNAME">
-                          - {{ gro.INGREDIENT }} - {{ gro.RI_AMOUNT }}
-                        </span>
-                      </div>
-                    </span>
+                  <VCardText style="height: 100px;">
+                    <span v-if="dietinfo.length > 0">{{ dietinfo[list.index].recipe_title }}</span>
                   </VCardText>
                 </VCard>
               </VCol>
@@ -280,7 +290,7 @@ const dietPlansList = [
           </VWindowItem>
           <!-- ------------------ 운동 ---------------------- -->
           <VWindowItem>
-            <CrmActivityTimeline />
+            <ExerciseMainVue />
           </VWindowItem>
 
           <!-- ------------------경로-------------------- -->
@@ -297,7 +307,6 @@ const dietPlansList = [
                 variant="text"
                 @click="startSynthesis('오늘의 스케줄을 시작합니다.')"
               >
-                >
                 <VIcon
                   start
                   icon="mdi-contactless-payment-circle-outline"

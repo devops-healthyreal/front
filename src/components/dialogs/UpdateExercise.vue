@@ -1,4 +1,9 @@
 <script setup>
+import axios from '@axios'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+
 const props = defineProps({
   isDialogVisible: {
     type: Boolean,
@@ -8,27 +13,59 @@ const props = defineProps({
 
 const emit = defineEmits(['update:isDialogVisible'])
 
-const selectedPlan = ref('standard')
+
+const router = useRouter()
+const selectedPlan = ref('randam')
 
 const plansList = [
   {
-    desc: '근력 운동',
-    title: '근력 운동',
-    value: 'standard',
+    desc: '어깨 운동',
+    title: '어깨 운동',
+    value: 'Shoulders',
   },
   {
-    desc: '유산소 운동',
-    title: '유산소 운동',
-    value: 'basic',
+    desc: '가슴 운동',
+    title: '가슴 운동',
+    value: 'Chest',
   },
   {
-    desc: '무작위 운동',
+    desc: '복부 운동',
+    title: '복부 운동',
+    value: 'Abdominals',
+  },
+  {
+    desc: '허리 운동',
+    title: '허리 운동',
+    value: 'Back',
+  },
+  {
+    desc: '팔 운동',
+    title: '팔 운동',
+    value: 'arms',
+  },
+  {
+    desc: '다리 운동',
+    title: '다리 운동',
+    value: 'legs',
+  },
+  {
+    desc: ' 무작위 운동',
     title: '무작위 운동',
-    value: 'enterprice',
+    value: 'randam',
   },
 ]
 
 const isConfirmDialogVisible = ref(false)
+
+const getData = async obj => {
+  console.log("너가할 운동은???", obj)
+
+  const response = await axios.post('http://localhost:5000/recommendExercise', {
+    message: obj,
+  })
+
+  router.push('main') 
+}
 </script>
 
 <template>
@@ -59,13 +96,14 @@ const isConfirmDialogVisible = ref(false)
       <VCardText class="d-flex align-center flex-column flex-sm-nowrap px-15">
         <div class="d-flex justify-space-between flex-wrap">
           <CustomRadios
+            v-model="selectedPlan"
             :radio-content="plansList"
             :selected-radio="selectedPlan"
             :grid-column="{ cols: '12', sm: '12' }"
           />
           <VBtn
             class="mt-5"
-            @click="$emit('update:isDialogVisible', false)"
+            @click="$emit('update:isDialogVisible', false), getData(selectedPlan)"
           >
             확인
           </VBtn>
@@ -73,22 +111,12 @@ const isConfirmDialogVisible = ref(false)
             color="error"
             variant="tonal"
             class="mt-3"
-            @click="isConfirmDialogVisible = true"
+            @click="$emit('update:isDialogVisible', false)"
           >
             취소
           </VBtn>
         </div>
       </VCardText>
-
-      <!-- 👉 Confirm Dialog -->
-      <ConfirmDialog
-        v-model:isDialogVisible="isConfirmDialogVisible"
-        cancel-title="Not Cancelled"
-        confirm-title="Cancelled"
-        confirm-msg="운동 추천을 취소하셨습니다!"
-        confirmation-question="운동 추천을 취소하시겠습니까?"
-        cancel-msg="취소되지 않았습니다!!"
-      />
     </VCard>
   </VDialog>
 </template>

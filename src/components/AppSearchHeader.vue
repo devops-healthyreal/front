@@ -55,7 +55,7 @@ const kincrawling = () => {
     })
 }
 
-const exerciseDictionary = ['하체 운동', '상체 운동', '데드리프트', '체스트암', '스쿼트', '레그 익스텐션', '인클라인 덤벨 로우', '랫풀 다운', '시티드 로우', '리버스 플라이', '벤치프레스', '딥스', '런지', '런닝', '달리기', '유산소', '푸쉬업', '윗몸 일으키기', '줄넘기', '축구', '농구', '배구', '야구', '탁구']
+const exerciseDictionary = ['하체 운동', '상체 운동', '데드리프트', '체스트암', '스쿼트', '레그 익스텐션', '인클라인 덤벨 로우', '랫풀 다운', '시티드 로우', '리버스 플라이', '벤치프레스', '딥스', '런지', '런닝', '달리기', '유산소', '푸쉬업', '윗몸 일으키기', '줄넘기']
 
 const showSuggestions = ref(false)
 const suggestions = ref([])
@@ -128,11 +128,10 @@ window.addEventListener('keydown', event => {
     :class="props.customClass"
     :style="`background: url(${themeBackgroundImg});`"
   >
-    <VCardText>
+    <VCardText style=" height: 150px;align-items: center;">
       <h5 class="text-h5 text-primary mb-6">
         {{ props.title }}
       </h5>
-
       <VTextField
         ref="searchInput"
         v-model="searchKeyword"
@@ -147,31 +146,46 @@ window.addEventListener('keydown', event => {
             size="24"
           />        
         </template>
+        <Transition name="fade">
+          <ul
+            v-if="showSuggestions"
+            class="autocomplete-suggestions"
+            style=" margin-top: 11%;"
+          >
+            <li
+              v-for="(suggestion, index) in suggestions"
+              :key="suggestion"
+              :class="{ 'selected': index === selectedSuggestion }"
+              style="background-color: rgb(255, 255, 255); color: rgb(3, 141, 37);"
+              @click="selectSuggestion(suggestion)"
+            >
+              <strong>{{ suggestion }}</strong>
+            </li>
+          </ul>
+        </Transition>
       </VTextField>
-
       <!-- 로딩 표시 -->
       <div
         v-if="loading"
         class="loading-indicator"
+        style="font-weight: bold;"
       >
         Loading...
       </div>
+      <VProgressLinear
+        v-if="loading"
+        indeterminate
+        color="primary"
+      />
       
-      <ul
-        v-if="showSuggestions"
-        class="autocomplete-suggestions"
-      >
-        <li
-          v-for="(suggestion, index) in suggestions"
-          :key="suggestion"
-          :class="{ 'selected': index === selectedSuggestion }"
-          @click="selectSuggestion(suggestion)"
-        >
-          {{ suggestion }}
-        </li>
-      </ul>
+      
 
-      <p>{{ props.subtitle }}</p>
+      <p
+        v-if="!loading"
+        style="font-weight: bold;"
+      >
+        {{ props.subtitle }}
+      </p>
     </VCardText>
   </VCard>
 </template>
@@ -197,20 +211,22 @@ window.addEventListener('keydown', event => {
 
 .autocomplete-suggestions {
   position: absolute;
-  width: calc(100% - 2rem);
-  max-height: 200px;
-  overflow-y: auto;
-  background-color: #ffffff;
+  z-index: 1000;
   border: 1px solid #ccc;
   border-radius: 4px;
-  margin-top: 5px;
+  background-color: #fff;
+  inline-size: calc(100% - 2rem);
   list-style-type: none;
-  padding-left: 0;
-  z-index: 1000;
+  margin-block-start: 5px;
+  max-block-size: 300px;
+  opacity: 1;
+  overflow-y: auto;
+  padding-inline-start: 0;
 
   li {
-    padding: 5px 10px;
     cursor: pointer;
+    padding-block: 5px;
+    padding-inline: 10px;
 
     &:hover {
       background-color: #f0f0f0;
@@ -223,8 +239,40 @@ window.addEventListener('keydown', event => {
 }
 
 .loading-indicator {
-  margin-top: 1rem;
+  margin-block-start: 1rem;
 }
+
+@font-face {
+  font-family: seolleimcool-SemiBold;
+  font-style: normal;
+  font-weight: normal;
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/seolleimcool-SemiBold.woff2") format("woff2");
+}
+
+.ql-font-seolleimcool-SemiBold {
+  font-family: seolleimcool-SemiBold;
+}
+
+.fade-enter,
+.fade-enter-active {
+  opacity: 0;
+  transition: opacity 1.5s;
+}
+
+.fade-enter-to {
+  opacity: 1;
+}
+
+.fade-leave-active,
+.fade-leave {
+  opacity: 1;
+  transition: opacity 0.5s;
+}
+
+.fade-leave-to {
+  opacity: 0;
+}
+
 @media (max-width: 37.5rem) {
   .search-header {
     padding: 1.5rem !important;

@@ -1,7 +1,7 @@
 <script setup>
 import AppStepper from '@/@core/components/AppStepper.vue'
 
-const time=39
+const time=36
 
 const numberedSteps = [
   {
@@ -65,79 +65,102 @@ const capitalizedLabel = label => {
 </script>
 
 <template>
-  <VLayout
-    class="chat-app-layout bg-surface"
-    :style="{'height':'800px'}"
-  >
-    <VCol
-      cols="3"
-      :style="{'background-color':'#FFFFF2'}"
-    >
-      <!-- 몇 세트인지에 대한 메뉴창 -->
-      <VSwitch
-        v-model="toggleSwitch"
-        :label="capitalizedLabel(toggleSwitch)"
-      />
-      <AppStepper
-        v-model:current-step="currentStep"
-        direction="vertical"
-        :items="numberedSteps"
-        :style="{'height':'80%'}"
-      />
-    </VCol> <!-- 몇 세트인지에 대한 메뉴창 end -->
-    
-    <VCol
-      v-show="isVisible"
-      :cols="menuSize"
-      :style="{'opacity':'0.5','position':'relative'}"
-    >
-      <!--
-        <VDialog
-        v-model="isVisible"
-        :style="{'width':'100%'}"
-        >
-      -->
-      <VCard>
-        <!-- 운동 순서에 대한 메뉴창 -->
-        <VCardItem>
-          <AppStepper
-            v-model:current-step="currentStep"
-            direction="vertical"
-            :items="exerciseSteps"
-            :style="{'height':'100%'}"
-          />
-        </VCardItem>
-        <VCardItem :style="{'margin-top':'10px'}">
-          <h3 :style="{'width':'90%','margin':'auto'}">
-            <VIcon icon="mdi-clock-time-eight" />
-            time
-          </h3>
-          <hr :style="{'width':'90%','margin':'auto'}">
-          <h2
-            id="sec"
-            :style="{'width':'90%','display':'flex', 'justify-content':'center'}"
+  <VContainer>
+    <!-- fluid 속성 추가 -->
+    <VRow>
+      <VCol
+        v-show="isVisible"
+        :style="{'opacity':'0.7','position':'relative'}"
+      >
+        <!--
+          <VDialog
+          v-model="isVisible"
+          :style="{'width':'100%'}"
           >
-            {{ time }}
-          </h2>
-        </VCardItem>
-      </VCard>
+        -->
+        <VCard>
+          <!-- 운동 순서에 대한 메뉴창 -->
+          <VCardItem>
+            <AppStepper
+              v-model:current-step="currentStep"
+              direction="horizontal"
+              :items="exerciseSteps"
+              :style="{'height':'100%'}"
+            />
+          </VCardItem>
+          <VCardItem :style="{'margin-top':'10px'}">
+            <VCol style="margin-bottom: -20px;">
+              <strong style="width: 90%; margin-right: 35%; margin-left: 5%; color: black; font-size: 25px;">
+                <VIcon icon="mdi-clock-time-eight" />
+                time
+              </strong>
+              <strong
+                id="sec"
+                style=" margin-top: 10px;color: black;font-size: 25px;"
+              >
+                {{ time }}
+              </strong>
+            </VCol>
+            <br>
+            <hr :style="{'width':'90%','margin':'auto'}">
+          </VCardItem>
+        </VCard>
       <!-- </VDialog> -->
-    </VCol> <!--  운동 순서에 대한 메뉴창 end -->
-    <VCol cols="9">
-      <!-- <VCol :cols="9-menuSize"> -->
-      <!-- 운동 자세 영상 -->
-      <video
-        controls
-        muted 
-        width="100%"
-      > 
-        <source
-          src="@/assets/video/exerciseSample.mp4"
-          type="video/mp4"
-        >
-      </video>
-    </VCol> <!-- 운동 자세 영상 end -->
-  </VLayout>
+      </VCol>
+    </VRow>
+    <VRow>
+      <VCol>
+        <VLayout class="chat-app-layout bg-surface">
+          <VCol
+            cols="2"
+            :style="{'background-color':'#FFFFF2'}"
+          >
+            <!-- 몇 세트인지에 대한 메뉴창 -->
+            <VSwitch
+              v-model="toggleSwitch"
+              :label="capitalizedLabel(toggleSwitch)"
+            />
+            <AppStepper
+              v-model:current-step="currentStep"
+              direction="vertical"
+              :items="numberedSteps"
+              :style="{'height':'80%'}"
+            />
+          </VCol> <!-- 몇 세트인지에 대한 메뉴창 end -->
+    
+          <!--  운동 순서에 대한 메뉴창 end -->
+          <VCol cols="5">
+            <!-- <VCol :cols="9-menuSize"> -->
+            <!-- 운동 자세 영상 -->
+            <video
+              controls
+              muted 
+              width="100%"
+            > 
+              <source
+                src="@/assets/video/exerciseSample.mp4"
+                type="video/mp4"
+              >
+            </video>
+          </VCol> <!-- 운동 자세 영상 end -->
+          <VCol cols="5">
+            <!-- <VCol :cols="9-menuSize"> -->
+            <!-- 운동 자세 영상 -->
+            <video
+              controls
+              muted 
+              width="100%"
+            > 
+              <source
+                src="@/assets/video/exerciseSample.mp4"
+                type="video/mp4"
+              >
+            </video>
+          </VCol> 
+        </VLayout>
+      </vcol>
+    </VRow>
+  </VContainer>
 </template>
 
 <style lang="scss">

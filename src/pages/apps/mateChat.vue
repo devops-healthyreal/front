@@ -255,7 +255,10 @@ console.log("채팅창2", msgGroups)
                   size="22"
                 />
               </IconBtn>
-              <VBtn @click="sendMessage(msg)">
+              <VBtn
+                type="submit"
+                @click="sendMessage(msg)"
+              >
                 보내기
               </VBtn>
             </template>
