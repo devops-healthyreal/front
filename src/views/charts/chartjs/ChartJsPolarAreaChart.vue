@@ -29,8 +29,8 @@ const totalSodium = ref(0)
 const totalCholesterol = ref(0)
 
 //당일 섭취한 영양분 가져오기
-const getNutri = async() => {
-  await axios.get('http://localhost:4000/Actuality/dalilyNutri.do', {params : {id : connetId}})
+const getNutri = () => {
+   axios.get('http://localhost:4000/Actuality/dalilyNutri.do', {params : {id : connetId}})
   .then(response => {
     console.log('가져올 데이터입니다. ',response.data);
 
@@ -51,7 +51,7 @@ const getNutri = async() => {
 
 
 //평소 섭취하는 영양소의 비율을 나타내고자한 차트에요 원하면 바꿔도 괜찮아요
-const data = ref({
+const data = computed(() => ({
   labels: ['탄수화물', '단백질', '지방', '나트륨', '콜레스테롤'],
   datasets: [
     {
@@ -61,7 +61,7 @@ const data = ref({
       backgroundColor: [props.colors.primary, props.colors.yellow, props.colors.polarChartWarning, props.colors.polarChartInfo, props.colors.polarChartGrey],
     },
   ],
-})
+}))
 
 onMounted(() => {
   getNutri()
