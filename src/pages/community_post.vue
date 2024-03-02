@@ -246,8 +246,8 @@ const loadMore = () => {
 
 // ---------------------------------------------------------------------------------------
 
-const getUserAvatar = userId => {
-  const user = users.value.find(user => user.id === userId)
+//const getUserAvatar = userId => {
+//const user = users.value.find(user => user.id === userId)
   
 //   return user ? user.profilePath : defaultImg
 // }
@@ -561,7 +561,7 @@ const openViewPostMoadl = async val =>{
 
 ///좋아요!!
 const toggleLike = async bno => {
-
+  isLiked.value = !isLiked.value  // 좋아요 버튼의 상태를 토글
   try {
     const response = await axios.post('http://localhost:4000/bbs/likes.do', {
       id: connetId,
@@ -571,7 +571,7 @@ const toggleLike = async bno => {
     })
 
     if (response.status === 200) {
-      isLiked.value = !isLiked.value  // 좋아요 버튼의 상태를 토글
+ 
 
       await getData() // 좋아요 상태 변경 후 데이터를 다시 가져오기
     } else {
@@ -771,6 +771,7 @@ const test = val => {
                                 color="medium-emphasis"
                               >
                                 <VIcon
+                                   v-if="item.id == connetId"
                                   size="24"
                                   icon="mdi-dots-vertical"
                                 />
