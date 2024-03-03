@@ -303,14 +303,14 @@ watch(router, fetchProjectData, { immediate: true })
 
           <VCardText
             v-if="(dietinfo[list.index] && dietinfo[list.index] != '') && !(recipedatach[list.index] && recipedatach[list.index].length)"
-            style="height: 500px;"
+            style=" width: auto;height: 500px;"
           >
             <span>
               <div>
                 <div v-if="dietinfo[list.index]">
                   <br><strong style="margin: 0 20px;">[조리순서]</strong>
                   <div
-                    style="max-height: 200px; overflow-y: auto;"
+                    style=" width: auto;max-height: 200px; overflow-y: auto;"
                     class="scrollbar"
                   >
                     <p
