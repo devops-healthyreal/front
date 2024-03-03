@@ -91,6 +91,16 @@ const updatenotic = async (notification, trigger_pk, index) => {
 
 const removenotic = async trigger_pk => {
   console.log('지울 trigger_pk:', trigger_pk)
+  await axios.get('http://localhost:4000/Notic/Delete.do', { params: { trigger_pk: trigger_pk } })
+    .then(response => {
+      console.log('응답 받음 - ', response.data)
+
+      // 알림 목록에서 해당 알림을 제거합니다.
+      props.noticlists.splice(
+        props.noticlists.findIndex(notification => notification.trigger_pk === trigger_pk),
+        1,
+      )
+    })  
 }
 </script>
 
