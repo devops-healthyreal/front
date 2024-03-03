@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import NutrientChart from '@/views/charts/apex-chart/NutrientChart.vue';
-import CalorieChart from '@/views/charts/chartjs/CalorieChart.vue';
+import NutrientChart from '@/views/charts/apex-chart/NutrientChart.vue'
+import CalorieChart from '@/views/charts/chartjs/CalorieChart.vue'
+import { watchEffect } from 'vue'
 
 const props = defineProps({
   isDialogVisible: {
@@ -8,7 +9,7 @@ const props = defineProps({
     required: true,
   },
   userdietinfo: {
-    type: Array as PropType<Array<{ ae_diettype: string, carbohydrate: number, protein: number, fat: number, sodium: number, cholesterol: number }>>,
+    type: Array,
     required: true,
   },
 })
@@ -19,6 +20,10 @@ const dialogVisibleUpdate = val => {
   emit('update:isDialogVisible', val)
 }
 
+
+watchEffect(() => {
+  console.log("이게 머야?", props.userdietinfo)
+})
 </script>
 
 <template>
@@ -41,7 +46,10 @@ const dialogVisibleUpdate = val => {
             title="주요 영양소"
             :style="{'margin-top':'20px'}"
           >
-            <NutrientChart :userdietinfo="userdietinfo" />
+            <NutrientChart
+              v-if="userdietinfo.length"
+              :userdietinfo="userdietinfo"
+            />
             <!-- 식단 테이블 -->
             <VTable
               height="250"
@@ -83,7 +91,7 @@ const dialogVisibleUpdate = val => {
                     {{ item.ae_diettype }}
                   </td>
                   <td>
-                    {{ item.total_carbohydrate}}
+                    {{ item.total_carbohydrate }}
                   </td>
                   <td>
                     {{ item.total_protein }}
@@ -110,7 +118,10 @@ const dialogVisibleUpdate = val => {
             title="칼로리 분석"
           >
             <VCardItem>
-              <CalorieChart :userdietinfo="userdietinfo" />
+              <CalorieChart
+                v-if="userdietinfo.length"
+                :userdietinfo="userdietinfo"
+              />
             </VCardItem>
             <!-- 칼로리 테이블 -->
             <VTable
