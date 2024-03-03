@@ -229,7 +229,7 @@ const imagechange = () => {
 
   const requestData = {
     id: userInfo.value ? userInfo.value.id : null,
-    profilePath: 'http://localhost:4000/images/'+inputfilename.value,
+    profilePath: 'https://teamprojectimg.s3.ap-northeast-2.amazonaws.com/image/'+inputfilename.value,
   }
 
   console.log('정상작동')
@@ -240,7 +240,7 @@ const imagechange = () => {
     .then(response => {
       console.log('프로필 이미지 업데이트 성공')
 
-      updateProFilepath('http://localhost:4000/images/'+inputfilename.value)
+      updateProFilepath('https://teamprojectimg.s3.ap-northeast-2.amazonaws.com/image/'+inputfilename.value)
 
       fetchProfile()
     })
