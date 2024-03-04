@@ -81,14 +81,24 @@
 <script>
 import * as mapSearch from '@/pages/exercise/mapSearch'
 import { isSearchListClicked } from '@/pages/exercise/mapSearch'
-import { ref } from 'vue'
-import { createRoadView } from '../createRoadView'
 import axios from '@axios'
+import { ref } from 'vue'
+import { useStore } from 'vuex'
+import { createRoadView } from '../createRoadView'
 
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=computed(() => ref(userInfo.value.id))
+
+console.log("처음 connetId", connetId)
 var lat = []
 var lng = []
 const totalDistance = ref() //그려진 polyline의 거리
 const totalDots = ref([]) //그려진 polyline의 경로
+const totalDotsName = ref([]) //각 지점의 도로명 주소
+
+
+
 export default {
   name: "DrawMap",
   props: ["controllRoadView"],
@@ -130,11 +140,27 @@ export default {
     //this.drawingMap.relayout();
   }, //mounted
   methods: {
-    uploadDrawPath(){
+    uploadDrawPath(userId){
       console.log("DrawMap ref:", totalDistance.value)
+      console.log("totalDots.value:", totalDots.value)
+      console.log("totalDotsName.value:", totalDotsName.value)
+      console.log(userId)
       if(totalDistance.value == undefined) {alert("등록할 경로가 없습니다")}
       else{
-        axios.post()
+        var walkTime = totalDistance.value / 67 | 0 //분 기준
+        for(var i=0; i<totalDotsName.value.length; i++) {
+          totalDotsName.value[i] = totalDotsName.value[i].value
+        }
+        console.log("connectId 체크", connetId)
+        axios.post("http://localhost:4000/exercise/upload", JSON.stringify({
+          id: userId,
+          time: walkTime,
+          roadPoint: totalDots.value,
+          roadPointName: totalDotsName.value,
+        }), { headers: { 'Content-Type': 'application/json' } })
+          .then(resp=>{
+            console.log(resp.data)
+          })
       }
     },
     addMarker(){
@@ -222,6 +248,7 @@ export default {
         // 마우스로 클릭한 위치입니다 
         var clickPosition = mouseEvent.latLng
         console.log('클릭이벤트 발생 위치', clickPosition.La) //La, Ma
+        console.log("결괏값:", mapSearch.getNameFromlatlng(clickPosition))
 
         lat[0] = clickPosition.Ma
         lng[0] = clickPosition.La
@@ -333,6 +360,7 @@ export default {
             console.log('dots:', dots)
             for(const dot of dots) {
               totalDots.value.push(dot.position)
+              totalDotsName.value.push(mapSearch.getNameFromlatlng(dot.position))
             }
             console.log('totalDOts:', totalDots.value)
             var distance = Math.round(clickLine.getLength()), // 선의 총 거리를 계산합니다
@@ -363,6 +391,7 @@ export default {
           clickLine = null        
         }
         totalDots.value = []
+        totalDotsName.value = []
         totalDistance.value = undefined
       }
 

@@ -5,6 +5,12 @@ import LikeMap from '@/pages/exercise/map/LikeMap.vue'
 import RecoMap from '@/pages/exercise/map/RecoMap.vue'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
+
+const store = useStore()
+
+const userInfo = computed(() => store.state.userStore.userInfo)
+const userId = userInfo.value.id
 
 //라우트
 const route= useRoute()
@@ -200,7 +206,7 @@ const drawRef = ref(null) //자식 컴포넌트 DrawMap에 접근용
 const drawRefComputed = computed(()=>drawRef.value)
 
 const uploadPath = () => {
-  drawRefComputed.value.uploadDrawPath()
+  drawRefComputed.value.uploadDrawPath(userId)
 }
 </script>
 

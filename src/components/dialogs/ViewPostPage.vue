@@ -440,7 +440,7 @@ const actionType = async (typeNo, C_NO, val) => {
                   v-if="props.likesuser && props.likesuser.length > 0"
                   class="font-weight-medium"
                 >
-                  {{ props.likesuser[0] }}님 외 {{ postToEdit.likesnum }}명이 좋아합니다
+                  {{ props.likesuser[0] }}님 외 {{ postToEdit.likesnum[0] }}명이 좋아합니다
                 </VCol>
               </VRow>
               <VRow style="margin-bottom: 5px;">
