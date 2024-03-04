@@ -348,10 +348,13 @@ watch(router, fetchProjectData, { immediate: true })
                 v-for="(gro, index) in recipedatach[list.index]"
                 :key="index"
               >
-                <div v-if="index == 0 && gro.RECIPE_SEQ && gro.RECIPE_SEQ.length > 0">
+                <div
+                  v-if="index == 0 && gro.RECIPE_SEQ && gro.RECIPE_SEQ.length > 0"
+                  style="width: auto;"
+                >
                   <br><strong style="margin: 0 20px;">[조리순서]</strong>
                   <div
-                    style="max-height: 200px; overflow-y: auto;"
+                    style=" width: auto;max-height: 200px; overflow-y: auto;"
                     class="scrollbar"
                   >
                     <p
