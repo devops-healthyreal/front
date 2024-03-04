@@ -286,65 +286,6 @@ const uploadPath = () => {
               />
             </VWindowItem>
           </VWindow>
-          <!-- 지도 검색창 -->
-          <div
-            v-show="isSearchShow"
-            id="menu-wrap"
-            class="bg_white"
-            :style="{'height':'80%'}"
-          >
-            <div class="option">
-              <div>
-                <VRadioGroup
-                  inline
-                  :style="{'padding-left':'10px'}"
-                >
-                  <VRadio
-                    label="검색"
-                    value="search"
-                    @click="isMyPlace = false"
-                  />
-                  <VRadio
-                    label="내장소"
-                    value="myPlace"
-                    @click="isMyPlace = true"
-                  />
-                </VRadioGroup>
-                <form
-                  v-show="!isMyPlace"
-                  @submit="searchPosition"
-                >
-                  키워드 : <input
-                    id="keyword"
-                    type="text"
-                    value=""
-                    size="15"
-                    placeholder="검색어를 입력하세요"
-                  > 
-                  <button type="submit">
-                    검색
-                  </button> 
-                </form>
-              </div>
-              <hr>
-              <div v-show="!isMyPlace">
-                <ul
-                  id="placesList"
-                  @click="searchListClickController"
-                />
-                <div id="pagination" />
-              </div>
-            </div>
-            <hr>
-            <div v-show="!isMyPlace">
-              <ul
-                id="placesList"
-                @click="searchListClickController"
-              />
-              <div id="pagination" />
-            </div>
-          </div>
-          <!-- 지도 검색창end -->
           <!-- 지도 탭 -->
           <div :style="{'display':'flex','justify-content':'center','margin-top':'10px'}">
             <VTabs
