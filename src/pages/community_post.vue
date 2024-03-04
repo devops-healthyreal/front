@@ -493,12 +493,24 @@ const openUserProfileModal = val => {
         profiledata.value = response.data
         console.log('프로필 Path:', profiledata.value.profilePath)
 
+        const friendsId = []
+
+        for(const temp of profiledata.value.friendsList){
+          friendsId.push(temp.friend_id)
+        }
+        console.log("Id만 들어왔는지 확인:", friendsId)
+        console.log('친구관계인지 확인:', friendsId.includes(connetId))
+        console.log("친구 요청된 관계인지 확인:", profiledata.value.requestedFriendsList.includes(connetId))
+
         // 모달에 전달할 변수 값 설정
         modalData.value = {
           userid: profiledata.value.id,
           userprofilePath: profiledata.value.profilePath,
           userproIntroduction: profiledata.value.proIntroduction,
           userFriendsList: profiledata.value.friendsList,
+          userFriendCheck: friendsId.includes(connetId),
+          connectid: connetId,
+          userFriendRequestCheck: profiledata.value.requestedFriendsList.includes(connetId),
         }
       } else {
         console.log('데이터 가져오기 실패 ')
@@ -955,7 +967,11 @@ const test = val => {
       :userprofile-path="modalData.userprofilePath"
       :userpro-introduction="modalData.userproIntroduction"
       :user-friends-list="modalData.userFriendsList"
+      :user-friend-check="modalData.userFriendCheck"
+      :connectid="modalData.connectid" 
+      :user-friend-request-check="modalData.userFriendRequestCheck"
     />
+    <!-- userFriendRequestCheck -->
     <!-- :profilePath="modalData.profilePath" -->
     <Writing
       v-model:isDialogVisible="writingModal" 

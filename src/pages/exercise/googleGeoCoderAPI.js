@@ -57,6 +57,8 @@ function checkArrayUpdated(arr) { //배열이 업데이트 되었는지 확인�
 }//checkArrayUpdated
 
 export function getPedePath(path, pathName, map, polyline, markers, infos) { //lat,lng 티맵라이브러리 (보행자의 경로를 불러오는 함수)
+  console.log("getPedePath함수 실행")
+  
   checkArrayUpdated(path).then(path=>{
 
     var pathListParam=""
