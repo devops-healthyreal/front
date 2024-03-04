@@ -23,29 +23,32 @@ const currentTab = ref('tab-1')
 
 <template>
   <VDialog
-    :width="$vuetify.display.smAndDown ? 'auto' : 650"
+    :width="$vuetify.display.smAndDown ? 'auto' : 340"
     :model-value="props.isDialogVisible"
     @update:model-value="val => $emit('update:isDialogVisible', val)"
   >
     <VCard class="py-8">
       <VTabs
         v-model="currentTab"
-        grow
-        stacked
-        style="margin-top: 50px;"
+        align-tabs="center"
+        class="v-tabs-pill"
+        style="margin: 10px;"
       >
-        <VTab @click="$emit('update:choicecategory', {choicecategory:'전체', dietType:dietPlansListtype})">
-          <VIcon icon="mdi-food-steak" />
+        <VTab
+          block
+          @click="$emit('update:choicecategory', {choicecategory:'전체', dietType:dietPlansListtype})"
+        >
+          <VIcon icon="mdi-food" />
           <span>전체</span>
         </VTab>
       </VTabs>
       <VTabs
         v-model="currentTab"
-        grow
-        stacked
-        style="margin-top: 50px;"
+        class="v-tabs-pill"
+        style="margin: 5px 20px;"
       >
         <VTab
+          style="width: 40px;margin: 0 5px;"
           value="tab-1"
           @click="$emit('update:choicecategory', {choicecategory:'육류', dietType:dietPlansListtype})"
         >
@@ -57,6 +60,7 @@ const currentTab = ref('tab-1')
         </VTab>
       
         <VTab
+          style="width: 40px;margin: 0 5px;"
           value="tab-2"
           @click="$emit('update:choicecategory', {choicecategory:'양식', dietType:dietPlansListtype})"
         >
@@ -68,6 +72,7 @@ const currentTab = ref('tab-1')
         </VTab>
         
         <VTab
+          style="width: 40px;margin: 0 5px;"
           value="tab-3"
           @click="$emit('update:choicecategory', {choicecategory:'다이어트', dietType:dietPlansListtype})"
         >
@@ -75,26 +80,28 @@ const currentTab = ref('tab-1')
             icon="mdi-egg-fried"
             class="mb-2"
           />
-          <span>다이어트</span>
+          <span>감량</span>
         </VTab>
       </VTabs>
       <VTabs
         v-model="currentTab"
-        grow
-        stacked
+        class="v-tabs-pill"
+        style="margin: 0 20px;"
       >
         <VTab
           value="tab-4"
+          style="width: 40px;margin: 0 5px;"
           @click="$emit('update:choicecategory', {choicecategory:'영양식', dietType:dietPlansListtype})"
         >
           <VIcon
             icon="mdi-seed"
             class="mb-2"
           />
-          <span>영양식</span>
+          <span>영양</span>
         </VTab>
       
         <VTab
+          style="width: 40px;margin: 0 5px;"
           value="tab-5"
           @click="$emit('update:choicecategory', {choicecategory:'일상', dietType:dietPlansListtype})"
         >
@@ -106,6 +113,7 @@ const currentTab = ref('tab-1')
         </VTab>
         
         <VTab
+          style="width: 40px;margin: 0 5px;"
           value="tab-6"
           @click="$emit('update:choicecategory', {choicecategory:'찌개', dietType:dietPlansListtype})"
         >
@@ -116,18 +124,6 @@ const currentTab = ref('tab-1')
           <span>찌개</span>
         </VTab>
       </VTabs>
-      <VWindow
-        v-model="currentTab"
-        class="mt-5"
-      >
-        <VWindowItem
-          v-for="i in 6"
-          :key="i"
-          :value="`tab-${i}`"
-        >
-          {{ tabItemText }}
-        </VWindowItem>
-      </VWindow>
     </VCard>
   </VDialog>
 </template>
