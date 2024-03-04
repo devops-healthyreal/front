@@ -570,6 +570,7 @@ const toggleLike = async bno => {
       isLiked: isLiked.value,
     })
 
+    console.log("좋아요 수정간다.", response)
     if (response.status === 200) {
  
 
@@ -880,7 +881,7 @@ const test = val => {
                       </VCardText>
                       <VCol>
                         <VBtn
-                          :icon="item.likes == connetId ? 'mdi-heart' : 'mdi-heart-outline'"
+                          :icon="item.likes.includes(connetId) ? 'mdi-heart' : 'mdi-heart-outline'"
                           variant="text"
                           color="success"
                           @click="toggleLike(item.bno)"
@@ -892,7 +893,7 @@ const test = val => {
                           @click="openViewPostMoadl(item.bno);submitEdit(item.bno)"
                         />
                         <VCol>
-                          좋아요 {{ item.likesnum }}개
+                          좋아요 {{ item.likesnum[0] }}개
                         </VCol>
                         <VCol v-if="group[item.bno]">
                           <strong>{{ group[item.bno].C_NO }}번 {{ group[item.bno].ID }}</strong> {{ group[item.bno].CCOMMENT }}
