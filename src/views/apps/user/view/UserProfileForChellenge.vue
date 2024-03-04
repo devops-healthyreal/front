@@ -222,7 +222,7 @@ async function uploadImage(participant) {
                 :src="participant.videoFilePath"
                 autoplay
                 loop
-                style="margin-top: 15px;"
+                style=" width: 100%; height: 100%;margin-top: 15px; object-fit: cover;"
               />
               <span
                 v-else
