@@ -32,7 +32,7 @@ const router = createRouter({
     {
       path: '/stt',
       name: 'stt',
-      component: () => import(/* webpackChunkName: "tts" */ '../pages/stt.vue'),
+      component: () => import(/* webpackChunkName: "tts" */ '../pages/stt'),
     },
     {
       path: '/stabilityVideoDifusiononlyfront',

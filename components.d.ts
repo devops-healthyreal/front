@@ -16,6 +16,8 @@ declare module '@vue/runtime-core' {
     AddEditRoleDialog: typeof import('./src/components/dialogs/AddEditRoleDialog.vue')['default']
     AddMateRoomSetting: typeof import('./src/components/dialogs/AddMateRoomSetting.vue')['default']
     AddressApi: typeof import('./src/views/demos/register/AddressApi.vue')['default']
+    AddressApiEnd: typeof import('./src/views/demos/register/AddressApiEnd.vue')['default']
+    AddressApiStart: typeof import('./src/views/demos/register/AddressApiStart.vue')['default']
     AppBarSearch: typeof import('./src/@core/components/AppBarSearch.vue')['default']
     AppCardActions: typeof import('./src/@core/components/cards/AppCardActions.vue')['default']
     AppCardCode: typeof import('./src/@core/components/cards/AppCardCode.vue')['default']

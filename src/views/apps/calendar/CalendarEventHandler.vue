@@ -6,6 +6,7 @@ import {
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { VForm } from 'vuetify/components/VForm'
 import { useCalendarStore } from './useCalendarStore'
+import { startRecognition, transcript } from '/src/pages/stt.js'
 
 const props = defineProps({
   isDrawerOpen: {
@@ -27,6 +28,7 @@ const emit = defineEmits([
 
 const store = useCalendarStore()
 const refForm = ref()
+
 
 // 👉 Event
 const event = ref(JSON.parse(JSON.stringify(props.event)))
@@ -121,6 +123,46 @@ const endDateTimePickerConfig = computed(() => {
   
   return config
 })
+
+// transcript의 값이 변경될 때 userInput의 값을 업데이트
+watch(transcript, newValue => {
+  userInput.value = `${newValue} ${userInput.value}`
+})
+
+const title = ref('')
+const calendar = ref('')
+const start = ref('')
+const end = ref('')
+const userInput = ref('')
+
+const startArea = reactive({
+  address: '',
+})
+
+const endArea = reactive({
+  address: '',
+})
+
+
+/*
+const response =  axios.post('http://localhost:4000/sch/insert.do', {
+  title: title,
+  calendar: calendar,
+  start: start,
+  end: end,
+  area: area,
+  content: userInput.value
+
+})
+*/
+
+const handleUpdateAddressStart = newAddress => {
+  startArea.address = newAddress.address
+}
+
+const handleUpdateAddressEnd = newAddress => {
+  endArea.address = newAddress.address
+}
 </script>
 
 <template>
@@ -162,7 +204,7 @@ const endDateTimePickerConfig = computed(() => {
               <!-- 👉 Title -->
               <VCol cols="12">
                 <VTextField
-                  v-model="event.sch_title"
+                  v-model="title"
                   label="Title"
                   :rules="[requiredValidator]"
                 />
@@ -171,7 +213,7 @@ const endDateTimePickerConfig = computed(() => {
               <!-- 👉 Calendar -->
               <VCol cols="12">
                 <VSelect
-                  v-model="event.calendar"
+                  v-model="calendar"
                   label="Calendar"
                   :rules="[requiredValidator]"
                   :items="store.availableCalendars"
@@ -200,7 +242,7 @@ const endDateTimePickerConfig = computed(() => {
               <VCol cols="12">
                 <AppDateTimePicker
                   :key="JSON.stringify(startDateTimePickerConfig)"
-                  v-model="event.sch_start"
+                  v-model="start"
                   :rules="[requiredValidator]"
                   label="Start date"
                   :config="startDateTimePickerConfig"
@@ -211,7 +253,7 @@ const endDateTimePickerConfig = computed(() => {
               <VCol cols="12">
                 <AppDateTimePicker
                   :key="JSON.stringify(endDateTimePickerConfig)"
-                  v-model="event.sch_end"
+                  v-model="end"
                   :rules="[requiredValidator]"
                   label="End date"
                   :config="endDateTimePickerConfig"
@@ -220,18 +262,41 @@ const endDateTimePickerConfig = computed(() => {
 
               <!-- 👉 Location -->
               <VCol cols="12">
-                <VTextField
-                  v-model="event.sch_area"
-                  label="Location"
+                <AddressApiStart
+                  v-model="startArea"
+                  :new-address="startArea" 
+                  @update-address="handleUpdateAddressStart"
+                />
+                <AddressApiEnd
+                  v-model="endArea"
+                  :new-address="endArea" 
+                  @update-address="handleUpdateAddressEnd"
                 />
               </VCol>
 
               <!-- 👉 Description -->
               <VCol cols="12">
                 <VTextarea
-                  v-model="event.sch_memo"
+                  v-model="userInput"
                   label="content"
+                  style="margin-top: -15px;"
+                  no-resize
                 />
+              </VCol>
+              <VCol cols="2">
+                <VBtn
+                  id="startBtn"
+                  class="d-flex flex-column align-end justify-end"
+                  style=" height: 45px; margin-top: 4px;margin-left: 48px;"
+                  variant="text"
+                  @click="startRecognition"
+                >
+                  <VIcon
+                    size="x-large"
+                    icon="mdi-microphone-outline"
+                    color="success"
+                  />
+                </VBtn>
               </VCol>
 
               <!-- 👉 Form buttons -->

@@ -11,7 +11,8 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import MainMap from './exercise/map/MainMap.vue'
-import { startRecognition } from './stt.js'
+
+
 import { startSynthesis } from './tts.js'
 
 
@@ -223,7 +224,6 @@ const moveRecipe = () => {
           </VExpansionPanel>
         </VExpansionPanels>
         <VCol cols="12" />
-        <!-- -->
         <VTabs
           v-model="userTab"
           class="v-tabs-pill"
@@ -315,21 +315,6 @@ const moveRecipe = () => {
                 오늘의 스케쥴
               </VBtn>
             </VCardText>
-            <VCol cols="2">
-              <VBtn
-                id="startBtn"
-                style=" height: 45px; margin-top: 4px;margin-left: 48px;"
-                variant="text"
-                class="btn-lg btn-dark"
-                @click="startRecognition"
-              >
-                <VIcon
-                  size="x-large"
-                  icon="mdi-microphone-outline"
-                  color="success"
-                />
-              </VBtn>
-            </VCol>
           </VRow>
         </VCard>
         <!-- -->

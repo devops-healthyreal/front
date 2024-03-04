@@ -9,7 +9,7 @@ if (!('webkitSpeechRecognition' in window)) {
   console.log('당신의 브라우저는 STT를 지원하지 않습니다.')
 } else {
   recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition || window.mozSpeechRecognition || window.msSpeechRecognition)()
-  recognition.lang = 'Microsoft Heami - Korean (Korean)'
+  recognition.lang = 'ko-KR'
   recognition.interimResults = true
 
   recognition.onspeechstart = () => {
@@ -25,6 +25,7 @@ if (!('webkitSpeechRecognition' in window)) {
   recognition.onresult = event => {
     console.log('event.results:', event.results)
     transcript.value = Array.from(event.results).map(results => results[0].transcript).join("")
+    console.log("그래서 결과는?", transcript.value)
   }
 
   recognition.onerror = event => {
@@ -43,4 +44,5 @@ const startRecognition = () => {
   }
 }
 
-export { startRecognition, transcript, isRecognizing }
+export { isRecognizing, startRecognition, transcript }
+
