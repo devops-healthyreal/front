@@ -58,27 +58,29 @@ function checkArrayUpdated(arr) { //배열이 업데이트 되었는지 확인�
 
 export function getPedePath(path, pathName, map, polyline, markers, infos) { //lat,lng 티맵라이브러리 (보행자의 경로를 불러오는 함수)
   checkArrayUpdated(path).then(path=>{
-
+    console.log("getPedePath-path:", path)
     var pathListParam=""
     for(var i=1; i<path.length-1; i++) {
       pathListParam += `${path[i][1]},${path[i][0]}_`
     }
     console.log('getPedePath-path:', path)
     var requestBody = {
-      angle: 20,
-      speed: 30,
-      endPoiId: "10001",
-      reqCoordType: "WGS84GEO",
-      searchOption: "0",
-      resCoordType: "WGS84GEO",
-      sort: "index",
       startX: path[0][1],
       startY: path[0][0],
+      angle: 20,
+      speed: 30,
+      endPoiId: '10001',
       endX: path[path.length-1][1],
       endY: path[path.length-1][0],
+      passList: pathListParam,
+      reqCoordType: 'WGS84GEO',
       startName: encodeURIComponent(pathName[0]),
       endName: encodeURIComponent(pathName[pathName.length-1]),
+      searchOption: '0',
+      resCoordType: 'WGS84GEO',
+      sort: 'index',
     }
+    console.log("티맵에 전달된 요청바디:", requestBody)
     if(pathListParam !== ""){
       pathListParam = pathListParam.substring(0, pathListParam.length-1)
       requestBody['passList'] = pathListParam
@@ -87,7 +89,8 @@ export function getPedePath(path, pathName, map, polyline, markers, infos) { //l
     console.log('getPedePath-body:', requestBody)
     axios.post("https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&callback=function", JSON.stringify(requestBody), 
       { headers: { 'Content-Type': 'application/json',
-        'appKey': 'REIa2TCseO1cIZwedynqcI22HxzNxna5R6zePbP2' } })
+        'appKey': 'REIa2TCseO1cIZwedynqcI22HxzNxna5R6zePbP2',
+        'accept': 'application/json' } })
       .then(resp=>{
         var pedePathPoint = { "pedePath": [], "pointPath": [] }
   
@@ -113,8 +116,8 @@ export function getPedePath(path, pathName, map, polyline, markers, infos) { //l
         console.log('drawPolyLine에 넘기기 전;', pedePathPoint)
         drawPolyLine(pedePathPoint, pathName, map, polyline, markers, infos)
       })
-      .catch(()=>{
-        console.log("에러 발생")
+      .catch(err=>{
+        console.error("에러발생:", err)
         var pedePathPoint = { "pedePath": path, "pointPath": path }
         drawPolyLine(pedePathPoint, pathName, map, polyline, markers, infos)
       })
