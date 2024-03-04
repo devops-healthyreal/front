@@ -184,7 +184,11 @@ const goToDetailPage = data => {
                 :title="data.title"
                 :hit="data.question_hit"
               >
-                <small style="margin: 0 20px;">{{ data.question_content }}</small>
+                <div style="margin: 0 30px;">
+                  <small>
+                    {{ data.question_content }}
+                  </small>
+                </div>
                 <!-- VCard부분에 포인트 커서 해놨어요 click 이벤트로 이동시키면 됩니다 -->
                 <VCard
                   style="margin: 10px;"

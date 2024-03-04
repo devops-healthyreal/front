@@ -22,6 +22,14 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+  openViewPostMoadl: {
+    type: Function,
+    required: true,
+  },
+  submitEdit: {
+    type: Function,
+    required: true,
+  },
 })
 
 const emit = defineEmits([
@@ -83,14 +91,16 @@ const updatenotic = async (notification, trigger_pk, index) => {
 
 const removenotic = async trigger_pk => {
   console.log('지울 trigger_pk:', trigger_pk)
+  await axios.get('http://localhost:4000/Notic/Delete.do', { params: { trigger_pk: trigger_pk } })
+    .then(response => {
+      console.log('응답 받음 - ', response.data)
 
-  // await axios.get('http://localhost:4000/Notic/Delete.do', { params: { trigger_pk: trigger_pk } })
-  // .then(response => {
-  //   console.log('성공')
-  // })
-  // .catch(error => {
-  //   console.log('실패', error)
-  // })
+      // 알림 목록에서 해당 알림을 제거합니다.
+      props.noticlists.splice(
+        props.noticlists.findIndex(notification => notification.trigger_pk === trigger_pk),
+        1,
+      )
+    })  
 }
 </script>
 
@@ -125,19 +135,23 @@ const removenotic = async trigger_pk => {
           </VCardTitle>
 
           <template #append>
-            <IconBtn
+            <!--
+              <IconBtn
               v-show="props.noticlists.length"
               @click="markAllReadOrUnread"
-            >
-              <VIcon :icon="!isAllMarkRead ? 'mdi-email-outline' : 'mdi-email-open-outline' " />
+              > 
+            -->
+            <VIcon :icon="!isAllMarkRead ? 'mdi-email-outline' : 'mdi-email-open-outline' " />
 
+            <!--
               <VTooltip
-                activator="parent"
-                location="start"
+              activator="parent"
+              location="start"
               >
-                {{ !isAllMarkRead ? 'Mark all as unread' : 'Mark all as read' }}
-              </VTooltip>
-            </IconBtn>
+              {{ !isAllMarkRead ? 'Mark all as unread' : 'Mark all as read' }}
+              </VTooltip> 
+            -->
+            <!-- </IconBtn> -->
           </template>
         </VCardItem>
 
@@ -176,7 +190,7 @@ const removenotic = async trigger_pk => {
                   <VChip color="error">
                     {{ notification.notic_trigger_user }}
                   </VChip>
-                  <small>{{ notification.notic_type===1? '님께서 댓글을 달았습니다.': '님께서 좋아요를 눌렀습니다.' }}</small>
+                  <small @click="openViewPostMoadl(notification.notic_type===1? notification.bbs_no : notification.trigger_no); submitEdit(notification.notic_type===1? notification.bbs_no : notification.trigger_no)">{{ notification.notic_type===1? '님께서 댓글을 달았습니다.': '님께서 좋아요를 눌렀습니다.' }}</small>
                 </VListItemTitle>
                 
                 <!-- <VListItemSubtitle>{{ notification.ccomment }}</VListItemSubtitle> -->
@@ -224,11 +238,12 @@ const removenotic = async trigger_pk => {
         <!-- 👉 Footer -->
         <VCardText
           v-show="props.noticlists.length"
-          class="notification-footer"          
+          class="notification-footer"   
+          style="text-align: right;"       
         >
-          <VBtn block>
-            VIEW ALL NOTIFICATIONS
-          </VBtn>
+          <!-- <VBtn block> -->
+          HealthyReal
+          <!-- </VBtn> -->
         </VCardText>
       </VCard>
     </VMenu>

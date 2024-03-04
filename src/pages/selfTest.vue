@@ -1,4 +1,5 @@
 <script setup>
+import axios from '@axios'
 import ht1 from '@images/Unbalanced/1.jpg'
 import ht10 from '@images/Unbalanced/10.jpg'
 import ht11 from '@images/Unbalanced/11.jpg'
@@ -21,11 +22,11 @@ import ht6 from '@images/Unbalanced/6.jpg'
 import ht7 from '@images/Unbalanced/7.jpg'
 import ht8 from '@images/Unbalanced/8.jpg'
 import ht9 from '@images/Unbalanced/9.jpg'
-
-import axios from '@axios'
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
+const router = useRouter()
 const store = useStore()
 
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
@@ -237,9 +238,11 @@ const onSubmit = async () => {
       })
       .then(response => {          
         console.log('됐나?', response.data)
+        router.push('/main')
       })
   }else{
     console.log('저장할 정보가 없습니다.')
+    alert('저장할 정보가 없습니다.')
   }
 }
 

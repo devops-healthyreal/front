@@ -38,8 +38,13 @@ const filteredChatsContacts = computed(() => {
   return chatsContacts.value.filter(contact => contact.fullName.includes(search.value))
 })
 
+// 필터링된 채팅 목록
+const filteredContacts = computed(() => {
+  return database.value.contacts.filter(contact => contact.fullName.includes(search.value))
+})
+
 watch(search, newVal => {
-  console.log("데이터확인 ", chatsContacts.value)  // 로그 출력
+  console.log("데이터확인 ", database.value)  // 로그 출력
 }, { immediate: true })
 </script>
 
@@ -109,7 +114,7 @@ watch(search, newVal => {
       <span class="chat-contact-header d-block text-primary text-xl font-weight-medium">친구 목록</span>
     </li>
     <ChatContact
-      v-for="contact in database.contacts"
+      v-for="contact in filteredContacts"
       :key="`chat-${contact.id}`"
       :user="contact"
       @click="$emit('openChatOfContact', contact.id)"

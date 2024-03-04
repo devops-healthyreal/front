@@ -2,7 +2,7 @@
 import axios from '@axios'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-
+import { useStore } from 'vuex'
 
 const props = defineProps({
   isDialogVisible: {
@@ -12,7 +12,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:isDialogVisible'])
-
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=computed(() => userInfo.value.id)
 
 const router = useRouter()
 const selectedPlan = ref('randam')
@@ -57,11 +59,12 @@ const plansList = [
 
 const isConfirmDialogVisible = ref(false)
 
-const getData = async obj => {
-  console.log("너가할 운동은???", obj)
+const getData = async (obj, connetId) => {
+  console.log(connetId, "가할 운동은???", obj)
 
   const response = await axios.post('http://localhost:5000/recommendExercise', {
     message: obj,
+    id: connetId,
   })
 
   router.push('main') 
@@ -103,7 +106,7 @@ const getData = async obj => {
           />
           <VBtn
             class="mt-5"
-            @click="$emit('update:isDialogVisible', false), getData(selectedPlan)"
+            @click="$emit('update:isDialogVisible', false), getData(selectedPlan, connetId)"
           >
             확인
           </VBtn>

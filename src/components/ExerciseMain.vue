@@ -1,17 +1,27 @@
 <script setup>
-import avatar1 from '@images/avatars/avatar-1.png'
-import avatar2 from '@images/avatars/avatar-2.png'
-import avatar3 from '@images/avatars/avatar-3.png'
-import avatar4 from '@images/avatars/avatar-4.png'
+import axios from '@axios'
+import { computed, onMounted, ref } from 'vue'
+import { useStore } from 'vuex'
 
-const video = ref('https://www.youtube.com/embed/kgvvdwQBSFQ')
 
-const avatars = [
-  avatar1,
-  avatar2,
-  avatar3,
-  avatar4,
-]
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=userInfo.value.id
+
+const data = ref([])
+
+const getData = async ()=>{
+
+  const response = await axios.post('http://127.0.0.1:4000/exer/getData.do', { id: connetId })
+
+  data.value = response.data
+  console.log("운동 값 가져와??", response)
+
+}
+
+onMounted(getData)
+
+console.log("운동 값 가져와??", data.value)
 
 const isCardDetailsVisible = ref(false)
 </script>
@@ -20,6 +30,8 @@ const isCardDetailsVisible = ref(false)
   <VRow>
     <!-- 👉 Influencing The Influencer -->
     <VCol
+      v-for="(item, index) in data"
+      :key="index"
       cols="12"
       sm="6"
       md="4"
@@ -28,18 +40,18 @@ const isCardDetailsVisible = ref(false)
         <iframe
           width="100%"
           height="150"
-          :src="video"
+          :src="item.evideoPath"
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen
         />
 
         <VCardItem>
-          <VCardTitle>운동명은 여기에!</VCardTitle>
+          <VCardTitle>{{ item.ename }}</VCardTitle>
         </VCardItem>
 
         <VCardText style="height: 120px;">
-          여기에 운동 내용 뿌려주면 됩니다
+          {{ item.econtent }}
         </VCardText>
       </VCard>
     </VCol>

@@ -68,7 +68,7 @@ const getUserAvatar = userId => {
 
 const getData = async function() {
   try {
-    const response = await axios.post('http://localhost:4000/bbs/List.do', {
+    const response = await axios.post('http://localhost:4000/bbs/allList.do', {
       selectedItems: ["운동", "식단", "심리"],
     })
 

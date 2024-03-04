@@ -1,18 +1,11 @@
 <script setup lang="ts">
 import NutrientChart from '@/views/charts/apex-chart/NutrientChart.vue'
 import CalorieChart from '@/views/charts/chartjs/CalorieChart.vue'
+import { watchEffect } from 'vue'
 
 const props = defineProps({
   isDialogVisible: {
     type: Boolean,
-    required: true,
-  },
-  bfood: {
-    type: Array,
-    required: true,
-  },
-  selectcurr: {
-    type: String,
     required: true,
   },
   userdietinfo: {
@@ -26,6 +19,11 @@ const emit = defineEmits(['update:isDialogVisible'])
 const dialogVisibleUpdate = val => {
   emit('update:isDialogVisible', val)
 }
+
+
+watchEffect(() => {
+  console.log("이게 머야?", props.userdietinfo)
+})
 </script>
 
 <template>
@@ -48,7 +46,10 @@ const dialogVisibleUpdate = val => {
             title="주요 영양소"
             :style="{'margin-top':'20px'}"
           >
-            <NutrientChart :userdietinfo="userdietinfo" />
+            <NutrientChart
+              v-if="userdietinfo.length"
+              :userdietinfo="userdietinfo"
+            />
             <!-- 식단 테이블 -->
             <VTable
               height="250"
@@ -90,19 +91,19 @@ const dialogVisibleUpdate = val => {
                     {{ item.ae_diettype }}
                   </td>
                   <td>
-                    {{ item.carbohydrate }}
+                    {{ item.total_carbohydrate }}
                   </td>
                   <td>
-                    {{ item.protein }}
+                    {{ item.total_protein }}
                   </td>
                   <td>
-                    {{ item.fat }}
+                    {{ item.total_fat }}
                   </td>
                   <td>
-                    {{ item.sodium/1000 }}
+                    {{ item.total_sodium/1000 }}
                   </td>
                   <td>
-                    {{ item.cholesterol/1000 }}
+                    {{ item.total_cholesterol/1000 }}
                   </td>
                 </tr>
               </tbody>
@@ -117,7 +118,10 @@ const dialogVisibleUpdate = val => {
             title="칼로리 분석"
           >
             <VCardItem>
-              <CalorieChart :userdietinfo="userdietinfo" />
+              <CalorieChart
+                v-if="userdietinfo.length"
+                :userdietinfo="userdietinfo"
+              />
             </VCardItem>
             <!-- 칼로리 테이블 -->
             <VTable
@@ -146,7 +150,7 @@ const dialogVisibleUpdate = val => {
                     {{ item.ae_diettype }}
                   </td>
                   <td>
-                    {{ item.calory }}
+                    {{ item.total_calory }}
                   </td>
                 </tr>
               </tbody>

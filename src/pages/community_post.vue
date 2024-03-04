@@ -3,7 +3,6 @@ import Editing from '@/components/dialogs/Editing.vue'
 import UserProfileCommunity from '@/components/dialogs/UserProfileCommunity.vue'
 import ViewPostPage from '@/components/dialogs/ViewPostPage.vue'
 import Writing from '@/components/dialogs/Writing.vue'
-import { sendCommReqMessage } from '@/message/requestComm'
 import InviteFriendConfirmModal from '@/pages/community/InviteFriendConfirmModal.vue'
 import Category from '@/pages/views/demos/forms/form-elements/select/category.vue'
 import axios from '@axios'
@@ -31,7 +30,7 @@ const isLiked = ref(false)  // 좋아요 버튼의 상태를 저장
 let postToEdit = ref("")
 
 const isInvited = {}
-const isSubscribed = {}
+const isSubscribed = ref({})
 const userId = ref(userInfo.value.id) //접속한 유저의 아이디
 
 let q = ref('')
@@ -88,6 +87,7 @@ const getData = async function() {
   try {
     const response = await axios.post('http://localhost:4000/bbs/List.do', {
       selectedItems: selected.value,
+      id: userId.value,
     }, {
       headers: {
         'Content-Type': 'application/json',
@@ -104,6 +104,12 @@ const getData = async function() {
       const tempUserKeys = []
       for(var i=0; i<state.items.length; i++){
         tempUserKeys[i] = state.items[i].id
+        if(state.items[i].isSubto === 1) {
+          isSubscribed.value[tempUserKeys[i]] = ref(true)
+        }
+        else{
+          isSubscribed.value[tempUserKeys[i]] = ref(false)
+        }
       }
       const tempUserKeysSet = new Set(tempUserKeys) //중복 아이디 제거
       const temp = [...tempUserKeysSet] //ids
@@ -112,51 +118,72 @@ const getData = async function() {
       temp의 앞에 현재 서비스를 이용 중인 유저의 아이디가 들어가야 함.
       뿌려주는 게시글 작성자들의 목록을 불러옴.
       */
-      temp.unshift(connetId)
-      console.log(temp)
-      axios.post("http://localhost:4000/bbs/userProfile", JSON.stringify ({
-        ids: temp,
-      }), { headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
-      })
-        .then(resp=>{
-          console.log('요청받은 값:', resp.data)
-          users.value = resp.data
-          for (const i of users.value){
-            console.log('유저 아이디:', i.id, '\n유저 프로필:', i.profilePath)
-            console.log('체크', i)
-          }
-          users.value.forEach(ele=>{
-            if((ele.isFriend == 0 || ele.isSubTo == 0) && ele.id != userId.value) {
-              usersView.value.push(ele)
-            }
-            console.log(usersView.value)
-            console.log(usersView)
-            for(const id in usersView.value){
-              if(usersView.value[id]['isFriend']==0) { //구독관계인지, 친구관계인지 체크
-                isInvited[usersView.value[id]['id']] = ref(true)
-              }
-              else if(usersView.value[id]['isFriend']!=0) {
-                isInvited[usersView.value[id]['id']] = ref(false)
-              }
-              if(usersView.value[id]['isSubTo']==0) {
-                isSubscribed[usersView.value[id]['id']] = ref(false)
-              }
-              else if(usersView.value[id]['isSubTo']!=0) {
-                isSubscribed[usersView.value[id]['id']] = ref(true)
-              }
-            }
-          })
+      // temp.unshift(connetId)
+      // console.log(temp)
+      // axios.post("http://localhost:4000/bbs/userProfile", JSON.stringify ({
+      //   ids: temp,
+      // }), { headers: { 'Content-Type': 'application/json' },
+      //   withCredentials: true,
+      // })
+      //   .then(resp=>{
+      //     users.value = resp.data
+      //     for (const i of users.value){ //게시글에 구독 여부 뿌려주기
+      //       console.log('유저 아이디:', i.id, '\n유저 프로필:', i.profilePath)
+      //       console.log('체크', i)
+      //       if(i.id !== connetId && i.isSubTo == 0) {
+      //         console.log(i.id, '구독하지 않음')
+      //         isSubscribed.value[i.id] = ref(false)
+      //       }
+      //       else if(i.id !== connetId && i.isSubTo !== 0) {
+      //         console.log(i.id, '구독함')
+      //         isSubscribed.value[i.id] = ref(true)
+      //       }
+      //     }
+      //     users.value.forEach(ele=>{
+      //       if((ele.isFriend == 0 || ele.isSubTo == 0) && ele.id != userId.value) {
+      //         usersView.value.push(ele)
+      //       }
+      //       for(const id in usersView.value){
+      //         if(usersView.value[id]['isFriend']==0) { //구독관계인지, 친구관계인지 체크
+      //           isInvited[usersView.value[id]['id']] = ref(true)
+      //         }
+      //         else if(usersView.value[id]['isFriend']!=0) {
+      //           isInvited[usersView.value[id]['id']] = ref(false)
+      //         }
+      //       }
+      //     })
+      //   })
+      //   .catch(err=>console.log(err))
+      // console.log(state.items[1].files)
+      // console.log("isSubscribed:", isSubscribed)
+      axios.get("http://localhost:4000/comm/subscribe", { params: {
+        id: userId.value,
+      } })
+        .then(res=>{
+          console.log("구독한 목록:", res.data)
+          users.value = res.data.subTo
         })
-        .catch(err=>console.log(err))
-      console.log(state.items[1].files)
-      console.log('데이터 체크', response.data)
+        .catch(err=>console.error(err))
+
+      console.log("userId.value:", userId.value)
+      axios.get("http://localhost:4000/comm/friend/random", { params: {
+        id: userId.value,
+      } })
+        .then(res=>{
+          for(const key of Object.keys(res.data)){
+            usersView.value.push({ id: key, profilePath: res.data[key] })
+            isInvited[key] = ref(true)
+          }
+          console.log("응답값:", usersView.value)
+        })
+        .catch(err=>console.error(err))
     } else {
       console.log('데이터 전송 실패')
     }
-  } catch (error) {
+  } //try 
+  catch (error) {
     console.error(`데이터 전송 실패: ${error}`)
-  }
+  } //catch
 }
 
 // ---------------------------------------------------------------------------------------
@@ -219,10 +246,22 @@ const loadMore = () => {
 
 // ---------------------------------------------------------------------------------------
 
-const getUserAvatar = userId => {
-  const user = users.value.find(user => user.id === userId)
+//const getUserAvatar = userId => {
+//const user = users.value.find(user => user.id === userId)
   
-  return user ? user.profilePath : defaultImg
+//   return user ? user.profilePath : defaultImg
+// }
+
+const getUserAvatar = user => {
+  console.log('getUserAvatar:', user.profilePath)
+  if(user.profilePath !== undefined) {
+    console.log('getUserAvatar if문 안으로 들어옴')
+    
+    return user.profilePath
+  }
+  console.log('getUserAvatar if문 밖')
+  
+  return defaultImg
 }
 
 //////////////////////////////////////
@@ -348,7 +387,9 @@ const getComment = async function() {
   }
 }
 
-
+const test2 = val => {
+  console.log('왜 사진이 안뜨지', val)
+}
 
 //댓글 입력
 const searchuser = userInfo.value.id //현재 접속중인 유저 아이디
@@ -426,7 +467,8 @@ const message = ref("")
 //구독 관리
 const subscribe = (name, check) => {
   console.log('구독관리체크:', name)
-  isSubscribed[name].value = !isSubscribed[name].value
+  console.log('클릭전:', isSubscribed.value[name])
+  isSubscribed.value[name] = !isSubscribed.value[name]
   isSnackbarVisible.value = true
   if (check == 1) {
     message.value = "구독이 추가되었습니다"
@@ -434,24 +476,30 @@ const subscribe = (name, check) => {
       userId: connetId,
       subToId: name,
     }), { headers: { 'Content-Type': 'application/json' } })
-      .then(
-        console.log('error'),
-
-        sendCommReqMessage(connetId, name),
-        
+      .then( ()=>
+        users.value.push({ subscribe_id: name, profilePath: getUserAvatar(name) }),
       )
       .catch(err=>console.log(err))
   }
   else {
     message.value = "구독이 취소되었습니다"
-    axios.delete("http://127.0.0.1:4000/comm/subscribe/delete", {
+    axios.delete("http://localhost:4000/comm/subscribe/delete", {
       data: {
         userId: connetId,
         subToId: name,
       },
     }, { headers: { "Content-Type": `application/json` } })
+      .then(()=>{
+        for(var i=0; i<users.value.length; i++) {
+          if(users.value[i].subscribe_id === name) {
+            users.value.splice(i, 1)
+          }
+        }
+      })
       .catch(err=>console.log(err))
   }
+  console.log('클릭후:', isSubscribed.value[name])
+  console.log('클릭후 subscribe:', isSubscribed.value)
 }
 
 
@@ -513,7 +561,7 @@ const openViewPostMoadl = async val =>{
 
 ///좋아요!!
 const toggleLike = async bno => {
-
+  isLiked.value = !isLiked.value  // 좋아요 버튼의 상태를 토글
   try {
     const response = await axios.post('http://localhost:4000/bbs/likes.do', {
       id: connetId,
@@ -523,7 +571,7 @@ const toggleLike = async bno => {
     })
 
     if (response.status === 200) {
-      isLiked.value = !isLiked.value  // 좋아요 버튼의 상태를 토글
+ 
 
       await getData() // 좋아요 상태 변경 후 데이터를 다시 가져오기
     } else {
@@ -563,6 +611,10 @@ const getMyList = async id => {
     console.error(`데이터 전송 실패: ${error}`)
   }
 }
+
+const test = val => {
+  console.log("클릭체크:", isSubscribed[val].value)
+}
 </script>
 
 
@@ -586,7 +638,7 @@ const getMyList = async id => {
             >
               <VCol
                 v-for="user in users"
-                :key="user.id"
+                :key="user.subscribe_id"
                 cols="auto"
                 class="ma-2"
               >
@@ -594,15 +646,15 @@ const getMyList = async id => {
                   <VListItemContent class="d-flex flex-column align-center text-center">
                     <VAvatar 
                       class="text-sm pointer-cursor"
-                      :image="user.profilePath"
-                      @click="getMyList(user.id)"                      
+                      :image="getUserAvatar(user)"
+                      @click="getMyList(user.subscribe_id)"                      
                     />
                     <VListItemTitle 
                       class="text-sm pointer-cursor"
-                      @click="getMyList(user.id)"   
+                      @click="getMyList(user.subscribe_id)"   
                       @mouseover="size"  
                     >
-                      {{ user.id }}
+                      {{ user.subscribe_id }}
                     </VListItemTitle>
                   </VListItemContent>
                 </VListItem>
@@ -664,14 +716,16 @@ const getMyList = async id => {
                       <!-- 게시물의 상단 유저 프로필/ 유저 닉네임 / MoreBtn :image="state.avatar1" -->
                       <VCol>
                         <VRow>
+                          <!-- 프로필 사진 -->
                           <VCol cols="1">
                             <VAvatar 
                               class="text-sm pointer-cursor"
-                              :image="getUserAvatar(item.id)"
+                              :image="item.profilepath"
                               @click="openUserProfileModal(item)"
                             />
                           </VCol>
-                          <VCol cols="4">
+                          <!-- 유저 닉네임 -->
+                          <VCol>
                             <VCol cols="12">
                               <VCardSubtitle
                                 class="text-sm pointer-cursor"
@@ -682,7 +736,32 @@ const getMyList = async id => {
                               </VCardSubtitle>
                             </VCol>
                           </VCol>
-                          <VCol cols="6" />
+                          <VCol cols="7">
+                            <VCol>
+                              <VBtn
+                                v-show="!isSubscribed[item.id]"
+                                id="myButton"
+                                prepend-icon="mdi-bell"
+                                style="float: inline-end;"
+                                size="small"
+                                variant="outlined"
+                                @click="subscribe(item.id, 1)"
+                              >
+                                구독
+                              </VBtn>
+                              <VBtn
+                                v-show="isSubscribed[item.id]"
+                                id="myButton"
+                                prepend-icon="mdi-bell-off"
+                                style="float: inline-end;"
+                                size="small"
+                                variant="tonal"
+                                @click="subscribe(item.id, 0)"
+                              >
+                                구독취소
+                              </VBtn>
+                            </VCol>
+                          </VCol>
                           <VCol cols="1">
                             <VCol cols="1">
                               <VBtn
@@ -692,6 +771,7 @@ const getMyList = async id => {
                                 color="medium-emphasis"
                               >
                                 <VIcon
+                                   v-if="item.id == connetId"
                                   size="24"
                                   icon="mdi-dots-vertical"
                                 />
@@ -711,16 +791,10 @@ const getMyList = async id => {
                                       </template>
                                       <VListItemTitle>삭제하기</VListItemTitle>
                                     </VListItem>
-                                    <VListItem @click="editingModal=true">
-                                      <template #prepend>
-                                        <VIcon icon="mdi-account-alert" />
-                                      </template>
-                                      <VListItemTitle>신고하기</VListItemTitle>
-                                    </VListItem>
                                   </VList>
                                 </VMenu>
-                              </VBtn>                              
-                            </VCol>
+                              </VBtn>        
+                            </VCol>                      
                           </VCol>
                         </VRow>
                       </VCol>
@@ -747,9 +821,11 @@ const getMyList = async id => {
                         class="transparent-carousel"
                         show-arrows-on-hover
                         color="success"
-                        cycle
-                        interval="2000"
                       >
+                        <!--
+                          cycle
+                          interval="2000"
+                        -->
                         <VCarouselItem
                           v-for="(image, i) in item.files" 
                           :key="i"
@@ -874,6 +950,8 @@ const getMyList = async id => {
                 v-show="isInvited[member.id].value"
                 id="myButton"
                 width="40"
+                variant="tonal"
+                size="small"
                 @click="requestFriend(member.id)"
               >
                 친구요청
@@ -885,31 +963,11 @@ const getMyList = async id => {
               />
               <VBtn
                 v-show="!isInvited[member.id].value"
+                size="small"
                 width="40"
                 disabled="true"
               >
                 신청완료
-              </VBtn>
-              <!-- 구독 버튼 -->
-              <VBtn
-                v-show="!isSubscribed[member.id].value"
-                id="myButton"
-                width="40"
-                style="margin-left: 5px;"
-                variant="outlined"
-                @click="subscribe(member.id, 1)"
-              >
-                구독
-              </VBtn>
-              <VBtn
-                v-show="isSubscribed[member.id].value"
-                id="myButton"
-                style="margin-left: 5px;"
-                variant="tonal"
-                @click="subscribe(member.id, 0)"
-              >
-                <VIcon icon="mdi-bell" />
-                구독중
               </VBtn>
               <VSnackbar
                 v-model="isSnackbarVisible"

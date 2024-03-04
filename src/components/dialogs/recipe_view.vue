@@ -129,7 +129,7 @@ const changeRandom = () => {
             <div v-if="index == 0 && gro.RECIPE_SEQ && gro.RECIPE_SEQ.length > 0">
               <br><strong style="margin: 10px 20px;">[조리순서]</strong>
               <div
-                style="max-height: 300px; overflow-y: auto;"
+                style=" width: auto;max-height: 300px; overflow-y: auto;"
                 class="scrollbar"
               >
                 <p

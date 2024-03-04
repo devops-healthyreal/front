@@ -52,7 +52,8 @@ const tabs = [
         />
         {{ item.title }}
       </VTab>
-      <VSwitch
+      <!--
+        <VSwitch
         v-for="item in switches"
         :key="item"
         v-model="selectedSwitch"
@@ -60,7 +61,8 @@ const tabs = [
         :label="text"
         :value="item"
         :color="item.toLowerCase()"
-      />
+        />
+      -->
     </VTabs>
 
     <VWindow
