@@ -1,8 +1,4 @@
 <script setup>
-import {
-  kFormatter,
-} from '@core/utils/formatters'
-
 import Btnsu from '@/pages/views/demos/components/button/self-suc.vue'
 import SelfEdit from '@/pages/views/demos/forms/form-elements/textarea/self-edit.vue'
 import axios from '@axios'
@@ -111,10 +107,8 @@ const resolveUserStatusVariant = stat => {
 
 
 // mh는 Member_History 테이블을 뜻하는 약자
-const subdate = ref([]) //구독자 관련 데이터
+const userFSMcount = ref({}) //친구/구독자/메이트 관련 데이터
 const profiledata = ref([])//내 프로필 데이터
-const length = ref(0) //구독자 초기값
-
 
 
 
@@ -127,7 +121,7 @@ async function fetchData() {
   }
 
   try {
-    const response = await axios.get('http://localhost:4000/comm/subscribe', {
+    const response = await axios.get('http://localhost:4000/user/relationship', {
       params: {
         id: userInfo.value.id,
       },
@@ -135,9 +129,11 @@ async function fetchData() {
     })
 
     if (response.status === 200) {
-      subdate.value = response.data
-      console.log('MySub 배열(구독자) 값:', response.data.MySub)
-      length.value = subdate.value.MySub.length
+      // subdate.value = response.data
+      // console.log('MySub 배열(구독자) 값:', response.data.MySub)
+      // length.value = subdate.value.MySub.length
+      userFSMcount.value = response.data
+      console.log("프로필:", response.data)
     } else {
       console.log('데이터 가져오기 실패')
     }
@@ -411,15 +407,15 @@ onMounted(async () => {
             >
               <VIcon
                 size="24"
-                icon="mdi-poll"
+                icon="mdi-emoticon-wink"
               />
             </VAvatar>
 
             <div>
               <h6 class="text-h6">
-                {{ kFormatter(props.userData.taskDone) }}
+                {{ userFSMcount["f"] }}
               </h6>
-              <span>이행률</span>
+              <span>친구</span>
             </div>
           </div>
 
@@ -440,9 +436,31 @@ onMounted(async () => {
 
             <div>
               <h6 class="text-h6">
-                {{ length }}
+                {{ userFSMcount["s"] }}
               </h6>
-              <span>구독자 수</span>
+              <span>구독자</span>
+            </div>
+          </div>
+
+          <div class="d-flex align-center">
+            <VAvatar
+              :size="44"
+              rounded
+              color="primary"
+              variant="tonal"
+              class="me-4"
+            >
+              <VIcon
+                size="24"
+                icon="mdi-walk"
+              />
+            </VAvatar>
+
+            <div>
+              <h6 class="text-h6">
+                {{ userFSMcount["m"] }}
+              </h6>
+              <span>메이트</span>
             </div>
           </div>
         </VCardText>

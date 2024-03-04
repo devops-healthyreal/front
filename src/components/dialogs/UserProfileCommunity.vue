@@ -1,4 +1,5 @@
 <script setup>
+import axios from '@axios'
 import avatar1 from '@images/avatars/avatar-1.png'
 import avatar2 from '@images/avatars/avatar-2.png'
 import avatar3 from '@images/avatars/avatar-3.png'
@@ -6,6 +7,7 @@ import avatar4 from '@images/avatars/avatar-4.png'
 import pages7 from '@images/pages/7.jpg'
 import defaultImg from '@images/userProfile/default.png'
 import { defineProps, ref } from 'vue'
+import { useStore } from 'vuex'
 
 const props = defineProps({
   isDialogVisible: {
@@ -27,9 +29,28 @@ const props = defineProps({
   userproIntroduction: {
     type: String,
   },
+  userFriendsList: {
+    type: Array,
+  },
+  userFriendCheck: {
+    type: Boolean,
+  },
+  connectid: {
+    type: String,
+  },
+  userFriendRequestCheck: {
+    type: Boolean,
+  },
 })
 
 const emit = defineEmits(['update:isDialogVisible'])
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+
+const connectId = ref(userInfo.value.id) //접속 중인 유저 아이디
+const isFriend = ref(false) //친구인지 여부 확인
+
+console.log("connectId", connectId)
 
 const avatars = [
   avatar1,
@@ -39,9 +60,35 @@ const avatars = [
 ]
 
 const isCardDetailsVisible = ref(false)
+const isRequested = ref(false)
 
 const dialogVisibleUpdate = value => {
   emit('update:isDialogVisible', value)
+  fetchData()
+}
+
+const requestFriend = val => {
+  console.log('user친구:', props.userFriendsList)
+  console.log("fetchData", props.userFriendCheck)
+  console.log('접속중인 유저:', props.connectid)
+  console.log("들어온 인자:", val)
+  console.log("친구 요청 버튼:", document.getElementById("requestBTN"))
+
+  axios.post("http://localhost:4000/comm/request", JSON.stringify({
+    userId: props.connectid,
+    reqId: props.userid,
+    type: '1',
+  }), { headers: { 'Content-Type': 'application/json' } })
+    .then(()=>{
+      console.log("친구 요청 성공")
+      isRequested.value = true
+      document.getElementById("requestBTN").style.display = 'none'
+      document.getElementById("requestCompleteBTN").style.display='block'
+    })
+    .catch(err => {
+      console.log(err, '값을 받는 데 실패했습니다')
+    })
+    
 }
 </script>
 
@@ -84,7 +131,21 @@ const dialogVisibleUpdate = value => {
                 {{ userproIntroduction }}
               </VCardSubtitle>
             </div>
-            <VBtn>친구 요청</VBtn>
+            <VBtn
+              v-show="!userFriendCheck && !userFriendRequestCheck"
+              id="requestBTN"
+              @click="requestFriend(userFriendCheck)"
+            >
+              친구 요청
+            </VBtn>
+            <VBtn
+              v-show="userFriendRequestCheck"
+              id="requestCompleteBTN"
+              disabled="true"
+              @click="requestFriend(userFriendCheck)"
+            >
+              친구 요청 완료
+            </VBtn>
           </div>
         </VCardText>
       </VCard>

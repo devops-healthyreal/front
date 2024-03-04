@@ -6,12 +6,13 @@ import Timeline from '@/pages/components/timeline.vue'
 import ResetPasswordDialog from '@/pages/resetPasswordDialog.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
 import axios from '@axios'
+import mainImg from "@images/cards/card-meetup_copy_1.jpg"
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import MainMap from './exercise/map/MainMap.vue'
 import { startRecognition } from './stt.js'
 import { startSynthesis } from './tts.js'
-import mainImg from "@images/cards/card-meetup_copy_1.jpg"
 
 
 const router = useRouter()
@@ -295,7 +296,7 @@ const moveRecipe = () => {
 
           <!-- ------------------경로-------------------- -->
           <VWindowItem>
-            <CrmActivityTimeline />
+            <MainMap />
           </VWindowItem>
         </VWindow>
         <VCol cols="12" />
