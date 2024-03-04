@@ -114,48 +114,6 @@ const getData = async function() {
       const tempUserKeysSet = new Set(tempUserKeys) //중복 아이디 제거
       const temp = [...tempUserKeysSet] //ids
 
-      /*
-      temp의 앞에 현재 서비스를 이용 중인 유저의 아이디가 들어가야 함.
-      뿌려주는 게시글 작성자들의 목록을 불러옴.
-      */
-      // temp.unshift(connetId)
-      // console.log(temp)
-      // axios.post("http://localhost:4000/bbs/userProfile", JSON.stringify ({
-      //   ids: temp,
-      // }), { headers: { 'Content-Type': 'application/json' },
-      //   withCredentials: true,
-      // })
-      //   .then(resp=>{
-      //     users.value = resp.data
-      //     for (const i of users.value){ //게시글에 구독 여부 뿌려주기
-      //       console.log('유저 아이디:', i.id, '\n유저 프로필:', i.profilePath)
-      //       console.log('체크', i)
-      //       if(i.id !== connetId && i.isSubTo == 0) {
-      //         console.log(i.id, '구독하지 않음')
-      //         isSubscribed.value[i.id] = ref(false)
-      //       }
-      //       else if(i.id !== connetId && i.isSubTo !== 0) {
-      //         console.log(i.id, '구독함')
-      //         isSubscribed.value[i.id] = ref(true)
-      //       }
-      //     }
-      //     users.value.forEach(ele=>{
-      //       if((ele.isFriend == 0 || ele.isSubTo == 0) && ele.id != userId.value) {
-      //         usersView.value.push(ele)
-      //       }
-      //       for(const id in usersView.value){
-      //         if(usersView.value[id]['isFriend']==0) { //구독관계인지, 친구관계인지 체크
-      //           isInvited[usersView.value[id]['id']] = ref(true)
-      //         }
-      //         else if(usersView.value[id]['isFriend']!=0) {
-      //           isInvited[usersView.value[id]['id']] = ref(false)
-      //         }
-      //       }
-      //     })
-      //   })
-      //   .catch(err=>console.log(err))
-      // console.log(state.items[1].files)
-      // console.log("isSubscribed:", isSubscribed)
       axios.get("http://localhost:4000/comm/subscribe", { params: {
         id: userId.value,
       } })
@@ -166,17 +124,18 @@ const getData = async function() {
         .catch(err=>console.error(err))
 
       console.log("userId.value:", userId.value)
-      axios.get("http://localhost:4000/comm/friend/random", { params: {
-        id: userId.value,
-      } })
-        .then(res=>{
-          for(const key of Object.keys(res.data)){
-            usersView.value.push({ id: key, profilePath: res.data[key] })
-            isInvited[key] = ref(true)
-          }
-          console.log("응답값:", usersView.value)
-        })
-        .catch(err=>console.error(err))
+
+      // axios.get("http://localhost:4000/comm/friend/random", { params: {
+      //   id: userId.value,
+      // } })
+      //   .then(res=>{
+      //     for(const key of Object.keys(res.data)){
+      //       usersView.value.push({ id: key, profilePath: res.data[key] })
+      //       isInvited[key] = ref(true)
+      //     }
+      //     console.log("응답값:", usersView.value)
+      //   })
+      //   .catch(err=>console.error(err))
     } else {
       console.log('데이터 전송 실패')
     }
@@ -216,6 +175,18 @@ onMounted(() => {
   // 그 후 매 5초마다 getData 함수를 반복해서 실행
   //setInterval(getData, 5000)
   
+  axios.get("http://localhost:4000/comm/friend/random", { params: {
+    id: userId.value,
+  } })
+    .then(res=>{
+      for(const key of Object.keys(res.data)){
+        usersView.value.push({ id: key, profilePath: res.data[key] })
+        isInvited[key] = ref(true)
+      }
+      console.log("응답값:", usersView.value)
+    })
+    .catch(err=>console.error(err))
+
   window.addEventListener('scroll', handleScroll)
 })
 
@@ -246,11 +217,6 @@ const loadMore = () => {
 
 // ---------------------------------------------------------------------------------------
 
-//const getUserAvatar = userId => {
-//const user = users.value.find(user => user.id === userId)
-  
-//   return user ? user.profilePath : defaultImg
-// }
 
 const getUserAvatar = user => {
   console.log('getUserAvatar:', user.profilePath)
@@ -532,9 +498,10 @@ const openUserProfileModal = val => {
           userid: profiledata.value.id,
           userprofilePath: profiledata.value.profilePath,
           userproIntroduction: profiledata.value.proIntroduction,
+          userFriendsList: profiledata.value.friendsList,
         }
       } else {
-        console.log('데이터 가져오기 실패')
+        console.log('데이터 가져오기 실패 ')
       }
     })
     .catch(error => {
@@ -772,7 +739,7 @@ const test = val => {
                                 color="medium-emphasis"
                               >
                                 <VIcon
-                                   v-if="item.id == connetId"
+                                  v-if="item.id == connetId"
                                   size="24"
                                   icon="mdi-dots-vertical"
                                 />
@@ -987,6 +954,7 @@ const test = val => {
       :userid="modalData.userid"
       :userprofile-path="modalData.userprofilePath"
       :userpro-introduction="modalData.userproIntroduction"
+      :user-friends-list="modalData.userFriendsList"
     />
     <!-- :profilePath="modalData.profilePath" -->
     <Writing

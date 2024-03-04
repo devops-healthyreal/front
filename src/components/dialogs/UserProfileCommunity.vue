@@ -5,7 +5,8 @@ import avatar3 from '@images/avatars/avatar-3.png'
 import avatar4 from '@images/avatars/avatar-4.png'
 import pages7 from '@images/pages/7.jpg'
 import defaultImg from '@images/userProfile/default.png'
-import { defineProps, ref } from 'vue'
+import { defineProps, ref, onUpdated } from 'vue'
+import { useStore } from 'vuex'
 
 const props = defineProps({
   isDialogVisible: {
@@ -27,9 +28,19 @@ const props = defineProps({
   userproIntroduction: {
     type: String,
   },
+  userFriendsList: {
+    type: Array,
+  },
 })
 
 const emit = defineEmits(['update:isDialogVisible'])
+const store = useStore()
+const userInfo = computed(() => store.state.userStore.userInfo)
+
+const connectId = ref(userInfo.value.id) //접속 중인 유저 아이디
+const isFriend = ref(false) //친구인지 여부 확인
+
+console.log("connectId", connectId)
 
 const avatars = [
   avatar1,
@@ -39,9 +50,38 @@ const avatars = [
 ]
 
 const isCardDetailsVisible = ref(false)
+const isRequested = ref(false)
 
 const dialogVisibleUpdate = value => {
   emit('update:isDialogVisible', value)
+  fetchData()
+}
+
+const fetchData = () => {
+  console.log("fetchData", props.userFriendsList)
+  if(props.userFriendsList.includes(connectId.value)) {
+    isFriend.value = true
+  }
+  else{
+    isFriend.value = false
+  }
+  console.log("isFriend?", isFriend.value)
+}
+
+//fetchData()
+
+const controllInviteFunc = () => { //DB에 접근
+  console.log('이벤트 발생')
+  console.log(ans, id)
+  isInvited[id] = ref(false)
+  axios.post("http://localhost:4000/comm/request", JSON.stringify({
+    userId: connetId,
+    reqId: id,
+    type: '1',
+  }), { headers: { 'Content-Type': 'application/json' } })
+    .catch(err => {
+      console.log(err, '값을 받는 데 실패했습니다')
+    })
 }
 </script>
 
@@ -84,7 +124,9 @@ const dialogVisibleUpdate = value => {
                 {{ userproIntroduction }}
               </VCardSubtitle>
             </div>
-            <VBtn>친구 요청</VBtn>
+            <VBtn @click="fetchData">
+              친구 요청
+            </VBtn>
           </div>
         </VCardText>
       </VCard>
