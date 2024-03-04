@@ -9,6 +9,20 @@ const endImageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/bl
 var markerClicked = ref(0) //마커를 클릭한 회수에 따라 출발 위치인지 도착위치인지 구분하기 위함
 var startPosition = ref(null) //출발 위치와 도착위치가 겹치는 것을 방지하기 위함
 
+export function getNameFromlatlng(coord) { //위치 좌표를 도로명 주소 정보로 반환
+  var geocoder = new kakao.maps.services.Geocoder()
+  const pointname = ref('')
+  var callback = function(result, status) {
+    if (status === kakao.maps.services.Status.OK) {
+      var temp = result[0].address.address_name.split(" ")
+      pointname.value = temp[temp.length-2]+" "+temp[temp.length-1]
+    }
+  }
+  geocoder.coord2Address(coord.getLng(), coord.getLat(), callback)
+  
+  return pointname
+}
+
 // 키워드 검색을 요청하는 함수입니다
 // 장소 검색 객체와 지도 객체를 인자로 받음
 export function searchPlaces(ps, map_param) { //, markers_param

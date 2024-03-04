@@ -1,44 +1,79 @@
 <script setup>
 import AppStepper from '@/@core/components/AppStepper.vue'
 
-const time=36
+const time=ref(60)
 
 const numberedSteps = [
   {
-    title: 'Set',
+    title: '스쿼트',
   },
   {
-    title: 'Set',
+    title: '벤치 프레스',
   },
   {
-    title: 'Set',
+    title: '데드 리프트',
   },
 ]
 
 const exerciseSteps = [
   {
-    title: '스쿼트',
-    subtitle: '50s',
+    title: '1set',
+    subtitle: '10회',
   },
   {
-    title: '팔굽혀펴기',
-    subtitle: '50s',
+    title: '2set',
+    subtitle: '10회',
   },
   {
-    title: '턱걸이',
-    subtitle: '50s',
+    title: '3set',
+    subtitle: '10회',
+  },
+  {
+    title: '4set',
+    subtitle: '10회',
+  },
+  {
+    title: '5set',
+    subtitle: '10회',
   },
 ]
 
-const resetCount = () =>{
-  setInterval(event=>{
-    setCount()
+
+const currentExerciseStep = ref(0)  // 운동 단계를 추적하는 변수
+const currentNumberedStep = ref(0)  // numberedSteps 단계를 추적하는 변수
+const isRestTime = ref(false) 
+
+let countDownInterval = null  // 카운트다운 인터벌 저장 변수
+
+const startTimer = () => {
+  if (currentExerciseStep.value === exerciseSteps.length) {  // 모든 세트가 끝났으면
+    currentExerciseStep.value = 0  // 세트를 초기화
+    
+    return  // 함수 종료 (타이머 시작하지 않음)
+  }
+  
+  countDownInterval = setInterval(() => {
+    if (time.value > 0) {
+      time.value--
+    } else {
+      if (isRestTime.value) {
+        isRestTime.value = false
+        time.value = 60
+      } else {
+        currentExerciseStep.value++
+        if (currentExerciseStep.value >= exerciseSteps.length) {  // 모든 세트가 끝났으면
+          clearInterval(countDownInterval)  // 타이머 정지
+          currentExerciseStep.value = 0  // 세트를 초기화
+          
+          return  // 함수 종료
+        }
+        isRestTime.value = true
+        time.value = 30
+      }
+    }
   }, 1000)
 }
 
-function setCount() {
-  console.log('setCount')
-}
 
 //스위치
 const toggleSwitch = ref('목록 on')
@@ -82,28 +117,34 @@ const capitalizedLabel = label => {
           <!-- 운동 순서에 대한 메뉴창 -->
           <VCardItem>
             <AppStepper
-              v-model:current-step="currentStep"
+              v-model:current-step="currentExerciseStep"
               direction="horizontal"
               :items="exerciseSteps"
               :style="{'height':'100%'}"
             />
-          </VCardItem>
-          <VCardItem :style="{'margin-top':'10px'}">
-            <VCol style="margin-bottom: -20px;">
-              <strong style="width: 90%; margin-right: 35%; margin-left: 5%; color: black; font-size: 25px;">
-                <VIcon icon="mdi-clock-time-eight" />
-                time
-              </strong>
-              <strong
-                id="sec"
-                style=" margin-top: 10px;color: black;font-size: 25px;"
-              >
-                {{ time }}
-              </strong>
-            </VCol>
-            <br>
-            <hr :style="{'width':'90%','margin':'auto'}">
-          </VCardItem>
+            <VCardItem :style="{'margin-top':'10px'}">
+              <VCol style="margin-bottom: -20px;">
+                <strong style="width: 90%; margin-right: 35%; margin-left: 5%; color: black; font-size: 25px;">
+                  <VIcon icon="mdi-clock-time-eight" />
+                  {{ isRestTime ? 'Rest time' : 'Exercise' }}  <!-- 휴식 시간인지 운동 시간인지 표시 -->
+                </strong>
+                <strong
+                  id="sec"
+                  style=" margin-top: 10px;color: black;font-size: 25px;"
+                >
+                  {{ time }}
+                </strong>
+                <VBtn
+                  style="margin-left: 420px;"
+                  @click="startTimer"
+                >
+                  시작하기
+                </VBtn>
+              </VCol>
+              <br>
+              <hr :style="{'width':'90%','margin':'auto'}">
+            </VCardItem>
+          </vcarditem>
         </VCard>
       <!-- </VDialog> -->
       </VCol>
@@ -120,8 +161,10 @@ const capitalizedLabel = label => {
               v-model="toggleSwitch"
               :label="capitalizedLabel(toggleSwitch)"
             />
+            <p>자세측정 시작하기</p>
+
             <AppStepper
-              v-model:current-step="currentStep"
+              v-model:current-step="currentNumberedStep"
               direction="vertical"
               :items="numberedSteps"
               :style="{'height':'80%'}"

@@ -3,7 +3,6 @@ import Text from '@/pages/views/demos/forms/form-elements/textarea/WritingText.v
 import Sub from '@/views/demos/Subject.vue'
 import axios from '@axios'
 import { size } from '@floating-ui/dom'
-import avatar1 from '@images/avatars/avatar-1.png'
 import logo from '@images/logo.svg' // 로고 이미지 불러오기
 import bg from '@images/pages/writing.jpg'
 import { computed, reactive, ref, toRefs } from 'vue'
@@ -143,13 +142,13 @@ const removeHashtag = hashtag => {
 async function createImage() {
   isLoading.value = true  // 요청 전에 로딩 상태를 true로 설정
   try {
-    const response = await axios.post('http://localhost:5000/CreateIm', { message: message.value })
+    const response = await axios.post('http://localhost:5000/CreateIm', { message: message.value, id: connetId })
 
     console.log(response.data.image_url)
 
-    images.files.unshift({ url: 'http://localhost:5000'+response.data.image_url, name: response.data.image_name })  // 이미지 정보를 객체로 저장
+    images.files.unshift({ url: response.data.image_url, name: response.data.image_name })  // 이미지 정보를 객체로 저장
 
-    ciu.value.push({ url: 'http://localhost:5000'+response.data.image_url })
+    ciu.value.push({ url: response.data.image_url })
     console.log(ciu.value)
   } catch (e) {
     console.error(e)

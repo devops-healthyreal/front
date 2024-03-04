@@ -3,6 +3,7 @@ import {
   avatarText,
   kFormatter,
 } from '@core/utils/formatters'
+import { onMounted } from 'vue'
 
 const props = defineProps({
   userData: {
@@ -67,6 +68,15 @@ const resolveUserRoleVariant = role => {
     icon: 'mdi-account-outline',
   }
 }
+
+const fetchData = () => {
+  // axios.get("http://localhost:4000/user/relationship", {params: {
+  //   name: 
+  // }})
+  console.log("fetchData:", props.userData)
+}
+
+onMounted(fetchData)
 </script>
 
 <template>

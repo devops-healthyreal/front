@@ -72,7 +72,7 @@ onMounted(async () => { await getData()})
 const isInvitedUpdate = async (e, id) => {
   console.log("초대된 사람은???", id)
 
-  const response = await axios.post('http://localhost:4000/mroom/joinRoom.do', { id: id, challNo: props.mateNo })
+  const response = await axios.post('http://localhost:4000/croom/joinRoom.do', { id: id, challNo: props.mateNo })
  
   const clickedBtn = e.target
   const createdDiv = document.createElement('div') //초대 완료한 사람을 뿌려줄 div태그
