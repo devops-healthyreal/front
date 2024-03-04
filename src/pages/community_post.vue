@@ -501,7 +501,7 @@ const openUserProfileModal = val => {
           userFriendsList: profiledata.value.friendsList,
         }
       } else {
-        console.log('데이터 가져오기 실패')
+        console.log('데이터 가져오기 실패 ')
       }
     })
     .catch(error => {
