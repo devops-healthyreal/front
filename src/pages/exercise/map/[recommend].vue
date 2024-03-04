@@ -131,53 +131,6 @@ MapWalker.prototype.setMap = function(map){
   this.walker.setMap(map)
 }
 
-
-
-//const tabs = ['', '추천경로', '즐겨찾기', '직접설정']
-
-//로드뷰 동동이에 필요한 변수
-const walker = null
-const content = null
-const mapWalker = null
-
-//함수 정의
-//위치 리스트 클릭
-const searchListClickController = e => {
-  e.stopPropagation()
-  console.log('ul태그 클릭 이벤트', isSearchListClicked)
-  this.isSearchListClicked = false
-}
-
-const searchPosition = e => {
-  e.preventDefault()
-  console.log('부모 컴포넌트에서 값을 보냄')
-  var ps = new kakao.maps.services.Places() 
-  this.$refs.childMap.displayMarker(ps)
-
-  // 장소 검색 객체를 생성합니다
-  // mapSearch.searchPlaces(ps, this.map)
-}
-
-    
-const showSearchUi = () => { //검색창 ui 보이기
-  this.switchOnOff = !this.switchOnOff
-  var mapEl = document.getElementById('menu-wrap') //지도 태그 가져오기
-  if(this.switchOnOff) { //스위치가 켜져 있으면 검색창 띄우기
-    this.isSearchShow = true
-  }
-  else { //스위치가 꺼져 있으면 검색창 숨기기
-    this.isSearchShow = false
-  }
-}
-
-const setCenter = (lat, lng, map) => { //지도의 포커스 이동
-  var moveLatLon = new kakao.maps.LatLng(lat, lng) //이동시킬 위치
-  map.panTo(moveLatLon)
-  this.createRoadView(lat, lng, map)
-}
-
-
-
 const checkTimeValidity = () => { //종료시간이 시작시간보다 늦는지 확인 및 총 선택 시간 계산용 함수
   console.log('start: %s, end: %s', startTime, endTime)
   if (startTime.value!='' && endTime.value!=''){
@@ -206,7 +159,10 @@ const drawRef = ref(null) //자식 컴포넌트 DrawMap에 접근용
 const drawRefComputed = computed(()=>drawRef.value)
 
 const uploadPath = () => {
-  drawRefComputed.value.uploadDrawPath(userId)
+  console.log("클릭한 탭:", activeTab)
+
+  //reco, like, self
+  if(activeTab.value === 'self') drawRefComputed.value.uploadDrawPath(userId)
 }
 </script>
 
