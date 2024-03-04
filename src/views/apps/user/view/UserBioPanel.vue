@@ -225,7 +225,7 @@ const imagechange = () => {
 
   const requestData = {
     id: userInfo.value ? userInfo.value.id : null,
-    profilePath: 'https://teamprojectimg.s3.ap-northeast-2.amazonaws.com/image/'+inputfilename.value,
+    profilePath: 'https://ictimg.s3.ap-northeast-2.amazonaws.com/image/'+inputfilename.value,
   }
 
   console.log('정상작동')
@@ -236,7 +236,7 @@ const imagechange = () => {
     .then(response => {
       console.log('프로필 이미지 업데이트 성공')
 
-      updateProFilepath('https://teamprojectimg.s3.ap-northeast-2.amazonaws.com/image/'+inputfilename.value)
+      updateProFilepath('https://ictimg.s3.ap-northeast-2.amazonaws.com/image/'+inputfilename.value)
 
       fetchProfile()
     })
