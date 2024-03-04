@@ -102,12 +102,6 @@ function dataURLtoFile(dataurl, filename) {
   return new File([u8arr], filename, { type: mime })
 }
 
-// 동영상이 업로드되었을 때 실행되는 이벤트 핸들러
-const handleVideoUploaded = (index, videoUrl) => {
-  // participantsData 배열의 해당 index 위치의 참가자의 PRO_FILEPATH를 동영상 URL로 변경합니다.
-  participantsData[index].PRO_FILEPATH = videoUrl
-}
-
 // 이미지 크기를 조절하는 함수
 function resizeImage(file, maxWidth, maxHeight) {
   return new Promise((resolve, reject) => {
@@ -178,7 +172,7 @@ async function uploadImage(participant) {
   formData.append('image', resizedImage)
 
   try {
-    const response = await axios.post('http://localhost:4000/upload', formData)
+    const response = await axios.post('http://localhost:4000/upload', formData, { withCredentials: true })
 
     if (response.status === 200) {
       console.log('Response data:', response.data)
