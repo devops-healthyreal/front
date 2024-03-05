@@ -175,7 +175,7 @@ const requestFriend = memberId => {
     />
   </VRow>
   <VAlert
-    v-show="isFriendExist"
+    v-show="isFriendExist && !isSwitchOn"
     density="default"
     color="secondary"
     variant="tonal"
@@ -279,10 +279,7 @@ const requestFriend = memberId => {
             <p class="mt-6 mb-0">
               {{ data.friend_id }}
             </p>
-            <!-- 이름 부분 -->
-            <!-- 직업 부분 -->
             <span class="text-body-1">{{ data.name }}</span>
-            <!-- 직업 부분 -->
           </VCardTitle>
         </VCardItem>
 

@@ -6,6 +6,7 @@ import RecoMap from '@/pages/exercise/map/RecoMap.vue'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
+import PathConfirmModal from '../PathConfirmModal.vue'
 
 const store = useStore()
 
@@ -44,22 +45,9 @@ const minute = ref('00') //total 분
 const totalTime = ref("") //경로 총 시간
 
 
-const infowindow = null
-const map = ref("")
-const drawingMap = ref("")
-const markers = ref([])
-
-const recoDropDown = ref(true) //추천 경로 선택 드롭다운
-const searchSwitch = ref(false) //위치 검색창 활성화 스위치 (직접설정)
-const switchOnOff = ref(false) //검색창 활성화 버튼 (직접설정)
-const likeCategoryMenu = ref(false) //즐겨찾기 목록 버튼 (즐겨찾기)
-const isMyPlace = ref(false) //직접 설정에서 내가 자주 찾는 장소 보기 클릭했는지 확인 (직접설정)
-const isSearchShow = ref(false) //검색창 화면 조정
-      
-
-const likePath = ref([])
-const recoPath = ref([])
 const impossibleRoadView = ref(false)
+
+const isUploadClicked = ref(false)
 
 //지도위에 현재 로드뷰의 위치와, 각도를 표시하기 위한 map walker 아이콘 생성 클래스
 function MapWalker(position){
@@ -160,10 +148,18 @@ const drawRefComputed = computed(()=>drawRef.value)
 
 const uploadPath = () => {
   console.log("클릭한 탭:", activeTab)
-
+  isUploadClicked.value = true
+  
   //reco, like, self
   if(activeTab.value === 'self') drawRefComputed.value.uploadDrawPath(userId)
 }
+
+const changeValue = val =>{
+  console.log("changeValue:", val)
+  isUploadClicked.value = val
+}
+
+const date = ref('')
 </script>
 
 <template>
@@ -183,6 +179,12 @@ const uploadPath = () => {
         원하는 시간을 선택하세요
       </VCardTitle>
       <VRow>
+        <VCol>
+          <AppDateTimePicker
+            v-model="date"
+            label="날짜를 선택하세요"
+          />
+        </VCol>
         <VCol cols="3">
           <AppDateTimePicker
             v-model="startTime"
@@ -268,6 +270,10 @@ const uploadPath = () => {
               color="info"
               style=" margin-left: 10px;float: inline-end; font-size: medium;"
               @click="uploadPath"
+            />
+            <PathConfirmModal
+              v-model:isDialogVisible="isUploadClicked"
+              @return-bool="changeValue"
             />
           </div>
           <!-- 지도 탭 end -->
