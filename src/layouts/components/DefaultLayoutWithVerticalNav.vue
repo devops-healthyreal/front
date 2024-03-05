@@ -100,7 +100,7 @@ const stopDrag = event => {
         mode="out-in"
       >
         <Component :is="Component" />
-      </Transition>
+      </transition>
     </RouterView>
 
     <!-- 👉 Footer -->

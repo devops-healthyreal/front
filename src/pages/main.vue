@@ -7,7 +7,7 @@ import ResetPasswordDialog from '@/pages/resetPasswordDialog.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
 import axios from '@axios'
 import mainImg from "@images/cards/card-meetup_copy_1.jpg"
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import MainMap from './exercise/map/MainMap.vue'
@@ -113,8 +113,6 @@ onMounted(() => {
 
   }
 })
-
-
 
 const isLoadingModalVisible = ref(false)
 const isResetPasswordDialogVisible = ref(false)

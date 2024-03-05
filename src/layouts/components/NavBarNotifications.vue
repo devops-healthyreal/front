@@ -1,5 +1,6 @@
 <script setup>
 import axios from '@axios'
+import { onMounted } from 'vue'
 import { useStore } from 'vuex'
 
 const store = useStore()
@@ -38,6 +39,7 @@ const executePeriodically = () => {
 
 // 초기 실행
 onMounted(() => {
+  
   if (connetId.value) {
     getNoticList(connetId.value)
     getData()

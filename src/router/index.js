@@ -40,9 +40,22 @@ const router = createRouter({
       component: () => import(/* webpackChunkName: "tts" */ '../pages/stabilityVideoDifusiononlyfront.vue'),
     },
     {
-      path: '/stabilityVideoDifusion',
-      name: 'stabilityVideoDifusion',
-      component: () => import(/* webpackChunkName: "tts" */ '../pages/stabilityVideoDifusion.vue'),
+      path: '/AuthCallback',
+      name: 'AuthCallBack',
+      component: () => import(/* webpackChunkName: "tts" */ '../pages/AuthCallback.vue'),
+    },
+    {
+      path: '/main',
+      name: 'main',
+      component: () => import(/* webpackChunkName: "tts" */ '@/pages/main.vue'),
+      // beforeEnter: async (to, from, next) => {
+      //   console.log("실행되니?? 메인 비포엔터")
+      //   await store.dispatch('getToken')  // 'loginStore' 모듈의 'getToken' 액션 호출
+      //   await store.dispatch('saveToken')  // 'loginStore' 모듈의 'saveToken' 액션 호출
+      //   await store.dispatch('getMemberInfo')  // 'loginStore' 모듈의 'getMemberInfo' 액션 호출
+     
+      //   next()
+      // },
     },
 
     {

@@ -93,7 +93,7 @@ const updatePassword = async () => {
     const response = await axios.post('http://localhost:4000/update-password', {
       id: id.value,
       pwd: pwd.value,
-    })
+    }, { withCredentials: true })
 
     if (response.status !== 200) {
       throw new Error('비밀번호 수정에 실패했습니다.')

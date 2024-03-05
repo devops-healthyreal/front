@@ -224,6 +224,10 @@ const loginStore = {
 
     socialLogin(context, url) {
       window.location.href = url
+
+      //context.dispatch('getToken')  // 'loginStore' 모듈의 'getToken' 액션 호출
+      //context.dispatch('saveToken')  // 'loginStore' 모듈의 'saveToken' 액션 호출
+      //context.dispatch('getMemberInfo')  // 'loginStore' 모듈의 'getMemberInfo' 액션 호출
     },
   
 
