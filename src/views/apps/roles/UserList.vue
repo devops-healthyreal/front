@@ -1,8 +1,15 @@
 <script setup>
 import { paginationMeta } from '@/@fake-db/utils'
+import BlockUsersConfirm from '@/components/dialogs/BlockUsersConfirm.vue'
 import axios from "axios"
 import { onMounted, ref, watch } from 'vue'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
+import { useStore } from 'vuex'
+
+const store = useStore()
+
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId= ref(userInfo.value.id)
 
 
 const searchQuery = ref('')
@@ -29,13 +36,14 @@ watch(() => users, () => {
 })
 
 // 체크박스가 토글될 때마다 처리하는 함수
-const handleCheckboxToggle = rowIndex => {
-  // 체크된 유저의 ID를 받아오는 예시
-  console.log(rowIndex.value.ID)
-
-  checkedRows.value.push(rowIndex.value.ID)
-
-  console.log(checkedRows.value)
+const handleCheckboxToggle = (rowIndex, isChecked) => {
+  console.log("rowIndex:", rowIndex)
+  if(typeof isChecked == 'boolean' && !checkedRows.value.includes(rowIndex.value.ID)) {
+    checkedRows.value.push(rowIndex.value.ID)
+  }
+  else if(typeof isChecked == 'string'){
+    checkedRows.value = checkedRows.value.filter(ele => ele!==rowIndex.value.ID)
+  }
 }
 
 //유저 데이터 가져오기
@@ -93,6 +101,30 @@ const headers = [
     key: 'REGIDATE',
   },
 ]
+
+const isModalShow = ref(false)
+
+const blockUsers = () => {
+  if(checkedRows.value.length === 0) {
+    alert('선택된 값이 없습니다')
+  }
+  else {
+    isModalShow.value = true
+  }
+}
+
+const controllConfirm = () => {
+  axios.post('http://localhost:4000/manage/complained/create', JSON.stringify({
+    id: connetId.value,
+    cl_id: checkedRows.value,
+    cl_reason: '관리자 문의',
+  }), { headers: { "Content-Type": `application/json` } })
+    .then(()=>{
+      console.log('등록 성공')
+      userData()
+    })
+    .catch(err=>console.error(err))
+}
 </script>
 
 <template>
@@ -111,7 +143,14 @@ const headers = [
             style="width: 12rem;"
           />
         </div>
-        <VBtn>신고</VBtn>
+        <VBtn @click="blockUsers">
+          신고
+        </VBtn>
+        <BlockUsersConfirm
+          v-model:isDialogVisible="isModalShow"
+          :selected-users="checkedRows"
+          @request-complete="controllConfirm"
+        />
       </VCardText>
 
       <!-- SECTION datatable -->
@@ -174,7 +213,7 @@ const headers = [
               <VCheckbox
                 v-model="item.raw.checked"
                 :value="item.raw.ID"
-                @click="handleCheckboxToggle(item)"
+                @click="handleCheckboxToggle(item, item.raw.checked)"
               />
             </span>
           </VRow>

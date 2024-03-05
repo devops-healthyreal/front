@@ -41,6 +41,9 @@ const props = defineProps({
   userFriendRequestCheck: {
     type: Boolean,
   },
+  isSameUser: {
+    type: Boolean,
+  },
 })
 
 const emit = defineEmits(['update:isDialogVisible'])
@@ -132,14 +135,14 @@ const requestFriend = val => {
               </VCardSubtitle>
             </div>
             <VBtn
-              v-show="!userFriendCheck && !userFriendRequestCheck"
+              v-show="!userFriendCheck && !userFriendRequestCheck && !isSameUser"
               id="requestBTN"
               @click="requestFriend(userFriendCheck)"
             >
               친구 요청
             </VBtn>
             <VBtn
-              v-show="userFriendRequestCheck"
+              v-show="userFriendRequestCheck && !isSameUser"
               id="requestCompleteBTN"
               disabled="true"
               @click="requestFriend(userFriendCheck)"
