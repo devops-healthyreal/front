@@ -9,13 +9,23 @@ import authV2MaskDark from '@images/pages/auth-v2-mask-dark.png'
 import authV2MaskLight from '@images/pages/auth-v2-mask-light.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
+import { onMounted } from 'vue'
+import { useStore } from 'vuex'
 
 import {
   requiredValidatorId,
 } from '@validators'
 
 const router = useRouter()
+const store = useStore()
 
+onMounted(() => {
+  const rememberedId = localStorage.getItem('rememberedId')
+  if (rememberedId) {
+    rememberMe.value = true
+    id.value = rememberedId
+  }
+})
 
 // const form = ref({
 //   email: '',
@@ -30,6 +40,13 @@ const rememberMe = ref(false)
 const isPasswordVisible = ref(false)
 const authThemeImg = useGenerateImageVariant(authV2LoginIllustrationLight, authV2LoginIllustrationDark, authV2LoginIllustrationBorderedLight, authV2LoginIllustrationBorderedDark, true)
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
+
+watch(rememberMe, newVal => {
+  // 체크박스의 상태가 변경될 때마다 Vuex 스토어의 rememberMe 상태를 업데이트하고,
+  // rememberMe 상태가 true일 때만 로컬 스토리지에 아이디를 저장합니다.
+  store.commit('toggleRememberMe', { rememberMe: newVal, id: id.value })
+})
+
 
 const loginId = () => {
   router.push({ path: "/login-password", query: { userid: id.value } })

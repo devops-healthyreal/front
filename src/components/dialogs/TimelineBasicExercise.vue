@@ -1,8 +1,5 @@
 <script setup>
 import axios from '@axios'
-import food3 from '@images/Unbalanced/22.jpg'
-import food2 from '@images/margherita.jpg'
-import food from '@images/veggieroll.jpg'
 import { defineEmits, defineProps, ref } from 'vue'
 import { useStore } from 'vuex'
 
@@ -54,14 +51,14 @@ const isChecked2 = ref(false)
 const isChecked3 = ref(false)
 
 onMounted(async () => {
-  if (props.checkedExerciseItems.includes('1')) {
+  if (!Array.isArray(props.checkedExerciseItems)) {
+    props.checkedExerciseItems = []
+  }else if(props.checkedExerciseItems.includes('1')) {
     isChecked1.value = true
     console.log(isChecked1)
-  }
-  if (props.checkedExerciseItems.includes('2')) {
+  }else if (props.checkedExerciseItems.includes('2')) {
     isChecked2.value = true
-  }
-  if (props.checkedExerciseItems.includes('3')) {
+  } else if (props.checkedExerciseItems.includes('3')) {
     isChecked3.value = true
   }
   checkfor.value = true

@@ -55,20 +55,26 @@ const loginStore = {
   state: {
     userInfo: null,
     isLogin: false,
+    rememberMe: false,
   },
   getters: {
     isLoggedIn: state => state.isLogin,
   },
   mutations: { // 로그인 상태를 변경해주는 코드
-    loginSuccess: function (state, payload) {
+    loginSuccess(state, payload) {
       state.userInfo = payload
       state.isLogin = true
+      if (state.rememberMe) {
+        // rememberMe가 체크되어 있을 때만 id를 로컬 스토리지에 저장
+        localStorage.setItem('rememberedId', payload.id)
+      }
     },
     logoutTest: function (state) {
       state.userInfo = null
       state.isLogin = false
       localStorage.removeItem('access_token')
       localStorage.removeItem('vuex')
+ 
 
       window.location.href="http://localhost:4000/logout"
     },
@@ -77,6 +83,17 @@ const loginStore = {
     },
     endLogin(state) {
       state.isLoggingIn = false
+    },
+    setRememberMe(state, rememberMe) {
+      state.rememberMe = rememberMe
+    },
+    toggleRememberMe(state, { rememberMe, id }) {
+      state.rememberMe = rememberMe
+      if (rememberMe) {
+        localStorage.setItem('rememberedId', id)
+      } else {
+        localStorage.removeItem('rememberedId')
+      }
     },
 
   },
@@ -115,14 +132,23 @@ const loginStore = {
 
           //FMC 토큰 등록용 코드 end
           if(res.status === 200) { // 로그인 요청이 성공했을 때만 토큰을 가져오는 요청을 실행
+           
+            
             return context.dispatch('getToken')
           } else {
+           
             throw new Error('Login failed')
           }
         })
         .then(getTokenResponse => {
           const token = getTokenResponse.data
     
+          if (context.state.rememberMe) { // 체크박스가 체크되어 있을 때만 아이디를 저장
+            localStorage.setItem('rememberedId', loginObj['id'])
+          } else { // 체크박스가 체크되어 있지 않을 때는 아이디를 삭제
+            localStorage.removeItem('rememberedId')
+          }
+
           console.log(token)
           context.dispatch('saveToken', token)
 
