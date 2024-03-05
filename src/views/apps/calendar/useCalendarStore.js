@@ -26,16 +26,16 @@ export const useCalendarStore = defineStore('calendar', {
       },
       {
         color: 'secondary',
-        label: '기타',
+        label: '운동',
         value: 4,
       },
       {
         color: 'info',
-        label: '운동',
+        label: '경로',
         value: 5,
       },
     ],
-    selectedCalendars: ['일정', '아침', '점심', '저녁', '기타', '운동'],
+    selectedCalendars: ['일정', '아침', '점심', '저녁', '운동', '경로'],
   }),
   actions: {
     async fetchEvents() {
