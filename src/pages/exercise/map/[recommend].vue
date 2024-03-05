@@ -6,6 +6,7 @@ import RecoMap from '@/pages/exercise/map/RecoMap.vue'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
+import PathConfirmModal from '../PathConfirmModal.vue'
 
 const store = useStore()
 
@@ -44,22 +45,9 @@ const minute = ref('00') //total 분
 const totalTime = ref("") //경로 총 시간
 
 
-const infowindow = null
-const map = ref("")
-const drawingMap = ref("")
-const markers = ref([])
-
-const recoDropDown = ref(true) //추천 경로 선택 드롭다운
-const searchSwitch = ref(false) //위치 검색창 활성화 스위치 (직접설정)
-const switchOnOff = ref(false) //검색창 활성화 버튼 (직접설정)
-const likeCategoryMenu = ref(false) //즐겨찾기 목록 버튼 (즐겨찾기)
-const isMyPlace = ref(false) //직접 설정에서 내가 자주 찾는 장소 보기 클릭했는지 확인 (직접설정)
-const isSearchShow = ref(false) //검색창 화면 조정
-      
-
-const likePath = ref([])
-const recoPath = ref([])
 const impossibleRoadView = ref(false)
+
+const isUploadClicked = ref(false)
 
 //지도위에 현재 로드뷰의 위치와, 각도를 표시하기 위한 map walker 아이콘 생성 클래스
 function MapWalker(position){
@@ -131,53 +119,6 @@ MapWalker.prototype.setMap = function(map){
   this.walker.setMap(map)
 }
 
-
-
-//const tabs = ['', '추천경로', '즐겨찾기', '직접설정']
-
-//로드뷰 동동이에 필요한 변수
-const walker = null
-const content = null
-const mapWalker = null
-
-//함수 정의
-//위치 리스트 클릭
-const searchListClickController = e => {
-  e.stopPropagation()
-  console.log('ul태그 클릭 이벤트', isSearchListClicked)
-  this.isSearchListClicked = false
-}
-
-const searchPosition = e => {
-  e.preventDefault()
-  console.log('부모 컴포넌트에서 값을 보냄')
-  var ps = new kakao.maps.services.Places() 
-  this.$refs.childMap.displayMarker(ps)
-
-  // 장소 검색 객체를 생성합니다
-  // mapSearch.searchPlaces(ps, this.map)
-}
-
-    
-const showSearchUi = () => { //검색창 ui 보이기
-  this.switchOnOff = !this.switchOnOff
-  var mapEl = document.getElementById('menu-wrap') //지도 태그 가져오기
-  if(this.switchOnOff) { //스위치가 켜져 있으면 검색창 띄우기
-    this.isSearchShow = true
-  }
-  else { //스위치가 꺼져 있으면 검색창 숨기기
-    this.isSearchShow = false
-  }
-}
-
-const setCenter = (lat, lng, map) => { //지도의 포커스 이동
-  var moveLatLon = new kakao.maps.LatLng(lat, lng) //이동시킬 위치
-  map.panTo(moveLatLon)
-  this.createRoadView(lat, lng, map)
-}
-
-
-
 const checkTimeValidity = () => { //종료시간이 시작시간보다 늦는지 확인 및 총 선택 시간 계산용 함수
   console.log('start: %s, end: %s', startTime, endTime)
   if (startTime.value!='' && endTime.value!=''){
@@ -206,8 +147,19 @@ const drawRef = ref(null) //자식 컴포넌트 DrawMap에 접근용
 const drawRefComputed = computed(()=>drawRef.value)
 
 const uploadPath = () => {
-  drawRefComputed.value.uploadDrawPath(userId)
+  console.log("클릭한 탭:", activeTab)
+  isUploadClicked.value = true
+  
+  //reco, like, self
+  if(activeTab.value === 'self') drawRefComputed.value.uploadDrawPath(userId)
 }
+
+const changeValue = val =>{
+  console.log("changeValue:", val)
+  isUploadClicked.value = val
+}
+
+const date = ref('')
 </script>
 
 <template>
@@ -227,6 +179,12 @@ const uploadPath = () => {
         원하는 시간을 선택하세요
       </VCardTitle>
       <VRow>
+        <VCol>
+          <AppDateTimePicker
+            v-model="date"
+            label="날짜를 선택하세요"
+          />
+        </VCol>
         <VCol cols="3">
           <AppDateTimePicker
             v-model="startTime"
@@ -286,65 +244,6 @@ const uploadPath = () => {
               />
             </VWindowItem>
           </VWindow>
-          <!-- 지도 검색창 -->
-          <div
-            v-show="isSearchShow"
-            id="menu-wrap"
-            class="bg_white"
-            :style="{'height':'80%'}"
-          >
-            <div class="option">
-              <div>
-                <VRadioGroup
-                  inline
-                  :style="{'padding-left':'10px'}"
-                >
-                  <VRadio
-                    label="검색"
-                    value="search"
-                    @click="isMyPlace = false"
-                  />
-                  <VRadio
-                    label="내장소"
-                    value="myPlace"
-                    @click="isMyPlace = true"
-                  />
-                </VRadioGroup>
-                <form
-                  v-show="!isMyPlace"
-                  @submit="searchPosition"
-                >
-                  키워드 : <input
-                    id="keyword"
-                    type="text"
-                    value=""
-                    size="15"
-                    placeholder="검색어를 입력하세요"
-                  > 
-                  <button type="submit">
-                    검색
-                  </button> 
-                </form>
-              </div>
-              <hr>
-              <div v-show="!isMyPlace">
-                <ul
-                  id="placesList"
-                  @click="searchListClickController"
-                />
-                <div id="pagination" />
-              </div>
-            </div>
-            <hr>
-            <div v-show="!isMyPlace">
-              <ul
-                id="placesList"
-                @click="searchListClickController"
-              />
-              <div id="pagination" />
-            </div>
-          </div>
-          <!-- 지도 검색창end -->
           <!-- 지도 탭 -->
           <div :style="{'display':'flex','justify-content':'center','margin-top':'10px'}">
             <VTabs
@@ -371,6 +270,10 @@ const uploadPath = () => {
               color="info"
               style=" margin-left: 10px;float: inline-end; font-size: medium;"
               @click="uploadPath"
+            />
+            <PathConfirmModal
+              v-model:isDialogVisible="isUploadClicked"
+              @return-bool="changeValue"
             />
           </div>
           <!-- 지도 탭 end -->
