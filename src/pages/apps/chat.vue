@@ -41,7 +41,7 @@ let contactId = null
 let senderId = null  
 
 // 웹소켓 연결 생성
-const socket = new WebSocket('ws://localhost:4000/chat')
+const socket = new WebSocket('ws://192.168.0.08:4000/chat')
 
 // 웹소켓 연결이 열렸을 때
 socket.addEventListener('open', async function (event) {
