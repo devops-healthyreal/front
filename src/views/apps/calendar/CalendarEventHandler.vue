@@ -276,19 +276,11 @@ const handleUpdateAddressEnd = newAddress => {
 
               <!-- 👉 Description -->
               <VCol cols="12">
-                <VTextarea
-                  v-model="userInput"
-                  label="content"
-                  style="margin-top: -15px;"
-                  no-resize
-                />
-              </VCol>
-              <VCol cols="2">
                 <VBtn
                   id="startBtn"
-                  class="d-flex flex-column align-end justify-end"
-                  style=" height: 45px; margin-top: 4px;margin-left: 48px;"
-                  variant="text"
+                  class="d-flex flex-column align-end front-z-axis"
+                  style=" z-index: 9999; height: 45px; margin-top: 80px;margin-left: 295px;"
+                  variant="tonal"
                   @click="startRecognition"
                 >
                   <VIcon
@@ -297,7 +289,14 @@ const handleUpdateAddressEnd = newAddress => {
                     color="success"
                   />
                 </VBtn>
+                <VTextarea
+                  v-model="userInput"
+                  label="content"
+                  style="margin-top: -140px;"
+                  no-resize
+                />
               </VCol>
+              
 
               <!-- 👉 Form buttons -->
               <VCol cols="12">

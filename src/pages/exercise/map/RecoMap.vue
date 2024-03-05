@@ -119,29 +119,19 @@ const initMap = (lng, lat) => {
             console.log(name)
             loadName.push(name)
             getLatLng(name).then(latlng=>{
+              console.log(name, ":", latlng)
               load.push([latlng.lat, latlng.lng])
             })
               .catch(err=>{
                 var places = new kakao.maps.services.Places() //검색을 위한 객체
                 places.keywordSearch(name, (result, status)=>{
                   if (status === kakao.maps.services.Status.OK) {
-                    console.log('검색 결과:', result[0]) //위도, 경도 값에 대한 정보가 나와있음
+                    console.log(name, '검색 결과:', result[0]) //위도, 경도 값에 대한 정보가 나와있음
                     load.push([result[0].y, result[0].x]) //[x,y] = [lng, lat]
                   }
                 })
               })
 
-            //   if (latlng!='') load.push([latlng.lat, latlng.lng])
-            //   else {
-            //     var places = new kakao.maps.services.Places() //검색을 위한 객체
-            //     places.keywordSearch(name, (result, status)=>{
-            //       if (status === kakao.maps.services.Status.OK) {
-            //         //console.log('검색 결과:', result[0]) //위도, 경도 값에 대한 정보가 나와있음
-            //         load.push([result[0].y, result[0].x]) //[x,y] = [lng, lat]
-            //       }
-            //     })
-            //   }
-            // })////
           }//split if문
         }//for
         console.log('선택한 경로', loadName)

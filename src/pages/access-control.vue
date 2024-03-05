@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import ReportUser from '@/pages/components/ReportUser.vue'
 import UserList from '@/views/apps/roles/UserList.vue'
 import ChartJsLineChart from '@/views/charts/chartjs/ChartJsLineChart.vue'
 import axios from '@axios'
@@ -7,6 +6,7 @@ import controlHeader from '@images/pages/app-search-header-bg-light.png'
 import defaultImg from '@images/userProfile/default.png'
 import { onMounted, reactive, ref } from 'vue'
 import { useStore } from 'vuex'
+import BlackLists from './BlackLists.vue'
 
 const store = useStore()
 
@@ -220,7 +220,7 @@ const logout = async () => {
                 </div>
               </div>
               <VCard>
-                <ReportUser />
+                <BlackLists />
               </VCard>
             </VWindowItem>
 
