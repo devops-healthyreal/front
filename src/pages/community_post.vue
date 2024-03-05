@@ -68,7 +68,8 @@ const handleSelected = async value => {
 
 const likesuser = ref([])
 const likespro = ref([])
-     
+const userProfile = ref({})
+const isUserWriterSame = ref({})
 
 
 //검색기능
@@ -110,7 +111,18 @@ const getData = async function() {
         else{
           isSubscribed.value[tempUserKeys[i]] = ref(false)
         }
+        if(tempUserKeys[i] !== connetId) {
+          isUserWriterSame.value[tempUserKeys[i]] = ref(false)
+        }        
+        else{
+          isUserWriterSame.value[tempUserKeys[i]] = ref(true)
+        }
+
+        //유저 프로필 저장
+        userProfile.value[state.items[i].id] = state.items[i].profilepath
       }
+      console.log("userProfile완성 확인:", userProfile.value)
+
       const tempUserKeysSet = new Set(tempUserKeys) //중복 아이디 제거
       const temp = [...tempUserKeysSet] //ids
 
@@ -124,18 +136,6 @@ const getData = async function() {
         .catch(err=>console.error(err))
 
       console.log("userId.value:", userId.value)
-
-      // axios.get("http://localhost:4000/comm/friend/random", { params: {
-      //   id: userId.value,
-      // } })
-      //   .then(res=>{
-      //     for(const key of Object.keys(res.data)){
-      //       usersView.value.push({ id: key, profilePath: res.data[key] })
-      //       isInvited[key] = ref(true)
-      //     }
-      //     console.log("응답값:", usersView.value)
-      //   })
-      //   .catch(err=>console.error(err))
     } else {
       console.log('데이터 전송 실패')
     }
@@ -183,6 +183,7 @@ onMounted(() => {
         usersView.value.push({ id: key, profilePath: res.data[key] })
         isInvited[key] = ref(true)
       }
+      isInvited[connetId] = ref(false)
       console.log("응답값:", usersView.value)
     })
     .catch(err=>console.error(err))
@@ -219,15 +220,17 @@ const loadMore = () => {
 
 
 const getUserAvatar = user => {
+  console.log("인자로 받는 유저 정보:", user)
+  console.log("searchItems:", searchItems)
   console.log('getUserAvatar:', user.profilePath)
   if(user.profilePath !== undefined) {
     console.log('getUserAvatar if문 안으로 들어옴')
     
     return user.profilePath
   }
-  console.log('getUserAvatar if문 밖')
-  
-  return defaultImg
+  else {
+    return defaultImg
+  }
 }
 
 //////////////////////////////////////
@@ -501,6 +504,7 @@ const openUserProfileModal = val => {
         console.log("Id만 들어왔는지 확인:", friendsId)
         console.log('친구관계인지 확인:', friendsId.includes(connetId))
         console.log("친구 요청된 관계인지 확인:", profiledata.value.requestedFriendsList.includes(connetId))
+        console.log("둘이 같은 유저인지 확인:", connetId === profiledata.value.id)
 
         // 모달에 전달할 변수 값 설정
         modalData.value = {
@@ -511,6 +515,7 @@ const openUserProfileModal = val => {
           userFriendCheck: friendsId.includes(connetId),
           connectid: connetId,
           userFriendRequestCheck: profiledata.value.requestedFriendsList.includes(connetId),
+          isSameUser: connetId === profiledata.value.id,
         }
       } else {
         console.log('데이터 가져오기 실패 ')
@@ -626,7 +631,7 @@ const test = val => {
                   <VListItemContent class="d-flex flex-column align-center text-center">
                     <VAvatar 
                       class="text-sm pointer-cursor"
-                      :image="getUserAvatar(user)"
+                      :image="userProfile[user.subscribe_id]"
                       @click="getMyList(user.subscribe_id)"                      
                     />
                     <VListItemTitle 
@@ -718,28 +723,30 @@ const test = val => {
                           </VCol>
                           <VCol cols="7">
                             <VCol>
-                              <VBtn
-                                v-show="!isSubscribed[item.id]"
-                                id="myButton"
-                                prepend-icon="mdi-bell"
-                                style="float: inline-end;"
-                                size="small"
-                                variant="outlined"
-                                @click="subscribe(item.id, 1)"
-                              >
-                                구독
-                              </VBtn>
-                              <VBtn
-                                v-show="isSubscribed[item.id]"
-                                id="myButton"
-                                prepend-icon="mdi-bell-off"
-                                style="float: inline-end;"
-                                size="small"
-                                variant="tonal"
-                                @click="subscribe(item.id, 0)"
-                              >
-                                구독취소
-                              </VBtn>
+                              <div v-show="!isUserWriterSame[item.id]">
+                                <VBtn
+                                  v-show="!isSubscribed[item.id]"
+                                  id="myButton"
+                                  prepend-icon="mdi-bell"
+                                  style="float: inline-end;"
+                                  size="small"
+                                  variant="outlined"
+                                  @click="subscribe(item.id, 1)"
+                                >
+                                  구독
+                                </VBtn>
+                                <VBtn
+                                  v-show="isSubscribed[item.id]"
+                                  id="myButton"
+                                  prepend-icon="mdi-bell-off"
+                                  style="float: inline-end;"
+                                  size="small"
+                                  variant="tonal"
+                                  @click="subscribe(item.id, 0)"
+                                >
+                                  구독취소
+                                </VBtn>
+                              </div>
                             </VCol>
                           </VCol>
                           <VCol cols="1">
@@ -970,6 +977,7 @@ const test = val => {
       :user-friend-check="modalData.userFriendCheck"
       :connectid="modalData.connectid" 
       :user-friend-request-check="modalData.userFriendRequestCheck"
+      :is-same-user="modalData.isSameUser"
     />
     <!-- userFriendRequestCheck -->
     <!-- :profilePath="modalData.profilePath" -->

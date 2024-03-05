@@ -1,6 +1,7 @@
 <script setup>
 import BlockMateConfirmFinal from '@/pages/community/BlockMateConfirmFinal.vue'
 import BlockMateConfirmModal from '@/pages/community/BlockMateConfirmModal.vue'
+import RequestMateConfirmModal from '@/pages/community/RequestMateConfirmModal.vue'
 import { isMatescreenchanged } from '@/router/index'
 import axios from '@axios'
 import { reactive, ref, watch } from 'vue'
@@ -19,7 +20,40 @@ const isMateExist = ref(true)
 const userId = ref(connetId) //접속한 유저 아이디
 
 const rating = reactive({}) //호감도 뿌려주기 위한 변수
+const predRating = ref({}) //예측된 호감도
 const beforeRating = {}
+
+const isSwitchOn = ref(false)
+const isRequested = {}
+
+const recommendData = ref([])
+const head = ref('메이트 목록')
+
+const switchController = value => {
+  if(value) { //스위치가 켜져있으면
+    head.value = '메이트 추천 목록'
+    console.log("userID:", userId)
+    if(recommendData.value.length===0) {
+      axios.post("http://localhost:5000/recommendMate", JSON.stringify({
+        ID: userId.value,
+      }), { headers: {
+        'Content-Type': 'application/json',
+      } })
+        .then(resp=>{
+          console.log("추천목록:", resp.data.recommendations)
+          recommendData.value = resp.data.recommendations
+          for(const pred of recommendData.value){
+            predRating.value[pred.mate_id] = pred.estimated_rating.toFixed(0)
+            isRequested[pred.mate_id] = ref(false)
+          }
+        })
+        .catch(err=>console.error(err))
+    }
+  }
+  else {
+    head.value = '메이트 목록'
+  }
+}
 
 const ratingColors = [
   'warning',
@@ -128,19 +162,59 @@ window.addEventListener('click', ()=>{ //beforeunload
     isMatescreenchanged.value = false
   }
 })
+
+//메이트 요청 관련 코드
+const isModalShow = ref(false)
+
+const clickedId = ref('')
+
+const requestController = val => {
+  console.log("클릭된 아이디:", val)
+  clickedId.value = val
+  isModalShow.value = true
+}
+
+const changeValue = val => {
+  isModalShow.value = val
+}
+
+const changeStateValue = val => {
+  console.log("changeStateValue 함수 실행됨", val)
+  axios.post("http://localhost:4000/comm/request", JSON.stringify({
+    userId: connetId.value,
+    reqId: val,
+    type: '2',
+  }), { headers: { 'Content-Type': 'application/json' } })
+    .catch(err => {
+      console.log(err, '값을 받는 데 실패했습니다')
+    })
+  console.log("isRequested", isRequested)
+  console.log(isRequested[val].value)
+  isRequested[val].value = true
+  console.log("값이 안바뀌나?", isRequested[val].value)
+}
 </script>
 
 <template>
-  <VCardText>
-    <h5
-      class="text-h5"
-      style="font-weight: bold;"
-    >
-      메이트 목록
-    </h5>
-  </VCardText>
+  <VRow>
+    <VCardText>
+      <h5
+        class="text-h5"
+        style="font-weight: bold;"
+      >
+        {{ head }}
+      </h5>
+    </VCardText>
+    <VSwitch
+      v-model="isSwitchOn"
+      style="margin-right: 20px;"
+      color="success"
+      label="추천보기"
+      @update:model-value="switchController"
+    />
+  </VRow>
   <VAlert
-    v-show="isMateExist"
+    v-show="isMateExist && !isSwitchOn"
     density="default"
     color="secondary"
     variant="tonal"
@@ -149,8 +223,10 @@ window.addEventListener('click', ()=>{ //beforeunload
     메이트 목록이 없습니다
   </VAlert>
   <VRow>
+    <!-- 나의 메이트 보기 start -->
     <VCol
       v-for="data in connectionData"
+      v-show="!isSwitchOn"
       :key="data.mate_id"
       sm="6"
       lg="4"
@@ -226,6 +302,91 @@ window.addEventListener('click', ()=>{ //beforeunload
               @check-confirm="blockMate"
             />
             <BlockMateConfirmFinal v-model:isDialogVisible="isWarningComplete" />
+          </div>
+        </VCardText>
+      </VCard>
+    </VCol>
+    <!-- 추천 메이트 보기 start -->
+    <VCol
+      v-for="data in recommendData"
+      v-show="isSwitchOn"
+      :key="data.mate_id"
+      sm="6"
+      lg="4"
+      cols="12"
+    >
+      <VCard>
+        <VCardItem>
+          <VCardTitle class="d-flex flex-column align-center justify-center">
+            <VAvatar
+              size="100"
+              :image="data.profilePath" 
+              class="mt-3"
+            />
+            <p class="mt-6 mb-0">
+              {{ data.mate_id }}
+            </p>
+            <span class="text-body-1">{{ data.name }}</span>
+            
+            <div class="d-flex align-center flex-wrap gap-2 mt-6">
+              <VChip color="warning">
+                예측 별점
+              </VChip>
+              <div class="d-flex flex-column">
+                <VRating
+                  v-for="color in ratingColors"
+                  :key="color"
+                  v-model="predRating[data.mate_id]"
+                  readonly
+                  :color="color"
+                />
+              </div>
+            </div>
+          </VCardTitle>
+        </VCardItem>
+
+        <VCardText>
+          <div class="d-flex justify-space-around mt-1">
+            <div class="text-center">
+              <h6 class="text-h6">
+                {{ data.fnum }}
+              </h6>
+              <span class="text-body-1">친구</span>
+            </div>
+            <div class="text-center">
+              <h6 class="text-h6">
+                {{ data.mnum }}
+              </h6>
+              <span class="text-body-1">메이트</span>
+            </div>
+            <div class="text-center">
+              <h6 class="text-h6">
+                {{ data.snum }}
+              </h6>
+              <span class="text-body-1">구독자</span>
+            </div>
+          </div>
+          <div class="d-flex justify-center gap-4 mt-6">
+            <VBtn
+              v-show="!isRequested[data.mate_id].value"
+              prepend-icon="mdi-run"
+              variant="elevated"
+              @click="requestController(data.mate_id)"
+            >
+              메이트 요청
+            </VBtn>
+            <VBtn
+              v-show="isRequested[data.mate_id].value"
+              disabled="true"
+            >
+              메이트 요청 완료
+            </VBtn>
+            <RequestMateConfirmModal
+              v-model:isDialogVisible="isModalShow"
+              :requested-id="clickedId"
+              @close-modal="changeValue"
+              @request-complete="changeStateValue(clickedId)"
+            />
           </div>
         </VCardText>
       </VCard>

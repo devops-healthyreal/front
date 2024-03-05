@@ -1,29 +1,41 @@
 <script setup>
 import { paginationMeta } from '@/@fake-db/utils'
+import UnblockUserConfirm from '@/components/dialogs/UnblockUserConfirm.vue'
 import axios from '@axios'
 import { VDataTableServer } from 'vuetify/labs/VDataTable'
 
 const headers = [
   {
-    title: 'NAME',
-    key: 'name',
-  },
-  {
-    title: 'CREATED DATE',
-    key: 'createdDate',
+    title: '신고당한 아이디',
+    key: 'cl_id',
     sortable: false,
   },
   {
-    title: 'ACTION',
+    title: '신고한 아이디',
+    key: 'id',
+    sortable: false,
+  },
+  {
+    title: '신고 사유',
+    key: 'cl_reason',
+    sortable: false,
+  },
+  {
+    title: '신고 날짜',
+    key: 'cl_date',
+    sortable: false,
+  },
+  {
+    title: '등록 해제',
     key: 'actions',
     sortable: false,
   },
 ]
 
-const permissions = ref([])
+const permissions = ref([]) //테이블의 행 정보
 const search = ref('')
 const rowPerPage = ref(10)
-const totalPermissions = ref(0)
+const totalPermissions = ref(0) //테이블의 행 개수
 
 const options = ref({
   page: 1,
@@ -37,49 +49,42 @@ const isPermissionDialogVisible = ref(false)
 const isAddPermissionDialogVisible = ref(false)
 const permissionName = ref('')
 
-const colors = {
-  'support': {
-    color: 'info',
-    text: 'Support',
-  },
-  'users': {
-    color: 'success',
-    text: 'Users',
-  },
-  'manager': {
-    color: 'warning',
-    text: 'Manager',
-  },
-  'administrator': {
-    color: 'primary',
-    text: 'Administrator',
-  },
-  'restricted-user': {
-    color: 'error',
-    text: 'Restricted User',
-  },
-}
-
 const fetchPermissions = () => {
-  axios.get('/apps/permissions/data', {
-    params: {
-      q: search.value,
-      options: options.value,
-    },
-  }).then(response => {
-    permissions.value = response.data.permissions
-    totalPermissions.value = response.data.totalPermissions
-  }).catch(error => {
-    console.log(error)
-  })
+  axios.get("http://localhost:4000/manage/member")
+    .then(resp => {
+      console.log("DB에서 불러온 값", resp.data)
+      permissions.value = resp.data
+      totalPermissions.value = resp.data.length
+    })
+    .catch(error => {
+      console.log(error)
+    })
+  console.log(totalPermissions.value)
 }
 
 onMounted(fetchPermissions)
+
 watchEffect(fetchPermissions)
 
+const clickedUser = ref('')
+
 const editPermission = name => {
+  console.log("name:", name)
   isPermissionDialogVisible.value = true
-  permissionName.value = name
+  console.log("name", name.columns.cl_id)
+  permissionName.value = name.columns.cl_id
+}
+
+const deleteComplainRow = name => {
+  console.log(name, "으로 삭제 요청 들어옴")
+  axios.delete("http://localhost:4000/manage/complained/delete", { data: {
+    id: name,
+  } }, { headers: { "Content-Type": `application/json` } })
+    .then(()=>{
+      console.log("정상 삭제됨")
+      fetchPermissions()
+    })
+    .catch(err=>console.error(err))
 }
 </script>
 
@@ -105,19 +110,6 @@ const editPermission = name => {
           class="text-no-wrap"
           @update:options="options = $event"
         >
-          <!-- name -->
-          <template #item.name="{ item }">
-            <span class="text-high-emphasis">
-              {{ item.raw.name }}
-            </span>
-          </template>
-
-
-          <!-- Created Date -->
-          <template #item.createdDate="{ item }">
-            <span class="text-sm text-medium-emphasis">{{ item.raw.createdDate }}</span>
-          </template>
-
           <!-- Actions -->
           <template #item.actions="{ item }">
             <VBtn
@@ -125,22 +117,11 @@ const editPermission = name => {
               size="small"
               color="medium-emphasis"
               variant="text"
-              @click="editPermission(item.raw.name)"
+              @click="editPermission(item)"
             >
               <VIcon
                 size="24"
-                icon="mdi-pencil-outline"
-              />
-            </VBtn>
-            <VBtn
-              icon
-              size="small"
-              variant="text"
-              color="medium-emphasis"
-            >
-              <VIcon
-                size="24"
-                icon="mdi-delete-outline"
+                icon="mdi-delete"
               />
             </VBtn>
           </template>
@@ -186,11 +167,12 @@ const editPermission = name => {
         </VDataTableServer>
       </VCard>
 
-      <AddEditPermissionDialog
+      <UnblockUserConfirm
         v-model:isDialogVisible="isPermissionDialogVisible"
         v-model:permission-name="permissionName"
+        @delete-complain-row="deleteComplainRow"
       />
-      <AddEditPermissionDialog v-model:isDialogVisible="isAddPermissionDialogVisible" />
+      <UnblockUserConfirm v-model:isDialogVisible="isAddPermissionDialogVisible" />
     </VCol>
   </VRow>
 </template>
