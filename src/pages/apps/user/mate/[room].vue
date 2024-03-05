@@ -184,7 +184,7 @@ function startCrawling(){
 }
 
 // WebSocket 연결 생성
-const socket = new WebSocket(`ws://192.168.0.08:1521/chat/${route.params.room}`)
+const socket = new WebSocket(`ws://192.168.0.111:4000/chat/${route.params.room}`)
 
 
 // WebSocket 연결이 열린 경우
