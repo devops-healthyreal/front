@@ -1,21 +1,32 @@
 <script setup>
 import AppStepper from '@/@core/components/AppStepper.vue'
+import { ref, watch } from 'vue'
+import exerciseSample from '@/assets/video/exerciseSample.mp4'
+import bench from '@/assets/video/bench.mp4'
+import dead from '@/assets/video/dead.mp4'
+
+let videoRef1 = ref(null)
+let videoRef2 = ref(null)
+
 
 const time=ref(60)
 
 const numberedSteps = [
   {
     title: '스쿼트',
+    videoSrc: exerciseSample,
   },
   {
     title: '벤치 프레스',
+    videoSrc: bench,
   },
   {
     title: '데드 리프트',
+    videoSrc: dead,
   },
 ]
 
-const exerciseSteps = [
+const exerciseSteps =ref([
   {
     title: '1set',
     subtitle: '10회',
@@ -36,7 +47,8 @@ const exerciseSteps = [
     title: '5set',
     subtitle: '10회',
   },
-]
+])
+
 
 
 const currentExerciseStep = ref(0)  // 운동 단계를 추적하는 변수
@@ -44,14 +56,56 @@ const currentNumberedStep = ref(0)  // numberedSteps 단계를 추적하는 변�
 const isRestTime = ref(false) 
 
 let countDownInterval = null  // 카운트다운 인터벌 저장 변수
+const setCount = ref(5)
+const repetitionCount = ref(10)
+
+const changeVideoSrc = newSrc => {
+  videoRef1.value.src = newSrc
+}
+
+const resetTimerAndSets = () => {
+  time.value = 60
+  setCount.value = 5
+  repetitionCount.value = 10
+  currentExerciseStep.value = 0
+}
+
+watch([setCount, repetitionCount], () => {
+  exerciseSteps.value = Array.from({ length: setCount.value }, (_, i) => ({
+    title: `${i + 1}set`,
+    subtitle: `${repetitionCount.value}회`,
+  }))
+})
+
+
+watch(currentNumberedStep, () => {
+  const exercise = numberedSteps[currentNumberedStep.value]
+
+  if (exercise) {
+    changeVideoSrc(exercise.videoSrc)
+    resetTimerAndSets()
+  }
+})
+
+const UpdateExerciseSteps = () => {
+  exerciseSteps.value = Array.from({ length: setCount.value }, (_, i) => ({
+    title: `${i + 1}set`,
+    subtitle: `${repetitionCount.value}회`,
+  }))
+}
 
 const startTimer = () => {
-  if (currentExerciseStep.value === exerciseSteps.length) {  // 모든 세트가 끝났으면
-    currentExerciseStep.value = 0  // 세트를 초기화
+  
+  if (currentExerciseStep.value === setCount.value) {  // 세트 수만큼 운동했으면
+    currentExerciseStep.value = 0  // 운동 단계를 초기화
+    currentNumberedStep.value++  // 다음 운동으로 넘어감
+    videoRef1.value.play()
     
     return  // 함수 종료 (타이머 시작하지 않음)
   }
   
+  videoRef1.value.play()
+
   countDownInterval = setInterval(() => {
     if (time.value > 0) {
       time.value--
@@ -61,7 +115,7 @@ const startTimer = () => {
         time.value = 60
       } else {
         currentExerciseStep.value++
-        if (currentExerciseStep.value >= exerciseSteps.length) {  // 모든 세트가 끝났으면
+        if (currentExerciseStep.value >= exerciseSteps.value.length) {  // 모든 세트가 끝났으면
           clearInterval(countDownInterval)  // 타이머 정지
           currentExerciseStep.value = 0  // 세트를 초기화
           
@@ -74,6 +128,13 @@ const startTimer = () => {
   }, 1000)
 }
 
+
+const stopTimer = () => {
+  clearInterval(countDownInterval)
+  videoRef1.value.pause()
+  videoRef2.value.pause()
+
+}
 
 //스위치
 const toggleSwitch = ref('목록 on')
@@ -122,27 +183,56 @@ const capitalizedLabel = label => {
               :items="exerciseSteps"
               :style="{'height':'100%'}"
             />
+            
             <VCardItem :style="{'margin-top':'10px'}">
               <VCol style="margin-bottom: -20px;">
-                <strong style="width: 90%; margin-right: 35%; margin-left: 5%; color: black; font-size: 25px;">
-                  <VIcon icon="mdi-clock-time-eight" />
-                  {{ isRestTime ? 'Rest time' : 'Exercise' }}  <!-- 휴식 시간인지 운동 시간인지 표시 -->
-                </strong>
-                <strong
-                  id="sec"
-                  style=" margin-top: 10px;color: black;font-size: 25px;"
-                >
-                  {{ time }}
-                </strong>
-                <VBtn
-                  style="margin-left: 420px;"
-                  @click="startTimer"
-                >
-                  시작하기
-                </VBtn>
-              </VCol>
-              <br>
-              <hr :style="{'width':'90%','margin':'auto'}">
+                <VRow align="center">
+                  <VCol cols="3">
+                    <strong style="width: 90%; color: black; font-size: 25px;">
+                      <VIcon icon="mdi-clock-time-eight" />
+                      {{ isRestTime ? 'Rest time' : 'Exercise' }}  <!-- 휴식 시간인지 운동 시간인지 표시 -->
+                    </strong>
+                  </VCol>
+                  <VCol cols="3">
+                    <strong
+                      id="sec"
+                      style="color: black;font-size: 25px;"
+                    >
+                      {{ time }}
+                    </strong>
+                  </VCol>
+                  <VCol cols="2">
+                    <VTextField
+                      v-model.number="setCount"
+                      type="number"
+                      label="세트 수"
+                      variant="outlined"
+                      @input="UpdateExerciseSteps"
+                    />
+                  </VCol>
+                  <VCol cols="2">
+                    <VTextField
+                      v-model.number="repetitionCount"
+                      type="number"
+                      label="횟수"
+                      variant="outlined"
+                      @input="UpdateExerciseSteps"
+                    />
+                  </VCol>
+                  <VCol cols="1">
+                    <VBtn @click="startTimer">
+                      시작하기
+                    </VBtn>
+                  </VCol>
+                  <VCol cols="1">
+                    <VBtn @click="stopTimer">
+                      중지
+                    </VBtn>
+                  </VCol>
+                </VRow>
+                <br>
+                <hr :style="{'width':'90%','margin':'auto'}">
+              </vcol>
             </VCardItem>
           </vcarditem>
         </VCard>
@@ -176,6 +266,7 @@ const capitalizedLabel = label => {
             <!-- <VCol :cols="9-menuSize"> -->
             <!-- 운동 자세 영상 -->
             <video
+              ref="videoRef1"
               controls
               muted 
               width="100%"

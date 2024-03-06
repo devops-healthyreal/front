@@ -1,8 +1,5 @@
 <script setup>
 import axios from '@axios'
-import food3 from '@images/Unbalanced/22.jpg'
-import food2 from '@images/margherita.jpg'
-import food from '@images/veggieroll.jpg'
 import { defineEmits, defineProps, ref } from 'vue'
 import { useStore } from 'vuex'
 
@@ -18,6 +15,8 @@ const store = useStore()
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId=userInfo.value.id
+
+const data = ref([])
 
 // 여기에 checkedItem에 체크박스 value 저장 저장된 배열 [id].vue에 emit으로 데이터 보냄
 function sendDataToParent(value) {
@@ -52,18 +51,30 @@ const isChecked2 = ref(false)
 const isChecked3 = ref(false)
 
 onMounted(async () => {
-  if (props.checkedExerciseItems.includes('1')) {
+  if (!Array.isArray(props.checkedExerciseItems)) {
+    props.checkedExerciseItems = []
+  }else if(props.checkedExerciseItems.includes('1')) {
     isChecked1.value = true
     console.log(isChecked1)
-  }
-  if (props.checkedExerciseItems.includes('2')) {
+  }else if (props.checkedExerciseItems.includes('2')) {
     isChecked2.value = true
-  }
-  if (props.checkedExerciseItems.includes('3')) {
+  } else if (props.checkedExerciseItems.includes('3')) {
     isChecked3.value = true
   }
   checkfor.value = true
+  await getData()
 })
+
+//------------------------------------------------------
+
+const getData = async ()=>{
+
+  const response = await axios.post('http://127.0.0.1:4000/exer/getData.do', { id: connetId })
+
+  data.value = response.data
+  console.log("운동 값 가져와??", data.value)
+
+}
 </script>
 
 <template>
@@ -87,7 +98,7 @@ onMounted(async () => {
               운동 1
             </span>
             <div class="d-flex">
-              <span class="app-timeline-meta align-self-center">운동명, 시간당 소모칼로리</span>
+              <span class="app-timeline-meta align-self-center">{{ data[0]?.ename }}, 시간당 소모칼로리</span>
               <VCheckbox
                 v-model="isChecked1"
                 color="info" 
@@ -105,11 +116,15 @@ onMounted(async () => {
           <!-- 👉 Person -->
           <div class="d-flex align-center justify-center flex-wrap">
             <!-- 👉 Avatar & Personal Info -->
-            <img
-              id="diaryImages"
-              :src="food"
-              style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
-            >
+            <iframe
+              width="400"
+              height="300"
+              :src="data[0]?.evideoPath"
+              style="align-self: center; margin: 10px;"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            />
           </div>
         </VTimelineItem>
         <!-- !SECTION -->
@@ -125,7 +140,7 @@ onMounted(async () => {
               운동 2
             </span>
             <div class="d-flex">
-              <span class="app-timeline-meta align-self-center">운동명, 시간당 소모칼로리</span>
+              <span class="app-timeline-meta align-self-center">{{ data[1]?.ename }}, 시간당 소모칼로리</span>
               <VCheckbox
                 v-model="isChecked2"
                 :selecled="isChecked2"
@@ -143,11 +158,15 @@ onMounted(async () => {
           <!-- 👉 Person -->
           <div class="d-flex align-center justify-center flex-wrap">
             <!-- 👉 Avatar & Personal Info -->
-            <img
-              id="diaryImages"
-              :src="food2"
-              style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
-            >
+            <iframe
+              width="400"
+              height="300"
+              :src="data[1]?.evideoPath"
+              style="align-self: center; margin: 10px;"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            />
           </div>
         </VTimelineItem>
 
@@ -162,7 +181,7 @@ onMounted(async () => {
               운동 3
             </span>
             <div class="d-flex">
-              <span class="app-timeline-meta align-self-center">운동명, 시간당 소모칼로리</span>
+              <span class="app-timeline-meta align-self-center">{{ data[2]?.ename }}, 시간당 소모칼로리</span>
               <VCheckbox
                 v-model="isChecked3"
                 :selecled="isChecked3"
@@ -180,12 +199,17 @@ onMounted(async () => {
           <!-- 👉 Person -->
           <div class="d-flex align-center justify-center flex-wrap">
             <!-- 👉 Avatar & Personal Info -->
-            <img
-              id="diaryImages"
-              :src="food3"
-              style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
-            >
+            <iframe
+              width="400"
+              height="300"
+              :src="data[2]?.evideoPath"
+              style="align-self: center; margin: 10px;"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            />
           </div>
+          {{ data[2]?.evideoPath }}
         </VTimelineItem>
       </VTimeline>
     </VCardText>

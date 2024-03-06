@@ -1,14 +1,17 @@
 <script setup>
-import avatar2 from '@images/avatars/avatar-2.png'
-import { calendarEvents } from '/src/@fake-db/apps/exportData.js' 
+import { calendarEvents } from '/src/@fake-db/apps/exportData.js'
+import { transcript } from '/src/pages/stt.js'
 
 const date = new Date()
 const toDay = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+const text = transcript
+
 
 const jebal = () =>{
-  console.log(calendarEvents)
+  console.log("타임라인이야 이거?", calendarEvents)
   console.log(toDay)
   console.log(calendarEvent[1])
+  
 
 }
 </script>
@@ -46,7 +49,7 @@ const jebal = () =>{
                 icon="mdi-file-pdf-box"
                 class="me-1"
               />
-              <span class="font-weight-medium text-sm">invoice.pdf</span>
+              <span class="font-weight-medium text-sm">invoice.pdf {{ text }}</span>
             </span>
           </VCol>
         </VTimelineItem>

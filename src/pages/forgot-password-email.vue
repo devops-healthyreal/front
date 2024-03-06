@@ -46,8 +46,8 @@ const sendEmailVerificationRequest = async (id, email) => {
     })
 
     if (response.status === 200) {
-      console.log('이메일 전송 성공')
-      alert('이메일이 발송되었습니다.')
+      console.log('비밀번호 재설정 이메일 전송 성공')
+      alert('비밀번호 재설정 이메일이 발송되었습니다.')
     } else {
       console.log('이메일 전송 실패: ' + response.data)
     }

@@ -225,7 +225,7 @@ const sendDataToParent = value => {
                   아침 식단
                 </span>
                 <div class="d-flex">
-                  <span class="app-timeline-meta align-self-center">{{ dietinfo[0]?.eating_foodname }}, kcal</span>
+                  <span class="app-timeline-meta align-self-center">{{ dietinfo[0]?.eating_foodname }}, {{ dietinfo[0]?.calory }}kcal</span>
                   <VCheckbox
                     id="checkboxB"
                     v-model="isBChecked"
@@ -264,7 +264,7 @@ const sendDataToParent = value => {
                   점심 식단
                 </span>
                 <div class="d-flex">
-                  <span class="app-timeline-meta align-self-center">{{ dietinfo[1]?.eating_foodname }}, kcal</span>
+                  <span class="app-timeline-meta align-self-center">{{ dietinfo[1]?.eating_foodname }}, {{ dietinfo[1]?.calory }}kcal</span>
                   <VCheckbox
                     id="checkboxL"
                     v-model="isLChecked"
@@ -302,7 +302,7 @@ const sendDataToParent = value => {
                   저녁 식단
                 </span>
                 <div class="d-flex">
-                  <span class="app-timeline-meta align-self-center">{{ dietinfo[2]?.eating_foodname }}, kcal</span>
+                  <span class="app-timeline-meta align-self-center">{{ dietinfo[2]?.eating_foodname }}, {{ dietinfo[2]?.calory }}kcal</span>
                   <VCheckbox
                     id="checkboxD"
                     v-model="isDChecked"

@@ -140,13 +140,6 @@ const subscribe = temp => { //구독 api 요청 (url 감지)
       cols="12"
     >
       <VCard>
-        <div class="vertical-more">
-          <MoreBtn
-            item-props
-            :menu-list="moreBtnList"
-          />
-        </div>
-
         <VCardItem>
           <VCardTitle class="d-flex flex-column align-center justify-center">
             <VAvatar

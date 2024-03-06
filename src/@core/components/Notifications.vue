@@ -102,6 +102,28 @@ const removenotic = async trigger_pk => {
       )
     })  
 }
+
+const addY = async (trigger_pk, trigger_no) => {
+  console.log('수락을 클릭했습니다.', trigger_no)
+  await axios.get('http://localhost:4000/Notic/AddAFMLYN', { params: { trigger_pk: trigger_pk, trigger_no: trigger_no, yn: 'Y' } })
+    .then(response => {
+      console.log('성공적으로 실행 - ', response.data)
+      if(response.data == 1){
+        removenotic(trigger_pk)
+      }
+    })
+}
+
+const addN = async (trigger_pk, trigger_no) => {
+  console.log('거절을 클릭했습니다.', trigger_no)
+  await axios.get('http://localhost:4000/Notic/AddAFMLYN', { params: { trigger_pk: trigger_pk, trigger_no: trigger_no, yn: 'N' } })
+    .then(response => {
+      console.log('성공적으로 실행 - ', response.data)
+      if(response.data == 1){
+        removenotic(trigger_pk)
+      }
+    })
+}
 </script>
 
 <template>
@@ -135,23 +157,7 @@ const removenotic = async trigger_pk => {
           </VCardTitle>
 
           <template #append>
-            <!--
-              <IconBtn
-              v-show="props.noticlists.length"
-              @click="markAllReadOrUnread"
-              > 
-            -->
             <VIcon :icon="!isAllMarkRead ? 'mdi-email-outline' : 'mdi-email-open-outline' " />
-
-            <!--
-              <VTooltip
-              activator="parent"
-              location="start"
-              >
-              {{ !isAllMarkRead ? 'Mark all as unread' : 'Mark all as read' }}
-              </VTooltip> 
-            -->
-            <!-- </IconBtn> -->
           </template>
         </VCardItem>
 
@@ -190,11 +196,33 @@ const removenotic = async trigger_pk => {
                   <VChip color="error">
                     {{ notification.notic_trigger_user }}
                   </VChip>
-                  <small @click="openViewPostMoadl(notification.notic_type===1? notification.bbs_no : notification.trigger_no); submitEdit(notification.notic_type===1? notification.bbs_no : notification.trigger_no)">{{ notification.notic_type===1? '님께서 댓글을 달았습니다.': '님께서 좋아요를 눌렀습니다.' }}</small>
+                  <small @click="notification.notic_type === 1 || notification.notic_type === 2 ? (openViewPostMoadl(notification.notic_type===1? notification.bbs_no : notification.trigger_no), submitEdit(notification.notic_type===1? notification.bbs_no : notification.trigger_no)) : ''">
+                    {{ notification.notic_type === 1 ? '님께서 댓글을 달았습니다.' : notification.notic_type === 2 ? '님께서 좋아요를 눌렀습니다.' : notification.notic_type === 3 ? '님께서 친구요청을 하셨습니다.' : '님께서 메이트 요청을 하셨습니다.' }}
+                  </small>
+                  <!-- <small @click="openViewPostMoadl(notification.notic_type===1? notification.bbs_no : notification.trigger_no); submitEdit(notification.notic_type===1? notification.bbs_no : notification.trigger_no)">{{ notification.notic_type===1? '님께서 댓글을 달았습니다.': notification.notic_type===2? '님께서 좋아요를 눌렀습니다.' : notification.notic_type===3? '님께서 친구요청을 하셨습니다.' : '님께서 메이트 요청을 하셨습니다.' }}</small> -->
                 </VListItemTitle>
                 
                 <!-- <VListItemSubtitle>{{ notification.ccomment }}</VListItemSubtitle> -->
-                <span class="text-xs text-disabled">{{ getTimeDiffString(notification.notic_trigger_date) }}</span>
+                <div class="d-flex align-center flex-wrap justify-space-between mt-1 mb-4">
+                  <div>
+                    <span class="text-xs text-disabled">{{ getTimeDiffString(notification.notic_trigger_date) }}</span>
+                  </div>
+                  <div>
+                    <small v-if="(notification.notic_type === 3 || notification.notic_type === 4) && notification.ccomment == 'W'">
+                      <VIcon
+                        icon="mdi-account-check-outline"
+                        style="color: green; margin-bottom: 3px; margin-right: 2px;"
+                        @click="addY(notification.trigger_pk, notification.trigger_no)"
+                      />
+                      /
+                      <VIcon
+                        icon="mdi-account-cancel-outline"
+                        style="color: red; margin-bottom: 3px; margin-right: 2px;"
+                        @click="addN(notification.trigger_pk, notification.trigger_no)"
+                      />
+                    </small>
+                  </div>                  
+                </div>
 
                 <!-- Slot: Append -->
                 <template #append>
