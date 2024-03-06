@@ -1,3 +1,9 @@
+<script>
+const replaceDot = value => {
+  return value.replace(/\./g, '\n')
+}
+</script>
+
 <script setup>
 import axios from '@axios'
 import { computed, onMounted, ref } from 'vue'
@@ -21,41 +27,44 @@ const getData = async ()=>{
 
 onMounted(getData)
 
+const replaceDot = value => {
+  return value.replace(/\./g, '. <br>')
+}
+
 console.log("운동 값 가져와??", data.value)
 
 const isCardDetailsVisible = ref(false)
 </script>
 
 <template>
-  <VRow>
-    <!-- 👉 Influencing The Influencer -->
-    <VCol
-      v-for="(item, index) in data"
-      :key="index"
-      cols="12"
-      sm="6"
-      md="4"
-    >
-      <VCard>
-        <iframe
-          width="100%"
-          height="150"
-          :src="item.evideoPath"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
-        />
+  <!-- 👉 Influencing The Influencer -->
+  <VCol
+    v-for="(item, index) in data"
+    :key="index"
+    cols="12"
+    sm="12"
+    md="12"
+  >
+    <VCard>
+      <iframe
+        width="100%"
+        height="350"
+        :src="item.evideoPath"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+      />
 
-        <VCardItem>
-          <VCardTitle>{{ item.ename }}</VCardTitle>
-        </VCardItem>
+      <VCardItem>
+        <VCardTitle>{{ item.ename }}</VCardTitle>
+      </VCardItem>
 
-        <VCardText style="height: 120px;">
-          {{ item.econtent }}
-        </VCardText>
-      </VCard>
-    </VCol>
-  </VRow>
+      <VCardText
+        style="height: auto;"
+        v-html="replaceDot(item.econtent)"
+      />
+    </VCard>
+  </VCol>
 </template>
 
 <style lang="scss" scoped>

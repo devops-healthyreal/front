@@ -5,7 +5,7 @@ import Timeline from '@/pages/components/timeline.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
 import axios from '@axios'
 import mainImg from "@images/cards/card-meetup_copy_1.jpg"
-import { computed, ref } from 'vue'
+import { computed, onUpdated, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import MainMap from './exercise/map/MainMap.vue'
@@ -86,18 +86,12 @@ const getEatingRecord = async () => {
   
 }
 
-onMounted(() => {
+onUpdated(() => {
+  console.log(store.state.userStore.userInfo.id)
 
-  console.log('2차') // 2차 출력됨
-  if(store.state.userStore.userInfo != null){
-    console.log(store.state.userStore.userInfo.id)
+  // 다른 함수를 실행
+  getEatingRecord()
 
-    // 다른 함수를 실행
-    getEatingRecord()
-  }
-  else{
-    router.go(0)
-  }
 })
 
      

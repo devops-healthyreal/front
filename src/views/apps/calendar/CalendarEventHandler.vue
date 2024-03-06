@@ -49,45 +49,6 @@ const removeEvent = () => {
   emit('update:isDrawerOpen', false)
 }
 
-const handleSubmit = () => {
-  refForm.value?.validate().then(({ valid }) => {
-    if (valid) {
-      console.log(event.value)
-      
-      const url = 'http://localhost:4000/Calendar'
-
-      const data = event.value
-
-      console.log(data)
-      axios.post(url, data)
-        .then(response => {
-          // 요청이 성공적으로 완료된 경우의 처리
-          console.log(response.data)
-          console.log("dkdkdkdk")
-
-          // 추가적인 작업 수행 가능
-        })
-        .catch(error => {
-          // 요청이 실패한 경우의 처리
-          console.error(error)
-
-          // 에러 처리 및 추가 작업 수행 가능
-        })
-
-      // If id exist on id => Update event
-      if ('id' in event.value)
-        emit('updateEvent', event.value)
-
-      // Else => add new event
-      else
-        emit('addEvent', event.value)
-
-      // Close drawer
-      emit('update:isDrawerOpen', false)
-    }
-  })
-}
-
 // 👉 Form
 const onCancel = () => {
 
@@ -130,7 +91,7 @@ watch(transcript, newValue => {
 })
 
 const title = ref('')
-const calendar = ref('')
+const calendar = ref(null)
 const start = ref('')
 const end = ref('')
 const userInput = ref('')
@@ -144,24 +105,74 @@ const endArea = reactive({
 })
 
 
-/*
-const response =  axios.post('http://localhost:4000/sch/insert.do', {
-  title: title,
-  calendar: calendar,
-  start: start,
-  end: end,
-  area: area,
-  content: userInput.value
-
-})
-*/
-
 const handleUpdateAddressStart = newAddress => {
   startArea.address = newAddress.address
 }
 
 const handleUpdateAddressEnd = newAddress => {
   endArea.address = newAddress.address
+}
+
+// State
+const availableCalendars = ref([
+  {
+    color: 'success',
+    label: '일정',
+    value: 1,
+  },
+  {
+    color: 'error',
+    label: '아침',
+    value: 2,
+  },
+  {
+    color: 'warning',
+    label: '점심',
+    value: 3,
+  },
+  {
+    color: '',
+    label: '저녁',
+    value: 4,
+  },
+  {
+    color: 'info',
+    label: '운동',
+    value: 5,
+  },
+  {
+    color: 'secondary',
+    label: '경로',
+    value: 6,
+  },
+])
+
+async function handleSubmit() {
+  // 필수 필드 검사
+  if (!title.value || !calendar.value || !start.value || !end.value || !userInput.value) {
+    
+    return
+  }
+
+  const postData = {
+    title: title.value,
+    calendar: calendar.value,
+    start: start.value,
+    end: end.value,
+    startArea: startArea.value,
+    endArea: endArea.value,
+    content: userInput.value,
+  }
+
+  console.log("보내기 전 데이터:", postData)
+
+  try {
+    const response = await axios.post('http://localhost:4000/sch/insert.do', postData)
+
+    console.log("달력값 들어갔어??", response.data)
+  } catch (error) {
+    console.error(error)
+  }
 }
 </script>
 
@@ -216,15 +227,16 @@ const handleUpdateAddressEnd = newAddress => {
                   v-model="calendar"
                   label="Calendar"
                   :rules="[requiredValidator]"
-                  :items="store.availableCalendars"
+                  :items="availableCalendars"
                   :item-title="item => item.label"
                   :item-value="item => item.value"
+                  placeholder="choies your schedule type"
                 >
                   <template #selection="{ item }">
                     <div
-                      v-show="event.calendar"
+                      v-show="calendar"
                       class="align-center"
-                      :class="event.calendar ? 'd-flex' : ''"
+                      :class="calendar ? 'd-flex' : ''"
                     >
                       <VBadge
                         :color="item.raw.color"
@@ -291,6 +303,7 @@ const handleUpdateAddressEnd = newAddress => {
                 </VBtn>
                 <VTextarea
                   v-model="userInput"
+                  :rules="[requiredValidator]"
                   label="content"
                   style="margin-top: -140px;"
                   no-resize
