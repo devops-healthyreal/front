@@ -105,7 +105,8 @@ const updatePassword = async () => {
     // 로그인 실행
     await store.dispatch('login', { id: id.value, pwd: pwd.value })
     closeDialog()
-    window.location.reload()
+
+    //window.location.reload()
 
     // 로그인 완료 후 모달 창 닫기
 
@@ -113,6 +114,7 @@ const updatePassword = async () => {
   } catch (error) {
     console.error(error)
     alert('비밀번호 수정에 실패했습니다.')
+    router.push({ name: 'main' })
   }
 }
 

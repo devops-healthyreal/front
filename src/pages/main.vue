@@ -1,13 +1,11 @@
 <script setup>
 import ExerciseMainVue from '@/components/ExerciseMain.vue'
-import LoadingModal from '@/pages/LoadingModal.vue'
 import Calendar from '@/pages/apps/calendar.vue'
 import Timeline from '@/pages/components/timeline.vue'
-import ResetPasswordDialog from '@/pages/resetPasswordDialog.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
 import axios from '@axios'
 import mainImg from "@images/cards/card-meetup_copy_1.jpg"
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import MainMap from './exercise/map/MainMap.vue'
@@ -89,63 +87,20 @@ const getEatingRecord = async () => {
 }
 
 onMounted(() => {
-  if (!store.state.isLogin) {
-    store.dispatch('getToken')
-      .then(() => {
-        store.dispatch('saveToken')
-        console.log('1차')
 
-        // 토큰을 이용해 사용자 정보를 가져옴
-        return store.dispatch('getMemberInfo')
-      })
-      .then(() => {
-        console.log('2차') // 2차 출력됨
-        if(store.state.userStore.userInfo != null){
-          console.log(store.state.userStore.userInfo.id)
+  console.log('2차') // 2차 출력됨
+  if(store.state.userStore.userInfo != null){
+    console.log(store.state.userStore.userInfo.id)
 
-          // 다른 함수를 실행
-          getEatingRecord()
-        }
-        else{
-          router.go(0)
-        }
-      })
-
+    // 다른 함수를 실행
+    getEatingRecord()
+  }
+  else{
+    router.go(0)
   }
 })
 
-const isLoadingModalVisible = ref(false)
-const isResetPasswordDialogVisible = ref(false)
-
-watch(
-  () => store.state.isResetPasswordDialogVisible,
-  newVal => {
-    isResetPasswordDialogVisible.value = newVal
-  },
-  { immediate: true },
-)
-
-watch(
-  () => route.query.resetPassword,
-  async (newValue, oldValue) => {
-    if (newValue === 'true') {
-      isLoadingModalVisible.value = true
-
-      setTimeout(()=>{
-        isLoadingModalVisible.value = false
-        isResetPasswordDialogVisible.value = true
-      }, 4000)
-
-      await router.replace({ query: { ...route.query, resetPassword: null } })
-
-      if (route.query.resetPassword == null) {
-        store.dispatch('openResetPasswordDialogAction')
-      }
-    }
-  },
-  { immediate: true },
-)
-
+     
 
 const userTab = ref(null)
 
@@ -326,11 +281,6 @@ const moveRecipe = () => {
         <Timeline />
       </VCol>
     </VRow>
-    <LoadingModal v-model="isLoadingModalVisible" />
-    <ResetPasswordDialog
-      :is-dialog-visible="isResetPasswordDialogVisible"
-      @update:isDialogVisible="val => isResetPasswordDialogVisible = val"
-    />
   </section>
 </template>
 
