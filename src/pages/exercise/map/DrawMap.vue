@@ -82,7 +82,7 @@
 import * as mapSearch from '@/pages/exercise/mapSearch'
 import { isSearchListClicked } from '@/pages/exercise/mapSearch'
 import axios from '@axios'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { createRoadView } from '../createRoadView'
 
@@ -96,14 +96,19 @@ var lng = []
 const totalDistance = ref() //그려진 polyline의 거리
 const totalDots = ref([]) //그려진 polyline의 경로
 const totalDotsName = ref([]) //각 지점의 도로명 주소
-
+const inputTime = ref() //사용자로부터 받은 분 단위의 시간
+const walkTime = ref() //걸은 시간
 
 
 export default {
   name: "DrawMap",
-  props: ["controllRoadView"],
+  props: {
+    selectedTime: {
+      type: String,
+    },
+  },
   setup(props) {
-    console.log('DrawMap에서 찍어본 props값:', props.controllRoadView)
+    console.log('DrawMap에서 찍어본 selectedTime값:', props.selectedTime)
   },
   data() {
     return {
@@ -118,7 +123,15 @@ export default {
       switchOnOff: ref(false), //검색창 활성화 버튼 (직접설정)
       isSwitchOn: ref(false),
     }
-  }, //data
+  },
+  created() {
+    watch(
+      ()=>this.selectedTime, ()=>{
+        console.log("제발 찍혀라", this.selectedTime)
+        inputTime.value = this.selectedTime
+      },
+    )
+  },
   mounted() {
     console.log('DrawMap:', this.drawingMap)
     if (window.kakao && window.kakao.maps && this.drawingMap != null) { //카카오 api가 로드되었을 때
@@ -140,27 +153,36 @@ export default {
     //this.drawingMap.relayout();
   }, //mounted
   methods: {
-    uploadDrawPath(userId){
+    uploadDrawPath(userId, isUploadClicked){
+      console.log("두번째 인자는 객체니?", isUploadClicked)
       console.log("DrawMap ref:", totalDistance.value)
       console.log("totalDots.value:", totalDots.value)
       console.log("totalDotsName.value:", totalDotsName.value)
       console.log(userId)
       if(totalDistance.value == undefined) {alert("등록할 경로가 없습니다")}
       else{
-        var walkTime = totalDistance.value / 67 | 0 //분 기준
-        for(var i=0; i<totalDotsName.value.length; i++) {
-          totalDotsName.value[i] = totalDotsName.value[i].value
+        walkTime.value = totalDistance.value / 67 | 0 //분 기준
+        console.log("걸은시간: ", walkTime.value)
+        console.log('사용자가 선택한 시간: ', this.selectedTime)
+        if(this.selectedTime < walkTime.value) {
+          alert("선택한 시간이 경로의 소요시간에 비해 다소 짧습니다")
         }
-        console.log("connectId 체크", connetId)
-        axios.post("http://localhost:4000/exercise/upload", JSON.stringify({
-          id: userId,
-          time: walkTime,
-          roadPoint: totalDots.value,
-          roadPointName: totalDotsName.value,
-        }), { headers: { 'Content-Type': 'application/json' } })
-          .then(resp=>{
-            console.log(resp.data)
-          })
+        else{
+          for(var i=0; i<totalDotsName.value.length; i++) {
+            totalDotsName.value[i] = totalDotsName.value[i].value
+          }
+          console.log("connectId 체크", connetId)
+          axios.post("http://localhost:4000/exercise/upload", JSON.stringify({
+            id: userId,
+            time: walkTime.value,
+            roadPoint: totalDots.value,
+            roadPointName: totalDotsName.value,
+          }), { headers: { 'Content-Type': 'application/json' } })
+            .then(resp=>{
+              console.log(resp.data)
+            })
+          isUploadClicked.value=true
+        }
       }
     },
     addMarker(){
@@ -363,12 +385,13 @@ export default {
               totalDotsName.value.push(mapSearch.getNameFromlatlng(dot.position))
             }
             console.log('totalDOts:', totalDots.value)
+            console.log(walkTime)
             var distance = Math.round(clickLine.getLength()), // 선의 총 거리를 계산합니다
               content = getTimeHTML(distance) // 커스텀오버레이에 추가될 내용입니다
                                 
             // 그려진 선의 거리정보를 지도에 표시합니다
             showDistance(content, path[path.length-1])  
-                            
+            
           } else {
 
             // 선을 구성하는 좌표의 개수가 1개 이하이면 

@@ -3,7 +3,7 @@ import AppDateTimePicker from '@/@core/components/app-form-elements/AppDateTimeP
 import DrawMap from '@/pages/exercise/map/DrawMap.vue'
 import LikeMap from '@/pages/exercise/map/LikeMap.vue'
 import RecoMap from '@/pages/exercise/map/RecoMap.vue'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import PathConfirmModal from '../PathConfirmModal.vue'
@@ -119,10 +119,28 @@ MapWalker.prototype.setMap = function(map){
   this.walker.setMap(map)
 }
 
-const checkTimeValidity = () => { //종료시간이 시작시간보다 늦는지 확인 및 총 선택 시간 계산용 함수
-  console.log('start: %s, end: %s', startTime, endTime)
-  if (startTime.value!='' && endTime.value!=''){
-    //시작시간, 종료시간을 분으로 환산
+const drawRef = ref(null) //자식 컴포넌트 DrawMap에 접근용
+const drawRefComputed = computed(()=>drawRef.value)
+
+const uploadPath = () => {
+  console.log("클릭한 탭:", activeTab)
+
+  isUploadClicked.value = false
+  
+  //reco, like, self
+  if(activeTab.value === 'self') drawRefComputed.value.uploadDrawPath(userId, isUploadClicked)
+}
+
+const changeValue = val =>{
+  console.log("changeValue:", val)
+  isUploadClicked.value = val
+}
+
+const date = ref('')
+
+watch(startTime, ()=>{
+  console.log("startTime값 변경")
+  if(endTime.value!=''){
     var startMin = parseInt(startTime.value.split(':')[0])*60+parseInt(startTime.value.split(':')[1]) 
     var endMin = parseInt(endTime.value.split(':')[0])*60+parseInt(endTime.value.split(':')[1])
     if(startMin >= endMin || Math.abs(startMin-endMin) < 10) {
@@ -141,25 +159,29 @@ const checkTimeValidity = () => { //종료시간이 시작시간보다 늦는지
       }
     }
   }
-}
+})
 
-const drawRef = ref(null) //자식 컴포넌트 DrawMap에 접근용
-const drawRefComputed = computed(()=>drawRef.value)
-
-const uploadPath = () => {
-  console.log("클릭한 탭:", activeTab)
-  isUploadClicked.value = true
-  
-  //reco, like, self
-  if(activeTab.value === 'self') drawRefComputed.value.uploadDrawPath(userId)
-}
-
-const changeValue = val =>{
-  console.log("changeValue:", val)
-  isUploadClicked.value = val
-}
-
-const date = ref('')
+watch(endTime, ()=>{
+  if(startTime.value!=''){
+    var startMin = parseInt(startTime.value.split(':')[0])*60+parseInt(startTime.value.split(':')[1]) 
+    var endMin = parseInt(endTime.value.split(':')[0])*60+parseInt(endTime.value.split(':')[1])
+    if(startMin >= endMin || Math.abs(startMin-endMin) < 10) {
+      timeValidityAlert.value = true
+      hour.value = '00'
+      minute.value = '00'
+    }
+    else{
+      timeValidityAlert.value = false 
+      totalTime.value = endMin-startMin
+      hour.value = String((totalTime.value/60).toFixed())
+      minute.value = String(totalTime.value%60)
+      if(typeof hour.value != 'undefined' && typeof minute.value != "undefined"){
+        if(hour.value.length == 1) hour.value = '0'+hour.value
+        if(minute.value.length == 1) minute.value = '0'+minute.value
+      }
+    }
+  }
+})
 </script>
 
 <template>
@@ -190,7 +212,6 @@ const date = ref('')
             v-model="startTime"
             label="시작시간"
             :config="{ enableTime: true, noCalendar: true, dateFormat: 'H:i' }"
-            @change="checkTimeValidity"
           />
         </VCol>
         <VCol
@@ -204,7 +225,6 @@ const date = ref('')
             v-model="endTime"
             label="종료시간"
             :config="{ enableTime: true, noCalendar: true, dateFormat: 'H:i' }"
-            @change="checkTimeValidity"
           />
         </VCol>
         <VCol :style="{'display':'flex','align-items':'flex-end'}">
@@ -240,7 +260,8 @@ const date = ref('')
               <DrawMap
                 ref="drawRef"
                 :controll-road-view="impossibleRoadView"
-                @refresh-child-road="createRoadView" 
+                :selected-time="totalTime" 
+                @refresh-child-road="createRoadView"
               />
             </VWindowItem>
           </VWindow>
