@@ -5,8 +5,9 @@ import {
 } from '@validators'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { VForm } from 'vuetify/components/VForm'
-import { useCalendarStore } from './useCalendarStore'
 import { startRecognition, transcript } from '/src/pages/stt.js'
+import { useStore } from 'vuex'
+import { computed, onUpdated, ref } from 'vue'
 
 const props = defineProps({
   isDrawerOpen: {
@@ -26,7 +27,6 @@ const emit = defineEmits([
   'removeEvent',
 ])
 
-const store = useCalendarStore()
 const refForm = ref()
 
 
@@ -159,9 +159,11 @@ async function handleSubmit() {
     calendar: calendar.value,
     start: start.value,
     end: end.value,
-    startArea: startArea.value,
-    endArea: endArea.value,
+    startArea: startArea.address,
+    endArea: endArea.address,
     content: userInput.value,
+    eat: sub.value,
+    exercise: exercise.value,
   }
 
   console.log("보내기 전 데이터:", postData)
@@ -174,6 +176,103 @@ async function handleSubmit() {
     console.error(error)
   }
 }
+
+const dietinfo = ref([])
+const exercise = ref('')
+const eat = ref('')
+const loading = ref(true)
+
+
+
+const sub = computed({
+  get: () => {
+    switch (calendar.value) {
+    case 2: return dietinfo.value[0]?.eating_foodname || eat.value
+    case 3: return dietinfo.value[1]?.eating_foodname || eat.value
+    case 4: return dietinfo.value[2]?.eating_foodname || eat.value
+    case 5: return exercise.value
+    default: return ''
+    }
+  },
+  set: newValue => {
+    switch (calendar.value) {
+    case 2: dietinfo.value[0] ? dietinfo.value[0].eating_foodname = newValue : eat.value = newValue; break
+    case 3: dietinfo.value[1] ? dietinfo.value[1].eating_foodname = newValue : eat.value = newValue; break
+    case 4: dietinfo.value[2] ? dietinfo.value[2].eating_foodname = newValue : eat.value = newValue; break
+    case 5: exercise.value = newValue; break
+    }
+  },
+})
+
+
+const store = useStore()
+
+const userInfo = computed(() => store.state.userStore.userInfo)
+
+
+const getEatingRecord = async () => {
+  loading.value = true
+
+  if (userInfo.value && userInfo.value.id) {
+
+    const connetId = userInfo.value.id
+
+    console.log('4차')
+    console.log('체크해보자 : '+connetId)
+    await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
+      .then(response => {
+        if(response.data.length > 0){
+          // 초기화
+          console.log('여긴안돼')
+          dietinfo.value = [null, null, null]
+
+          response.data.forEach(data => {
+            if (data.mealType === '아침') {
+              dietinfo.value[0] = data
+            } else if (data.mealType === '점심') {
+              dietinfo.value[1] = data
+            } else if (data.mealType === '저녁') {
+              dietinfo.value[2] = data
+            }
+            
+          })
+        }
+        else{
+          axios.get("http://localhost:4000/dietfood/search.do", { params: { 'id': connetId } })
+            .then(response => {
+              console.log('응답받은 행:', response.data)
+              if(response.data === 0){
+                axios.get("http://localhost:5000/food_recommend", { params: { 'id': connetId } })
+                  .then(response=>{
+
+                    dietinfo.value = [null, null, null]
+    
+                    response.data.forEach(data => {
+                      if (data.mealType === '아침') {
+                        dietinfo.value[0] = data
+                      } else if (data.mealType === '점심') {
+                        dietinfo.value[1] = data
+                      } else if (data.mealType === '저녁') {
+                        dietinfo.value[2] = data
+                      }
+                    })
+                  })
+              }
+            })
+        }
+        console.log('가져온 유저 Eating_Record', dietinfo.value)
+      })
+  }
+  loading.value = false
+}
+
+onUpdated(() => {
+  // 다른 함수를 실행
+
+  getEatingRecord()
+  console.log("dietinfo", dietinfo)
+
+})
 </script>
 
 <template>
@@ -249,7 +348,12 @@ async function handleSubmit() {
                   </template>
                 </VSelect>
               </VCol>
-
+              <VCol
+                v-if="calendar !== 1 && calendar !== 6 && calendar !== null"
+                cols="12"
+              >
+                <VTextField v-model="sub" />
+              </VCol>
               <!-- 👉 Start date -->
               <VCol cols="12">
                 <AppDateTimePicker

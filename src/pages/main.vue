@@ -87,8 +87,6 @@ const getEatingRecord = async () => {
 }
 
 onUpdated(() => {
-  console.log(store.state.userStore.userInfo.id)
-
   // 다른 함수를 실행
   getEatingRecord()
 
