@@ -98,7 +98,7 @@ const getData = async ()=>{
               운동 1
             </span>
             <div class="d-flex">
-              <span class="app-timeline-meta align-self-center">{{ data[0]?.ename }}, 시간당 소모칼로리</span>
+              <span class="app-timeline-meta align-self-center">{{ data[0]?.ename }}, 시간당 {{ data[0]?.calories_per_hour }}칼로리 </span>
               <VCheckbox
                 v-model="isChecked1"
                 color="info" 
@@ -140,7 +140,7 @@ const getData = async ()=>{
               운동 2
             </span>
             <div class="d-flex">
-              <span class="app-timeline-meta align-self-center">{{ data[1]?.ename }}, 시간당 소모칼로리</span>
+              <span class="app-timeline-meta align-self-center">{{ data[1]?.ename }}, 시간당 {{ data[1]?.calories_per_hour }}칼로리</span>
               <VCheckbox
                 v-model="isChecked2"
                 :selecled="isChecked2"
@@ -181,7 +181,7 @@ const getData = async ()=>{
               운동 3
             </span>
             <div class="d-flex">
-              <span class="app-timeline-meta align-self-center">{{ data[2]?.ename }}, 시간당 소모칼로리</span>
+              <span class="app-timeline-meta align-self-center">{{ data[2]?.ename }}, 시간당 {{ data[2]?.calories_per_hour }}칼로리</span>
               <VCheckbox
                 v-model="isChecked3"
                 :selecled="isChecked3"
