@@ -2,11 +2,11 @@
 import AppDateTimePicker from '@/@core/components/app-form-elements/AppDateTimePicker.vue'
 import DrawMap from '@/pages/exercise/map/DrawMap.vue'
 import LikeMap from '@/pages/exercise/map/LikeMap.vue'
-import RecoMap from '@/pages/exercise/map/RecoMap.vue'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import PathConfirmModal from '../PathConfirmModal.vue'
+import axios from '@axios'
 
 const store = useStore()
 
@@ -15,24 +15,27 @@ const userId = userInfo.value.id
 
 //라우트
 const route= useRoute()
+const router = useRouter()
 const activeTab= ref(route.params.recommend)
+
+const controllUploadBtn = ref(true) //업로드 버튼 활성화
 
 //탭
 const tabs = [
+  // {
+  //   title: '추천경로',
+  //   icon: 'mdi-account-group-outline',
+  //   recommend: 'reco',
+  // },
   {
-    title: '추천경로',
-    icon: 'mdi-account-group-outline',
-    recommend: 'reco',
+    title: '새로 그리기',
+    icon: 'mdi-account-outline',
+    recommend: 'self',
   },
   {
     title: '즐겨찾기',
     icon: 'mdi-account-group-outline',
     recommend: 'like',
-  },
-  {
-    title: '그리기',
-    icon: 'mdi-account-outline',
-    recommend: 'self',
   },
 ]
 
@@ -48,6 +51,11 @@ const totalTime = ref("") //경로 총 시간
 const impossibleRoadView = ref(false)
 
 const isUploadClicked = ref(false)
+
+const isSnackbarVisible = ref(false)//스낵바 온오프
+const message = ref('') //스낵바에 뿌려줄 메시지
+
+const selectedPath = ref() //유저가 선택한 경로 값
 
 //지도위에 현재 로드뷰의 위치와, 각도를 표시하기 위한 map walker 아이콘 생성 클래스
 function MapWalker(position){
@@ -128,7 +136,31 @@ const uploadPath = () => {
   isUploadClicked.value = false
   
   //reco, like, self
-  if(activeTab.value === 'self') drawRefComputed.value.uploadDrawPath(userId, isUploadClicked)
+  if(activeTab.value === 'self') {
+    var respMessage = drawRefComputed.value.uploadDrawPath(userId, isUploadClicked)
+    console.log("respMessage:", respMessage[1].value)
+    selectedPath.value = respMessage[1].value
+    
+  }
+}
+
+const uploadPathToMate = mates => {
+  console.log("mates값도 잘 들어와지나 확인", mates)
+  console.log("selectedPath:", selectedPath.value)
+  if(mates !== undefined) selectedPath.value['mate'] = mates //한명의 메이트만 등록
+  axios.post("http://localhost:4000/exercise/upload", JSON.stringify(selectedPath.value), { headers: { 'Content-Type': 'application/json' } })
+    .then(resp=>{
+      console.log(resp.data)
+      message.value = "경로가 성공적으로 등록되었습니다"
+      isSnackbarVisible.value = true
+      router.push({ path: "/main" })
+    })
+    .catch(err=>{
+      console.error(err)
+      message.value = "경로 등록에 실패했습니다"
+      isSnackbarVisible.value = true
+    })
+
 }
 
 const changeValue = val =>{
@@ -145,6 +177,7 @@ watch(startTime, ()=>{
     var endMin = parseInt(endTime.value.split(':')[0])*60+parseInt(endTime.value.split(':')[1])
     if(startMin >= endMin || Math.abs(startMin-endMin) < 10) {
       timeValidityAlert.value = true
+      controllUploadBtn.value = true
       hour.value = '00'
       minute.value = '00'
     }
@@ -159,6 +192,7 @@ watch(startTime, ()=>{
       }
     }
   }
+  if(timeValidityAlert.value === false && date.value != '') controllUploadBtn.value = false
 })
 
 watch(endTime, ()=>{
@@ -167,6 +201,7 @@ watch(endTime, ()=>{
     var endMin = parseInt(endTime.value.split(':')[0])*60+parseInt(endTime.value.split(':')[1])
     if(startMin >= endMin || Math.abs(startMin-endMin) < 10) {
       timeValidityAlert.value = true
+      controllUploadBtn.value = true
       hour.value = '00'
       minute.value = '00'
     }
@@ -181,6 +216,11 @@ watch(endTime, ()=>{
       }
     }
   }
+  if(timeValidityAlert.value === false && date.value != '') controllUploadBtn.value = false
+})
+
+watch(date, ()=>{
+  if(timeValidityAlert.value === false && date.value != '') controllUploadBtn.value = false
 })
 </script>
 
@@ -242,26 +282,30 @@ watch(endTime, ()=>{
             class="mb-6 disable-tab-transition"
             :touch="false"
           >
-            <VWindowItem value="reco">
+            <!--
+              <VWindowItem value="reco">
               <RecoMap
-                ref="recoRef"
-                :controll-road-view="impossibleRoadView"
+              ref="recoRef"
+              :controll-road-view="impossibleRoadView"
               />
-            </VWindowItem>
-
-            <VWindowItem value="like">
-              <LikeMap
-                ref="likeRef"
-                :controll-road-view="impossibleRoadView"
-              />
-            </VWindowItem>
-
+              </VWindowItem>
+            -->
+            
             <VWindowItem value="self">
               <DrawMap
                 ref="drawRef"
                 :controll-road-view="impossibleRoadView"
                 :selected-time="totalTime" 
+                :date="date"
+                :start-time="startTime"
+                :end-time="endTime"
                 @refresh-child-road="createRoadView"
+              />
+            </VWindowItem>
+            <VWindowItem value="like">
+              <LikeMap
+                ref="likeRef"
+                :controll-road-view="impossibleRoadView"
               />
             </VWindowItem>
           </VWindow>
@@ -290,12 +334,23 @@ watch(endTime, ()=>{
               variant="text"
               color="info"
               style=" margin-left: 10px;float: inline-end; font-size: medium;"
+              :disabled="controllUploadBtn"
               @click="uploadPath"
             />
             <PathConfirmModal
               v-model:isDialogVisible="isUploadClicked"
+              :start-time="startTime"
+              :end-time="endTime"
+              :date="date"
               @return-bool="changeValue"
+              @return-selected-mate="uploadPathToMate"
             />
+            <VSnackbar
+              v-model="isSnackbarVisible"
+              :timeout="1500"
+            >
+              {{ message }}
+            </VSnackbar>
           </div>
           <!-- 지도 탭 end -->
         </VCard>

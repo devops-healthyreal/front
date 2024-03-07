@@ -12,15 +12,19 @@ var startPosition = ref(null) //출발 위치와 도착위치가 겹치는 것�
 export function getNameFromlatlng(coord) { //위치 좌표를 도로명 주소 정보로 반환
   var geocoder = new kakao.maps.services.Geocoder()
   const pointname = ref('')
+  const addrname = ref('')
   var callback = function(result, status) {
     if (status === kakao.maps.services.Status.OK) {
       var temp = result[0].address.address_name.split(" ")
+
+      //pointname.value = temp[temp.length-3]+" "+temp[temp.length-2]+" "+temp[temp.length-1]
       pointname.value = temp[temp.length-2]+" "+temp[temp.length-1]
+      addrname.value = temp[temp.length-3]
     }
   }
   geocoder.coord2Address(coord.getLng(), coord.getLat(), callback)
   
-  return pointname
+  return [pointname, addrname]
 }
 
 // 키워드 검색을 요청하는 함수입니다

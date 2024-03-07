@@ -81,7 +81,6 @@
 <script>
 import * as mapSearch from '@/pages/exercise/mapSearch'
 import { isSearchListClicked } from '@/pages/exercise/mapSearch'
-import axios from '@axios'
 import { ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { createRoadView } from '../createRoadView'
@@ -89,21 +88,33 @@ import { createRoadView } from '../createRoadView'
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId=computed(() => ref(userInfo.value.id))
+const message = ref("경로 등록에 실패했습니다")
 
 console.log("처음 connetId", connetId)
 var lat = []
 var lng = []
 const totalDistance = ref() //그려진 polyline의 거리
 const totalDots = ref([]) //그려진 polyline의 경로
-const totalDotsName = ref([]) //각 지점의 도로명 주소
+const totalDotsName = ref([]) //각 지점의 info name
+const totalDotsMainaddr = ref([]) //각 지점의 시/군/구
 const inputTime = ref() //사용자로부터 받은 분 단위의 시간
 const walkTime = ref() //걸은 시간
+const requestBody = ref()
 
 
 export default {
   name: "DrawMap",
   props: {
     selectedTime: {
+      type: String,
+    },
+    date: {
+      type: String,
+    },
+    startTime: {
+      type: String,
+    },
+    endTime: {
       type: String,
     },
   },
@@ -127,7 +138,6 @@ export default {
   created() {
     watch(
       ()=>this.selectedTime, ()=>{
-        console.log("제발 찍혀라", this.selectedTime)
         inputTime.value = this.selectedTime
       },
     )
@@ -154,36 +164,41 @@ export default {
   }, //mounted
   methods: {
     uploadDrawPath(userId, isUploadClicked){
-      console.log("두번째 인자는 객체니?", isUploadClicked)
-      console.log("DrawMap ref:", totalDistance.value)
-      console.log("totalDots.value:", totalDots.value)
-      console.log("totalDotsName.value:", totalDotsName.value)
-      console.log(userId)
+
       if(totalDistance.value == undefined) {alert("등록할 경로가 없습니다")}
       else{
         walkTime.value = totalDistance.value / 67 | 0 //분 기준
         console.log("걸은시간: ", walkTime.value)
-        console.log('사용자가 선택한 시간: ', this.selectedTime)
+        console.log('사용자가 선택한 시간: ', this.startTime)
+        console.log('사용자가 선택한 날짜: ', this.date) 
         if(this.selectedTime < walkTime.value) {
           alert("선택한 시간이 경로의 소요시간에 비해 다소 짧습니다")
+        }
+        else if(this.date == ""){
+          alert("날짜를 선택해주세요")
         }
         else{
           for(var i=0; i<totalDotsName.value.length; i++) {
             totalDotsName.value[i] = totalDotsName.value[i].value
+            totalDotsMainaddr.value[i] = totalDotsMainaddr.value[i].value
           }
           console.log("connectId 체크", connetId)
-          axios.post("http://localhost:4000/exercise/upload", JSON.stringify({
+
+          requestBody.value = {
             id: userId,
             time: walkTime.value,
             roadPoint: totalDots.value,
             roadPointName: totalDotsName.value,
-          }), { headers: { 'Content-Type': 'application/json' } })
-            .then(resp=>{
-              console.log(resp.data)
-            })
+            roadPointAddrName: totalDotsMainaddr.value,
+            schStart: `${this.date} ${this.startTime}:00`,
+            schEnd: `${this.date} ${this.endTime}:00`,
+          }
+
           isUploadClicked.value=true
         }
       }
+      
+      return [message, requestBody]
     },
     addMarker(){
       mapSearch.addTempMarker(this.drawingMap)
@@ -382,7 +397,8 @@ export default {
             console.log('dots:', dots)
             for(const dot of dots) {
               totalDots.value.push(dot.position)
-              totalDotsName.value.push(mapSearch.getNameFromlatlng(dot.position))
+              totalDotsName.value.push(mapSearch.getNameFromlatlng(dot.position)[0])
+              totalDotsMainaddr.value.push(mapSearch.getNameFromlatlng(dot.position)[1])
             }
             console.log('totalDOts:', totalDots.value)
             console.log(walkTime)
