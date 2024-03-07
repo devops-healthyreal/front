@@ -1,7 +1,7 @@
 <script setup>
-import NutrientAnalysis from '@/components/dialogs/NutrientAnalysis.vue'
-import axios from '@axios'
-import { useStore } from 'vuex'
+import NutrientAnalysis from '@/components/dialogs/NutrientAnalysis.vue';
+import axios from '@axios';
+import { useStore } from 'vuex';
 
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
@@ -190,8 +190,8 @@ const handleSubmit = async(connetId, selectcurr, bfood) =>{
             <VSelect
               v-model="selectcurr"
               :items="selectitem"
-              label="식사을 선택해주세요"
-              placeholder="식사을 선택해주세요"
+              label="식사를 선택해주세요"
+              placeholder="식사를 선택해주세요"
             />
           </VCol>
           <!-- 식전사진 업로드 -->

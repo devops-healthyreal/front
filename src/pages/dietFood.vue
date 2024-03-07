@@ -144,6 +144,17 @@ const getrecipe = async (connetId, choicecategory, index) =>{
     })
 }
 
+
+const searchRestaurant = ref('')
+const searchindex = ref('')
+
+const getRestaurant = (foodname, index) =>{
+  isCheckedRestaurant.value = true
+  searchRestaurant.value = foodname
+  searchindex.value = index
+  console.log(searchRestaurant.value)
+}
+
 const getcategory = async index =>{
   console.log('들어온 인덱스:', index)
   dietPlansListtype.value = index
@@ -231,6 +242,13 @@ const handleIconClicked = data => {
 onMounted(getEatingRecord)
 
 watch(router, fetchProjectData, { immediate: true })
+
+const Rsave = async () =>{
+  await axios.get('http://localhost:8001/echo', { params: { msg: 'Hello' } })
+    .then(response => {
+      console.log("제발..:", response.data)
+    })
+}
 </script>
 
 <template>
@@ -387,16 +405,26 @@ watch(router, fetchProjectData, { immediate: true })
             <VBtn
               color="warning"
               variant="elevated"
-              @click="isCheckedRestaurant = true"
+              @click="getRestaurant(dietinfo[list.index].eating_foodname, list.index)"
             >
+              <!-- {{ dietinfo[list.index].eating_foodname }} -->
+              <!-- @click="isCheckedRestaurant = true" -->
+              <!-- @click="getRestaurant(dietinfo[list.index].eating_foodname, list.index)" -->
               음식점
+            </VBtn>
+            <VBtn @click="Rsave">
+              R 연결 체크
             </VBtn>
           </VCardText>
         </VCard>
       </VCol>
     </VRow>
     <UserCheckedRecipe v-model:isDialogVisible="isCheckedRecipe" />
-    <UserFindRestaurant v-model:isDialogVisible="isCheckedRestaurant" />
+    <UserFindRestaurant 
+      v-model:isDialogVisible="isCheckedRestaurant" 
+      :search-restaurant="searchRestaurant"
+      :searchindex="searchindex"
+    />
     <UserCategory
       v-model:isDialogVisible="isCategory"
       :choicecategory="choicecategory"

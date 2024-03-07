@@ -5,7 +5,7 @@ import Timeline from '@/pages/components/timeline.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
 import axios from '@axios'
 import mainImg from "@images/cards/card-meetup_copy_1.jpg"
-import { computed, ref } from 'vue'
+import { computed, onUpdated, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import MainMap from './exercise/map/MainMap.vue'
@@ -37,13 +37,10 @@ const getEatingRecord = async () => {
 
     const connetId = userInfo.value.id
 
-    console.log('4차')
-    console.log('체크해보자 : '+connetId)
     await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
       .then(response => {
         if(response.data.length > 0){
-          // 초기화
-          console.log('여긴안돼')
+
           dietinfo.value = [[], [], []]
 
           response.data.forEach(data => {
@@ -80,24 +77,15 @@ const getEatingRecord = async () => {
               }
             })
         }
-        console.log('가져온 유저 Eating_Record', dietinfo.value)
       })
   }
   
 }
 
-onMounted(() => {
+onUpdated(() => {
+  // 다른 함수를 실행
+  getEatingRecord()
 
-  console.log('2차') // 2차 출력됨
-  if(store.state.userStore.userInfo != null){
-    console.log(store.state.userStore.userInfo.id)
-
-    // 다른 함수를 실행
-    getEatingRecord()
-  }
-  else{
-    router.go(0)
-  }
 })
 
      
@@ -148,6 +136,18 @@ const dietPlansList = [
 const moveRecipe = () => {
   router.push({ path: "/dietfood" })
 }
+
+const summaryData = ref([])
+ 
+const handleSummaryUpdate = newSummaryArray => {
+  const summaries = newSummaryArray.map(item => item.summary)
+
+  summaryData.value = summaries
+}
+
+const startTTS = () => {
+  startSynthesis(summaryData.value)
+}
 </script>
 
 <template>
@@ -172,7 +172,7 @@ const moveRecipe = () => {
               </h6>
             </VExpansionPanelTitle>
             <VExpansionPanelText>
-              <Calendar />
+              <Calendar :connet-id="connetId" />
             </VExpansionPanelText>
           </VExpansionPanel>
         </VExpansionPanels>
@@ -259,7 +259,7 @@ const moveRecipe = () => {
               <VBtn
                 style="height: 40px;"
                 variant="text"
-                @click="startSynthesis('오늘의 스케줄을 시작합니다.')"
+                @click="startTTS"
               >
                 <VIcon
                   start
@@ -277,7 +277,7 @@ const moveRecipe = () => {
         cols="12"
         md="4"
       >
-        <CrmActivityTimeline />
+        <CrmActivityTimeline @update:summary="handleSummaryUpdate" />
         <Timeline />
       </VCol>
     </VRow>

@@ -362,34 +362,6 @@ onMounted(getallergyInfo)
             <!--   첫번째 줄  -->
             <VRow>
               <VCol cols="3">
-                <p />생체 정보
-              </VCol>
-              <VCol
-                cols="12"
-                md="3"
-              >
-                <VTextField
-                  v-model="formData.age"
-                  placeholder="ex)30"
-                  label="연령"
-                />
-              </VCol>
-
-              <VCol
-                cols="12"
-                md="3"
-              >
-                <VTextField
-                  v-model="formData.gender"
-                  placeholder="ex)남"
-                  label="성별"
-                />
-              </VCol>
-              <VCol cols="2" />
-            </VRow>
-            <!--   두번째 줄  -->
-            <VRow>
-              <VCol cols="3">
                 <p />평균 수면 시간
               </VCol>
               <VCol
@@ -443,7 +415,7 @@ onMounted(getallergyInfo)
                         <VImg
                           id="diaryImages"
                           :src="imageUrl"
-                          style="align-self: center; margin: 50px;"
+                          style=" width: 550px; height: 550px;align-self: center; margin: 50px;"
                         />
                       </VRow>
                     </VRow>
@@ -476,7 +448,7 @@ onMounted(getallergyInfo)
                 id="diaryImages"
                 v-model="formData.imageUrl"
                 :src="imageUrl"
-                style="align-self: center; margin: 50px;"
+                style=" width: 600px; height: 600px; align-self: center; margin: 50px;" 
               />  
             </VRow>
             <!-- 너무 길다싶으면 style="width: ;" 이거 줘서 줄이면 됩니다 -->

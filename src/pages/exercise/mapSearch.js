@@ -219,7 +219,7 @@ export function addMarker(position) {
   return marker
 }
 
-export function addTempMarker(param_map) {
+export function addTempMarker(param_map) { //사용자가 조정 가능한 마커 생성용
 
   map.value = param_map
   var markerImage = new kakao.maps.MarkerImage(
