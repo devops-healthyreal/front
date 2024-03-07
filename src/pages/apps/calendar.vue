@@ -6,9 +6,18 @@ import {
 import { useCalendarStore } from '@/views/apps/calendar/useCalendarStore'
 import { useResponsiveLeftSidebar } from '@core/composable/useResponsiveSidebar'
 import FullCalendar from '@fullcalendar/vue3'
+import { computed, ref } from 'vue'
 
 // Components
 import CalendarEventHandler from '@/views/apps/calendar/CalendarEventHandler.vue'
+
+const props = defineProps({
+  connetId: {
+    type: String,
+    required: true,
+  },
+})
+
 
 const store = useCalendarStore()
 
@@ -36,6 +45,58 @@ const checkAll = computed({
       store.selectedCalendars = []
   },
 })
+
+
+/*
+onMounted(async()=> await getData())
+
+const Data = ref()
+async function getData() {
+  try {
+    const response = await axios.post('http://localhost:4000/sch/seleteOne.do', { id: props.connetId })
+
+    console.log("달력값 가져왔어??", response.data)
+    Data.value = response.data
+
+  } catch (error) {
+    console.error(error)
+  }
+}
+*/
+const availableCalendars = ref([
+  {
+    color: 'success',
+    label: '일정',
+    value: 1,
+  },
+  {
+    color: 'error',
+    label: '아침',
+    value: 2,
+  },
+  {
+    color: 'warning',
+    label: '점심',
+    value: 3,
+  },
+  {
+    color: '',
+    label: '저녁',
+    value: 4,
+  },
+  {
+    color: 'info',
+    label: '운동',
+    value: 5,
+  },
+  {
+    color: 'secondary',
+    label: '경로',
+    value: 6,
+  },
+])
+
+const selectedCalendars = ref([])
 </script>
 
 <template>
@@ -72,9 +133,9 @@ const checkAll = computed({
                   color="secondary"
                 />
                 <VCheckbox
-                  v-for="calendar in store.availableCalendars"
+                  v-for="calendar in availableCalendars"
                   :key="calendar.label"
-                  v-model="store.selectedCalendars"
+                  v-model="selectedCalendars"
                   :value="calendar.label"
                   :color="calendar.color"
                   :label="calendar.label"
@@ -95,6 +156,13 @@ const checkAll = computed({
       </VLayout>
     </VCard>
     <CalendarEventHandler
+      v-model:isDrawerOpen="isEventHandlerSidebarActive"
+      :event="event"
+      @add-event="addEvent"
+      @update-event="updateEvent"
+      @remove-event="removeEvent"
+    />
+    <CalendarEventHandlerEdit
       v-model:isDrawerOpen="isEventHandlerSidebarActive"
       :event="event"
       @add-event="addEvent"
