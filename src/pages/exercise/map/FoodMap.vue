@@ -14,6 +14,8 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(['restaurantSave'])
+
 const searchplace = ref(props.userarea + props.searchRestaurant)
 
 const map = ref() //지도객체
@@ -138,8 +140,11 @@ const changePath = () => {
 //   map.value.setBounds(bounds.value)
 }
 
+const saveRestaurant = ref([])
+
 const choosePlace = item =>{
-  console.log(item)
+  saveRestaurant.value = item
+  console.log('아이템 값 : ', saveRestaurant.value)
   var ln
   var la
   getCurrentPosition()
@@ -152,7 +157,10 @@ const choosePlace = item =>{
     .catch(err => {
       console.error(err)
     })
+    
+  emit('restaurantSave', item)
 }
+
 
 //////////////////////////////////////////////////////
 </script>
@@ -160,26 +168,32 @@ const choosePlace = item =>{
 <template>
   {{ searchResult[0]?'':'검색 결과가 없습니다.' }}
   <div :style="{'width':'100%','height':'450px'}">    
-    <Ui
-      v-for="item in searchResult"
-      :key="item.id"
+    <div
+      :style="{'width':'100%', 'height':'100px', 'overflow-y':'auto'}"
+      class="scrollbar"
     >
-      <VBtn
-        id="placesList"        
-        variant="plane"
-        @click="choosePlace(item)"
+      <Ui
+        v-for="item in searchResult"
+        :key="item.id"        
       >
-        <table>
-          <tr>
-            <td>
-              {{ item.place_name }}
-            </td> 
-            <td>({{ item.address_name }})</td>
-          </tr>
-        </table>
-        <!-- ({{ item.address_name }} ) -->
-      </VBtn><br>
-    </Ui>
+        <VBtn
+          id="placesList"                  
+          variant="plane"
+          style="width:100%"
+          @click="choosePlace(item)"
+        >
+          <table>
+            <tr>
+              <td>
+                {{ item.place_name }}
+              </td> 
+              <td>({{ item.address_name }})</td>
+            </tr>
+          </table>
+        </VBtn><br>
+      </Ui>
+    </div>
+    <br><VDivider /><br>
     <div
       id="map"
       :style="{'width':'100%','height':'450px'}"
@@ -187,3 +201,9 @@ const choosePlace = item =>{
   </div>
   <!-- v-if="searchResult && searchResult.length > 0" -->
 </template>
+
+<style>
+#placesList:active {
+  background-color: lightblue; /* 클릭했을 때의 배경색 설정 */
+}
+</style>
