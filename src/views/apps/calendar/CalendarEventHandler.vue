@@ -167,12 +167,10 @@ async function handleSubmit() {
     id: userInfo.value.id,
   }
 
-  console.log("보내기 전 데이터:", postData)
 
   try {
     const response = await axios.post('http://localhost:4000/sch/insert.do', postData)
 
-    console.log("달력값 들어갔어??", response.data)
     emit('update:isDrawerOpen', false)
   } catch (error) {
     console.error(error)

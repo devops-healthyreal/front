@@ -1,8 +1,6 @@
 import { useCalendarStore } from '@/views/apps/calendar/useCalendarStore'
 import axios from '@axios'
 import { useThemeConfig } from '@core/composable/useThemeConfig'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import interactionPlugin from '@fullcalendar/interaction'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import { useStore } from 'vuex'
 
@@ -148,12 +146,8 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
 
   // 캘린더의 옵션을 설정합니다.
   const calendarOptions = {
-    plugins: [dayGridPlugin, interactionPlugin, timeGridPlugin], // 사용할 플러그인들입니다.
-    initialView: 'dayGridMonth', // 초기 뷰를 '월'로 설정합니다.
-    headerToolbar: {
-      start: 'drawerToggler,prev,next title', // 좌측에 드로어 토글 버튼과 이전/다음 버튼, 타이틀을 표시합니다.
-      end: 'dayGridMonth,timeGridWeek,timeGridDay', // 우측에 월/주/일/목록 뷰로 전환하는 버튼을 표시합니다.
-    },
+    plugins: [timeGridPlugin], // 사용할 플러그인들입니다.
+    initialView: 'timeGridDay', // 초기 뷰를 '월'로 설정합니다.
     events: function(fetchInfo, successCallback) {
       // 1. 서버에 요청을 보내 데이터를 가져옵니다.
       axios.post('http://localhost:4000/sch/seleteAll.do', {
@@ -264,17 +258,17 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
       return {
         html: `
         <div>
-        <strong>제목:${event.title ? event.title : ''}</strong>
-        <p>${event.calendar ? (event.calendar === 1 ? '일정' : 
-    event.calendar === 2 ? '아침' : 
-      event.calendar === 3 ? '점심' : 
-        event.calendar === 4 ? '저녁' : 
-          event.calendar === 5 ? '운동' : 
-            event.calendar === 6 ? '경로' : '') : ''} : ${event.eat ? event.eat : ''}${event.exercise ? event.exercise : ''}</p>
+        <strong>${event.title ? '제목 : '+event.title : ''}</strong>
+        <p>${event.calendar ? (event.calendar === 1 ? '일정 :' : 
+    event.calendar === 2 ? '아침 :' : 
+      event.calendar === 3 ? '점심 :' : 
+        event.calendar === 4 ? '저녁 :' : 
+          event.calendar === 5 ? '운동 :' : 
+            event.calendar === 6 ? '경로 :' : '') : ''} ${event.eat ? event.eat : ''}${event.exercise ? event.exercise : ''}</p>
         <p>출발지 : ${event.startArea ? event.startArea : ''}</p>
         <p>목적지 : ${event.endArea ? event.endArea : ''}</p>
-        <p>내용 : ${event.content ? event.content : ''}</p>
-        <p>메이트 : ${event.sMate ? event.sMate : ''}</p>
+        <p> ${event.content ?  '내용 : '+event.content : ''}</p>
+        <p> ${event.sMate ? '메이트 : '+event.sMate : ''}</p>
       </div>
       `,
       }

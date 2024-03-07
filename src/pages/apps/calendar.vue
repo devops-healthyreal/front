@@ -162,13 +162,6 @@ const selectedCalendars = ref([])
       @update-event="updateEvent"
       @remove-event="removeEvent"
     />
-    <CalendarEventHandlerEdit
-      v-model:isDrawerOpen="isEventHandlerSidebarActive"
-      :event="event"
-      @add-event="addEvent"
-      @update-event="updateEvent"
-      @remove-event="removeEvent"
-    />
   </div>
 </template>
 
