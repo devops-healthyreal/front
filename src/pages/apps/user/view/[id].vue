@@ -9,6 +9,7 @@ import UserPaymentList from '@/views/apps/user/view/UserPaymentList.vue'
 import ApexChartAreaChart from '@/views/charts/apex-chart/ApexChartAreaChart.vue'
 import ChartJsPolarAreaChart from '@/views/charts/chartjs/ChartJsPolarAreaChart.vue'
 import ChartJsRadarChart from '@/views/charts/chartjs/ChartJsRadarChart.vue'
+import axios from '@axios'
 import { ref } from 'vue'
 import { useStore } from 'vuex'
 
@@ -76,6 +77,64 @@ const chartJsCustomColors = {
 userListStore.fetchUser(Number(route.params.id)).then(response => {
   userData.value = response.data
 })
+
+const Rsave = async () =>{
+  // DB접속 확인
+  // await axios.get('http://127.0.0.1:8000/api/db', { params: { userid: connetId, con: 'test' } })
+  //   .then(response => {
+  //     console.log("R서버 연결 응답 - ", response.data)
+  //   })
+
+  // Markdown 파일 경로 확인
+  // try {
+  //   const response = await axios.get('http://127.0.0.1:8000/api/markdown')
+
+  //   console.log("R서버 연결 응답 - ", response.data)
+
+  //   const fileUrl = response.data.content
+    
+  //   // 새로운 탭에서 파일 열기
+  //   window.open(fileUrl, "_blank")
+
+  //   // 팝업이 차단되었는지 확인
+  //   // if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+  //   //   alert('팝업 차단이 감지되었습니다. 팝업 차단을 해제하고 다시 시도하세요.')
+  //   // }
+  // } catch (error) {
+  //   console.error("오류 발생:", error)
+  // }
+
+  // 렌더링된 html 받아서 파일 열기
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/api/htmlfile')
+    const htmlContent = response.data.content
+
+    // 새로운 팝업 창 열기
+    const newWindow = window.open("", "_blank")
+    
+    // HTML 내용을 팝업 창에 쓰기
+    newWindow.document.write(htmlContent)
+  } catch (error) {
+    console.error("오류 발생:", error)
+  }
+
+  // 아래는 수정 중
+  // try {
+  //   const response = await axios.get('http://127.0.0.1:8000/api/markdown', { params: { userid: connetId } })
+
+  //   console.log("R서버 연결 응답 - ", response.data)
+
+  //   const htmlContent = response.data.content
+
+  //   // 새로운 팝업 창 열기
+  //   const newWindow = window.open("", "_blank")
+    
+  //   // HTML 내용을 팝업 창에 쓰기
+  //   newWindow.document.write(htmlContent)
+  // }catch (error) {
+  //   console.error("오류 발생:", error)
+  // }
+}
 </script>
 
 <template>
@@ -156,6 +215,11 @@ userListStore.fetchUser(Number(route.params.id)).then(response => {
                   <ChartJsPolarAreaChart :colors="chartJsCustomColors" />
                 </VCardText>
               </VCard>
+              <VCol>
+                <VBtn @click="Rsave">
+                  보고서
+                </VBtn>
+              </VCol>
             </VCol>
           </VRow>
         </VWindowItem>

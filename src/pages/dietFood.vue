@@ -242,13 +242,6 @@ const handleIconClicked = data => {
 onMounted(getEatingRecord)
 
 watch(router, fetchProjectData, { immediate: true })
-
-const Rsave = async () =>{
-  await axios.get('http://localhost:8001/echo', { params: { msg: 'Hello' } })
-    .then(response => {
-      console.log("제발..:", response.data)
-    })
-}
 </script>
 
 <template>
@@ -399,7 +392,6 @@ const Rsave = async () =>{
               style=" width: 90px;margin-right: 5px;"
               @click="getrecipe(connetId, choicecategorydata[list.index], list.index), isRecipe = true"
             >
-              <!-- @click="getrecipe(connetId, list.title == '아침 메뉴'? choicecategorydata[0]: list.title == '점심 메뉴'?choicecategorydata[1]:choicecategorydata[2], list.index), isRecipe = true" -->
               식단 재추천
             </VBtn>
             <VBtn
@@ -407,13 +399,7 @@ const Rsave = async () =>{
               variant="elevated"
               @click="getRestaurant(dietinfo[list.index].eating_foodname, list.index)"
             >
-              <!-- {{ dietinfo[list.index].eating_foodname }} -->
-              <!-- @click="isCheckedRestaurant = true" -->
-              <!-- @click="getRestaurant(dietinfo[list.index].eating_foodname, list.index)" -->
               음식점
-            </VBtn>
-            <VBtn @click="Rsave">
-              R 연결 체크
             </VBtn>
           </VCardText>
         </VCard>
