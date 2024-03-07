@@ -1,4 +1,6 @@
 <script setup>
+import axios from '@axios'
+import { useStore } from 'vuex'
 import FoodMap from '../../pages/exercise/map/FoodMap.vue'
 
 const props = defineProps({
@@ -17,15 +19,58 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:isDialogVisible'])
+
+const store = useStore()
+
+// 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
+const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId=computed(() => userInfo.value.id)
+
 const search = ref('')
 const userarea = ref('강남구 ') //타임라인에서 위치정보값 받거나 유저의 default 주소
 
 /////////////////////////////////////////////////////
+
 const saverestaurant = async () => {
   console.log('저장하기 버튼 클릭')
+
+  // 전체 주소를 띄워쓰기를 기준으로 자르고 배열로 만듭니다.
+  const addressParts = restaurant.value.address_name.split(' ')
+
+  console.log('주소 : ', addressParts)
+
+  // 3번째와 4번째 값을 추출하여 roadPointName 배열에 추가합니다.
+  const roadPointName = `${addressParts[2]} ${addressParts[3]}`
+
+  console.log('roadPointName -', roadPointName)
+
+
+  // roadPoint를 객체 배열로 만듭니다.
+  const roadPoint = [
+    { La: restaurant.value.x, Ma: restaurant.value.y },
+  ]
+
+  await axios.post('http://localhost:4000/exercise/upload', JSON.stringify({
+    id: connetId.value,
+    time: 2,
+    roadPoint: roadPoint,
+    roadPointName: [roadPointName],
+  }), { headers: { 'Content-Type': 'application/json' } })
 }
 
+
 /////////////////////////////////////////////////////
+
+const restaurant = ref('')
+
+const handleRestaurant = restaurantSave =>{
+  restaurant.value = restaurantSave
+  console.log('선택한 정보', restaurant.value)
+}
+
+const Initialization = () =>{
+  restaurant.value = ''
+}
 </script>
 
 <template>
@@ -40,21 +85,30 @@ const saverestaurant = async () => {
       <DialogCloseBtn
         variant="text"
         size="small"
-        @click="$emit('update:isDialogVisible', false)"
+        @click="$emit('update:isDialogVisible', false), Initialization()"
       />
 
-      <VCardItem class="text-center">
-        <VCardTitle class="text-h5 mb-5">
-          {{ searchindex == 0? '아침' : searchindex == 1? '점심' : '저녁' }} 음식점
-        </VCardTitle>
-        <VBtn
-          color="warning"
-          @click="saverestaurant"
-        >
-          저장하기
-        </VBtn>
+      <VCardItem>
+        <div class="d-flex justify-between align-center">
+          <div
+            class="text-h5"
+            style="margin:0 auto;"
+          >
+            <VCardTitle style="margin-left: 120px;">
+              <strong>{{ searchindex == 0? '아침' : searchindex == 1? '점심' : '저녁' }} 음식점</strong>
+            </VCardTitle>
+          </div>
+          <div class="justify-end">
+            <VBtn
+              color="warning"            
+              @click="saverestaurant"
+            >
+              저장하기
+            </VBtn>
+          </div>
+        </div>
         <!-- 실제로 동작은 FoodMap 안에 있는 검색창에서 -->
-        <div>
+        <div class="text-center">
           <form>
             키워드 : <input
               id="keyword"
@@ -77,6 +131,7 @@ const saverestaurant = async () => {
         <FoodMap
           :search-restaurant="searchRestaurant"
           :userarea="userarea"
+          @restaurantSave="handleRestaurant"
         />
         <!--
           <VBtn
