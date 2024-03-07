@@ -164,7 +164,7 @@ const moveRecipe = () => {
               </h6>
             </VExpansionPanelTitle>
             <VExpansionPanelText>
-              <Calendar />
+              <Calendar :connet-id="connetId" />
             </VExpansionPanelText>
           </VExpansionPanel>
         </VExpansionPanels>
