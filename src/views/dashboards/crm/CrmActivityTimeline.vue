@@ -67,7 +67,8 @@ const gotoMap = sno  => {
 <template>
   <VCard
     title="Daily Timeline"
-    style="height: 610px;"
+    style=" width: auto;height: 610px; overflow-y: auto;"
+    class="scrollbar"
   >
     <VCardText>
       <VTimeline
@@ -81,8 +82,8 @@ const gotoMap = sno  => {
           :key="calendarEvent"
           dot-color="error"
           size="x-small"
-          @click="gotoMap(calendarEvent.sno)"
           :style="{ cursor: 'pointer' }"
+          @click="gotoMap(calendarEvent.sno)"
         >
           <VCol>
             <div class="d-flex justify-space-between align-center flex-wrap">

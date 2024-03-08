@@ -128,20 +128,22 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
 
   // 기존 이벤트를 업데이트하는 함수입니다.
   const updateEvent = _event => {
-    store.updateEvent(_event).then(r => {
-      const propsToUpdate = ['id', 'title', 'calendar', 'startArea', 'endArea', 'content', 'eat', 'exercise', 'complete', 'rPathNo', 'sMate']
 
+    store.updateEvent(_event).then(r => {
+      const propsToUpdate = ['no', 'id', 'title', 'calendar', 'startArea', 'endArea', 'content', 'eat', 'exercise', 'complete', 'rPathNo', 'sMate']
+
+
+      //axios.post('http://localhost:4000/sch/update.do', {sNo: , id: , title: , calendar: , startArea: , endArea: ,  content: , exercise: , eat: })
       updateEventInCalendar(r.data.event, propsToUpdate)
     })
   }
 
   // 이벤트를 삭제하는 함수입니다.
-  const removeEvent = eventId => {
-    store.removeEvent(eventId).then(() => {
+  const removeEvent = (eventId, sNo) => {
+    store.removeEvent(eventId, sNo).then(() => {
       removeEventInCalendar(eventId)
     })
   }
-
 
 
   // 캘린더의 옵션을 설정합니다.
@@ -175,7 +177,7 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
               sMate: eventData.smate,
             }
           })
-
+        
           console.log("잘 들어갔는지 확인", events)
 
           // 3. 변환한 이벤트 데이터를 successCallback에 전달합니다.
