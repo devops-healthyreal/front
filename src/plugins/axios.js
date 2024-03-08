@@ -37,7 +37,7 @@ axiosIns.interceptors.response.use(response => {
   // 응답 헤더에서 메세지 확인
   const message = response.headers['X-Message']
 
-  console.log("중요 이거 실행돼?")
+  //console.log("중요 이거 실행돼?")
   if (message === 'Token') {
     // 토큰 추출
     

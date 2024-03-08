@@ -147,15 +147,19 @@ export function drawPolyLine(path, pathName, map, polyline, markers, infos){ //�
         }
       }
       else{
-        for(const element of path.pedePath) {
-          console.log('element[1]:', element[1])
-          tempPath.push(new kakao.maps.LatLng(element[1], element[0]))
-          var temp = []
-          for(const i of path.pointPath){
-            console.log(i)
-            temp.push([i[1], i[0]])
+        console.log("지원되지 않음")
+        if(path.pedePath[0][0] > 100) {
+          console.log("그래서 if문 안으로 들어옴")
+          for(const element of path.pedePath) {
+            console.log('element[1]:', element[1])
+            tempPath.push(new kakao.maps.LatLng(element[1], element[0]))
+            var temp = []
+            for(const i of path.pointPath){
+              console.log(i)
+              temp.push([i[1], i[0]])
+            }
+            path.pointPath = temp
           }
-          path.pointPath = temp
         }
       }
       console.log("Promise에서의 tempPath값:", tempPath)
@@ -172,10 +176,10 @@ export function drawPolyLine(path, pathName, map, polyline, markers, infos){ //�
       console.log('map:', map)
       console.log(polyline.getMap())
       console.log("path:", path)
-      console.log("tempPath:", tempPath)
-      if(isTmapSupported) {
-        console.log("반대")
+      if(path.pointPath[0][0]>100){
+        
       }
+      console.log("tempPath:", tempPath)
       setMarkerNInfo(path.pointPath, pathName, map, markers, infos)
     })//then
 }
