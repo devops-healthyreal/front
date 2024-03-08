@@ -1,11 +1,16 @@
 <script setup>
 import axios from '@axios'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, defineProps, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { transcript } from '/src/pages/stt.js'
 
-const emit = defineEmits(['update:summary'])
+const props = defineProps({
+  rpathNo: {
+    type: String,
+  },
+})
 
+const emit = defineEmits(['update:summary', 'update:rpathNo'])
 const date = new Date()
 const toDay = new Date(date.getFullYear(), date.getMonth(), date.getDate())
 const text = transcript
@@ -59,15 +64,17 @@ const getCalLabel = cal => {
   }
 }
 
-const gotoMap = sno  => {
-  
+const gotoMap = rpathNo  => {
+  console.log("클릭 확인:", rpathNo)
+  emit('update:rpathNo', rpathNo)
 }
 </script>
 
 <template>
   <VCard
     title="Daily Timeline"
-    style="height: 610px;"
+    style=" width: auto;height: 610px; overflow-y: auto;"
+    class="scrollbar"
   >
     <VCardText>
       <VTimeline
@@ -81,11 +88,14 @@ const gotoMap = sno  => {
           :key="calendarEvent"
           dot-color="error"
           size="x-small"
-          @click="gotoMap(calendarEvent.sno)"
-          :style="{ cursor: 'pointer' }"
+         
+          @click="gotoMap(calendarEvent.rpathNo)"
         >
           <VCol>
-            <div class="d-flex justify-space-between align-center flex-wrap">
+            <div
+              class="d-flex justify-space-between align-center flex-wrap"
+              :style="{ cursor: 'pointer' }"
+            >
               <h4 class="app-timeline-title me-1 mb-2">
                 {{ calendarEvent.stitle }}
               </h4>

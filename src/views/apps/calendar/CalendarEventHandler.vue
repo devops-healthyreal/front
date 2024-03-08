@@ -30,6 +30,7 @@ const emit = defineEmits([
 const refForm = ref()
 
 
+
 // 👉 Event
 const event = ref(JSON.parse(JSON.stringify(props.event)))
 
@@ -43,7 +44,10 @@ const resetEvent = () => {
 watch(() => props.isDrawerOpen, resetEvent)
 
 const removeEvent = () => {
-  emit('removeEvent', event.value.id)
+
+  console.log('삭제할거다~~~', event)
+
+  //emit('removeEvent', event.value.id, event.value,)
 
   // Close drawer
   emit('update:isDrawerOpen', false)

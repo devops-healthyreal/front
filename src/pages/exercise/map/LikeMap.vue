@@ -236,6 +236,7 @@ const changePath = () => {
 const test = () => {
   console.log("test용")
 }
+
 </script>
 
 <style>

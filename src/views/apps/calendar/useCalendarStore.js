@@ -5,34 +5,34 @@ export const useCalendarStore = defineStore('calendar', {
   state: () => ({
     availableCalendars: [
       {
-        color: 'error',
+        color: 'success',
         label: '일정',
-        value: 0,
+        value: 1,
       },
       {
-        color: 'primary',
+        color: 'error',
         label: '아침',
-        value: 1,
+        value: 2,
       },
       {
         color: 'warning',
         label: '점심',
-        value: 2,
-      },
-      {
-        color: 'success',
-        label: '저녁',
         value: 3,
       },
       {
-        color: 'secondary',
-        label: '운동',
+        color: '',
+        label: '저녁',
         value: 4,
       },
       {
         color: 'info',
-        label: '경로',
+        label: '운동',
         value: 5,
+      },
+      {
+        color: 'secondary',
+        label: '경로',
+        value: 6,
       },
     ],
     selectedCalendars: ['일정', '아침', '점심', '저녁', '운동', '경로'],
@@ -49,8 +49,8 @@ export const useCalendarStore = defineStore('calendar', {
     async updateEvent(event) {
       return axios.post(`http://localhost:4000/apps/calendar/${event.id}`, { event })
     },
-    async removeEvent(eventId) {
-      return axios.delete(`http://localhost:4000/apps/calendar/${eventId}`)
+    async removeEvent(eventId, sNo) {
+      return axios.post('http://localhost:4000/sch/delete.do', { id: eventId, sNo: sNo })
     },
   },
 })

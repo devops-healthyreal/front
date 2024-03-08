@@ -6,9 +6,16 @@
 </template>
 
 <script setup>
-import { getCurrentPosition, getLatLng, getPedePath } from '@/pages/exercise/googleGeoCoderAPI'
-import { onMounted } from 'vue'
+import { getCurrentPosition, getPedePath } from '@/pages/exercise/googleGeoCoderAPI'
 import axios from '@axios'
+import { defineProps, onMounted, watch, defineExpose } from 'vue'
+
+const props = defineProps({
+  rpathNo: {
+    type: Object,
+  },
+}) 
+
 
 const map = ref() //지도객체
 const markers = ref([]) //지도에 올려줄 마커들을 모아둔 객체 설정
@@ -16,6 +23,16 @@ const infos = ref([]) //지도에 올려줄 인포들을 모아둔 객체 설정
 const polyline = ref() //지도객체 위의 polyline 정보값
 var load = []
 var loadname = []
+const pathNo = ref(421)
+
+
+
+const test = () =>{
+  if(props.rpathNo !== undefined) {
+    console.log("MainMap.vue", props.rpathNo.value)
+    changePath(props.rpathNo.value)
+  }
+}
 
 onMounted(()=>{
   const script = document.createElement("script")
@@ -61,7 +78,7 @@ const initMap = (lng, lat)=>{
     strokeStyle: 'solid',
   })
 
-  axios.get("http://localhost:4000/exercise/schedulepath", { params: { path_no: 421 } })
+  axios.get("http://localhost:4000/exercise/schedulepath", { params: { path_no: pathNo.value } })
     .then(resp=>{
       console.log("지도 실행됨", resp.data)
       loadname = resp.data[0]
@@ -72,27 +89,39 @@ const initMap = (lng, lat)=>{
     })
 }
 
-const changePath = () => {
-  var places = new kakao.maps.services.Places()
-  var load = []
+const changePath = val => {
+  // var places = new kakao.maps.services.Places()
+  // var load = []
 
-  tempPath.forEach(name => {
-    getLatLng(name).then(latlng=> {
-      console.log(`${name} latlng:`, latlng)
-      load.push([latlng.lat, latlng.lng])
+  // tempPath.forEach(name => {
+  //   getLatLng(name).then(latlng=> {
+  //     console.log(`${name} latlng:`, latlng)
+  //     load.push([latlng.lat, latlng.lng])
+  //   })
+  //     .catch(err => {
+  //       places.keywordSearch(name, (result, status)=>{
+  //         if (status === kakao.maps.services.Status.OK) {
+  //           console.log('검색 결과:', result[0]) //위도, 경도 값에 대한 정보가 나와있음
+  //           load.push([result[0].y, result[0].x]) //[x,y] = [lng, lat]
+  //         }
+  //       })
+  //     })
+  // })
+  // getPedePath(load, tempPath, map.value, polyline.value, markers, infos)
+  // map.value.relayout()
+
+  axios.get("http://localhost:4000/exercise/schedulepath", { params: { path_no: val } })
+    .then(resp=>{
+      console.log("지도 실행됨", resp.data)
+      loadname = resp.data[0]
+      console.log('load:', load)
+      load = resp.data[1]
+      console.log('loadname', loadname)
+      getPedePath(load, loadname, map.value, polyline.value, markers, infos)
     })
-      .catch(err => {
-        places.keywordSearch(name, (result, status)=>{
-          if (status === kakao.maps.services.Status.OK) {
-            console.log('검색 결과:', result[0]) //위도, 경도 값에 대한 정보가 나와있음
-            load.push([result[0].y, result[0].x]) //[x,y] = [lng, lat]
-          }
-        })
-      })
-  })
-  getPedePath(load, tempPath, map.value, polyline.value, markers, infos)
-  map.value.relayout()
 }
+
+defineExpose({ test })
 </script>
 
 <style>

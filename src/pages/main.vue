@@ -5,7 +5,7 @@ import Timeline from '@/pages/components/timeline.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
 import axios from '@axios'
 import mainImg from "@images/cards/card-meetup_copy_1.jpg"
-import { computed, onUpdated, ref } from 'vue'
+import { computed, onUpdated, ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import MainMap from './exercise/map/MainMap.vue'
@@ -16,6 +16,7 @@ import { startSynthesis } from './tts.js'
 
 const router = useRouter()
 const store = useStore()
+const rpathNo = ref() //지도 번호
 
 // computed를 import합니다.
 const userInfo = computed(() => store.state.userStore.userInfo)
@@ -88,7 +89,24 @@ onUpdated(() => {
 
 })
 
-     
+
+const test = () => {
+  console.log("테스트용 클릭 이벤트; ", rpathNo)
+}
+
+const mainMapNo = ref()
+
+const mainMapRef = ref(null)
+
+
+const refs = ref(null)
+
+watch(rpathNo, () => {
+  console.log("main.vue에서 값 변경을 확인", rpathNo)
+  mainMapNo.value = rpathNo
+  
+  mainMapRef.value.test()
+})
 
 const userTab = ref(null)
 
@@ -249,7 +267,10 @@ const startTTS = () => {
 
           <!-- ------------------경로-------------------- -->
           <VWindowItem>
-            <MainMap />
+            <MainMap
+              ref="mainMapRef"
+              v-model:rpathNo="mainMapNo"
+            />
           </VWindowItem>
         </VWindow>
         <VCol cols="12" />
@@ -277,7 +298,11 @@ const startTTS = () => {
         cols="12"
         md="4"
       >
-        <CrmActivityTimeline @update:summary="handleSummaryUpdate" />
+        <CrmActivityTimeline
+          v-model:rpathNo="rpathNo"
+          @update:summary="handleSummaryUpdate"
+          @click="test"
+        />
         <Timeline />
       </VCol>
     </VRow>
