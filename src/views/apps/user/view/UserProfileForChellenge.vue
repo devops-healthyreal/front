@@ -189,11 +189,11 @@ async function uploadImage(participant) {
 const isHovered = ref(false)
 
 const handleMouseOver = participant =>{
-  participant.isHovered.value = true
+  participant.isHovered = true
 }
 
 const handleMouseLeave = participant =>{
-  participant.isHovered.value = false
+  participant.isHovered = false
 }
 </script>
 
@@ -211,7 +211,7 @@ const handleMouseLeave = participant =>{
             <!-- 👉 Avatar -->
             <VAvatar
               rounded="sm"
-              :size="participant.isHovered ? 200 : 120"
+              :size="participant.isHovered ? 140 : 120"
               :color="!participant.PRO_FILEPATH ? 'primary' : undefined"
               :variant="!participant.PRO_FILEPATH ? 'tonal' : undefined"
               @mouseover="handleMouseOver(participant)"
