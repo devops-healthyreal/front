@@ -1,12 +1,11 @@
 <script setup>
 import AppStepper from '@/@core/components/AppStepper.vue'
-import { ref, watch } from 'vue'
-import exerciseSample from '@/assets/video/exerciseSample.mp4'
 import bench from '@/assets/video/bench.mp4'
 import dead from '@/assets/video/dead.mp4'
+import exerciseSample from '@/assets/video/exerciseSample.mp4'
+import axios from '@axios'
+import { ref, watch, onMounted, reactive, nextTick } from 'vue'
 
-let videoRef1 = ref(null)
-let videoRef2 = ref(null)
 
 
 const time=ref(60)
@@ -55,12 +54,18 @@ const currentExerciseStep = ref(0)  // 운동 단계를 추적하는 변수
 const currentNumberedStep = ref(0)  // numberedSteps 단계를 추적하는 변수
 const isRestTime = ref(false) 
 
+const userVideoRef = ref(null)
+
+const fileInput = ref(null)
+const state = reactive({ videoLoaded: false })
+
 let countDownInterval = null  // 카운트다운 인터벌 저장 변수
 const setCount = ref(5)
 const repetitionCount = ref(10)
 
 const changeVideoSrc = newSrc => {
   videoRef1.value.src = newSrc
+  videoRef2.value.src = newSrc
 }
 
 const resetTimerAndSets = () => {
@@ -94,18 +99,51 @@ const UpdateExerciseSteps = () => {
   }))
 }
 
-const startTimer = () => {
+const similarity = ref(null)
+const video1Path = ref(null)
+const video2Path = ref(null)
   
-  if (currentExerciseStep.value === setCount.value) {  // 세트 수만큼 운동했으면
-    currentExerciseStep.value = 0  // 운동 단계를 초기화
-    currentNumberedStep.value++  // 다음 운동으로 넘어감
-    videoRef1.value.play()
-    
-    return  // 함수 종료 (타이머 시작하지 않음)
-  }
-  
-  videoRef1.value.play()
 
+const startTimer = () => {
+  videoRef1.value.src = "http://localhost:5000/static/exerciseSample.mp4" // 이 코드를 추가하세요.
+  console.log("videoRef1.value.src:", videoRef1.value.src)
+  if (videoRef1.value && fileInput.value) {
+    let formData = new FormData()
+    let file = new Blob([fileInput.value.files[0]], { type: 'video/mp4' })
+    formData.append('video1', videoRef1.value.src)
+    formData.append('video2', file)
+
+    axios.post('http://localhost:5000/pose_detector', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+      .then(response => {
+        similarity.value = response.data.similarity
+        video1Path.value = response.data.video1_path
+        video2Path.value = response.data.process_results[1]  // video2Path를 process_results의 두 번째 항목으로 설정
+
+        console.log(response.data) // 전체 응답 객체 출력
+        console.log("similarity", response.data.similarity) // similarity 값만 출력
+        console.log("video1_path", response.data.video1_path) // video1_path 값만 출력
+        console.log("video2_path", video2Path.value) // video2_path 값만 출력
+      })
+      .catch(error => console.error('Error:', error))
+
+    videoRef1.value.play()
+    userVideoRef.value.play()
+    console.log('chk')
+    if (currentExerciseStep.value === setCount.value) {  
+      currentExerciseStep.value = 0  
+      currentNumberedStep.value++  
+      console.log('chk')
+    
+      return  
+    }
+  }
+
+  videoRef1.value.play()
+  userVideoRef.value.play()
   countDownInterval = setInterval(() => {
     if (time.value > 0) {
       time.value--
@@ -115,11 +153,11 @@ const startTimer = () => {
         time.value = 60
       } else {
         currentExerciseStep.value++
-        if (currentExerciseStep.value >= exerciseSteps.value.length) {  // 모든 세트가 끝났으면
-          clearInterval(countDownInterval)  // 타이머 정지
-          currentExerciseStep.value = 0  // 세트를 초기화
+        if (currentExerciseStep.value >= exerciseSteps.value.length) {  
+          clearInterval(countDownInterval)  
+          currentExerciseStep.value = 0  
           
-          return  // 함수 종료
+          return  
         }
         isRestTime.value = true
         time.value = 30
@@ -128,13 +166,67 @@ const startTimer = () => {
   }, 1000)
 }
 
-
 const stopTimer = () => {
   clearInterval(countDownInterval)
   videoRef1.value.pause()
-  videoRef2.value.pause()
+  userVideoRef.value.pause()
 
 }
+
+
+const videoLoaded = ref(false)
+
+const handleLoadedData = () => {
+  console.log('Video loaded')
+  console.log('userVideoRef.value:', userVideoRef.value)
+  videoLoaded.value = true  // 비디오 로드 완료 시 videoLoaded를 true로 설정
+  console.log('videoLoaded.value after loaded:', videoLoaded.value)
+}
+
+const onDrop = e => {
+  console.log('ondrop실행')
+  e.preventDefault()
+  console.log('videoLoaded.value:', videoLoaded.value)
+
+  const file = e.dataTransfer.files[0]
+  if (file && file.type.startsWith('video/')) {
+    const fileURL = URL.createObjectURL(file)
+
+    console.log('videoLoaded.value:', videoLoaded.value)
+    userVideoRef.value.src = fileURL
+    console.log("fileURL", fileURL)
+    userVideoRef.value.load()
+
+    // 처리 결과를 보여주기 위해 video2Path.value를 확인하여 설정
+    if (video2Path.value) {
+      userVideoRef.value.src = video2Path.value
+    }
+  }
+}
+
+const onDropzoneClick = () => {
+  fileInput.value.click()
+}
+
+const onFileChange = e => {
+  console.log('input실행')
+
+  const file = e.target.files[0]
+  if (file && file.type.startsWith('video/')) {
+    const fileURL = URL.createObjectURL(file)
+
+    console.log('videoLoaded.value:', videoLoaded.value)
+    if (userVideoRef.value) {
+      userVideoRef.value.setAttribute('src', fileURL)
+      userVideoRef.value.load()
+      console.log('videoLoaded.value:', videoLoaded.value)
+    } else {
+      console.log("userVideoRef is null")
+    }
+  }
+}
+
+
 
 //스위치
 const toggleSwitch = ref('목록 on')
@@ -158,6 +250,15 @@ const capitalizedLabel = label => {
     isVisible.value= false
   }
 }
+
+let videoRef1 = ref(null)
+let videoRef2 = ref(null)
+
+onMounted(() => {
+  if (videoRef1.value && videoRef2.value) {
+    videoRef1.value.src = "http://localhost:5000/static/exerciseSample.mp4"
+  }
+})
 </script>
 
 <template>
@@ -268,11 +369,11 @@ const capitalizedLabel = label => {
             <video
               ref="videoRef1"
               controls
-              muted 
+              muted
               width="100%"
             > 
               <source
-                src="@/assets/video/exerciseSample.mp4"
+                src="http://localhost:5000/static/exerciseSample.mp4"
                 type="video/mp4"
               >
             </video>
@@ -281,15 +382,27 @@ const capitalizedLabel = label => {
             <!-- <VCol :cols="9-menuSize"> -->
             <!-- 운동 자세 영상 -->
             <video
+              v-show="videoLoaded"
+              ref="userVideoRef"
               controls
-              muted 
               width="100%"
-            > 
-              <source
-                src="@/assets/video/exerciseSample.mp4"
-                type="video/mp4"
-              >
-            </video>
+              @loadeddata="handleLoadedData"
+            />
+            <div
+              v-show="!videoLoaded"
+              class="dropzone"
+              @dragover.prevent
+              @drop="onDrop"
+              @click="onDropzoneClick"
+            >
+              <span>Drop video files here</span>
+            </div>
+            <input
+              ref="fileInput"
+              type="file"
+              style="display: none;"
+              @change="onFileChange"
+            >
           </VCol> 
         </VLayout>
       </vcol>
@@ -392,5 +505,15 @@ $chat-app-header-height: 68px;
     height: 0.75rem;
     /* stylelint-enable liberty/use-logical-spec */
   }
+}
+
+.dropzone {
+  display: flex;
+  width: 330px;
+  height: 450px;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #000;
+  cursor: pointer;
 }
 </style>

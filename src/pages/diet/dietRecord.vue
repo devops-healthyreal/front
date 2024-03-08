@@ -1,7 +1,8 @@
 <script setup>
-import NutrientAnalysis from '@/components/dialogs/NutrientAnalysis.vue';
-import axios from '@axios';
-import { useStore } from 'vuex';
+import NutrientAnalysis from '@/components/dialogs/NutrientAnalysis.vue'
+import axios from '@axios'
+import { ref } from 'vue'
+import { useStore } from 'vuex'
 
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
@@ -152,6 +153,9 @@ const isNutrientAnalysisVisible = ref(false) //모달창 컨트롤 변수
 
 const userdietinfo = ref([])
 
+const dietinfo = ref([])
+const checkedItems = ref([])
+
 const handleSubmit = async(connetId, selectcurr, bfood) =>{
   isNutrientAnalysisVisible.value = !isNutrientAnalysisVisible.value
   console.log('유저 ID :', connetId, '음식 :', bfood, '식사타입:', selectcurr)
@@ -161,6 +165,91 @@ const handleSubmit = async(connetId, selectcurr, bfood) =>{
       console.log('받은 첫번째 데이터 :', response.data[0])
       userdietinfo.value = response.data
       console.log('받은 데이터 값 : ', userdietinfo.value)
+
+      axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
+        .then(response => {
+          if(response.data.length > 0){
+            // 초기화
+            dietinfo.value = [[], [], []]
+
+            response.data.forEach(data => {
+              if (data.mealType === '아침' && selectcurr==data.mealType) {
+                dietinfo.value[0] = data
+                if (bfood.includes(dietinfo.value[0].eating_foodname)) {
+                  console.log("bfood는", dietinfo.value[0].eating_foodname, "을 포함하고 있습니다.")
+                  axios.post('http://localhost:4000/croom/implementationSetting.do', { id: connetId })
+                    .then(response => {
+                      checkedItems.value = []
+                      let eattingString = response.data.eatting
+
+                      // eattingString이 빈 문자열이 아닌 경우에만 처리
+                      if (eattingString) {
+                        eattingString = eattingString.replace(/\[|\]/g, '') // 대괄호 제거
+                        let eattingArray = eattingString.split(', ') // 문자열을 배열로 변환
+                        checkedItems.value = eattingArray
+                      }
+
+                      checkedItems.value.push('B')
+                      axios.post('http://localhost:4000/croom/implementationFood.do', { 
+                        foodCheckCount: checkedItems.value,
+                        id: connetId, 
+                      })
+                    })
+                }
+              } else if (data.mealType === '점심' && selectcurr==data.mealType) {
+                dietinfo.value[1] = data
+                if (bfood.includes(dietinfo.value[1].eating_foodname)) {
+                  console.log("bfood는", dietinfo.value[1].eating_foodname, "을 포함하고 있습니다.")
+                  axios.post('http://localhost:4000/croom/implementationSetting.do', { id: connetId })
+                    .then(response => {
+                      checkedItems.value = []
+                      let eattingString = response.data.eatting
+
+                      // eattingString이 빈 문자열이 아닌 경우에만 처리
+                      if (eattingString) {
+                        eattingString = eattingString.replace(/\[|\]/g, '') // 대괄호 제거
+                        let eattingArray = eattingString.split(', ') // 문자열을 배열로 변환
+                        checkedItems.value = eattingArray
+                      }
+                      console.log("받아온 이행률은??", checkedItems.value)
+
+                      // L을 배열에 추가
+                      checkedItems.value.push('L')
+                      console.log("L을 추가한 이행률은??", checkedItems.value)
+
+                      axios.post('http://localhost:4000/croom/implementationFood.do', { 
+                        foodCheckCount: checkedItems.value,
+                        id: connetId, 
+                      })
+                    })
+                }
+              } else if (data.mealType === '저녁' && selectcurr==data.mealType) {
+                dietinfo.value[2] = data
+                if (bfood.includes(dietinfo.value[2].eating_foodname)) {
+                  console.log("bfood는", dietinfo.value[2].eating_foodname, "을 포함하고 있습니다.")
+                  axios.post('http://localhost:4000/croom/implementationSetting.do', { id: connetId })
+                    .then(response => {
+                      checkedItems.value = []
+                      let eattingString = response.data.eatting
+
+                      // eattingString이 빈 문자열이 아닌 경우에만 처리
+                      if (eattingString) {
+                        eattingString = eattingString.replace(/\[|\]/g, '') // 대괄호 제거
+                        let eattingArray = eattingString.split(', ') // 문자열을 배열로 변환
+                        checkedItems.value = eattingArray
+                      }
+                      checkedItems.value.push('D')
+                      axios.post('http://localhost:4000/croom/implementationFood.do', { 
+                        foodCheckCount: checkedItems.value,
+                        id: connetId, 
+                      })
+                    })
+                }
+              }
+            })
+          }
+          console.log('가져온 유저 Eating_Record', dietinfo.value)
+        })
     })
 }
 </script>
