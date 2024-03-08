@@ -27,13 +27,22 @@ const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId=computed(() => userInfo.value.id)
 
 const search = ref('')
-const userarea = ref('강남구 ') //타임라인에서 위치정보값 받거나 유저의 default 주소
+const userarea = ref('서울 강남구 ') //타임라인에서 위치정보값 받거나 유저의 default 주소
+
 const prior_area = ref('')
 const bsch = ref(0)
+const barea = ref('')
 const lsch = ref(0)
+const larea = ref('')
 const dsch = ref(0)
+const darea = ref('')
 
 const getarea = async connetId => {
+  await axios.get('http://localhost:4000/defaultArea', { params: { id: connetId.value } })
+    .then(response => {
+      userarea.value = response.data.split(' ')[2] + ' '
+      console.log('응답 받은 기본 주소 : ', response.data.split(' ')[1] +' '+ response.data.split(' ')[2])
+    })
 
   await axios.get('http://localhost:4000/sch/priorAddress', { params: { id: connetId.value } })
     .then(response => {
@@ -44,10 +53,22 @@ const getarea = async connetId => {
       prior_area.value.forEach((item, index) => {
         if (item.cal === 2) {
           bsch.value = item.sno
+          if(item.sarea){
+            barea.value = item.sarea.split(' ')[0] + ' ' + item.sarea.split(' ')[1] + ' '
+            console.log('barea.value - ', barea.value)
+          }
         }else if(item.cal === 3){
           lsch.value = item.sno
+          if(item.sarea){
+            larea.value = item.sarea.split(' ')[0] + ' ' + item.sarea.split(' ')[1] + ' '
+            console.log('larea.value - ', larea.value)
+          }
         }else if(item.cal === 4){
-          dsch.value = item.sno
+          dsch.value = item.sno          
+          if(item.sarea){
+            darea.value = item.sarea.split(' ')[0] + ' ' + item.sarea.split(' ')[1] + ' '
+            console.log('darea.value - ', darea.value)
+          }
         }
       })
     })
@@ -151,7 +172,7 @@ onMounted(()=>{
             키워드 : <input
               id="keyword"
               type="text"
-              :value="userarea+searchRestaurant"
+              :value="(searchindex==0 && barea)? barea+searchRestaurant : (searchindex==1 && larea)? larea+searchRestaurant : (searchindex==2 && darea)? darea+searchRestaurant : userarea+searchRestaurant"
               size="20"
               placeholder="검색어를 입력하세요"
               readonly
@@ -168,17 +189,9 @@ onMounted(()=>{
       <VCardText class="d-flex align-center flex-column flex-sm-nowrap px-15">
         <FoodMap
           :search-restaurant="searchRestaurant"
-          :userarea="userarea"
+          :userarea="(searchindex==0 && barea)? barea : (searchindex==1 && larea)? larea : (searchindex==2 && darea)? darea : userarea"
           @restaurantSave="handleRestaurant"
         />
-        <!--
-          <VBtn
-          class="mt-5"
-          @click="$emit('update:isDialogVisible', false)"
-          >
-          확인
-          </VBtn> 
-        -->
       </VCardText>
     </VCard>
   </VDialog>
