@@ -82,6 +82,7 @@ const gotoMap = sno  => {
           dot-color="error"
           size="x-small"
           @click="gotoMap(calendarEvent.sno)"
+          :style="{ cursor: 'pointer' }"
         >
           <VCol>
             <div class="d-flex justify-space-between align-center flex-wrap">
