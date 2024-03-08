@@ -2,11 +2,11 @@
 import AppDateTimePicker from '@/@core/components/app-form-elements/AppDateTimePicker.vue'
 import DrawMap from '@/pages/exercise/map/DrawMap.vue'
 import LikeMap from '@/pages/exercise/map/LikeMap.vue'
+import axios from '@axios'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import PathConfirmModal from '../PathConfirmModal.vue'
-import axios from '@axios'
 
 const store = useStore()
 
@@ -56,6 +56,8 @@ const isSnackbarVisible = ref(false)//스낵바 온오프
 const message = ref('') //스낵바에 뿌려줄 메시지
 
 const selectedPath = ref() //유저가 선택한 경로 값
+const rpathNo = ref() //유저가 선택한 기존에 저장된 경로 아이디
+const rpathTime = ref() //유저가 선택한 기존에 저장된 경로의 시간
 
 //지도위에 현재 로드뷰의 위치와, 각도를 표시하기 위한 map walker 아이콘 생성 클래스
 function MapWalker(position){
@@ -130,17 +132,27 @@ MapWalker.prototype.setMap = function(map){
 const drawRef = ref(null) //자식 컴포넌트 DrawMap에 접근용
 const drawRefComputed = computed(()=>drawRef.value)
 
+const likeRef = ref(null)
+const likeRefComputed = computed(()=>likeRef.value)
+
 const uploadPath = () => {
   console.log("클릭한 탭:", activeTab)
 
-  isUploadClicked.value = false
   
   //reco, like, self
   if(activeTab.value === 'self') {
+    isUploadClicked.value = false
     var respMessage = drawRefComputed.value.uploadDrawPath(userId, isUploadClicked)
     console.log("respMessage:", respMessage[1].value)
     selectedPath.value = respMessage[1].value
-    
+  }
+  if(activeTab.value === 'like'){
+    console.log("rpathNO", rpathNo)
+    console.log("rpathTime", rpathTime)
+    if(rpathTime.value > totalTime.value) alert("선택한 시간이 경로의 소요시간에 비해 다소 짧습니다")
+    else {
+      isUploadClicked.value = true
+    }
   }
 }
 
@@ -148,19 +160,40 @@ const uploadPathToMate = mates => {
   console.log("mates값도 잘 들어와지나 확인", mates)
   console.log("selectedPath:", selectedPath.value)
   if(mates !== undefined) selectedPath.value['mate'] = mates //한명의 메이트만 등록
-  axios.post("http://localhost:4000/exercise/upload", JSON.stringify(selectedPath.value), { headers: { 'Content-Type': 'application/json' } })
-    .then(resp=>{
-      console.log(resp.data)
-      message.value = "경로가 성공적으로 등록되었습니다"
-      isSnackbarVisible.value = true
-      router.push({ path: "/main" })
-    })
-    .catch(err=>{
-      console.error(err)
-      message.value = "경로 등록에 실패했습니다"
-      isSnackbarVisible.value = true
-    })
-
+  if(activeTab.value === 'self') {
+    axios.post("http://localhost:4000/exercise/upload", JSON.stringify(selectedPath.value), { headers: { 'Content-Type': 'application/json' } })
+      .then(resp=>{
+        console.log(resp.data)
+        message.value = "경로가 성공적으로 등록되었습니다"
+        isSnackbarVisible.value = true
+        router.push({ path: "/main" })
+      })
+      .catch(err=>{
+        console.error(err)
+        message.value = "경로 등록에 실패했습니다"
+        isSnackbarVisible.value = true
+      })
+  }
+  else{
+    axios.post("http://localhost:4000/exercise/upload/schedule", JSON.stringify({
+      id: userId, 
+      sch_start: `${date.value} ${startTime.value}:00`,
+      sch_end: `${date.value} ${endTime.value}:00`,
+      rpath_no: rpathNo.value,
+      mate: mates,
+    }), { headers: { 'Content-Type': 'application/json' } })
+      .then(resp=>{
+        console.log(resp.data)
+        message.value = "경로가 성공적으로 등록되었습니다"
+        isSnackbarVisible.value = true
+        router.push({ path: "/main" })
+      })
+      .catch(err=>{
+        console.error(err)
+        message.value = "경로 등록에 실패했습니다"
+        isSnackbarVisible.value = true
+      })
+  }
 }
 
 const changeValue = val =>{
@@ -287,6 +320,7 @@ watch(date, ()=>{
               <RecoMap
               ref="recoRef"
               :controll-road-view="impossibleRoadView"
+              :selected-rpath-no="rpathNo"
               />
               </VWindowItem>
             -->
@@ -305,6 +339,8 @@ watch(date, ()=>{
             <VWindowItem value="like">
               <LikeMap
                 ref="likeRef"
+                v-model:selectedRpathNo="rpathNo"
+                v-model:selectedTime="rpathTime"
                 :controll-road-view="impossibleRoadView"
               />
             </VWindowItem>

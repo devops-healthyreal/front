@@ -63,24 +63,44 @@ export function getPedePath(path, pathName, map, polyline, markers, infos) { //l
     console.log("getPedePath-path:", path)
     var pathListParam=""
     for(var i=1; i<path.length-1; i++) {
-      pathListParam += `${path[i][1]},${path[i][0]}_`
+      pathListParam += `${path[i][0]},${path[i][1]}_`
     }
     console.log('getPedePath-path:', path)
-    var requestBody = {
-      startX: path[0][1],
-      startY: path[0][0],
-      angle: 20,
-      speed: 30,
-      endPoiId: '10001',
-      endX: path[path.length-1][1],
-      endY: path[path.length-1][0],
-      passList: pathListParam,
-      reqCoordType: 'WGS84GEO',
-      startName: encodeURIComponent(pathName[0]),
-      endName: encodeURIComponent(pathName[pathName.length-1]),
-      searchOption: '0',
-      resCoordType: 'WGS84GEO',
-      sort: 'index',
+    var requestBody
+    if(pathListParam=="") {
+      requestBody = {
+        startX: path[0][0],
+        startY: path[0][1],
+        angle: 20,
+        speed: 30,
+        endPoiId: '10001',
+        endX: path[path.length-1][0],
+        endY: path[path.length-1][1],
+        reqCoordType: 'WGS84GEO',
+        startName: encodeURIComponent(pathName[0]),
+        endName: encodeURIComponent(pathName[pathName.length-1]),
+        searchOption: '0',
+        resCoordType: 'WGS84GEO',
+        sort: 'index',
+      }
+    }
+    else {
+      requestBody = {
+        startX: path[0][0],
+        startY: path[0][1],
+        angle: 20,
+        speed: 30,
+        endPoiId: '10001',
+        endX: path[path.length-1][0],
+        endY: path[path.length-1][1],
+        passList: pathListParam,
+        reqCoordType: 'WGS84GEO',
+        startName: encodeURIComponent(pathName[0]),
+        endName: encodeURIComponent(pathName[pathName.length-1]),
+        searchOption: '0',
+        resCoordType: 'WGS84GEO',
+        sort: 'index',
+      }
     }
     console.log("티맵에 전달된 요청바디:", requestBody)
     if(pathListParam !== ""){
@@ -121,6 +141,7 @@ export function getPedePath(path, pathName, map, polyline, markers, infos) { //l
       .catch(err=>{
         console.error("에러발생:", err)
         var pedePathPoint = { "pedePath": path, "pointPath": path }
+        console.log("path그냥 전달:", path)
         drawPolyLine(pedePathPoint, pathName, map, polyline, markers, infos)
       })
   })

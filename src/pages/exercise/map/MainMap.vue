@@ -1,6 +1,6 @@
 <template>
   <div
-    id="map"
+    id="mainmap"
     :style="{'width':'100%','height':'450px'}"
   /> 
 </template>
@@ -8,17 +8,18 @@
 <script setup>
 import { getCurrentPosition, getLatLng, getPedePath } from '@/pages/exercise/googleGeoCoderAPI'
 import { onMounted } from 'vue'
+import axios from '@axios'
 
 const map = ref() //지도객체
 const markers = ref([]) //지도에 올려줄 마커들을 모아둔 객체 설정
 const infos = ref([]) //지도에 올려줄 인포들을 모아둔 객체 설정
 const polyline = ref() //지도객체 위의 polyline 정보값
-var tempPath = [['출향인공원', '삭도', '예밀']] //더미데이터
-
+var load = []
+var loadname = []
 
 onMounted(()=>{
   const script = document.createElement("script")
-
+  
   script.onload = () => {
     
     kakao.maps.load(()=>{ //kakao가 로드되었을 때 실행될 콜백함수 정의
@@ -46,7 +47,7 @@ onMounted(()=>{
 
 const initMap = (lng, lat)=>{
   console.log("initMap:", lng, lat)
-  var container  = document.getElementById('map'), // 이미지 지도를 표시할 div  
+  var container  = document.getElementById('mainmap'), // 이미지 지도를 표시할 div  
     options = { 
       center: new kakao.maps.LatLng(lat, lng), // 이미지 지도의 중심좌표
       level: 5, // 이미지 지도의 확대 레벨
@@ -60,7 +61,15 @@ const initMap = (lng, lat)=>{
     strokeStyle: 'solid',
   })
 
-  setTimeout(changePath, 3000)
+  axios.get("http://localhost:4000/exercise/schedulepath", { params: { path_no: 421 } })
+    .then(resp=>{
+      console.log("지도 실행됨", resp.data)
+      loadname = resp.data[0]
+      console.log('load:', load)
+      load = resp.data[1]
+      console.log('loadname', loadname)
+      getPedePath(load, loadname, map.value, polyline.value, markers, infos)
+    })
 }
 
 const changePath = () => {
@@ -85,3 +94,17 @@ const changePath = () => {
   map.value.relayout()
 }
 </script>
+
+<style>
+.info-title {
+  display: block;
+  border-radius: 4px;
+  background: #50627f;
+  block-size: 24px;
+  color: #fff;
+  line-height: 22px;
+  padding-block: 0;
+  padding-inline: 10px;
+  text-align: center;
+}
+</style>

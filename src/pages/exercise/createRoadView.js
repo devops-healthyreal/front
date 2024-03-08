@@ -3,7 +3,7 @@ var rvContainer //로드뷰가 들어갈 태그
 var rvClient //로드뷰 파노라마 ID를 가져올 로드뷰 클라이언트 객체 생성
 var markImage //마커 이미지
 var rv //로드뷰 객체
-
+var isTmapSupported
 
 
 function initialize(){
@@ -130,15 +130,33 @@ function removeMarkers(markers, infos) { //마커, 인포들을 지우는 함수
 }
 
 export function drawPolyLine(path, pathName, map, polyline, markers, infos){ //경로 그려주는 함수
+  
   checkArrayUpdated(path).then(()=>{ //배열이 모두 로드가 되었을 때 작동
     //(param)path: 카카오 위도, 경도로 변경한 path값들의 객체 리스트
     console.log('Promise이전:', path)
     
+
+    if(path.pedePath.length==path.pointPath.length) isTmapSupported = false
+    else isTmapSupported = true
+
     return new Promise((resolve, reject)=>{
       var tempPath = []
-      for(const element of path.pedePath) {
-        //console.log('element값:', element)
-        tempPath.push(new kakao.maps.LatLng(element[0], element[1]))
+      if(isTmapSupported){
+        for(const element of path.pedePath) {
+          tempPath.push(new kakao.maps.LatLng(element[0], element[1]))
+        }
+      }
+      else{
+        for(const element of path.pedePath) {
+          console.log('element[1]:', element[1])
+          tempPath.push(new kakao.maps.LatLng(element[1], element[0]))
+          var temp = []
+          for(const i of path.pointPath){
+            console.log(i)
+            temp.push([i[1], i[0]])
+          }
+          path.pointPath = temp
+        }
       }
       console.log("Promise에서의 tempPath값:", tempPath)
       resolve(tempPath)
@@ -153,6 +171,11 @@ export function drawPolyLine(path, pathName, map, polyline, markers, infos){ //�
       console.log('polyline:', polyline)
       console.log('map:', map)
       console.log(polyline.getMap())
+      console.log("path:", path)
+      console.log("tempPath:", tempPath)
+      if(isTmapSupported) {
+        console.log("반대")
+      }
       setMarkerNInfo(path.pointPath, pathName, map, markers, infos)
     })//then
 }
