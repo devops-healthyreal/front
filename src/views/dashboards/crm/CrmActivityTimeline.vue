@@ -73,7 +73,8 @@ const gotoMap = rpathNo  => {
 <template>
   <VCard
     title="Daily Timeline"
-    style="height: 610px;"
+    style=" width: auto;height: 610px; overflow-y: auto;"
+    class="scrollbar"
   >
     <VCardText>
       <VTimeline

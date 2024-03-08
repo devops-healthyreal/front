@@ -113,10 +113,10 @@ const series = computed(() => {
   }
 })
 
+const vuetifyTheme = useTheme()
+
 //-----------------------------------------------------------------------------------------
 const dietinfo = ref([])
-
-const vuetifyTheme = useTheme()
 
 const getEatingRecord = async () => {
   console.log('체크해보자 : ')
