@@ -1,9 +1,8 @@
 <script setup>
-import { calendarEvents } from '/src/@fake-db/apps/exportData.js'
-import { transcript } from '/src/pages/stt.js'
-import { computed, ref, onMounted, watch  } from 'vue'
 import axios from '@axios'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
+import { transcript } from '/src/pages/stt.js'
 
 const emit = defineEmits(['update:summary'])
 
@@ -25,6 +24,8 @@ async function getData() {
     const response = await axios.post('http://localhost:4000/sch/seleteTodayAll.do', { id: userInfo.value.id })
 
     Data.value = response.data
+
+    console.log("타임라인 확인:", Data.value)
 
     const putData = await axios.post('http://localhost:5000/summaryAPI', { content: Data.value })
 
@@ -57,10 +58,17 @@ const getCalLabel = cal => {
   default: return ''
   }
 }
+
+const gotoMap = sno  => {
+  
+}
 </script>
 
 <template>
-  <VCard title="Daily Timeline">
+  <VCard
+    title="Daily Timeline"
+    style="height: 610px;"
+  >
     <VCardText>
       <VTimeline
         density="compact"
@@ -73,6 +81,7 @@ const getCalLabel = cal => {
           :key="calendarEvent"
           dot-color="error"
           size="x-small"
+          @click="gotoMap(calendarEvent.sno)"
         >
           <VCol>
             <div class="d-flex justify-space-between align-center flex-wrap">
