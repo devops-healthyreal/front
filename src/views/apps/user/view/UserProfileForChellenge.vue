@@ -186,6 +186,15 @@ async function uploadImage(participant) {
     console.error(error)
   }
 }
+const isHovered = ref(false)
+
+const handleMouseOver = participant =>{
+  participant.isHovered.value = true
+}
+
+const handleMouseLeave = participant =>{
+  participant.isHovered.value = false
+}
 </script>
 
 <template>
@@ -202,9 +211,11 @@ async function uploadImage(participant) {
             <!-- 👉 Avatar -->
             <VAvatar
               rounded="sm"
-              :size="120"
+              :size="participant.isHovered ? 200 : 120"
               :color="!participant.PRO_FILEPATH ? 'primary' : undefined"
               :variant="!participant.PRO_FILEPATH ? 'tonal' : undefined"
+              @mouseover="handleMouseOver(participant)"
+              @mouseleave="handleMouseLeave(participant)"
             >
               <VImg
                 v-if="participant.PRO_FILEPATH && !participant.videoFilePath"
@@ -285,5 +296,11 @@ async function uploadImage(participant) {
 
 .text-capitalize {
   text-transform: capitalize !important;
+}
+
+/* 마우스를 올렸을 때 큰 크기로 스타일을 변경함 */
+.v-avatar:hover {
+  transition: all 0.3s ease;
+  transform: scale(1.1);
 }
 </style>
