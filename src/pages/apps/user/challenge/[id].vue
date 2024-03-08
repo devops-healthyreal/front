@@ -150,6 +150,7 @@ onUnmounted(() => {
 const handleInviteUpdate = async () => {
   console.log('이벤트 발생해???')
   await participants()
+  await roomData()
 }
 </script>
 
