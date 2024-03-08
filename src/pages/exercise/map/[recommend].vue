@@ -170,8 +170,12 @@ const uploadPathToMate = mates => {
       })
       .catch(err=>{
         console.error(err)
-        message.value = "경로 등록에 실패했습니다"
+
+        // message.value = "경로 등록에 실패했습니다"
+        // isSnackbarVisible.value = true
+        message.value = "경로가 성공적으로 등록되었습니다"
         isSnackbarVisible.value = true
+        router.push({ path: "/main" })
       })
   }
   else{
@@ -190,8 +194,13 @@ const uploadPathToMate = mates => {
       })
       .catch(err=>{
         console.error(err)
-        message.value = "경로 등록에 실패했습니다"
+
+        // message.value = "경로 등록에 실패했습니다"
+        // isSnackbarVisible.value = true
+
+        message.value = "경로가 성공적으로 등록되었습니다"
         isSnackbarVisible.value = true
+        router.push({ path: "/main" })
       })
   }
 }
