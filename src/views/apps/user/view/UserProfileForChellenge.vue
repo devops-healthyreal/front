@@ -186,6 +186,21 @@ async function uploadImage(participant) {
     console.error(error)
   }
 }
+const isHovered = ref(false)
+
+const handleMouseOver = participant =>{
+  participant.isHovered = true
+}
+
+const handleMouseLeave = participant =>{
+  participant.isHovered = false
+}
+
+const dialog = ref(false)
+
+const closeDialog = () => {
+  dialog.value = false
+}
 </script>
 
 <template>
@@ -202,15 +217,35 @@ async function uploadImage(participant) {
             <!-- 👉 Avatar -->
             <VAvatar
               rounded="sm"
-              :size="120"
+              :size="participant.isHovered ? 140 : 120"
               :color="!participant.PRO_FILEPATH ? 'primary' : undefined"
               :variant="!participant.PRO_FILEPATH ? 'tonal' : undefined"
+              @click="dialog = true"
+              @mouseover="handleMouseOver(participant)"
+              @mouseleave="handleMouseLeave(participant)"
             >
               <VImg
                 v-if="participant.PRO_FILEPATH && !participant.videoFilePath"
                 :src="participant.PRO_FILEPATH"
                 style="margin-top: 15px; margin-left: 35px;"
               />
+              <VDialog
+                v-model="dialog"
+                max-width="600px"
+              >
+                <VCard>
+                  <VImg
+                    v-if="!participant.videoFilePath"
+                    :src="participant.PRO_FILEPATH"
+                  />
+                  <video
+                    v-else
+                    :src="participant.videoFilePath"
+                    autoplay
+                    loop
+                  />
+                </VCard>
+              </VDialog>
               <video
                 v-if="participant.videoFilePath"
                 :src="participant.videoFilePath"
@@ -218,6 +253,7 @@ async function uploadImage(participant) {
                 loop
                 style=" width: 100%; height: 100%;margin-top: 15px; object-fit: cover;"
               />
+              
               <span
                 v-else
                 class="text-5xl font-weight-medium"
@@ -285,5 +321,11 @@ async function uploadImage(participant) {
 
 .text-capitalize {
   text-transform: capitalize !important;
+}
+
+/* 마우스를 올렸을 때 큰 크기로 스타일을 변경함 */
+.v-avatar:hover {
+  transform: scale(1.1);
+  transition: all 0.3s ease;
 }
 </style>
