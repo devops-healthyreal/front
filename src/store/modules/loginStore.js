@@ -157,6 +157,11 @@ const loginStore = {
         })
         .catch(error => {
           console.log(error)
+          if (error.response && error.response.status === 401) {
+            throw new Error('아이디 또는 비밀번호를 확인해주세요')
+          } else {
+            throw new Error('알 수 없는 에러가 발생했습니다. 다시 시도해주세요.')
+          }
           
           
         })

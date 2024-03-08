@@ -27,12 +27,58 @@ const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId=computed(() => userInfo.value.id)
 
 const search = ref('')
-const userarea = ref('강남구 ') //타임라인에서 위치정보값 받거나 유저의 default 주소
+const userarea = ref('서울 강남구 ') //타임라인에서 위치정보값 받거나 유저의 default 주소
+
+const prior_area = ref('')
+const bsch = ref(0)
+const barea = ref('')
+const lsch = ref(0)
+const larea = ref('')
+const dsch = ref(0)
+const darea = ref('')
+
+const getarea = async connetId => {
+  await axios.get('http://localhost:4000/defaultArea', { params: { id: connetId.value } })
+    .then(response => {
+      userarea.value = response.data.split(' ')[2] + ' '
+      console.log('응답 받은 기본 주소 : ', response.data.split(' ')[1] +' '+ response.data.split(' ')[2])
+    })
+
+  await axios.get('http://localhost:4000/sch/priorAddress', { params: { id: connetId.value } })
+    .then(response => {
+      prior_area.value = response.data
+      console.log('받은 스케줄', prior_area.value)
+
+      // prior_area.value의 각 요소를 순회하며 cal이 2인 경우 bsch에 sno 값을 설정
+      prior_area.value.forEach((item, index) => {
+        if (item.cal === 2) {
+          bsch.value = item.sno
+          if(item.sarea){
+            barea.value = item.sarea.split(' ')[0] + ' ' + item.sarea.split(' ')[1] + ' '
+            console.log('barea.value - ', barea.value)
+          }
+        }else if(item.cal === 3){
+          lsch.value = item.sno
+          if(item.sarea){
+            larea.value = item.sarea.split(' ')[0] + ' ' + item.sarea.split(' ')[1] + ' '
+            console.log('larea.value - ', larea.value)
+          }
+        }else if(item.cal === 4){
+          dsch.value = item.sno          
+          if(item.sarea){
+            darea.value = item.sarea.split(' ')[0] + ' ' + item.sarea.split(' ')[1] + ' '
+            console.log('darea.value - ', darea.value)
+          }
+        }
+      })
+    })
+}
+
 
 /////////////////////////////////////////////////////
 
 const saverestaurant = async () => {
-  console.log('저장하기 버튼 클릭')
+  console.log('저장하기 버튼 클릭', bsch.value, '|', lsch.value, '|', dsch.value)
 
   // 전체 주소를 띄워쓰기를 기준으로 자르고 배열로 만듭니다.
   const addressParts = restaurant.value.address_name.split(' ')
@@ -50,14 +96,23 @@ const saverestaurant = async () => {
     { La: restaurant.value.x, Ma: restaurant.value.y },
   ]
 
-  await axios.post('http://localhost:4000/exercise/upload', JSON.stringify({
+  await axios.get('http://localhost:4000/sch/updateRestaurant', { params: {
     id: connetId.value,
-    time: 2,
-    roadPoint: roadPoint,
-    roadPointName: [roadPointName],
-  }), { headers: { 'Content-Type': 'application/json' } })
-}
+    cal: props.searchindex==0? 2 : props.searchindex==1? 3 : 4,
+    sno: props.searchindex==0? bsch.value : props.searchindex==1? lsch.value : dsch.value,
+    sDest: restaurant.value.address_name,
+  } })
+    .then(response => {
+      console.log('변경된 행 : ', response.data)
+    })
 
+  // await axios.post('http://localhost:4000/exercise/upload', JSON.stringify({
+  //   id: connetId.value,
+  //   time: 2,
+  //   roadPoint: roadPoint,
+  //   roadPointName: [roadPointName],
+  // }), { headers: { 'Content-Type': 'application/json' } })
+}
 
 /////////////////////////////////////////////////////
 
@@ -71,6 +126,10 @@ const handleRestaurant = restaurantSave =>{
 const Initialization = () =>{
   restaurant.value = ''
 }
+
+onMounted(()=>{
+  getarea(connetId)
+})
 </script>
 
 <template>
@@ -113,7 +172,7 @@ const Initialization = () =>{
             키워드 : <input
               id="keyword"
               type="text"
-              :value="userarea+searchRestaurant"
+              :value="(searchindex==0 && barea)? barea+searchRestaurant : (searchindex==1 && larea)? larea+searchRestaurant : (searchindex==2 && darea)? darea+searchRestaurant : userarea+searchRestaurant"
               size="20"
               placeholder="검색어를 입력하세요"
               readonly
@@ -130,17 +189,9 @@ const Initialization = () =>{
       <VCardText class="d-flex align-center flex-column flex-sm-nowrap px-15">
         <FoodMap
           :search-restaurant="searchRestaurant"
-          :userarea="userarea"
+          :userarea="(searchindex==0 && barea)? barea : (searchindex==1 && larea)? larea : (searchindex==2 && darea)? darea : userarea"
           @restaurantSave="handleRestaurant"
         />
-        <!--
-          <VBtn
-          class="mt-5"
-          @click="$emit('update:isDialogVisible', false)"
-          >
-          확인
-          </VBtn> 
-        -->
       </VCardText>
     </VCard>
   </VDialog>

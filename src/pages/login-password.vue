@@ -16,6 +16,8 @@ import { useStore } from 'vuex'
 const store = useStore()
 const router = useRouter()
 const refVForm = ref()
+const errorMessage = ref('')
+
 
 //const idValue = $router.params.userid;
 //const id = ref('test');
@@ -40,12 +42,16 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
 
 
 
-const login = () => {
+const login = async () => {
   const saveData = { id: id.value, pwd: pwd.value }
 
-  store.dispatch('login', saveData)
-  console.log("id", id.value)
-  console.log("pwd", pwd.value)
+  try {
+    await store.dispatch('login', saveData)
+    console.log("id", id.value)
+    console.log("pwd", pwd.value)
+  } catch (error) {
+    errorMessage.value = error.message // 에러 발생 시 errorMessage에 에러 메시지 할당
+  }
 }
 </script>
 
@@ -123,6 +129,12 @@ const login = () => {
                     :append-inner-icon="isPasswordVisible ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
                     @click:append-inner="isPasswordVisible = !isPasswordVisible"
                   />
+                  <p
+                    class="error-text"
+                    style="color: red; font-size: 18px;"
+                  >
+                    {{ errorMessage }}
+                  </p> 
                   <div
                     class="d-flex align-center flex-wrap mt-1 mb-4"
                     style="justify-content: right;"
@@ -171,6 +183,25 @@ video {
   inset-block-start: 0;
   inset-inline-start: 0;
   object-fit: cover;
+}
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px); }
+  10% { transform: translate(-1px, -2px); }
+  20% { transform: translate(-3px, 0); }
+  30% { transform: translate(3px, 2px); }
+  40% { transform: translate(1px, -1px); }
+  50% { transform: translate(-1px, 2px); }
+  60% { transform: translate(-3px, 1px); }
+  70% { transform: translate(3px, 1px); }
+  80% { transform: translate(-1px, -1px); }
+  90% { transform: translate(1px, 2px); }
+  100% { transform: translate(1px, -2px); }
+}
+
+.error-text {
+  animation: shake 1s;
+  animation-iteration-count: 2;
 }
 </style>
 
