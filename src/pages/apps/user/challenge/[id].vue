@@ -3,7 +3,7 @@ import Pricingtest from '@/components/dialogs/pricingtest.vue'
 import Chat from '@/pages/apps/challengeChat.vue'
 import UserProfileForChellenge from '@/views/apps/user/view/UserProfileForChellenge.vue'
 import axios from "axios"
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTheme } from 'vuetify' //차트 불러오기
 import { useStore } from 'vuex'
@@ -70,7 +70,12 @@ const roomData = async () => {
 
 }
 
-onMounted(async () => { await participants(), await roomData() })
+onMounted(async () => { await participants(), await roomData() 
+  await nextTick()
+  setTimeout(() => {
+    showFirstAlert.value = false
+  }, 10000)  // 10초
+})
 
 //차트 불러오기 용
 
@@ -142,9 +147,12 @@ socket.addEventListener("message", async event => {
   }
 })
 
+const showFirstAlert = ref(true)
+
 // 컴포넌트 해제 시 WebSocket 연결 종료
-onUnmounted(() => {
+onUnmounted(async () => {
   socket.close()
+  
 })
 
 const handleInviteUpdate = async () => {
@@ -165,9 +173,26 @@ const handleInviteUpdate = async () => {
         <VCard>
           <!-- 참가비 시작 -->
           <VCol>
-            <VAlert type="warning">
-              참가비는 <strong>하루 전</strong>까지 결제하셔야 합니다
-            </VAlert>
+            <Transition
+              name="fade"
+              mode="out-in"
+            >
+              <VAlert
+                v-if="showFirstAlert"
+                key="first"
+                type="info"
+              >
+                1분뒤에 <strong>프로필이</strong>움직여요!
+              </VAlert>
+              <VAlert
+                v-else
+                
+                key="second"
+                type="warning"
+              >
+                참가비는 <strong>하루 전</strong>까지 결제하셔야 합니다
+              </VAlert>
+            </Transition>
           </VCol>
           <!-- 참가비 끝 -->
           <!-- 유저 목록 -->
@@ -285,7 +310,17 @@ const handleInviteUpdate = async () => {
 </template>
 
 <style lang="scss">
-  .card-list {
-    --v-card-list-gap: 0.75rem;
-  }
+.card-list {
+  --v-card-list-gap: 0.75rem;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>
