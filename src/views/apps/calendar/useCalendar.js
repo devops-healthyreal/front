@@ -1,5 +1,4 @@
 import { useCalendarStore } from '@/views/apps/calendar/useCalendarStore'
-import axios from '@axios'
 import { useThemeConfig } from '@core/composable/useThemeConfig'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import { useStore } from 'vuex'
@@ -127,65 +126,51 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
   }
 
   // 기존 이벤트를 업데이트하는 함수입니다.
-  const updateEvent = _event => {
+  const updateEvent = async _event => {
+    try {
+      
+      // 업데이트할 이벤트 데이터를 서버로 전송합니다.
+      await store.updateEvent(_event)
 
-    store.updateEvent(_event).then(r => {
-      const propsToUpdate = ['no', 'id', 'title', 'calendar', 'startArea', 'endArea', 'content', 'eat', 'exercise', 'complete', 'rPathNo', 'sMate']
+      // 서버에서 업데이트된 이벤트 목록을 다시 가져옵니다.
+      await store.fetchEvents(userInfo.value.id)
 
+      // 캘린더의 이벤트를 새로고침합니다.
+      refetchEvents()
+    } catch (error) {
+      console.error('Error updating event:', error)
+    }
+  }
 
-      //axios.post('http://localhost:4000/sch/update.do', {sNo: , id: , title: , calendar: , startArea: , endArea: ,  content: , exercise: , eat: })
-      updateEventInCalendar(r.data.event, propsToUpdate)
-    })
+  const reset= () => {
+    refetchEvents()
+
   }
 
   // 이벤트를 삭제하는 함수입니다.
   const removeEvent = (eventId, sNo) => {
     store.removeEvent(eventId, sNo).then(() => {
       removeEventInCalendar(eventId)
+      refetchEvents()
     })
   }
 
 
   // 캘린더의 옵션을 설정합니다.
-  const calendarOptions = {
+  const calendarOptions = reactive({
     plugins: [timeGridPlugin], // 사용할 플러그인들입니다.
-    initialView: 'timeGridDay', // 초기 뷰를 '월'로 설정합니다.
-    events: function(fetchInfo, successCallback) {
-      // 1. 서버에 요청을 보내 데이터를 가져옵니다.
-      axios.post('http://localhost:4000/sch/seleteAll.do', {
-        id: userInfo.value.id,
-      })
-        .then(response => {
-          console.log("가져온 값", response)
-
-          // 2. 응답 데이터를 적절한 형식으로 변환합니다.
-          const events = response.data.map(eventData => {
-            return {
-              no: eventData.sno,
-              id: eventData.id,
-              title: eventData.stitle,
-              start: eventData.start,
-              end: eventData.end,
-              calendar: eventData.cal,
-              startArea: eventData.sarea,
-              endArea: eventData.sdest,
-              content: eventData.scontent,
-              eat: eventData.seat,
-              exercise: eventData.sexer,
-              complete: eventData.scom,
-              rPathNo: eventData.rpathNo,
-              sMate: eventData.smate,
-            }
-          })
-        
-          console.log("잘 들어갔는지 확인", events)
-
-          // 3. 변환한 이벤트 데이터를 successCallback에 전달합니다.
-          successCallback(events)
-        })
-        .catch(error => {
-          console.error(error)
-        })
+    initialView: 'timeGridDay', 
+    events: async (fetchInfo, successCallback, failureCallback) => {
+      try {
+        // userId를 사용자 ID로 설정해야 합니다. props.connetId 또는 다른 방식으로 얻을 수 있습니다.
+        const userId = userInfo.value.id
+ 
+        await store.fetchEvents(userId)
+        successCallback(store.events)
+      } catch (error) {
+        console.error("Error loading events: ", error)
+        failureCallback(error)
+      }
     },
 
     forceEventDuration: true, // 이벤트의 시작일과 종료일이 같은 경우에도 종료일을 null로 설정하지 않도록 합니다.
@@ -217,10 +202,12 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
       ]
     }, // 이벤트를 클릭했을 때의 동작을 정의합니다.
     eventClick({ event: clickedEvent }) {
-      // 클릭된 이벤트의 필요한 정보만을 추출하여 event.value에 저장합니다.
-      event.value = extractEventDataFromEventApi(clickedEvent)
+      // 클릭된 이벤트 정보를 추출하고, 이를 `event` 상태에 저장
+      event.value = extractEventDataFromEventApi(clickedEvent._def.extendedProps)
 
-      // 이벤트 핸들러 사이드바를 활성화합니다.
+      console.log("여기로 들어오고 있기는 해??", event.value)
+    
+      // 이벤트 핸들러 사이드바를 활성화하여 사용자가 이벤트를 수정할 수 있도록 함
       isEventHandlerSidebarActive.value = true
     },
 
@@ -275,7 +262,7 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
       `,
       }
     },
-  }
+  })
 
   // 컴포넌트가 마운트되었을 때의 동작을 정의합니다.
   onMounted(() => {

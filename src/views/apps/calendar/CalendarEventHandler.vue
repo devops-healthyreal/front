@@ -1,6 +1,9 @@
 <script setup>
 import axios from '@axios'
 import {
+  useCalendar,
+} from '@/views/apps/calendar/useCalendar'
+import {
   requiredValidator,
 } from '@validators'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
@@ -15,7 +18,7 @@ const props = defineProps({
     required: true,
   },
   event: {
-    type: null,
+    type: Object,
     required: true,
   },
 })
@@ -43,11 +46,11 @@ const resetEvent = () => {
 
 watch(() => props.isDrawerOpen, resetEvent)
 
-const removeEvent = () => {
+const removeEvent = event => {
 
   console.log('삭제할거다~~~', event)
 
-  //emit('removeEvent', event.value.id, event.value,)
+  emit('removeEvent', userInfo.value.id, event)
 
   // Close drawer
   emit('update:isDrawerOpen', false)
@@ -171,14 +174,8 @@ async function handleSubmit() {
     id: userInfo.value.id,
   }
 
-
-  try {
-    const response = await axios.post('http://localhost:4000/sch/insert.do', postData)
-
-    emit('update:isDrawerOpen', false)
-  } catch (error) {
-    console.error(error)
-  }
+  await emit('addEvent', postData)
+  emit('update:isDrawerOpen', false)
 }
 
 const dietinfo = ref([])
@@ -290,13 +287,13 @@ onUpdated(() => {
   >
     <!-- 👉 Header -->
     <AppDrawerHeaderSection
-      :title="event.id ? 'Update Event' : 'Add Event'"
+      :title="event.no ? 'Update Event' : 'Add Event'"
       @cancel="$emit('update:isDrawerOpen', false)"
     >
       <template #beforeClose>
         <IconBtn
-          v-show="event.id"
-          @click="removeEvent"
+          v-show="event.no"
+          @click="removeEvent(event.no)"
         >
           <VIcon
             size="18"
