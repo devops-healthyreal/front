@@ -43,13 +43,13 @@ export const useCalendarStore = defineStore('calendar', {
     async fetchEvents(userId) {
       const response = await axios.post('http://localhost:4000/sch/seleteAll.do', { id: userId })
 
-      console.log(response.data)
+      console.log("타이틀 확인해보자", response.data)
 
       this.events = response.data.map(eventData => ({
 
         no: eventData.sno,
         id: eventData.id,
-        title: eventData.stitle,
+        stitle: eventData.stitle,
         start: eventData.start,
         end: eventData.end,
         calendar: eventData.cal,
@@ -76,9 +76,12 @@ export const useCalendarStore = defineStore('calendar', {
       }
     },
     async updateEvent(event) {
-      const response = await axios.post(`http://localhost:4000/apps/calendar/${event.id}`, { event })
+      console.log("수정값 확인해보자", event)
 
-      await this.fetchEvents() // 업데이트 후 캘린더 이벤트 목록 갱신
+      const response = await axios.post(`http://localhost:4000/sch/update.do`,  event)
+
+
+      await this.fetchEvents(event.id) // 업데이트 후 캘린더 이벤트 목록 갱신
       
       return response
     },

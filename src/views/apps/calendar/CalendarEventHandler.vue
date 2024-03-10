@@ -1,16 +1,13 @@
 <script setup>
 import axios from '@axios'
 import {
-  useCalendar,
-} from '@/views/apps/calendar/useCalendar'
-import {
   requiredValidator,
 } from '@validators'
+import { computed, onUpdated, ref } from 'vue'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { VForm } from 'vuetify/components/VForm'
-import { startRecognition, transcript } from '/src/pages/stt.js'
 import { useStore } from 'vuex'
-import { computed, onUpdated, ref } from 'vue'
+import { startRecognition, transcript } from '/src/pages/stt.js'
 
 const props = defineProps({
   isDrawerOpen: {
@@ -172,9 +169,18 @@ async function handleSubmit() {
     eat: sub.value,
     exercise: exercise.value,
     id: userInfo.value.id,
+
+    // 수정 모드일 경우 기존 이벤트의 id 또는 no 추가
+    ...(event.value.no && { no: event?.value.no }),
   }
 
-  await emit('addEvent', postData)
+
+  // 추가 또는 수정 이벤트 발생
+  if (event.value.no) {
+    await emit('updateEvent', postData) // 수정 이벤트
+  } else {
+    await emit('addEvent', postData) // 추가 이벤트
+  }
   emit('update:isDrawerOpen', false)
 }
 

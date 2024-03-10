@@ -6,7 +6,7 @@ import { useStore } from 'vuex'
 export const blankEvent = {
   no: '',
   id: '',
-  title: '',
+  stitle: '',
   start: '',
   end: '',
   calendar: '',
@@ -50,12 +50,12 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
 
   // API에서 받아온 이벤트 데이터를 추출하는 함수입니다.
   const extractEventDataFromEventApi = eventApi => {
-    const { no, id, title, start, end, calendar, startArea, endArea, content, eat, exercise, complete, rPathNo, sMate } = eventApi
+    const { stitle, no, id, start, end, calendar, startArea, endArea, content, eat, exercise, complete, rPathNo, sMate } = eventApi
     
     return {
+      stitle,
       no,
       id,
-      title,
       start,
       end,
       calendar,
@@ -140,11 +140,6 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
     } catch (error) {
       console.error('Error updating event:', error)
     }
-  }
-
-  const reset= () => {
-    refetchEvents()
-
   }
 
   // 이벤트를 삭제하는 함수입니다.
@@ -243,21 +238,24 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
     },
     eventContent: function(args) {
       const event = args.event.extendedProps
+
+      console.log("값 확인하기", event)
       
       return {
         html: `
         <div>
-        <strong>${event.title ? '제목 : '+event.title : ''}</strong>
-        <p>${event.calendar ? (event.calendar === 1 ? '일정 :' : 
+        <strong style="font-weight: bold; margin-bottom: 5px;">${event.stitle ? `제목: ${event.stitle}` : ''}</strong>
+        <ul class="event-details list-unstyled">
+        <li>${event.calendar ? (event.calendar === 1 ? '일정 :' : 
     event.calendar === 2 ? '아침 :' : 
       event.calendar === 3 ? '점심 :' : 
         event.calendar === 4 ? '저녁 :' : 
           event.calendar === 5 ? '운동 :' : 
-            event.calendar === 6 ? '경로 :' : '') : ''} ${event.eat ? event.eat : ''}${event.exercise ? event.exercise : ''}</p>
-        <p>출발지 : ${event.startArea ? event.startArea : ''}</p>
-        <p>목적지 : ${event.endArea ? event.endArea : ''}</p>
-        <p> ${event.content ?  '내용 : '+event.content : ''}</p>
-        <p> ${event.sMate ? '메이트 : '+event.sMate : ''}</p>
+            event.calendar === 6 ? '경로 :' : '') : ''} ${event.eat ? event.eat : ''}${event.exercise ? event.exercise : ''}</li>
+            <div style="margin-bottom: 3px;">출발지: ${event.startArea ? event.startArea : '미정'}</div>
+            <div style="margin-bottom: 3px;">목적지: ${event.endArea ? event.endArea : '미정'}</div>
+            ${event.content ? `<div style="margin-bottom: 3px;">내용: ${event.content}</div>` : ''}
+            ${event.sMate ? `<div style="margin-bottom: 3px;">메이트: ${event.sMate}</div>` : ''}
       </div>
       `,
       }
