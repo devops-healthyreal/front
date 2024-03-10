@@ -5,6 +5,7 @@ import { ref } from 'vue'
 export const sendCommReqMessage = (userId, subToId) => {
   //subToId의 FMC토큰값을 얻어야함
   var fmcToken = ref('')
+  console.log('sendCommReqMessage:', userId, subToId)
   axios.get("http://localhost:4000/get/fmctoken", { params: {
     id: subToId,
   } })

@@ -190,7 +190,7 @@ const startTTS = () => {
               </h6>
             </VExpansionPanelTitle>
             <VExpansionPanelText>
-              <Calendar :connet-id="connetId" />
+              <Calendar :connet-id="userInfo.id" />
             </VExpansionPanelText>
           </VExpansionPanel>
         </VExpansionPanels>

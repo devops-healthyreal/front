@@ -3,6 +3,7 @@ import Editing from '@/components/dialogs/Editing.vue'
 import UserProfileCommunity from '@/components/dialogs/UserProfileCommunity.vue'
 import ViewPostPage from '@/components/dialogs/ViewPostPage.vue'
 import Writing from '@/components/dialogs/Writing.vue'
+import { sendCommReqMessage } from '@/message/requestComm'
 import InviteFriendConfirmModal from '@/pages/community/InviteFriendConfirmModal.vue'
 import Category from '@/pages/views/demos/forms/form-elements/select/category.vue'
 import axios from '@axios'
@@ -441,6 +442,8 @@ const subscribe = (name, check) => {
   isSnackbarVisible.value = true
   if (check == 1) {
     message.value = "구독이 추가되었습니다"
+    console.log("구독:", name)
+    sendCommReqMessage(connetId, name)
     axios.post("http://localhost:4000/comm/subscribe/subscribing", JSON.stringify({
       userId: connetId,
       subToId: name,
