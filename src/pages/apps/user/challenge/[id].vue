@@ -3,7 +3,7 @@ import Pricingtest from '@/components/dialogs/pricingtest.vue'
 import Chat from '@/pages/apps/challengeChat.vue'
 import UserProfileForChellenge from '@/views/apps/user/view/UserProfileForChellenge.vue'
 import axios from "axios"
-import { onMounted, onUnmounted, ref, nextTick } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTheme } from 'vuetify' //차트 불러오기
 import { useStore } from 'vuex'
@@ -160,6 +160,15 @@ const handleInviteUpdate = async () => {
   await participants()
   await roomData()
 }
+
+const dateupdate = async() =>{
+  console.log('dateupdate 클릭했다~')
+  await axios.get('http://localhost:4000/croom/dateupdate', { params: { challNo: challroomno.value } })
+    .then(response => {
+      console.log('여기까지 들어옴')
+      router.push({ path: "/main" })
+    })
+}
 </script>
 
 <template>
@@ -294,6 +303,12 @@ const handleInviteUpdate = async () => {
               @click="deleteData"
             >
               나가기 
+            </VBtn>
+            <VBtn
+              :style="{'margin-left':'10px'}"
+              @click="dateupdate"
+            >
+              테스트용
             </VBtn>
           </VCol>
         </VCard>
