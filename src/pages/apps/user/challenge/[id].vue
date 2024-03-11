@@ -3,7 +3,7 @@ import Pricingtest from '@/components/dialogs/pricingtest.vue'
 import Chat from '@/pages/apps/challengeChat.vue'
 import UserProfileForChellenge from '@/views/apps/user/view/UserProfileForChellenge.vue'
 import axios from "axios"
-import { onMounted, onUnmounted, ref, nextTick } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTheme } from 'vuetify' //차트 불러오기
 import { useStore } from 'vuex'
@@ -160,6 +160,15 @@ const handleInviteUpdate = async () => {
   await participants()
   await roomData()
 }
+
+const dateupdate = async() =>{
+  console.log('dateupdate 클릭했다~')
+  await axios.get('http://localhost:4000/croom/dateupdate', { params: { challNo: challroomno.value } })
+    .then(response => {
+      console.log('여기까지 들어옴')
+      router.push({ path: "/main" })
+    })
+}
 </script>
 
 <template>
@@ -265,7 +274,7 @@ const handleInviteUpdate = async () => {
             />
             <div style="display: flex; justify-content: space-between;">
               <strong style="margin-left: 5%;">현재 이행률 : {{ ((participantsData.reduce((sum, currentValue) => sum + currentValue.CHALL_IMPLEMENTATION_RATE, 0) / (getHourDifference(new Date(room.cendDate), new Date(room.cstartDate))/24*3*participantsData.length))*100).toFixed(0) }}%</strong>
-              <strong style=" margin-right: 5%;margin-left: auto%;">목표 이행률 : {{ room.implementation }}%</strong>
+              <strong style=" margin-right: 5%;margin-left: auto;">목표 이행률 : {{ room.implementation }}%</strong>
             </div>
           </VCol>
           <!-- 목표 달성률 끝 -->
@@ -294,6 +303,12 @@ const handleInviteUpdate = async () => {
               @click="deleteData"
             >
               나가기 
+            </VBtn>
+            <VBtn
+              :style="{'margin-left':'10px'}"
+              @click="dateupdate"
+            >
+              테스트용
             </VBtn>
           </VCol>
         </VCard>

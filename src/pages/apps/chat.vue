@@ -55,8 +55,6 @@ socket.addEventListener('open', async function (event) {
     senderId = connetId
     contactId = newchat?.value.contact.id
 
-    console.log("----------contactId---------", contactId)
-
     // 새 메시지 데이터를 생성
     const newMessageData = {
       message: message.value,
@@ -69,12 +67,10 @@ socket.addEventListener('open', async function (event) {
       },
     }
 
-
-    // 새 메시지를 messages 배열에 추가합니다.
+    // 새 메시지를 messages 배열에 추가
     messages.value.push(newMessageData)
-    console.log("메세지 잘 들어가고 있나??:", messages.value) // 배열 로그
 
-    // 새로운 newchat 객체를 만듭니다.
+    // 새로운 newchat 객체 생성
     const newnewchat = {
       ...newchat.value,
       chat: {
@@ -83,31 +79,21 @@ socket.addEventListener('open', async function (event) {
       },
     }
 
-    // 새로운 newchat 객체를 newchat.value에 할당합니다.
+    // 새로운 newchat 객체를 newchat.value에 할당
     newchat.value = newnewchat
 
     try {
-      if (socket.readyState === WebSocket.OPEN) {
-        // 웹소켓이 연결된 경우, 웹소켓을 통해 메시지 전송
-        socket.send(JSON.stringify({
-          senderId: senderId,
-          message: message.value,
-        }))
+      socket.send(JSON.stringify({
+        senderId: senderId,
+        message: message.value,
+      }))
 
-        // 데이터베이스에 메시지 저장
-        const response = await axios.post("http://localhost:4000/chat/SoloWrite.do", {
-          id: senderId,
-          ruser: contactId,
-          content: message.value,
-        })
-      } else {
-        // 웹소켓이 연결되지 않은 경우, 데이터베이스에 메시지 저장
-        const response = await axios.post("http://localhost:4000/chat/SoloWrite.do", {
-          id: senderId,
-          ruser: contactId,
-          content: message.value,
-        })
-      }
+      // 데이터베이스에 메시지 저장
+      const response = await axios.post("http://localhost:4000/chat/SoloWrite.do", {
+        id: senderId,
+        ruser: contactId,
+        content: message.value,
+      })
 
       // 해당 연락처에 대한 채팅이 없으면 새로운 채팅을 생성 및 데이터베이스에 추가
       if (newchat.value === undefined) {
@@ -117,7 +103,7 @@ socket.addEventListener('open', async function (event) {
           messages: [newMessageData],
         })
 
-        // 새로운 채팅을 활성 채팅으로 설정합니다.
+        // 새로운 채팅을 활성 채팅으로 설정
         newchat.value = database.value.chats[database.value.chats.length - 1]
 
         const newchatContact = chatsContacts.value.find(c => c.id === contactId)

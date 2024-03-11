@@ -198,8 +198,14 @@ const handleMouseLeave = participant =>{
 
 const dialog = ref(false)
 
-const closeDialog = () => {
-  dialog.value = false
+
+// 특정 참가자를 위한 dialog 상태관리
+const openDialog = participant => {
+  participant.dialog = true 
+}
+
+const closeDialog = participant => {
+  participant.dialog = false 
 }
 </script>
 
@@ -220,7 +226,7 @@ const closeDialog = () => {
               :size="participant.isHovered ? 140 : 120"
               :color="!participant.PRO_FILEPATH ? 'primary' : undefined"
               :variant="!participant.PRO_FILEPATH ? 'tonal' : undefined"
-              @click="dialog = true"
+              @click="openDialog(participant)"
               @mouseover="handleMouseOver(participant)"
               @mouseleave="handleMouseLeave(participant)"
             >
@@ -230,7 +236,7 @@ const closeDialog = () => {
                 style="margin-top: 15px; margin-left: 35px;"
               />
               <VDialog
-                v-model="dialog"
+                v-model="participant.dialog"
                 max-width="600px"
               >
                 <VCard>

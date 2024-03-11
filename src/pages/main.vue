@@ -5,7 +5,7 @@ import Timeline from '@/pages/components/timeline.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
 import axios from '@axios'
 import mainImg from "@images/cards/card-meetup_copy_1.jpg"
-import { computed, onUpdated, ref, watch, onMounted } from 'vue'
+import { computed, onUpdated, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import MainMap from './exercise/map/MainMap.vue'
@@ -31,6 +31,7 @@ const isPDialogVisible = ref(!isDialogVisible.value)
 
 const dietinfo = ref([])
 
+let lastFoodRecommendationTime = null
 
 const getEatingRecord = async () => {
 
@@ -56,27 +57,29 @@ const getEatingRecord = async () => {
           })
         }
         else{
-          axios.get("http://localhost:4000/dietfood/search.do", { params: { 'id': connetId } })
-            .then(response => {
-              console.log('응답받은 행:', response.data)
-              if(response.data === 0){
-                axios.get("http://localhost:5000/food_recommend", { params: { 'id': connetId } })
-                  .then(response=>{
-
-                    dietinfo.value = [[], [], []]
+          if (!lastFoodRecommendationTime || Date.now() - lastFoodRecommendationTime > 60000) {
+            axios.get("http://localhost:4000/dietfood/search.do", { params: { 'id': connetId } })
+              .then(response => {
+                console.log('응답받은 행:', response.data)
+                if(response.data === 0){
+                  axios.get("http://localhost:5000/food_recommend", { params: { 'id': connetId } })
+                    .then(response=>{
+                      lastFoodRecommendationTime = Date.now()
+                      dietinfo.value = [[], [], []]
     
-                    response.data.forEach(data => {
-                      if (data.mealType === '아침') {
-                        dietinfo.value[0] = data
-                      } else if (data.mealType === '점심') {
-                        dietinfo.value[1] = data
-                      } else if (data.mealType === '저녁') {
-                        dietinfo.value[2] = data
-                      }
+                      response.data.forEach(data => {
+                        if (data.mealType === '아침') {
+                          dietinfo.value[0] = data
+                        } else if (data.mealType === '점심') {
+                          dietinfo.value[1] = data
+                        } else if (data.mealType === '저녁') {
+                          dietinfo.value[2] = data
+                        }
+                      })
                     })
-                  })
-              }
-            })
+                }
+              })
+          }
         }
       })
   }
@@ -158,13 +161,13 @@ const moveRecipe = () => {
 const summaryData = ref([])
  
 const handleSummaryUpdate = newSummaryArray => {
-  const summaries = newSummaryArray.map(item => item.summary)
 
-  summaryData.value = summaries
+  summaryData.value = newSummaryArray
+  console.log("요약내용 보기", summaryData.value.summary)
 }
 
 const startTTS = () => {
-  startSynthesis(summaryData.value)
+  startSynthesis(summaryData.value.summary)
 }
 </script>
 
@@ -190,7 +193,7 @@ const startTTS = () => {
               </h6>
             </VExpansionPanelTitle>
             <VExpansionPanelText>
-              <Calendar :connet-id="connetId" />
+              <Calendar :connet-id="userInfo.id" />
             </VExpansionPanelText>
           </VExpansionPanel>
         </VExpansionPanels>

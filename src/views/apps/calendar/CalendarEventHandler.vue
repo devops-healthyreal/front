@@ -3,11 +3,11 @@ import axios from '@axios'
 import {
   requiredValidator,
 } from '@validators'
+import { computed, onUpdated, ref } from 'vue'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { VForm } from 'vuetify/components/VForm'
-import { startRecognition, transcript } from '/src/pages/stt.js'
 import { useStore } from 'vuex'
-import { computed, onUpdated, ref } from 'vue'
+import { startRecognition, transcript } from '/src/pages/stt.js'
 
 const props = defineProps({
   isDrawerOpen: {
@@ -15,7 +15,7 @@ const props = defineProps({
     required: true,
   },
   event: {
-    type: null,
+    type: Object,
     required: true,
   },
 })
@@ -43,11 +43,11 @@ const resetEvent = () => {
 
 watch(() => props.isDrawerOpen, resetEvent)
 
-const removeEvent = () => {
+const removeEvent = event => {
 
   console.log('삭제할거다~~~', event)
 
-  //emit('removeEvent', event.value.id, event.value,)
+  emit('removeEvent', userInfo.value.id, event)
 
   // Close drawer
   emit('update:isDrawerOpen', false)
@@ -169,16 +169,19 @@ async function handleSubmit() {
     eat: sub.value,
     exercise: exercise.value,
     id: userInfo.value.id,
+
+    // 수정 모드일 경우 기존 이벤트의 id 또는 no 추가
+    ...(event.value.no && { no: event?.value.no }),
   }
 
 
-  try {
-    const response = await axios.post('http://localhost:4000/sch/insert.do', postData)
-
-    emit('update:isDrawerOpen', false)
-  } catch (error) {
-    console.error(error)
+  // 추가 또는 수정 이벤트 발생
+  if (event.value.no) {
+    await emit('updateEvent', postData) // 수정 이벤트
+  } else {
+    await emit('addEvent', postData) // 추가 이벤트
   }
+  emit('update:isDrawerOpen', false)
 }
 
 const dietinfo = ref([])
@@ -290,13 +293,13 @@ onUpdated(() => {
   >
     <!-- 👉 Header -->
     <AppDrawerHeaderSection
-      :title="event.id ? 'Update Event' : 'Add Event'"
+      :title="event.no ? 'Update Event' : 'Add Event'"
       @cancel="$emit('update:isDrawerOpen', false)"
     >
       <template #beforeClose>
         <IconBtn
-          v-show="event.id"
-          @click="removeEvent"
+          v-show="event.no"
+          @click="removeEvent(event.no)"
         >
           <VIcon
             size="18"

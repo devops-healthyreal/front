@@ -47,22 +47,12 @@ const checkAll = computed({
 })
 
 
-/*
-onMounted(async()=> await getData())
 
-const Data = ref()
-async function getData() {
-  try {
-    const response = await axios.post('http://localhost:4000/sch/seleteOne.do', { id: props.connetId })
+onMounted(async () => {
+  console.log("나는 누구인가???", props.connetId)
+  await store.fetchEvents(props.connetId) // 컴포넌트 마운트 시 이벤트 불러오기
+})
 
-    console.log("달력값 가져왔어??", response.data)
-    Data.value = response.data
-
-  } catch (error) {
-    console.error(error)
-  }
-}
-*/
 const availableCalendars = ref([
   {
     color: 'success',

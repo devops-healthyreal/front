@@ -34,14 +34,12 @@ const deletepeople = async member => {
 
 onUpdated(() => {
   participantsData.value = props.participantsData
-  console.log("참여자 데이터는?????", props.participantsData)
 
   const foundManager = props.participantsData.find(participant => participant.MRP_MANAGER === 'Y')
   if (foundManager) {
     Manager.value = foundManager
   }
 
-  console.log("내가 방장이다!!!!", Manager.value)
 })
 </script>
 
