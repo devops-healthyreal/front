@@ -31,6 +31,7 @@ const isPDialogVisible = ref(!isDialogVisible.value)
 
 const dietinfo = ref([])
 
+let lastFoodRecommendationTime = null
 
 const getEatingRecord = async () => {
 
@@ -56,27 +57,29 @@ const getEatingRecord = async () => {
           })
         }
         else{
-          axios.get("http://localhost:4000/dietfood/search.do", { params: { 'id': connetId } })
-            .then(response => {
-              console.log('응답받은 행:', response.data)
-              if(response.data === 0){
-                axios.get("http://localhost:5000/food_recommend", { params: { 'id': connetId } })
-                  .then(response=>{
-
-                    dietinfo.value = [[], [], []]
+          if (!lastFoodRecommendationTime || Date.now() - lastFoodRecommendationTime > 60000) {
+            axios.get("http://localhost:4000/dietfood/search.do", { params: { 'id': connetId } })
+              .then(response => {
+                console.log('응답받은 행:', response.data)
+                if(response.data === 0){
+                  axios.get("http://localhost:5000/food_recommend", { params: { 'id': connetId } })
+                    .then(response=>{
+                      lastFoodRecommendationTime = Date.now()
+                      dietinfo.value = [[], [], []]
     
-                    response.data.forEach(data => {
-                      if (data.mealType === '아침') {
-                        dietinfo.value[0] = data
-                      } else if (data.mealType === '점심') {
-                        dietinfo.value[1] = data
-                      } else if (data.mealType === '저녁') {
-                        dietinfo.value[2] = data
-                      }
+                      response.data.forEach(data => {
+                        if (data.mealType === '아침') {
+                          dietinfo.value[0] = data
+                        } else if (data.mealType === '점심') {
+                          dietinfo.value[1] = data
+                        } else if (data.mealType === '저녁') {
+                          dietinfo.value[2] = data
+                        }
+                      })
                     })
-                  })
-              }
-            })
+                }
+              })
+          }
         }
       })
   }
