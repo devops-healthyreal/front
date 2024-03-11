@@ -274,7 +274,7 @@ const dateupdate = async() =>{
             />
             <div style="display: flex; justify-content: space-between;">
               <strong style="margin-left: 5%;">현재 이행률 : {{ ((participantsData.reduce((sum, currentValue) => sum + currentValue.CHALL_IMPLEMENTATION_RATE, 0) / (getHourDifference(new Date(room.cendDate), new Date(room.cstartDate))/24*3*participantsData.length))*100).toFixed(0) }}%</strong>
-              <strong style=" margin-right: 5%;margin-left: auto%;">목표 이행률 : {{ room.implementation }}%</strong>
+              <strong style=" margin-right: 5%;margin-left: auto;">목표 이행률 : {{ room.implementation }}%</strong>
             </div>
           </VCol>
           <!-- 목표 달성률 끝 -->
