@@ -5,7 +5,7 @@ import Timeline from '@/pages/components/timeline.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
 import axios from '@axios'
 import mainImg from "@images/cards/card-meetup_copy_1.jpg"
-import { computed, onUpdated, ref, watch, onMounted } from 'vue'
+import { computed, onUpdated, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import MainMap from './exercise/map/MainMap.vue'
@@ -158,13 +158,13 @@ const moveRecipe = () => {
 const summaryData = ref([])
  
 const handleSummaryUpdate = newSummaryArray => {
-  const summaries = newSummaryArray.map(item => item.summary)
 
-  summaryData.value = summaries
+  summaryData.value = newSummaryArray
+  console.log("요약내용 보기", summaryData.value.summary)
 }
 
 const startTTS = () => {
-  startSynthesis(summaryData.value)
+  startSynthesis(summaryData.value.summary)
 }
 </script>
 
