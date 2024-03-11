@@ -2,10 +2,33 @@ import { getGoogleKey } from '@/config'
 import axios from '@axios'
 import { ref } from 'vue'
 
-export const sendCommReqMessage = (userId, subToId) => {
+export const sendCommReqMessage = (userId, subToId, cate) => {
   //subToId의 FMC토큰값을 얻어야함
   var fmcToken = ref('')
   console.log('sendCommReqMessage:', userId, subToId)
+  var title
+  var body
+  if(cate=='s'){
+    title = '구독 알림'
+    body = `${userId}님이 회원님을 구독하셨습니다`
+    console.log('구독 알림 보내기', title, body)
+  }
+  else if(cate=='fReq'){
+    title = '친구 요청 알림'
+    body = `${userId}님이 회원님께 친구 요청을 보냈습니다`
+  }
+  else if(cate=='fResp'){
+    title = '친구 수락 알림'
+    body = `${userId}님이 회원님의 친구 요청을 수락하셨습니다`
+  }
+  else if(cate=='mReq'){
+    title = '메이트 요청 알림'
+    body = `${userId}님이 회원님께 메이트 요청을 보냈습니다`
+  }
+  else{
+    title = '메이트 수락 알림'
+    body = `${userId}님이 회원님의 메이트 요청을 수락하셨습니다`
+  }
   axios.get("http://localhost:4000/get/fmctoken", { params: {
     id: subToId,
   } })
@@ -20,7 +43,7 @@ export const sendCommReqMessage = (userId, subToId) => {
 
         const SERVER_KEY = token//`bearer ${token}`
   
-        console.log('reqComm.js:', SERVER_KEY)
+        //console.log('reqComm.js:', SERVER_KEY)
   
   
         //백그라운드 상태에서 오는 알림
@@ -31,8 +54,8 @@ export const sendCommReqMessage = (userId, subToId) => {
           "message": {
             "token": fmcToken.value,
             "notification": { 
-              "title": "구독 알림",
-              "body": `${userId}님이 회원님을 구독하셨습니다`,
+              "title": title,
+              "body": body,
             },
             "webpush": { 
               "fcm_options": {
