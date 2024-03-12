@@ -78,23 +78,35 @@ userListStore.fetchUser(Number(route.params.id)).then(response => {
   userData.value = response.data
 })
 
-const userId = "osh1111"
-
+// R 서버로 해당 유저의 보고서 요청
 const Rsave = async () =>{
 
-  // 렌더링된 html 받아서 파일 열기
-  try {
-    const response = await axios.get('http://127.0.0.1:8000/api/htmlfile', { params: { userid: connetId } })
-    const htmlContent = response.data.content
+  //   // 렌더링된 html 받아서 파일 열기
+  //   try {
+  //     const response = await axios.get('http://127.0.0.1:8000/api/htmlfile', { params: { userid: connetId } })
+  //     const htmlContent = response.data.content
 
-    // 새로운 팝업 창 열기
-    const newWindow = window.open("", "_blank")
+  //     // 새로운 팝업 창 열기
+  //     const newWindow = window.open("", "_blank")
     
-    // HTML 내용을 팝업 창에 쓰기
-    newWindow.document.write(htmlContent)
-  } catch (error) {
-    console.error("오류 발생:", error)
-  }
+  //     // HTML 내용을 팝업 창에 쓰기
+  //     newWindow.document.write(htmlContent)
+  //   } catch (error) {
+  //     console.error("오류 발생:", error)
+  //   }
+
+  axios.get('http://127.0.0.1:8000/api/htmlfile', { params: { userid: connetId } })
+    .then(response => {
+    // 여기에서 response.data가 실제 HTML 내용을 포함하고 있는지 확인
+      console.log(response.data) // 이를 통해 반환된 HTML 내용을 확인
+
+      const newWindow = window.open("", "_blank")
+
+      newWindow.document.write(response.data)
+    })
+    .catch(error => {
+      console.error("오류 발생:", error)
+    })
 }
 </script>
 
