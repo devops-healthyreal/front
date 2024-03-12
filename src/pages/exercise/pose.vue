@@ -4,7 +4,7 @@ import bench from '@/assets/video/bench.mp4'
 import dead from '@/assets/video/dead.mp4'
 import exerciseSample from '@/assets/video/exerciseSample.mp4'
 import axios from '@axios'
-import { ref, watch, onMounted, reactive, nextTick } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 
 
 
@@ -105,7 +105,7 @@ const video2Path = ref(null)
   
 
 const startTimer = () => {
-  videoRef1.value.src = "http://localhost:5000/static/exerciseSample.mp4" // 이 코드를 추가하세요.
+  videoRef1.value.src = "http://localhost:5000/static/mp4/exerciseSample.mp4" // 이 코드를 추가하세요.
   console.log("videoRef1.value.src:", videoRef1.value.src)
   if (videoRef1.value && fileInput.value) {
     let formData = new FormData()
@@ -256,7 +256,7 @@ let videoRef2 = ref(null)
 
 onMounted(() => {
   if (videoRef1.value && videoRef2.value) {
-    videoRef1.value.src = "http://localhost:5000/static/exerciseSample.mp4"
+    videoRef1.value.src = "http://localhost:5000/static/mp4/exerciseSample.mp4"
   }
 })
 </script>
@@ -373,7 +373,7 @@ onMounted(() => {
               width="100%"
             > 
               <source
-                src="http://localhost:5000/static/exerciseSample.mp4"
+                src="http://localhost:5000/static/mp4/exerciseSample.mp4"
                 type="video/mp4"
               >
             </video>

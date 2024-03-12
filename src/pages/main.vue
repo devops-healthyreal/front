@@ -5,13 +5,13 @@ import Timeline from '@/pages/components/timeline.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
 import axios from '@axios'
 import mainImg from "@images/cards/card-meetup_copy_1.jpg"
-import { computed, onUpdated, ref, watch, onMounted } from 'vue'
+import { computed, onUpdated, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import MainMap from './exercise/map/MainMap.vue'
 
 
-import { startSynthesis } from './tts.js'
+import { startSynthesis, stopSynthesis } from './tts.js'
 
 
 const router = useRouter()
@@ -276,7 +276,7 @@ const startTTS = () => {
         <VCol cols="12" />
         <VCard>
           <VRow>
-            <VCardText>
+            <VCardText style=" display: flex;width: 100%; justify-content: space-between;">
               <VBtn
                 style="height: 40px;"
                 variant="text"
@@ -287,6 +287,14 @@ const startTTS = () => {
                   icon="mdi-contactless-payment-circle-outline"
                 />
                 오늘의 스케쥴
+              </VBtn>
+              <VBtn
+                
+                variant="flat"
+                color="info"
+                @click="stopSynthesis"
+              >
+                중지
               </VBtn>
             </VCardText>
           </VRow>
