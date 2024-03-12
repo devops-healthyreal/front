@@ -1,4 +1,5 @@
 <script setup>
+import { sendCommReqMessage } from '@/message/requestComm'
 import BlockFriendConfirmModal from '@/pages/community/BlockFriendConfirmModal.vue'
 import InviteFriendConfirmModal from '@/pages/community/InviteFriendConfirmModal.vue'
 import { isfriendscreenchanged } from '@/router/index'
@@ -9,6 +10,7 @@ import { useStore } from 'vuex'
 
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
+const connetId = computed(() => userInfo.value.id)
 
 const router = useRoute()
 const connectionData = ref([])
@@ -27,10 +29,13 @@ const controllInviteFunc = (ans, id) => { //DB에 접근
   console.log(ans, id)
   isInvited[id] = ref(false)
   axios.post("http://localhost:4000/comm/request", JSON.stringify({
-    userId: connetId,
+    userId: connetId.value,
     reqId: id,
     type: '1',
   }), { headers: { 'Content-Type': 'application/json' } })
+    .then(()=>{
+      sendCommReqMessage(connetId.value, id, 'fReq')
+    })
     .catch(err => {
       console.log(err, '값을 받는 데 실패했습니다')
     })
@@ -47,16 +52,10 @@ const switchController = value => {
         },
       })
         .then(resp => {
-          console.log(resp.data)
-          console.log("recommendData.value:", recommendData.value)
-
           recommendData.value = resp.data
-          console.log('값 할당 이후:', recommendData.value)
           for(const i of resp.data) {
-            console.log(i)
             isInvited[i.friend_id] = ref(true)
           }
-          console.log('값 체크:', isConnectedRandom)
         })
         .catch(err=>console.error(err))
     }
@@ -67,7 +66,6 @@ const switchController = value => {
 }
 
 const fetchProjectData = () => {
-  console.log('접속 유저 테스트:', userId)
   if (router.params.tab === 'friend') { //조회용
     axios.get("http://127.0.0.1:4000/comm/friend", { params: { id: userId.value } }) //이미 친구인 목록
       .then(response=>{
@@ -82,17 +80,13 @@ const fetchProjectData = () => {
         }
       })
       .catch(()=>{console.log('서버가 꺼져있습니다.')})
-    console.log("connectionData.value:", connectionData.value)
     
   }
 }
 
 
 const connectionController = temp => {
-  console.log(temp.value)
   temp.value = !temp.value
-  console.log(temp.value)
-  console.log(isConnected)
 }
 
 const modalControll = ref(false)
