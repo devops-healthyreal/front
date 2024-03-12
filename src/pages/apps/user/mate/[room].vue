@@ -76,7 +76,7 @@ const participants = async () => {
 }
 
 const crawlingData=ref("")
-let isLoading = ref(true)  // 로딩 상태를 나타내는 데이터 추가
+let isLoading = ref(false)  // 로딩 상태를 나타내는 데이터 추가
 
 //방 데이터 가져오기
 const roomData = async () => {
@@ -158,30 +158,25 @@ const getdayFromDate = data => {
   return Number(date.getDate())
 }
 
-
 // 크롤링 함수
-function startCrawling(){
-  crawlingData.value=""
-  isLoading.value = true
-  try{        
-    axios.post('http://127.0.0.1:5000/areaCrawling', { matearea: room.value.mateArea.split(' ')[0].trim(), matemonth: getMonthFromDate(room.value.mateDate), matedate: getdayFromDate(room.value.mateDate) })
-      .then(response => {
-        // 서버로부터의 응답 처리
-        console.log(response.data)//JSON.parse()
-        crawlingData.value = response.data
-      })
-      .catch(error => { 
-        // 에러 처리
-        console.error(error)
-      },
-      )
-  }catch (e) {
-    console.error(e)
-  }
-  finally {
-    isLoading.value = false  // 요청 완료 후에 로딩 상태를 false로 설정
-  }
+function startCrawling() {
+  isLoading.value = true // 로딩 시작
+  axios.post('http://127.0.0.1:5000/areaCrawling', {
+    matearea: room.value.mateArea.split(' ')[0].trim(),
+    matemonth: getMonthFromDate(room.value.mateDate),
+    matedate: getdayFromDate(room.value.mateDate),
+  })
+    .then(response => {
+      crawlingData.value = response.data // 서버로부터의 응답 처리
+    })
+    .catch(error => {
+      console.error(error) // 에러 처리
+    })
+    .finally(() => {
+      isLoading.value = false // 요청 완료 후에 로딩 상태를 false로 설정
+    })
 }
+
 
 // WebSocket 연결 생성
 const socket = new WebSocket(`ws://192.168.0.111:4000/chat/${route.params.room}`)
@@ -328,16 +323,14 @@ const handleInviteUpdate = async () => {
             <VIcon icon="mdi-calendar-range" /><span> : 시작날짜 : {{ formatDate(room.mateDate) }}</span>
           </VCol>
           <div style="height: 350px;">
-            <VRow v-if="!crawlingData">
-              <VProgressCircular
-                v-if="!isLoading"
-                style="margin-top: 175px;"
-                class="loading"
-                indeterminate
-                color="primary"
-              />
-            </VRow>
-            <VRow v-else>
+            <VProgressCircular
+              v-if="isLoading"
+              indeterminate
+              size="64"
+              color="primary"
+              class="loading-indicator"
+            />
+            <VRow v-if="crawlingData && !isLoading">
               <VCol
                 v-for="index in 3"
                 :key="index"
@@ -417,6 +410,13 @@ const handleInviteUpdate = async () => {
 
 .transition-effect.active {
   transform: translateX(100%); /* 왼쪽으로 이동되어 나타나는 상태로 변환 */
+}
+
+.loading-indicator {
+  position: absolute;
+  inset-block-start: 30%; /* 상단에서부터의 위치를 조정합니다. */
+  inset-inline-start: 50%;
+  transform: translate(-50%, -10%); /* 세로 위치를 더 상단으로 조정 */
 }
 </style>
 

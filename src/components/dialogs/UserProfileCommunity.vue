@@ -1,4 +1,5 @@
 <script setup>
+import { sendCommReqMessage } from '@/message/requestComm'
 import axios from '@axios'
 import avatar1 from '@images/avatars/avatar-1.png'
 import avatar2 from '@images/avatars/avatar-2.png'
@@ -67,7 +68,8 @@ const isRequested = ref(false)
 
 const dialogVisibleUpdate = value => {
   emit('update:isDialogVisible', value)
-  fetchData()
+
+  //fetchData()
 }
 
 const requestFriend = val => {
@@ -83,7 +85,7 @@ const requestFriend = val => {
     type: '1',
   }), { headers: { 'Content-Type': 'application/json' } })
     .then(()=>{
-      console.log("친구 요청 성공")
+      sendCommReqMessage(props.connectid, props.userid, 'fReq')
       isRequested.value = true
       document.getElementById("requestBTN").style.display = 'none'
       document.getElementById("requestCompleteBTN").style.display='block'

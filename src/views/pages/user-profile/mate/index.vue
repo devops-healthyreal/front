@@ -1,4 +1,5 @@
 <script setup>
+import { sendCommReqMessage } from '@/message/requestComm'
 import BlockMateConfirmFinal from '@/pages/community/BlockMateConfirmFinal.vue'
 import BlockMateConfirmModal from '@/pages/community/BlockMateConfirmModal.vue'
 import RequestMateConfirmModal from '@/pages/community/RequestMateConfirmModal.vue'
@@ -70,7 +71,6 @@ const fetchProjectData = () => { //유저 값 가져오기
       },
     })
       .then(response => {
-        console.log(response.data)
         connectionData.value = response.data
         if (Object.keys(response.data).length == 0) isMateExist.value = true
         else {
@@ -169,7 +169,6 @@ const isModalShow = ref(false)
 const clickedId = ref('')
 
 const requestController = val => {
-  console.log("클릭된 아이디:", val)
   clickedId.value = val
   isModalShow.value = true
 }
@@ -179,19 +178,18 @@ const changeValue = val => {
 }
 
 const changeStateValue = val => {
-  console.log("changeStateValue 함수 실행됨", val)
   axios.post("http://localhost:4000/comm/request", JSON.stringify({
     userId: connetId.value,
     reqId: val,
     type: '2',
   }), { headers: { 'Content-Type': 'application/json' } })
-    .catch(err => {
-      console.log(err, '값을 받는 데 실패했습니다')
+    .then(()=>{
+      sendCommReqMessage(connetId.value, val, 'mReq')
     })
-  console.log("isRequested", isRequested)
-  console.log(isRequested[val].value)
+    .catch(err => {
+      console.log("에러발생:", err)
+    })
   isRequested[val].value = true
-  console.log("값이 안바뀌나?", isRequested[val].value)
 }
 </script>
 

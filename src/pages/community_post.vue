@@ -101,7 +101,6 @@ const getData = async function() {
     if (response.status === 200) {
       
       state.items = response.data // 데이터 저장
-      console.log('데이터 받기 성공', state.items)
 
       const tempUserKeys = []
       for(var i=0; i<state.items.length; i++){
@@ -122,7 +121,6 @@ const getData = async function() {
         //유저 프로필 저장
         userProfile.value[state.items[i].id] = state.items[i].profilepath
       }
-      console.log("userProfile완성 확인:", userProfile.value)
 
       const tempUserKeysSet = new Set(tempUserKeys) //중복 아이디 제거
       const temp = [...tempUserKeysSet] //ids
@@ -131,12 +129,10 @@ const getData = async function() {
         id: userId.value,
       } })
         .then(res=>{
-          console.log("구독한 목록:", res.data)
           users.value = res.data.subTo
         })
         .catch(err=>console.error(err))
 
-      console.log("userId.value:", userId.value)
     } else {
       console.log('데이터 전송 실패')
     }
@@ -173,9 +169,6 @@ onMounted(() => {
   getData(), // 컴포넌트가 마운트될 때 getData 함수 실행
   getComment()
 
-  // 그 후 매 5초마다 getData 함수를 반복해서 실행
-  //setInterval(getData, 5000)
-  
   axios.get("http://localhost:4000/comm/friend/random", { params: {
     id: userId.value,
   } })
@@ -338,8 +331,6 @@ const getComment = async function() {
         }
       })
 
-      console.log('전체 데이타', groupedDataAll)
-      console.log('특정 게시물 데이타', groupedDataAll.value)
       postmodalData.value = {
         comments: groupedDataAll.value[postbbsno.value],    
       }
@@ -347,7 +338,6 @@ const getComment = async function() {
       // Allgroupbbs.value = groupedDataAll._rawValue[17]
       statecomm.value.comment = toRaw(groupedData)
       group.value = toRaw(statecomm.value.comment)
-      console.log('그룹 데이터 확인', group.value)      
 
     } else {
       console.log('데이터 전송 실패')
@@ -357,9 +347,6 @@ const getComment = async function() {
   }
 }
 
-const test2 = val => {
-  console.log('왜 사진이 안뜨지', val)
-}
 
 //댓글 입력
 const searchuser = userInfo.value.id //현재 접속중인 유저 아이디
@@ -418,6 +405,9 @@ const controllInviteFunc = (ans, id) => { //DB에 접근
     reqId: id,
     type: '1',
   }), { headers: { 'Content-Type': 'application/json' } })
+    .then(()=>{
+      sendCommReqMessage(connetId, id, 'fReq')
+    })
     .catch(err => {
       console.log(err, '값을 받는 데 실패했습니다')
     })
@@ -443,7 +433,7 @@ const subscribe = (name, check) => {
   if (check == 1) {
     message.value = "구독이 추가되었습니다"
     console.log("구독:", name)
-    sendCommReqMessage(connetId, name)
+    sendCommReqMessage(connetId, name, 's')
     axios.post("http://localhost:4000/comm/subscribe/subscribing", JSON.stringify({
       userId: connetId,
       subToId: name,
@@ -495,19 +485,13 @@ const openUserProfileModal = val => {
     })
     .then(response => {
       if (response.status === 200) {
-        console.log('프로필 값:', response.data)
         profiledata.value = response.data
-        console.log('프로필 Path:', profiledata.value.profilePath)
 
         const friendsId = []
 
         for(const temp of profiledata.value.friendsList){
           friendsId.push(temp.friend_id)
         }
-        console.log("Id만 들어왔는지 확인:", friendsId)
-        console.log('친구관계인지 확인:', friendsId.includes(connetId))
-        console.log("친구 요청된 관계인지 확인:", profiledata.value.requestedFriendsList.includes(connetId))
-        console.log("둘이 같은 유저인지 확인:", connetId === profiledata.value.id)
 
         // 모달에 전달할 변수 값 설정
         modalData.value = {
@@ -538,7 +522,6 @@ const openViewPostMoadl = async val =>{
   postbbsno.value = val
   viewPostPageModal.value=true
 
-  // console.log('글번호에 대한 댓글', groupedDataAll.value._rawValue[postbbsno.value])
   postmodalData.value = {
     comments: groupedDataAll.value[postbbsno.value],    
   }

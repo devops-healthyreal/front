@@ -211,13 +211,13 @@ const addN = async (trigger_pk, trigger_no) => {
                     <small v-if="(notification.notic_type === 3 || notification.notic_type === 4) && notification.ccomment == 'W'">
                       <VIcon
                         icon="mdi-account-check-outline"
-                        style="color: green; margin-bottom: 3px; margin-right: 2px;"
+                        style=" margin-right: 2px; margin-bottom: 3px;color: green;"
                         @click="addY(notification.trigger_pk, notification.trigger_no)"
                       />
                       /
                       <VIcon
                         icon="mdi-account-cancel-outline"
-                        style="color: red; margin-bottom: 3px; margin-right: 2px;"
+                        style=" margin-right: 2px; margin-bottom: 3px;color: red;"
                         @click="addN(notification.trigger_pk, notification.trigger_no)"
                       />
                     </small>
@@ -267,7 +267,7 @@ const addN = async (trigger_pk, trigger_no) => {
         <VCardText
           v-show="props.noticlists.length"
           class="notification-footer"   
-          style="text-align: right;"       
+          style="text-align: end;"       
         >
           <!-- <VBtn block> -->
           HealthyReal
