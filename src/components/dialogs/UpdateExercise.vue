@@ -17,7 +17,7 @@ const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId=computed(() => userInfo.value.id)
 
 const router = useRouter()
-const selectedPlan = ref('randam')
+const selectedPlan = ref('random')
 
 const plansList = [
   {
@@ -53,7 +53,7 @@ const plansList = [
   {
     desc: ' 무작위 운동',
     title: '무작위 운동',
-    value: 'randam',
+    value: 'random',
   },
 ]
 
