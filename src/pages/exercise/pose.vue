@@ -1,27 +1,35 @@
 <script setup>
 import AppStepper from '@/@core/components/AppStepper.vue'
-import bench from '@/assets/video/bench.mp4'
-import dead from '@/assets/video/dead.mp4'
-import exerciseSample from '@/assets/video/exerciseSample.mp4'
 import axios from '@axios'
-import { onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { useStore } from 'vuex'
+import TestCam from './TestCam.vue'
+
+const store = useStore()
+
+const userId = computed(() => store.state.userStore.userInfo.id)
 
 
+console.log('connectId', userId.value)
 
 const time=ref(60)
 
+const videoRef1 = ref('')
+const videoRef2 = ref('')
+const videoRef3 = ref('')
+
 const numberedSteps = [
   {
-    title: '스쿼트',
-    videoSrc: exerciseSample,
+    title: '운동1',
+    videoSrc: videoRef1.value.src,
   },
   {
-    title: '벤치 프레스',
-    videoSrc: bench,
+    title: '운동2',
+    videoSrc: videoRef2.value.src,
   },
   {
-    title: '데드 리프트',
-    videoSrc: dead,
+    title: '운동3',
+    videoSrc: videoRef3.value.src,
   },
 ]
 
@@ -48,6 +56,7 @@ const exerciseSteps =ref([
   },
 ])
 
+const videoUrl = ref('')
 
 
 const currentExerciseStep = ref(0)  // 운동 단계를 추적하는 변수
@@ -62,10 +71,22 @@ const state = reactive({ videoLoaded: false })
 let countDownInterval = null  // 카운트다운 인터벌 저장 변수
 const setCount = ref(5)
 const repetitionCount = ref(10)
+const evideoPath = ref('')
 
-const changeVideoSrc = newSrc => {
-  videoRef1.value.src = newSrc
-  videoRef2.value.src = newSrc
+const changeVideoSrc = (index, newSrc) => {
+  switch (index) {
+  case 0:
+    videoRef1.value.src = newSrc
+    break
+  case 1:
+    videoRef2.value.src = newSrc
+    break
+  case 2:
+    videoRef3.value.src = newSrc
+    break
+  default:
+    console.error('Invalid video index')
+  }
 }
 
 const resetTimerAndSets = () => {
@@ -102,10 +123,56 @@ const UpdateExerciseSteps = () => {
 const similarity = ref(null)
 const video1Path = ref(null)
 const video2Path = ref(null)
-  
+
+// 비디오 URL을 DOM 요소에 할당하는 함수
+function assignVideoUrls(videos, videoRefs) {
+  videos.forEach((video, index) => {
+    const videoRef = videoRefs[index]
+    if (video && videoRef && videoRef.value) {
+      videoRef.value.src = video.evideoPath
+    }
+  })
+}
+
+const getData = async () => {
+  let videos // `videos` 변수를 `try` 블록 밖에서 선언
+  try {
+    const response = await axios.post('http://127.0.0.1:4000/exer/getData.do', { id: userId.value })
+    if (response.data) {
+      console.log(response.data[0].evideoPath)
+
+      videos = response.data // `try` 블록 내에서 `videos`에 값을 할당
+      
+      // 각 비디오 참조에 URL 할당
+      if (videos[0] && videoRef1.value) {
+        videoRef1.value.src = videos[0].evideoPath
+      }
+      if (videos[1] && videoRef2.value) {
+        videoRef2.value.src = videos[1].evideoPath
+      }
+      if (videos[2] && videoRef3.value) {
+        videoRef3.value.src = videos[2].evideoPath
+      }
+    }
+
+    // 이제 `videos` 변수는 정상적으로 접근 가능합니다.
+    console.log('할당되니?', videoRef1.value.src, videoRef2.value.src, videoRef3.value.src)
+
+    // 비디오 URL 할당을 위한 함수 호출
+    assignVideoUrls(response.data, [videoRef1, videoRef2, videoRef3])
+      
+    // 필요하다면 여기서 response.data를 반환할 수도 있습니다.
+    return response.data
+    
+  } catch (error) {
+    console.error('Error fetching video:', error)
+  }
+}
+
+
 
 const startTimer = () => {
-  videoRef1.value.src = "http://localhost:5000/static/mp4/exerciseSample.mp4" // 이 코드를 추가하세요.
+  // 이 코드를 추가하세요.
   console.log("videoRef1.value.src:", videoRef1.value.src)
   if (videoRef1.value && fileInput.value) {
     let formData = new FormData()
@@ -251,13 +318,24 @@ const capitalizedLabel = label => {
   }
 }
 
-let videoRef1 = ref(null)
-let videoRef2 = ref(null)
+console.log('userinfo id', userId.value)
+
+
+const selectedStep = ref(0) // 1번 운동이 디폴트로 선택되도록 인덱스 0을 초기값으로 설정합니다.
+
+// 운동 목록에서 항목을 클릭했을 때 호출될 메소드입니다.
+const selectStep = index => {
+  selectedStep.value = index
+
+  const selectedExercise = numberedSteps[index]
+  if (selectedExercise) {
+    changeVideoSrc(index, selectedExercise.videoSrc) // 선택된 index와 비디오 소스를 인자로 넘깁니다.
+  }
+}
 
 onMounted(() => {
-  if (videoRef1.value && videoRef2.value) {
-    videoRef1.value.src = "http://localhost:5000/static/mp4/exerciseSample.mp4"
-  }
+  getData()
+
 })
 </script>
 
@@ -363,24 +441,42 @@ onMounted(() => {
           </VCol> <!-- 몇 세트인지에 대한 메뉴창 end -->
     
           <!--  운동 순서에 대한 메뉴창 end -->
+          <TestCam :video="videoRef1.src" />
+          <div
+            v-for="(step, index) in numberedSteps"
+            :key="index"
+            @click="selectStep(index)"
+          />
           <VCol cols="5">
             <!-- <VCol :cols="9-menuSize"> -->
             <!-- 운동 자세 영상 -->
-            <video
+            <iframe
+              v-if="selectedStep === 0"
               ref="videoRef1"
               controls
               muted
               width="100%"
-            > 
-              <source
-                src="http://localhost:5000/static/mp4/exerciseSample.mp4"
-                type="video/mp4"
-              >
-            </video>
+            />
+            <iframe
+
+              v-if="selectedStep === 1"
+              ref="videoRef2"
+              controls
+              muted
+              width="100%"
+            />
+            <iframe
+              v-if="selectedStep === 2"
+              ref="videoRef3"
+              controls
+              muted
+              width="100%"
+            />
           </VCol> <!-- 운동 자세 영상 end -->
           <VCol cols="5">
             <!-- <VCol :cols="9-menuSize"> -->
             <!-- 운동 자세 영상 -->
+            
             <video
               v-show="videoLoaded"
               ref="userVideoRef"
