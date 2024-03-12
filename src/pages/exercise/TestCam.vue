@@ -19,27 +19,26 @@ onMounted(async () => {
 const startWebcam = async () => {
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ video: true })
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       if (videoElement.value) {
-        videoElement.value.srcObject = stream
+        videoElement.value.srcObject = stream;
       }
-      console.log("비디오 url 잘 찍혀??", props.video)
 
       const response = await axios.post('http://localhost:5000/PoseDetector', {
-        video_url: "https://www.youtube.com/embed/amj34dDFup8",
+        video_url: "https://youtu.be/C6MGtbcdlHE",
       }, {
         headers: {
           'Content-Type': 'application/json',
         },
-      })
+      });
 
-      console.log("유사도 잘 찍혀?", response.data)
-
+      console.log("유사도: ", response.data.average_similarity);
     } catch (error) {
-      console.error('웹캠에 접근할 수 없습니다:', error)
+      console.error('웹캠에 접근할 수 없습니다:', error);
     }
   }
-}
+};
+
 
 const stopWebcam = () => {
   if (stream) {
