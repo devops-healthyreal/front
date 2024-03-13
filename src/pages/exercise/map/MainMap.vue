@@ -8,7 +8,7 @@
 <script setup>
 import { getCurrentPosition, getPedePath } from '@/pages/exercise/googleGeoCoderAPI'
 import axios from '@axios'
-import { defineProps, onMounted, watch, defineExpose } from 'vue'
+import { defineExpose, defineProps, onMounted } from 'vue'
 
 const props = defineProps({
   rpathNo: {
@@ -78,12 +78,6 @@ const initMap = (lng, lat)=>{
     strokeStyle: 'solid',
   })
 
-  axios.get("http://localhost:4000/exercise/schedulepath", { params: { path_no: pathNo.value } })
-    .then(resp=>{
-      loadname = resp.data[0]
-      load = resp.data[1]
-      getPedePath(load, loadname, map.value, polyline.value, markers, infos)
-    })
 }
 
 const changePath = val => {

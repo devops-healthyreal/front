@@ -152,9 +152,8 @@ const uploadPath = () => {
 }
 
 const uploadPathToMate = mates => {
-  console.log("mates값도 잘 들어와지나 확인", mates)
-  console.log("selectedPath:", selectedPath.value)
   if(mates !== undefined) selectedPath.value['mate'] = mates //한명의 메이트만 등록
+  else selectedPath.value['mate'] = '없음'
   if(activeTab.value === 'self') {
     axios.post("http://localhost:4000/exercise/upload", JSON.stringify(selectedPath.value), { headers: { 'Content-Type': 'application/json' } })
       .then(resp=>{
