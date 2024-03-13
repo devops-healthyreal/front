@@ -99,7 +99,7 @@ const saverestaurant = async () => {
   await axios.get('http://localhost:4000/sch/updateRestaurant', { params: {
     id: connetId.value,
     cal: props.searchindex==0? 2 : props.searchindex==1? 3 : 4,
-    sno: props.searchindex==0? bsch.value : props.searchindex==1? lsch.value : dsch.value,
+    sNo: props.searchindex==0? bsch.value : props.searchindex==1? lsch.value : dsch.value,
     sDest: restaurant.value.address_name,
   } })
     .then(response => {
