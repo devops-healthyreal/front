@@ -168,9 +168,6 @@ export default {
       if(totalDistance.value == undefined) {alert("등록할 경로가 없습니다")}
       else{
         walkTime.value = totalDistance.value / 67 | 0 //분 기준
-        console.log("걸은시간: ", walkTime.value)
-        console.log('사용자가 선택한 시간: ', this.startTime)
-        console.log('사용자가 선택한 날짜: ', this.date) 
         if(this.selectedTime < walkTime.value) {
           alert("선택한 시간이 경로의 소요시간에 비해 다소 짧습니다")
         }
@@ -269,20 +266,17 @@ export default {
       mapSearch.searchPlaces(ps, this.drawingMap)
     },
     drawingLine(map) {
-      var drawingFlag = false // 선이 그려지고 있는 상태를 가지고 있을 변수입니다
-      var moveLine // 선이 그려지고 있을때 마우스 움직임에 따라 그려질 선 객체 입니다
-      var clickLine // 마우스로 클릭한 좌표로 그려질 선 객체입니다
-      var distanceOverlay // 선의 거리정보를 표시할 커스텀오버레이 입니다
-      var dots = {} // 선이 그려지고 있을때 클릭할 때마다 클릭 지점과 거리를 표시하는 커스텀 오버레이 배열입니다.
+      var drawingFlag = false 
+      var moveLine 
+      var clickLine 
+      var distanceOverlay 
+      var dots = {} 
       map.relayout()
 
-      // 지도에 클릭 이벤트를 등록합니다
-      // 지도를 클릭하면 선 그리기가 시작됩니다 그려진 선이 있으면 지우고 다시 그립니다
       kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
         map.relayout()
                     
 
-        // 마우스로 클릭한 위치입니다 
         var clickPosition = mouseEvent.latLng
         console.log('클릭이벤트 발생 위치', clickPosition.La) //La, Ma
         console.log("결괏값:", mapSearch.getNameFromlatlng(clickPosition))
@@ -292,52 +286,41 @@ export default {
 
         console.log('클릭이벤트 발생 위치', lat[0])
 
-        // 지도 클릭이벤트가 발생했는데 선을 그리고있는 상태가 아니면
         if (!drawingFlag) {
 
-          // 상태를 true로, 선이 그리고있는 상태로 변경합니다
           drawingFlag = true
                         
-          // 지도 위에 선이 표시되고 있다면 지도에서 제거합니다
           deleteClickLine()
                         
-          // 지도 위에 커스텀오버레이가 표시되고 있다면 지도에서 제거합니다
           deleteDistnce()
 
-          // 지도 위에 선을 그리기 위해 클릭한 지점과 해당 지점의 거리정보가 표시되고 있다면 지도에서 제거합니다
           deleteCircleDot()
                     
-          // 클릭한 위치를 기준으로 선을 생성하고 지도위에 표시합니다
           clickLine = new kakao.maps.Polyline({
-            map: map, // 선을 표시할 지도입니다 
-            path: [clickPosition], // 선을 구성하는 좌표 배열입니다 클릭한 위치를 넣어줍니다
-            strokeWeight: 4, // 선의 두께입니다 
-            strokeColor: '#005D32', // 선의 색깔입니다
-            strokeOpacity: 1, // 선의 불투명도입니다 0에서 1 사이값이며 0에 가까울수록 투명합니다
-            strokeStyle: 'solid', // 선의 스타일입니다
+            map: map, 
+            path: [clickPosition],
+            strokeWeight: 4, 
+            strokeColor: '#005D32', 
+            strokeOpacity: 1, 
+            strokeStyle: 'solid', 
           })
                         
-          // 선이 그려지고 있을 때 마우스 움직임에 따라 선이 그려질 위치를 표시할 선을 생성합니다
+          
           moveLine = new kakao.maps.Polyline({
-            strokeWeight: 4, // 선의 두께입니다 
-            strokeColor: '#005D32', // 선의 색깔입니다
-            strokeOpacity: 0.5, // 선의 불투명도입니다 0에서 1 사이값이며 0에 가까울수록 투명합니다
-            strokeStyle: 'dot', // 선의 스타일입니다    
+            strokeWeight: 4, 
+            strokeColor: '#005D32', 
+            strokeOpacity: 0.5, 
+            strokeStyle: 'dot', 
           })
                     
-          // 클릭한 지점에 대한 정보를 지도에 표시합니다
           displayCircleDot(clickPosition, 0)
 
                             
-        } else { // 선이 그려지고 있는 상태이면
-
-          // 그려지고 있는 선의 좌표 배열을 얻어옵니다
+        } else { 
           var path = clickLine.getPath()
 
-          // 좌표 배열에 클릭한 위치를 추가합니다
           path.push(clickPosition)
                         
-          // 다시 선에 좌표 배열을 설정하여 클릭 위치까지 선을 그리도록 설정합니다
           clickLine.setPath(path)
 
           var distance = Math.round(clickLine.getLength())
@@ -345,14 +328,10 @@ export default {
         }
       })
                     
-      // 지도에 마우스무브 이벤트를 등록합니다
-      // 선을 그리고있는 상태에서 마우스무브 이벤트가 발생하면 그려질 선의 위치를 동적으로 보여주도록 합니다
       kakao.maps.event.addListener(map, 'mousemove', function (mouseEvent) {
 
-        // 지도 마우스무브 이벤트가 발생했는데 선을 그리고있는 상태이면
         if (drawingFlag){
                         
-          // 마우스 커서의 현재 위치를 얻어옵니다 
           var mousePosition = mouseEvent.latLng 
 
           // 마우스 클릭으로 그려진 선의 좌표 배열을 얻어옵니다

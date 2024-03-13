@@ -119,9 +119,6 @@ onMounted(()=>{
           pathsNo[key].push(pkey)
         }
       }
-      console.log("items:", items.value) //{0: '한반도면', 1: '서초구'}
-      console.log("paths:", paths) //{한반도면: Array(1), 서초구: Array(6)} ['서초동 1419', '서초동 1337-14', '서초동 1337-30']
-      console.log("pathLatlngs:", pathLatlngs)
       for(const key in paths){ //path의 첫번째 원소에 뿌려줄 값을 저장
         pathsName[key] = []
         for (const path of paths[key]){ 
@@ -196,47 +193,15 @@ const changePath = () => {
       loadName = paths[country.value][i]
       load = pathLatlngs[country.value][i]
       selectedIdx.value = i
-      console.log("선택된 경로의 좌표값 불러오기:", pathLatlngs[country.value][i])
     }
   }
-  console.log('loadName', loadName)
-  console.log('선택된 인덱스 값:', selectedIdx.value)
-  console.log('선택된 경로의 소요시간:', pathsTime[country.value][selectedIdx.value])
   emit('update:selectedRpathNo', pathsNo[country.value][selectedIdx.value])
   emit('update:selectedTime', pathsTime[country.value][selectedIdx.value])
   message.value = pathsTime[country.value][selectedIdx.value]
 
-  //😴
-  var places = new kakao.maps.services.Places() //검색을 위한 객체
-
-  //load.value = [] //위도 경도 저장을 위한 변수
-  // loadName.forEach(name => {
-  //   console.log('name:', name)
-  //   getLatLng(name).then(latlng=> {
-  //     console.log(`${name} latlng:`, latlng)
-  //     load.push([latlng.lat, latlng.lng])
-  //   })
-  //     .catch(err=>{
-  //       places.keywordSearch(name, (result, status)=>{
-  //         if (status === kakao.maps.services.Status.OK) {
-  //           console.log('검색 결과:', result[0]) //위도, 경도 값에 대한 정보가 나와있음
-  //           load.push([result[0].y, result[0].x]) //[x,y] = [lng, lat]
-  //         }
-  //       })
-  //     })
-  // })
-
-  //recoPath: [Array(2), Array(2), Array(2)]
-  //likeMap: {0: Array(2), 1: Array(2)}
-  console.log('like-path에서 넘겨준 값:', load) //{0: Array(2), 1: Array(2)}
   getPedePath(load, loadName, map.value, polyline.value, markers, infos)
   map.value.relayout()
 }
-
-const test = () => {
-  console.log("test용")
-}
-
 </script>
 
 <style>
