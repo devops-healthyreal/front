@@ -3,7 +3,6 @@ import AppStepper from '@/@core/components/AppStepper.vue'
 import axios from '@axios'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useStore } from 'vuex'
-import TestCam from './TestCam.vue'
 
 const store = useStore()
 
@@ -17,6 +16,8 @@ const time=ref(60)
 const videoRef1 = ref('')
 const videoRef2 = ref('')
 const videoRef3 = ref('')
+
+const player = ref(null)
 
 const numberedSteps = [
   {
@@ -73,8 +74,6 @@ const state = reactive({ videoLoaded: false })
 let countDownInterval = null  // 카운트다운 인터벌 저장 변수
 const setCount = ref(5)
 const repetitionCount = ref(10)
-const evideoPath = ref('')
-
 
 const resetTimerAndSets = () => {
   time.value = 60
@@ -124,15 +123,31 @@ const similarity = ref(null)
 const video1Path = ref(null)
 const video2Path = ref(null)
 
-// 비디오 URL을 DOM 요소에 할당하는 함수
-function assignVideoUrls(videos, videoRefs) {
-  videos.forEach((video, index) => {
-    const videoRef = videoRefs[index]
-    if (video && videoRef && videoRef.value) {
-      videoRef.value.src = video.evideoPath
-    }
-  })
+// 시작하기 버튼 클릭 이벤트에 연결된 메서드
+const startExercise = async () => {
+  let videoUrlToSend // 서버에 전송할 비디오 URL을 저장할 변수
+
+  // 현재 선택된 운동 단계에 따라 비디오 URL 결정
+  switch (currentNumberedStep.value) {
+  case 0:
+    videoUrlToSend = videoRef1.value // 운동1 선택 시
+    break
+  case 1:
+    videoUrlToSend = videoRef2.value // 운동2 선택 시
+    break
+  case 2:
+    videoUrlToSend = videoRef3.value // 운동3 선택 시
+    break
+  default:
+    console.error('선택된 운동 단계가 유효하지 않습니다.')
+    
+    return // 에러 시 함수 종료
+  }
+
+  // 결정된 비디오 URL을 서버에 전송
+  await sendServer(videoUrlToSend)
 }
+
 
 const getData = async () => {
   try {
@@ -150,52 +165,61 @@ const getData = async () => {
   }
 }
 
-
-
-const startTimer = () => {
-  if (videoRef1.value) {
-    let formData = new FormData()
-
-    formData.append('video1', videoRef1.value.src)
-
-
-    axios.post('http://localhost:5000//PoseDetector', formData, {
+// sendServer 함수 수정 (videoUrl 파라미터 추가)
+const sendServer = async videoUrl => {
+  try {
+    const response = await axios.post('http://localhost:5000/PoseDetector', {
+      video_url: videoUrl, // 함수 호출 시 전달받은 비디오 URL 사용
+    }, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'application/json',
       },
     })
-      .then(response => {
-        similarity.value = response.data.similarity
-        video1Path.value = response.data.video1_path
-        video2Path.value = response.data.process_results[1]
 
-        console.log(response.data)
-        console.log("similarity", response.data.similarity)
-        console.log("video1_path", response.data.video1_path)
-        console.log("video2_path", video2Path.value)
-      })
-      .catch(error => console.error('Error:', error))
+    console.log("비디오", videoUrl)
 
-    videoRef1.value.play()
-    userVideoRef.value.play()
+    // 서버 응답 처리 (예: 성공 메시지 출력 등)
+    console.log('서버 응답:', response)
+  } catch (error) {
+    console.log("비디오", videoUrl)
+    console.error('서버 전송 중 에러 발생:', error)
   }
+}
+
+
+
+
+const startTimer = async () => {
+
+  // if (!player.value || typeof player.value.playVideo !== 'function') {
+  //   console.error('YouTube 플레이어가 준비되지 않았습니다.')
+
+  //   // 필요한 경우 여기에 재시도 로직을 구현할 수 있습니다.
+  //   return
+  // }
+
+  // player.value.playVideo()
   countDownInterval = setInterval(() => {
     if (time.value > 0) {
       time.value--
     } else {
-      isRestTime.value = !isRestTime.value
-      time.value = isRestTime.value ? 30 : 60
-
-      if (!isRestTime.value) {
+      if (isRestTime.value) {
+        // 현재 휴식 시간이면 다음 세트로 넘어갑니다.
         currentExerciseStep.value++
+        if (currentExerciseStep.value >= setCount.value) {
+          // 모든 세트가 완료되면 타이머를 중지합니다.
+          stopTimer()
+          alert('운동이 모두 끝났습니다!')
           
-        return  
+          return
+        }
+        time.value = 60 // 운동 시간을 다시 60초로 설정합니다.
+      } else {
+        time.value = 30 // 휴식 시간을 30초로 설정합니다.
       }
-      isRestTime.value = true
-      time.value = 30
+      isRestTime.value = !isRestTime.value
     }
-  }
-  , 1000)
+  }, 1000)
 }
 
 const stopTimer = () => {
@@ -228,35 +252,21 @@ const capitalizedLabel = label => {
   }
 }
 
-console.log('userinfo id', userId.value)
-
-
-const selectedStep = ref(0) // 1번 운동이 디폴트로 선택되도록 인덱스 0을 초기값으로 설정합니다.
 
 // 운동 목록에서 항목을 클릭했을 때 호출될 메소드입니다.
 function selectStep(index) {
   currentNumberedStep.value = index
 }
 
-const changeVideoSrc = (index, newSrc) => {
-  console.log(index) // 디버깅을 위해 index 값 로깅
-  switch (index) {
-  case 0:
-    videoRef1.value.src = newSrc
-    break
-  case 1:
-    videoRef2.value.src = newSrc
-    break
-  case 2:
-    videoRef3.value.src = newSrc
-    break
-  default:
-    console.error('Invalid video index')
-  }
-}
 
-onMounted(() => {
-  getData()
+
+
+
+
+
+onMounted(async () => {
+  await getData()
+
 
 })
 </script>
@@ -352,7 +362,7 @@ onMounted(() => {
               v-model="toggleSwitch"
               :label="capitalizedLabel(toggleSwitch)"
             />
-            <p>자세측정 시작하기</p>
+            <p>시간 측정 시작하기</p>
 
             <AppStepper
               v-model:current-step="currentNumberedStep"
@@ -360,23 +370,34 @@ onMounted(() => {
               :items="numberedSteps"
               :style="{'height':'80%'}"
             />
+            <VBtn
+              color="primary"
+              class="custom-margin"
+              @click="startExercise"
+            >
+              자세 측정
+            </VBtn>
           </VCol> <!-- 몇 세트인지에 대한 메뉴창 end -->
     
           <!--  운동 순서에 대한 메뉴창 end -->
-          <TestCam :video="videoRef1.src" />
-          <div
-            v-for="(step, index) in numberedSteps"
-            :key="index"
-            @click="selectStep(index)"
-          />
-          <VCol cols="5">
-            <!-- <VCol :cols="9-menuSize"> -->
-            <!-- 운동 자세 영상 -->
-            <iframe
-              :src="currentVideoSrc"
-              frameborder="0"
+          <div class="responsive-iframe-container">
+            <div
+              v-for="(step, index) in numberedSteps"
+              :key="index"
+              @click="selectStep(index)"
             />
-          </VCol> <!-- 운동 자세 영상 end -->
+            <VCol cols="5">
+              <!-- <VCol :cols="9-menuSize"> -->
+              <!-- 운동 자세 영상 -->
+              <iframe
+                id="player"
+                :src="currentVideoSrc"
+                class="iframe"
+                frameborder="0"
+                allowfullscreen
+              />
+            </VCol> <!-- 운동 자세 영상 end -->
+          </div>
           <VCol cols="5">
             <!-- <VCol :cols="9-menuSize"> -->
           </VCol> 
@@ -491,5 +512,48 @@ $chat-app-header-height: 68px;
   justify-content: center;
   border: 2px dashed #000;
   cursor: pointer;
+}
+
+.iframe {
+  position: relative; /* 상위 요소 대비 상대적 위치 */
+  top: 0; /* 상위 요소 대비 상단에서 50px 아래에 위치 */
+  left: -40px; /* 상위 요소 대비 왼쪽에서 20px 옆에 위치 */
+  display: block; /* Block-level 요소로 만들어 줌 */
+  width: 1170px; /* 너비 조정 */
+  height: 600px; /* 높이 조정 */
+  border: 2px solid #000; /* 테두리 추가 */
+  margin: 0 auto; /* 가운데 정렬을 위해 사용 */
+}
+
+/* 기본 스타일 */
+.videoStyle {
+  position: absolute;
+  block-size: 500px;
+  inline-size: 500px;
+  inset-block-end: 0;
+  inset-inline-start: 820px; /* 기본 위치 */
+  object-fit: cover;
+}
+
+/* 화면 너비가 1024px 이하일 때 */
+@media (max-width: 1024px) {
+  .videoStyle {
+    inset-inline-start: 50%; /* 화면 중앙에 위치하도록 조정 */
+    transform: translateX(-40%); /* 정확히 중앙에 오도록 조정 */
+  }
+}
+
+/* 화면 너비가 768px 이하일 때 */
+@media (max-width: 768px) {
+  .videoStyle {
+    block-size: auto; /* 비율 유지를 위해 자동으로 높이 조정 */
+    inline-size: 100%; /* 화면 너비에 맞춰 조정 */
+    inset-block-end: 0;
+    inset-inline-start: 0;
+  }
+}
+
+.custom-margin {
+  margin-left: 35px; /* 원하는 마진 크기로 조정하세요 */
 }
 </style>

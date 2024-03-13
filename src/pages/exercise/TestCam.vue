@@ -25,7 +25,7 @@ const startWebcam = async () => {
       }
 
       const response = await axios.post('http://localhost:5000/PoseDetector', {
-        video_url: "https://youtu.be/C6MGtbcdlHE",
+        video_url: "https://www.youtube.com/embed/9Rj6qd3vPBE",
       }, {
         headers: {
           'Content-Type': 'application/json',
