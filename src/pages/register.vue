@@ -12,10 +12,7 @@ const iconsSteps = [
     title: '회원가입 정보',
     icon: 'custom-wizard-personal',
   },
-  {
-    title: '자동 회원가입 방지',
-    icon: 'custom-wizard-address',
-  },
+
   
 ]
 
@@ -91,26 +88,7 @@ const onSubmit = () => {
             <DemoFormLayoutHorizontalForm />
           </VWindowItem>
 
-          <VWindowItem>
-            <VRow>
-              <VCol cols="3" />
-              <VCol cols="6">
-                <h6 class="text-sm font-weight-medium text-center">
-                  자동 회원가입 방지
-                </h6>
-                <p class="text-xs mb-0 text-center">
-                  ㅇㅇㅇㅇㅇㅇㅇ
-                </p>
-                <VCol cols="12">
-                  <VImg
-                    src="https://i.pinimg.com/originals/19/70/c1/1970c1040f8e94767a62674f07e9d2d9.gif"
-                    alt="설명"
-                    max-width="500"
-                  />
-                </VCol>
-              </VCol>
-            </VRow>
-          </VWindowItem>
+
 
 
           <VWindowItem>
