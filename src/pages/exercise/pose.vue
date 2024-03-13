@@ -1,27 +1,36 @@
 <script setup>
 import AppStepper from '@/@core/components/AppStepper.vue'
-import bench from '@/assets/video/bench.mp4'
-import dead from '@/assets/video/dead.mp4'
-import exerciseSample from '@/assets/video/exerciseSample.mp4'
 import axios from '@axios'
-import { ref, watch, onMounted, reactive, nextTick } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { useStore } from 'vuex'
+
+const store = useStore()
+
+const userId = computed(() => store.state.userStore.userInfo.id)
 
 
+console.log('connectId', userId.value)
 
 const time=ref(60)
 
+const videoRef1 = ref('')
+const videoRef2 = ref('')
+const videoRef3 = ref('')
+
+const player = ref(null)
+
 const numberedSteps = [
   {
-    title: '스쿼트',
-    videoSrc: exerciseSample,
+    title: '운동1',
+    videoSrc: videoRef1.value,
   },
   {
-    title: '벤치 프레스',
-    videoSrc: bench,
+    title: '운동2',
+    videoSrc: videoRef2.value,
   },
   {
-    title: '데드 리프트',
-    videoSrc: dead,
+    title: '운동3',
+    videoSrc: videoRef3.value,
   },
 ]
 
@@ -48,10 +57,13 @@ const exerciseSteps =ref([
   },
 ])
 
+const videoUrl = ref('')
 
 
 const currentExerciseStep = ref(0)  // 운동 단계를 추적하는 변수
 const currentNumberedStep = ref(0)  // numberedSteps 단계를 추적하는 변수
+const currentVideoSrc = ref('') // iframe에 표시될 현재 비디오의 URL
+
 const isRestTime = ref(false) 
 
 const userVideoRef = ref(null)
@@ -63,17 +75,14 @@ let countDownInterval = null  // 카운트다운 인터벌 저장 변수
 const setCount = ref(5)
 const repetitionCount = ref(10)
 
-const changeVideoSrc = newSrc => {
-  videoRef1.value.src = newSrc
-  videoRef2.value.src = newSrc
-}
-
 const resetTimerAndSets = () => {
   time.value = 60
   setCount.value = 5
   repetitionCount.value = 10
   currentExerciseStep.value = 0
 }
+
+
 
 watch([setCount, repetitionCount], () => {
   exerciseSteps.value = Array.from({ length: setCount.value }, (_, i) => ({
@@ -84,11 +93,22 @@ watch([setCount, repetitionCount], () => {
 
 
 watch(currentNumberedStep, () => {
-  const exercise = numberedSteps[currentNumberedStep.value]
+  console.log(`현재 단계: ${currentNumberedStep.value}`)
 
-  if (exercise) {
-    changeVideoSrc(exercise.videoSrc)
-    resetTimerAndSets()
+  const step = numberedSteps[currentNumberedStep.value]
+  if (step) {
+    // 여기서 직접 videoSrc를 업데이트합니다.
+    switch(currentNumberedStep.value) {
+    case 0:
+      currentVideoSrc.value = videoRef1.value
+      break
+    case 1:
+      currentVideoSrc.value = videoRef2.value
+      break
+    case 2:
+      currentVideoSrc.value = videoRef3.value
+      break
+    }
   }
 })
 
@@ -102,66 +122,102 @@ const UpdateExerciseSteps = () => {
 const similarity = ref(null)
 const video1Path = ref(null)
 const video2Path = ref(null)
-  
 
-const startTimer = () => {
-  videoRef1.value.src = "http://localhost:5000/static/exerciseSample.mp4" // 이 코드를 추가하세요.
-  console.log("videoRef1.value.src:", videoRef1.value.src)
-  if (videoRef1.value && fileInput.value) {
-    let formData = new FormData()
-    let file = new Blob([fileInput.value.files[0]], { type: 'video/mp4' })
-    formData.append('video1', videoRef1.value.src)
-    formData.append('video2', file)
+// 시작하기 버튼 클릭 이벤트에 연결된 메서드
+const startExercise = async () => {
+  let videoUrlToSend // 서버에 전송할 비디오 URL을 저장할 변수
 
-    axios.post('http://localhost:5000/pose_detector', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-      .then(response => {
-        similarity.value = response.data.similarity
-        video1Path.value = response.data.video1_path
-        video2Path.value = response.data.process_results[1]  // video2Path를 process_results의 두 번째 항목으로 설정
-
-        console.log(response.data) // 전체 응답 객체 출력
-        console.log("similarity", response.data.similarity) // similarity 값만 출력
-        console.log("video1_path", response.data.video1_path) // video1_path 값만 출력
-        console.log("video2_path", video2Path.value) // video2_path 값만 출력
-      })
-      .catch(error => console.error('Error:', error))
-
-    videoRef1.value.play()
-    userVideoRef.value.play()
-    console.log('chk')
-    if (currentExerciseStep.value === setCount.value) {  
-      currentExerciseStep.value = 0  
-      currentNumberedStep.value++  
-      console.log('chk')
+  // 현재 선택된 운동 단계에 따라 비디오 URL 결정
+  switch (currentNumberedStep.value) {
+  case 0:
+    videoUrlToSend = videoRef1.value // 운동1 선택 시
+    break
+  case 1:
+    videoUrlToSend = videoRef2.value // 운동2 선택 시
+    break
+  case 2:
+    videoUrlToSend = videoRef3.value // 운동3 선택 시
+    break
+  default:
+    console.error('선택된 운동 단계가 유효하지 않습니다.')
     
-      return  
-    }
+    return // 에러 시 함수 종료
   }
 
-  videoRef1.value.play()
-  userVideoRef.value.play()
+  // 결정된 비디오 URL을 서버에 전송
+  await sendServer(videoUrlToSend)
+}
+
+
+const getData = async () => {
+  try {
+    const response = await axios.post('http://127.0.0.1:4000/exer/getData.do', { id: userId.value })
+    if (response.data) {
+      videoRef1.value = response.data[0].evideoPath
+      videoRef2.value = response.data[1].evideoPath
+      videoRef3.value = response.data[2].evideoPath
+
+      // 초기 비디오 URL 설정
+      currentVideoSrc.value = videoRef1.value
+    }
+  } catch (error) {
+    console.error('Error fetching video:', error)
+  }
+}
+
+// sendServer 함수 수정 (videoUrl 파라미터 추가)
+const sendServer = async videoUrl => {
+  try {
+    const response = await axios.post('http://localhost:5000/PoseDetector', {
+      video_url: videoUrl, // 함수 호출 시 전달받은 비디오 URL 사용
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    console.log("비디오", videoUrl)
+
+    // 서버 응답 처리 (예: 성공 메시지 출력 등)
+    console.log('서버 응답:', response)
+  } catch (error) {
+    console.log("비디오", videoUrl)
+    console.error('서버 전송 중 에러 발생:', error)
+  }
+}
+
+
+
+
+const startTimer = async () => {
+
+  // if (!player.value || typeof player.value.playVideo !== 'function') {
+  //   console.error('YouTube 플레이어가 준비되지 않았습니다.')
+
+  //   // 필요한 경우 여기에 재시도 로직을 구현할 수 있습니다.
+  //   return
+  // }
+
+  // player.value.playVideo()
   countDownInterval = setInterval(() => {
     if (time.value > 0) {
       time.value--
     } else {
       if (isRestTime.value) {
-        isRestTime.value = false
-        time.value = 60
-      } else {
+        // 현재 휴식 시간이면 다음 세트로 넘어갑니다.
         currentExerciseStep.value++
-        if (currentExerciseStep.value >= exerciseSteps.value.length) {  
-          clearInterval(countDownInterval)  
-          currentExerciseStep.value = 0  
+        if (currentExerciseStep.value >= setCount.value) {
+          // 모든 세트가 완료되면 타이머를 중지합니다.
+          stopTimer()
+          alert('운동이 모두 끝났습니다!')
           
-          return  
+          return
         }
-        isRestTime.value = true
-        time.value = 30
+        time.value = 60 // 운동 시간을 다시 60초로 설정합니다.
+      } else {
+        time.value = 30 // 휴식 시간을 30초로 설정합니다.
       }
+      isRestTime.value = !isRestTime.value
     }
   }, 1000)
 }
@@ -172,61 +228,6 @@ const stopTimer = () => {
   userVideoRef.value.pause()
 
 }
-
-
-const videoLoaded = ref(false)
-
-const handleLoadedData = () => {
-  console.log('Video loaded')
-  console.log('userVideoRef.value:', userVideoRef.value)
-  videoLoaded.value = true  // 비디오 로드 완료 시 videoLoaded를 true로 설정
-  console.log('videoLoaded.value after loaded:', videoLoaded.value)
-}
-
-const onDrop = e => {
-  console.log('ondrop실행')
-  e.preventDefault()
-  console.log('videoLoaded.value:', videoLoaded.value)
-
-  const file = e.dataTransfer.files[0]
-  if (file && file.type.startsWith('video/')) {
-    const fileURL = URL.createObjectURL(file)
-
-    console.log('videoLoaded.value:', videoLoaded.value)
-    userVideoRef.value.src = fileURL
-    console.log("fileURL", fileURL)
-    userVideoRef.value.load()
-
-    // 처리 결과를 보여주기 위해 video2Path.value를 확인하여 설정
-    if (video2Path.value) {
-      userVideoRef.value.src = video2Path.value
-    }
-  }
-}
-
-const onDropzoneClick = () => {
-  fileInput.value.click()
-}
-
-const onFileChange = e => {
-  console.log('input실행')
-
-  const file = e.target.files[0]
-  if (file && file.type.startsWith('video/')) {
-    const fileURL = URL.createObjectURL(file)
-
-    console.log('videoLoaded.value:', videoLoaded.value)
-    if (userVideoRef.value) {
-      userVideoRef.value.setAttribute('src', fileURL)
-      userVideoRef.value.load()
-      console.log('videoLoaded.value:', videoLoaded.value)
-    } else {
-      console.log("userVideoRef is null")
-    }
-  }
-}
-
-
 
 //스위치
 const toggleSwitch = ref('목록 on')
@@ -251,13 +252,22 @@ const capitalizedLabel = label => {
   }
 }
 
-let videoRef1 = ref(null)
-let videoRef2 = ref(null)
 
-onMounted(() => {
-  if (videoRef1.value && videoRef2.value) {
-    videoRef1.value.src = "http://localhost:5000/static/exerciseSample.mp4"
-  }
+// 운동 목록에서 항목을 클릭했을 때 호출될 메소드입니다.
+function selectStep(index) {
+  currentNumberedStep.value = index
+}
+
+
+
+
+
+
+
+onMounted(async () => {
+  await getData()
+
+
 })
 </script>
 
@@ -352,7 +362,7 @@ onMounted(() => {
               v-model="toggleSwitch"
               :label="capitalizedLabel(toggleSwitch)"
             />
-            <p>자세측정 시작하기</p>
+            <p>시간 측정 시작하기</p>
 
             <AppStepper
               v-model:current-step="currentNumberedStep"
@@ -360,49 +370,36 @@ onMounted(() => {
               :items="numberedSteps"
               :style="{'height':'80%'}"
             />
+            <VBtn
+              color="primary"
+              class="custom-margin"
+              @click="startExercise"
+            >
+              자세 측정
+            </VBtn>
           </VCol> <!-- 몇 세트인지에 대한 메뉴창 end -->
     
           <!--  운동 순서에 대한 메뉴창 end -->
-          <VCol cols="5">
-            <!-- <VCol :cols="9-menuSize"> -->
-            <!-- 운동 자세 영상 -->
-            <video
-              ref="videoRef1"
-              controls
-              muted
-              width="100%"
-            > 
-              <source
-                src="http://localhost:5000/static/exerciseSample.mp4"
-                type="video/mp4"
-              >
-            </video>
-          </VCol> <!-- 운동 자세 영상 end -->
-          <VCol cols="5">
-            <!-- <VCol :cols="9-menuSize"> -->
-            <!-- 운동 자세 영상 -->
-            <video
-              v-show="videoLoaded"
-              ref="userVideoRef"
-              controls
-              width="100%"
-              @loadeddata="handleLoadedData"
-            />
+          <div class="responsive-iframe-container">
             <div
-              v-show="!videoLoaded"
-              class="dropzone"
-              @dragover.prevent
-              @drop="onDrop"
-              @click="onDropzoneClick"
-            >
-              <span>Drop video files here</span>
-            </div>
-            <input
-              ref="fileInput"
-              type="file"
-              style="display: none;"
-              @change="onFileChange"
-            >
+              v-for="(step, index) in numberedSteps"
+              :key="index"
+              @click="selectStep(index)"
+            />
+            <VCol cols="5">
+              <!-- <VCol :cols="9-menuSize"> -->
+              <!-- 운동 자세 영상 -->
+              <iframe
+                id="player"
+                :src="currentVideoSrc"
+                class="iframe"
+                frameborder="0"
+                allowfullscreen
+              />
+            </VCol> <!-- 운동 자세 영상 end -->
+          </div>
+          <VCol cols="5">
+            <!-- <VCol :cols="9-menuSize"> -->
           </VCol> 
         </VLayout>
       </vcol>
@@ -515,5 +512,48 @@ $chat-app-header-height: 68px;
   justify-content: center;
   border: 2px dashed #000;
   cursor: pointer;
+}
+
+.iframe {
+  position: relative; /* 상위 요소 대비 상대적 위치 */
+  top: 0; /* 상위 요소 대비 상단에서 50px 아래에 위치 */
+  left: -40px; /* 상위 요소 대비 왼쪽에서 20px 옆에 위치 */
+  display: block; /* Block-level 요소로 만들어 줌 */
+  width: 1170px; /* 너비 조정 */
+  height: 600px; /* 높이 조정 */
+  border: 2px solid #000; /* 테두리 추가 */
+  margin: 0 auto; /* 가운데 정렬을 위해 사용 */
+}
+
+/* 기본 스타일 */
+.videoStyle {
+  position: absolute;
+  block-size: 500px;
+  inline-size: 500px;
+  inset-block-end: 0;
+  inset-inline-start: 820px; /* 기본 위치 */
+  object-fit: cover;
+}
+
+/* 화면 너비가 1024px 이하일 때 */
+@media (max-width: 1024px) {
+  .videoStyle {
+    inset-inline-start: 50%; /* 화면 중앙에 위치하도록 조정 */
+    transform: translateX(-40%); /* 정확히 중앙에 오도록 조정 */
+  }
+}
+
+/* 화면 너비가 768px 이하일 때 */
+@media (max-width: 768px) {
+  .videoStyle {
+    block-size: auto; /* 비율 유지를 위해 자동으로 높이 조정 */
+    inline-size: 100%; /* 화면 너비에 맞춰 조정 */
+    inset-block-end: 0;
+    inset-inline-start: 0;
+  }
+}
+
+.custom-margin {
+  margin-left: 35px; /* 원하는 마진 크기로 조정하세요 */
 }
 </style>

@@ -190,7 +190,7 @@ const loginStore = {
         // 응답 본문에서 토큰을 추출합니다.
         const token = res.data
     
-        const decodedToken = jwtDecode(token) // 토큰을 해독함
+        const decodedToken = jwtDecode(token) // 토큰을 해독
     
         const authority = decodedToken.authority // 해독된 토큰에서 권한 정보를 가져옴
         if (authority !== 'ROLE_ADMIN') {

@@ -36,7 +36,7 @@ watchEffect(() => {
     >
       <VCardText class="pt-3">
         <p class="mb-2">
-          비밀번호 변경하러 가는쥬우우웅
+          loading
         </p>
         <VProgressLinear
           indeterminate

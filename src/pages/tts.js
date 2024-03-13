@@ -10,6 +10,7 @@ if ('speechSynthesis' in window) {
   synthesis = window.speechSynthesis
   utterance  = new SpeechSynthesisUtterance()
 
+  // 음성 목록 voices 배열에 저장
   loadVoices = function() {
     return new Promise(resolve => {
       let voiceList = window.speechSynthesis.getVoices()
@@ -20,7 +21,7 @@ if ('speechSynthesis' in window) {
   }
 }
 
-// Load voices when component is mounted
+//음성 목록이 변경되었을 때 loadVoices 함수를 호출
 onMounted(async () => {
   window.speechSynthesis.onvoiceschanged = async () => {
     await loadVoices()
@@ -35,6 +36,7 @@ onMounted(async () => {
   window.speechSynthesis.getVoices()
 })
 
+//tts 시작 함수
 startSynthesis = function(text) {
   ttsText.value = text  // ttsText를 원하는 텍스트로 설정
   utterance.text = ttsText.value
@@ -44,8 +46,10 @@ startSynthesis = function(text) {
   window.speechSynthesis.speak(utterance)
 }
 
+//tts 중지 함수
 stopSynthesis = function() {
   window.speechSynthesis.cancel()
 }
 
-export { startSynthesis, stopSynthesis, selectedVoice, voices }
+export { selectedVoice, startSynthesis, stopSynthesis, voices }
+
