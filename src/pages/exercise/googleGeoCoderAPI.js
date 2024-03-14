@@ -67,48 +67,25 @@ export function getPedePath(path, pathName, map, polyline, markers, infos) { //l
     }
     console.log('getPedePath-path:', path)
     var requestBody
-    if(pathListParam=="") {
-      requestBody = {
-        startX: path[0][0],
-        startY: path[0][1],
-        angle: 20,
-        speed: 30,
-        endPoiId: '10001',
-        endX: path[path.length-1][0],
-        endY: path[path.length-1][1],
-        reqCoordType: 'WGS84GEO',
-        startName: encodeURIComponent(pathName[0]),
-        endName: encodeURIComponent(pathName[pathName.length-1]),
-        searchOption: '0',
-        resCoordType: 'WGS84GEO',
-        sort: 'index',
-      }
+    requestBody = {
+      startX: path[0][0],
+      startY: path[0][1],
+      angle: 20,
+      speed: 30,
+      endPoiId: '10001',
+      endX: path[path.length-1][0],
+      endY: path[path.length-1][1],
+      reqCoordType: 'WGS84GEO',
+      startName: encodeURIComponent(pathName[0]),
+      endName: encodeURIComponent(pathName[pathName.length-1]),
+      searchOption: '0',
+      resCoordType: 'WGS84GEO',
+      sort: 'index',
     }
-    else {
-      requestBody = {
-        startX: path[0][0],
-        startY: path[0][1],
-        angle: 20,
-        speed: 30,
-        endPoiId: '10001',
-        endX: path[path.length-1][0],
-        endY: path[path.length-1][1],
-        passList: pathListParam,
-        reqCoordType: 'WGS84GEO',
-        startName: encodeURIComponent(pathName[0]),
-        endName: encodeURIComponent(pathName[pathName.length-1]),
-        searchOption: '0',
-        resCoordType: 'WGS84GEO',
-        sort: 'index',
-      }
-    }
-    console.log("티맵에 전달된 요청바디:", requestBody)
     if(pathListParam !== ""){
       pathListParam = pathListParam.substring(0, pathListParam.length-1)
       requestBody['passList'] = pathListParam
     }
-    console.log('pathListParam체크:', pathListParam)
-    console.log('getPedePath-body:', requestBody)
     axios.post("https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&callback=function", JSON.stringify(requestBody), 
       { headers: { 'Content-Type': 'application/json',
         'appKey': 'REIa2TCseO1cIZwedynqcI22HxzNxna5R6zePbP2',
@@ -116,13 +93,10 @@ export function getPedePath(path, pathName, map, polyline, markers, infos) { //l
       .then(resp=>{
         var pedePathPoint = { "pedePath": [], "pointPath": [] }
   
-        //var pedePathPoint = []
-        console.log('반복문 전:', resp.data)
         for(var i=0; i<resp.data.features.length;i++){
           console.log(`${i}번째 pointType`, resp.data.features[i].properties.pointType)
           if (resp.data.features[i].properties.pointType!="GP" && resp.data.features[i].properties.pointType!=undefined){
             //[127.08084206052835, 37.47543377320427]
-            console.log(resp.data.features[i].properties.pointType, ":", resp.data.features[i].geometry.coordinates)
             pedePathPoint.pointPath.push([resp.data.features[i].geometry.coordinates[1], resp.data.features[i].geometry.coordinates[0]])
           }
           if(resp.data.features[i].geometry.type=="LineString") {
@@ -135,13 +109,11 @@ export function getPedePath(path, pathName, map, polyline, markers, infos) { //l
         return pedePathPoint
       })
       .then(pedePathPoint=>{
-        console.log('drawPolyLine에 넘기기 전;', pedePathPoint)
         drawPolyLine(pedePathPoint, pathName, map, polyline, markers, infos)
       })
       .catch(err=>{
         console.error("에러발생:", err)
         var pedePathPoint = { "pedePath": path, "pointPath": path }
-        console.log("path그냥 전달:", path)
         drawPolyLine(pedePathPoint, pathName, map, polyline, markers, infos)
       })
   })

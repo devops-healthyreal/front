@@ -79,9 +79,6 @@ function MapWalker(position){
   angleBack.style.width = "102px"
   angleBack.style.height = "52px"
 
-  //angleBack.style.background = "url(https://t1.daumcdn.net/localimg/localimages/07/2018/pc/roadview_minimap_wk_2018.png) -834px -2px no-repeat"
-
-
   //map walker를 구성하는 각 노드들의 class명을 지정 - style셋팅을 위해 필요
   content.className = 'MapWalker'
   figure.className = 'figure'
@@ -100,8 +97,6 @@ function MapWalker(position){
   this.content = content
 }
 
-//로드뷰의 pan(좌우 각도)값에 따라 map walker의 백그라운드 이미지를 변경 시키는 함수
-//background로 사용할 sprite 이미지에 따라 계산 식은 달라 질 수 있음
 MapWalker.prototype.setAngle = function(angle){
 
   var threshold = 100 //이미지가 변화되어야 되는(각도가 변해야되는) 임계 값
@@ -157,9 +152,8 @@ const uploadPath = () => {
 }
 
 const uploadPathToMate = mates => {
-  console.log("mates값도 잘 들어와지나 확인", mates)
-  console.log("selectedPath:", selectedPath.value)
   if(mates !== undefined) selectedPath.value['mate'] = mates //한명의 메이트만 등록
+  else selectedPath.value['mate'] = '없음'
   if(activeTab.value === 'self') {
     axios.post("http://localhost:4000/exercise/upload", JSON.stringify(selectedPath.value), { headers: { 'Content-Type': 'application/json' } })
       .then(resp=>{
@@ -237,7 +231,7 @@ watch(startTime, ()=>{
   if(timeValidityAlert.value === false && date.value != '') controllUploadBtn.value = false
 })
 
-watch(endTime, ()=>{
+watch(endTime, () => {
   if(startTime.value!=''){
     var startMin = parseInt(startTime.value.split(':')[0])*60+parseInt(startTime.value.split(':')[1]) 
     var endMin = parseInt(endTime.value.split(':')[0])*60+parseInt(endTime.value.split(':')[1])

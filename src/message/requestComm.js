@@ -42,14 +42,7 @@ export const sendCommReqMessage = (userId, subToId, cate) => {
       getGoogleKey().then(token=>{
 
         const SERVER_KEY = token//`bearer ${token}`
-  
-        //console.log('reqComm.js:', SERVER_KEY)
-  
-  
-        //백그라운드 상태에서 오는 알림
-        //onBackgroundMessage 함수를 이용해 백그라운드 메시지가 등록되는 것 같은데
-        //아래의 코드는 background Message로 등록되어 있지 않음에도 왜 백그라운드 상태일 때 호출되는 것인지
-        //이유는 아직 찾지 못함
+
         const message = {
           "message": {
             "token": fmcToken.value,

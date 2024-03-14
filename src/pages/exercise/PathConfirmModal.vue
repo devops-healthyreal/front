@@ -43,7 +43,6 @@ const submit = val => {
   console.log("select에서 선택된 값 확인", value)
   emit('returnBool', false)
   if(val==='withMate' && value.value.length !== 0){
-    console.log("선택된 메이트:", value.value)
     emit('returnSelectedMate', value.value)
   }
   if(val==='alone'){
@@ -54,7 +53,6 @@ const submit = val => {
 }
 
 watch(()=>props.isDialogVisible, ()=>{
-  console.log("모달창이 뜰 때 실행됨?")
   isDialogVisible.value = props.isDialogVisible
 })
 
@@ -79,20 +77,19 @@ watch(()=>[props.startTime, props.endTime, props.date], ()=>{
       end_t: `${props.endTime}:00`,
     } })
       .then(resp=>{
-        console.log("제발 한번에..", resp.data)
-        console.log('개수:', isMateExist.value)
         if(resp.data.length==0) {
           isMateExist.value = false
         }
         else {
           const tempId = []
           for (const mate of resp.data) {
-            console.log("mate값을 어떻게 가지고 오는거지?", mate)
-            mateLists.push({
-              name: mate.mate_id,
-              avatar: mate.profilePath,
-            })
-            tempId.push(mate.mate_id)
+            if(!tempId.includes(mate.mate_id) && mate.mate_id !== connetId.value){
+              mateLists.push({
+                name: mate.mate_id,
+                avatar: mate.profilePath,
+              })
+              tempId.push(mate.mate_id)
+            }
           }
         }
       })
