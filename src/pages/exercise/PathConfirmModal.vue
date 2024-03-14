@@ -67,33 +67,41 @@ const mateChanged = () => {
   }
 }
 
+const trial = ref(0)
+
 watch(()=>[props.startTime, props.endTime, props.date], ()=>{
   if(/[0-9]{2}:[0-9]{2}/.test(props.startTime) && /[0-9]{2}:[0-9]{2}/.test(props.endTime) && /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(props.date)){
-
-    axios.get("http://localhost:4000/comm/mate/available", { params: { 
-      id: connetId.value, 
-      sch_date: props.date,
-      start_t: `${props.startTime}:00`,
-      end_t: `${props.endTime}:00`,
-    } })
-      .then(resp=>{
-        if(resp.data.length==0) {
-          isMateExist.value = false
-        }
-        else {
-          const tempId = []
-          for (const mate of resp.data) {
-            if(!tempId.includes(mate.mate_id) && mate.mate_id !== connetId.value){
-              mateLists.push({
-                name: mate.mate_id,
-                avatar: mate.profilePath,
-              })
-              tempId.push(mate.mate_id)
+    if(trial.value != 1){
+      axios.get("http://localhost:4000/comm/mate/available", { params: {
+        id: connetId.value,
+        sch_date: props.date,
+        start_t: `${props.startTime}:00`,
+        end_t: `${props.endTime}:00`,
+      } })
+        .then(resp=>{
+          trial.value = 1
+          if(resp.data.length==0) {
+            isMateExist.value = false
+          }
+          else {
+            const tempId = []
+            for (const mate of resp.data) {
+              if(!tempId.includes(mate.mate_id) && mate.mate_id !== connetId.value){
+                mateLists.push({
+                  name: mate.mate_id,
+                  avatar: mate.profilePath,
+                })
+                console.log("조건문:", mate.mate_id)
+                tempId.push(mate.mate_id)
+              }
+            }
+            if(tempId.length==0) {
+              isMateExist.value = false
             }
           }
-        }
-      })
-      .catch(err => console.error("에러발생", err))
+        })
+        .catch(err => console.error("에러발생", err))
+    }
   }
   isDialogVisible.value = props.isDialogVisible
 })

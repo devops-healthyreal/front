@@ -1,7 +1,7 @@
 <script setup>
-import Shepherd from 'shepherd.js'
 import axios from '@axios'
 import { useThemeConfig } from '@core/composable/useThemeConfig'
+import Shepherd from 'shepherd.js'
 
 const { appContentLayoutNav } = useThemeConfig()
 
@@ -202,7 +202,7 @@ const LazyAppBarSearch = defineAsyncComponent(() => import('@core/components/App
 
     <!--
       <template #noData>
-      use this slot to change the view of no data section
+      use this slot to change the view of ta section
       </template>
     -->
 

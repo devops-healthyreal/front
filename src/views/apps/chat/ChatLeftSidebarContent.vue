@@ -1,9 +1,9 @@
 <script setup>
 import ChatContact from '@/views/apps/chat/ChatContact.vue'
 import useDatabase from '@/views/apps/chat/chatData.js'
+import { computed, watch } from 'vue'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { useChat } from './useChat'
-import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
   search: {
@@ -33,14 +33,29 @@ const { database, chatsContacts, connetId } = useDatabase()
 const { resolveAvatarBadgeVariant } = useChat()
 const search = useVModel(props, 'search', emit)
 
-// 필터링된 채팅 목록
 const filteredChatsContacts = computed(() => {
-  return chatsContacts.value.filter(contact => contact.fullName.includes(search.value))
+  return chatsContacts.value
+    .filter(contact => contact.fullName.includes(search.value))
+    .sort((a, b) => {
+      // a와 b의 lastMessage.time 값을 안전하게 읽기
+      const timeA = a.chat && a.chat.lastMessage ? new Date(a.chat.lastMessage.time) : new Date(0)
+      const timeB = b.chat && b.chat.lastMessage ? new Date(b.chat.lastMessage.time) : new Date(0)
+      
+      return timeB - timeA
+    })
 })
 
-// 필터링된 채팅 목록
+// 필터링된 연락처 목록, 최신순으로 정렬
 const filteredContacts = computed(() => {
-  return database.value.contacts.filter(contact => contact.fullName.includes(search.value))
+  return database.value.contacts
+    .filter(contact => contact.fullName.includes(search.value))
+    .sort((a, b) => {
+      // a와 b의 lastMessage.time 값을 안전하게 읽기
+      const timeA = a.chat && a.chat.lastMessage ? new Date(a.chat.lastMessage.time) : new Date(0)
+      const timeB = b.chat && b.chat.lastMessage ? new Date(b.chat.lastMessage.time) : new Date(0)
+      
+      return timeB - timeA
+    })
 })
 
 watch(search, newVal => {
