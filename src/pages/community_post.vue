@@ -406,7 +406,7 @@ const controllInviteFunc = (ans, id) => { //DB에 접근
     type: '1',
   }), { headers: { 'Content-Type': 'application/json' } })
     .then(()=>{
-      sendCommReqMessage(connetId, id, 'fReq')
+      //sendCommReqMessage(connetId, id, 'fReq')
     })
     .catch(err => {
       console.log(err, '값을 받는 데 실패했습니다')
