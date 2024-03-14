@@ -5,6 +5,10 @@ const userStore = {
   },
   mutations: {
     UPDATE_USER_INFO(state, newUserInfo) {
+      // `pro_filepath`가 새 정보에 없거나 null이 아닌 경우에만 기존 값을 유지
+      if (newUserInfo.pro_filepath === undefined || newUserInfo.pro_filepath === null) {
+        newUserInfo.pro_filepath = state.userInfo.pro_filepath
+      }
       state.userInfo = { ...state.userInfo, ...newUserInfo }
     },
     UPDATE_SEARCH_USER(state, newSearchUser) {
@@ -18,7 +22,7 @@ const userStore = {
     },
   },
   actions: {
-    updateUserInfo({ commit }, newUserInfo) {
+    updateUserInfo({ commit }, newUserInfo) { 
       commit('UPDATE_USER_INFO', newUserInfo)
     },
     updateSearchUser({ commit }, newSearchUser) { // 수정된 액션

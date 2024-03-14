@@ -29,11 +29,7 @@ const userId = computed(() => {
   return userInfo ? userInfo.id : "로그인 필요"
 })
 
-const loginPro_filepath = computed(() => {
-  const userInfo = store.state.loginStore.userInfo
-  
-  return userInfo ? userInfo.pro_filepath : null
-})
+
 
 const pro_filepath = computed(() => {
   const userInfo = store.state.userStore.userInfo
