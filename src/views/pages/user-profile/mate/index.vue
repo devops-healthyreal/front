@@ -1,5 +1,4 @@
 <script setup>
-import { sendCommReqMessage } from '@/message/requestComm'
 import BlockMateConfirmFinal from '@/pages/community/BlockMateConfirmFinal.vue'
 import BlockMateConfirmModal from '@/pages/community/BlockMateConfirmModal.vue'
 import RequestMateConfirmModal from '@/pages/community/RequestMateConfirmModal.vue'
@@ -184,7 +183,7 @@ const changeStateValue = val => {
     type: '2',
   }), { headers: { 'Content-Type': 'application/json' } })
     .then(()=>{
-      sendCommReqMessage(connetId.value, val, 'mReq')
+      //sendCommReqMessage(connetId.value, val, 'mReq')
     })
     .catch(err => {
       console.log("에러발생:", err)

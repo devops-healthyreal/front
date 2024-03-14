@@ -1,5 +1,4 @@
 <script setup>
-import { sendCommReqMessage } from '@/message/requestComm'
 import axios from '@axios'
 import avatar1 from '@images/avatars/avatar-1.png'
 import avatar2 from '@images/avatars/avatar-2.png'
@@ -85,7 +84,7 @@ const requestFriend = val => {
     type: '1',
   }), { headers: { 'Content-Type': 'application/json' } })
     .then(()=>{
-      sendCommReqMessage(props.connectid, props.userid, 'fReq')
+      //sendCommReqMessage(props.connectid, props.userid, 'fReq')
       isRequested.value = true
       document.getElementById("requestBTN").style.display = 'none'
       document.getElementById("requestCompleteBTN").style.display='block'
