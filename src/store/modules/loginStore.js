@@ -212,6 +212,7 @@ const loginStore = {
         } else if (error.message === 'Invalid token specified: Cannot read properties of undefined (reading \'replace\')') {
           alert('권한이 없습니다.')
         } else {
+          alert('권한이 없습니다.')
           console.log(error)
         }
       }
