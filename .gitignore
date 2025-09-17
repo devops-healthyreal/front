@@ -34,3 +34,4 @@ dist-ssr
 
 # iconify dist files
 src/@iconify/icons-bundle.js
+src/@core/service-account.json
