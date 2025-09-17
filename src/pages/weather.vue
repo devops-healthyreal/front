@@ -29,8 +29,8 @@ const getuseraddress = () => {
 
   axios.get('http://localhost:4000/getUserAddress', { params })
     .then(response => {
-      // console.log('받은 정보:', response.data)
-      userAddress.value = response.data.USERADDRESS
+      console.log('받은 정보:', response.data)
+      userAddress.value = response.data.user_address
 
       // console.log('주소:', userAddress.value)
 

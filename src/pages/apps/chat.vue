@@ -147,7 +147,7 @@ socket.addEventListener('open', async function (event) {
       scrollToBottomInChatLog()
     }, 50)
 
-  }
+  } //sendMessage
 
 })
 

@@ -8,6 +8,7 @@ import { onBeforeUnmount, onMounted, provide, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Birthyday from './Birthyday.vue'
 
+console.log('DemoFormLayoutHorizontalForm 들어옴');
 
 const emits = defineEmits({
   goal_No: {

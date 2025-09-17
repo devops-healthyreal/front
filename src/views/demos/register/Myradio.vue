@@ -36,7 +36,7 @@ const radioContent = [
   {
     title: '여자',
     subtitle: '성별',
-    value: 'W',
+    value: 'F',
   },
 ]
 
