@@ -9,42 +9,28 @@ import { Quill, QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.bubble.css'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import * as Emoji from "quill-emoji"
-import { createApp, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import SubmitConfirmModal from './components/diaryModal/SubmitConfirmModal.vue'
-
-
-const store = useStore()
-
-
-const app = createApp()
-
-Quill.register("modules/emoji", Emoji)
-
-app.component('QuillEditor', QuillEditor)
-
 import timelineCardHeader from '@images/cards/timeline-card-header.png'
 import {
   requiredValidatorDiaryPassword,
 } from '@validators'
 
+const store = useStore()
+
+Quill.register("modules/emoji", Emoji)
+
 
 const biggeImgFile = ref(false)
-const previousBtn = ref(null)
-const btnSize = '40'  //버튼 크기
-const isDialogVisible = ref(false)
-const submitBtn = ref(false)
 const writeDiaryContent = ref(false)
 const readDiaryContent = ref(false)
 const diaryLock = ref(false)
-const selectedBtn = ref()
 const viewPassword = ref(false)
 const password = ref('Password')
 const refVForm = ref()
 const inputDiaryPhoto = ref(false)
 const clickedImageUrl = ref('')
-
-const testwordcloud = ref(false)
 
 const isSubmitConfirmModalVisible = ref(false) //등록 확인 모달창
 const isEmotionDetectDialogVisible = ref(false) //감정분석 api 요청 중일 때 로딩창
@@ -70,10 +56,6 @@ const getWordCloud = async () => {
     console.error('워드 클라우드를 가져오는 동안 오류가 발생했습니다:', error)
   })
 }
-
-Quill.register("modules/emoji", Emoji)
-
-app.component('QuillEditor', QuillEditor)
 
 const imgUrlEmotion = ref([]) // 이미지 URL 담을 변수 -- 사진 여러개
 
@@ -133,7 +115,6 @@ const diaryWriteComplet = isSubmit => {
     }
     if(diaryText.value.trim().length == 0){
       alert('글을 입력해주세요')
-      submitBtn.value = false
     }
     else {
       writeDiaryContent.value = true
@@ -143,27 +124,12 @@ const diaryWriteComplet = isSubmit => {
   }
   else {
     writeDiaryContent.value = false
-    submitBtn.value = false
   }
 }
 
 
-const imageUrl = ref('') // 이미지 URL을 담을 변수 -- 사진 1개
 const imgUrls = ref([]) // 이미지 URL 담을 변수 -- 사진 여러개
 const imageSize = ref(null) //이미지 마우스 올릴 때 이벤트를 위한 변수
-
-//파일 1개 업로드 함수 -- 오늘의 기분
-const uploadImg = e => {
-  const fileList = e.target.files
-  if (fileList.length > 0) {
-    const imgUrl = URL.createObjectURL(fileList[0])
-
-    imageUrl.value = imgUrl
-  } else {
-    // Handle the case where no file is selected
-    console.error('No file selected')
-  }
-}
 
 // 마우스 클릭할 때
 const handleImageClick = url => {
@@ -616,7 +582,6 @@ const postDiary = score => {
                   :toolbar="toolbarOptions"
                   style="height: 800px;"
                   rows="30"
-                  @change="test"
                 />
               </VCol>
               <VCol cols="12">
@@ -761,4 +726,3 @@ const postDiary = score => {
   opacity: 0;
 }
 </style>
-
