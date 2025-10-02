@@ -1,5 +1,5 @@
 <script setup>
-import * as demoCode from '@/views/demos/components/progress-linear/demoCodeProgressLinear'
+import * as demoCode from '@/pages/views/demos/components/progress-linear/demoCodeProgressLinear';
 </script>
 
 <template>

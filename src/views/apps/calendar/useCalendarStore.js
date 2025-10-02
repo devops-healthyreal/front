@@ -68,6 +68,7 @@ export const useCalendarStore = defineStore('calendar', {
     },
     async addEvent(eventData) {
       try {
+        console.log("추가값 확인해보자", eventData);
         const response = await axios.post('http://localhost:4000/sch/insert.do', eventData)
 
         this.fetchEvents(eventData.id) // 이벤트 목록 갱신

@@ -1,5 +1,5 @@
 <script setup>
-import * as demoCode from '@/views/demos/components/badge/demoCodeBadge'
+import * as demoCode from '@/pages/views/demos/components/badge/demoCodeBadge';
 </script>
 
 <template>

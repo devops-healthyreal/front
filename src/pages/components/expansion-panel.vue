@@ -1,5 +1,5 @@
 <script setup>
-import * as demoCode from '@/views/demos/components/expansion-panel/demoCodeExpansionPanel'
+import * as demoCode from '@/pages/views/demos/components/expansion-panel/demoCodeExpansionPanel';
 </script>
 
 <template>

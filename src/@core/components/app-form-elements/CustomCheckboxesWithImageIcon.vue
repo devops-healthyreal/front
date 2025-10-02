@@ -1,4 +1,5 @@
 <script setup>
+import heart from '@/assets/images/icons/heart_icon.png'
 import axios from '@axios'
 import { useStore } from 'vuex'
 
@@ -118,7 +119,7 @@ onMounted(getuserHateFood)
           class="custom-checkbox-image"
         >
         <img
-          src="src/assets/images/icons/heart_icon.png"
+          :src="heart"
           alt="heart-icon"
           class="heart-icon"
         > <!-- 하트 아이콘 이미지 -->

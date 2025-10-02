@@ -1,6 +1,6 @@
 export const basic = { ts: `<script setup lang="ts">
 import { VDataTable } from 'vuetify/labs/VDataTable'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const headers = [
   { title: 'ID', sortable: false, key: 'id' },
@@ -21,7 +21,7 @@ const headers = [
 </template>
 `, js: `<script setup>
 import { VDataTable } from 'vuetify/labs/VDataTable'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const headers = [
   {
@@ -64,7 +64,7 @@ const headers = [
 export const cellSlot = { ts: `<script setup lang="ts">
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { avatarText } from '@/@core/utils/formatters'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const headers = [
   { title: 'NAME', key: 'full_name' },
@@ -131,7 +131,7 @@ const resolveStatusVariant = (status: number) => {
 `, js: `<script setup>
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { avatarText } from '@/@core/utils/formatters'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const headers = [
   {
@@ -232,7 +232,7 @@ const resolveStatusVariant = status => {
 
 export const dense = { ts: `<script setup lang="ts">
 import { VDataTable } from 'vuetify/labs/VDataTable'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const headers = [
   { title: 'ID', sortable: false, key: 'id' },
@@ -254,7 +254,7 @@ const headers = [
 </template>
 `, js: `<script setup>
 import { VDataTable } from 'vuetify/labs/VDataTable'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const headers = [
   {
@@ -298,7 +298,7 @@ const headers = [
 export const expandableRows = { ts: `<script setup lang="ts">
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { avatarText } from '@/@core/utils/formatters'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 // Headers
 const headers = [
@@ -383,7 +383,7 @@ const resolveStatusVariant = (status: number) => {
 `, js: `<script setup>
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { avatarText } from '@/@core/utils/formatters'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const headers = [
   {
@@ -506,7 +506,7 @@ export const externalPagination = { ts: `<script setup lang="ts">
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { avatarText } from '@/@core/utils/formatters'
 import type { Data } from '@/@fake-db/types'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const userList = ref<Data[]>([])
 const options = ref({ page: 1, itemsPerPage: 5, sortBy: [''], sortDesc: [false] })
@@ -607,7 +607,7 @@ onMounted(() => {
 `, js: `<script setup>
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { avatarText } from '@/@core/utils/formatters'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const userList = ref([])
 
@@ -749,7 +749,7 @@ onMounted(() => {
 export const fixedHeader = { ts: `<script setup lang="ts">
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { avatarText } from '@/@core/utils/formatters'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const headers = [
   { title: 'NAME', key: 'full_name' },
@@ -819,7 +819,7 @@ const resolveStatusVariant = (status: number) => {
 `, js: `<script setup>
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { avatarText } from '@/@core/utils/formatters'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const headers = [
   {
@@ -2163,7 +2163,7 @@ export const rowEditingViaDialog = { ts: `<script setup lang="ts">
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { avatarText } from '@/@core/utils/formatters'
 import type { Data } from '@/@fake-db/types'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const editDialog = ref(false)
 const deleteDialog = ref(false)
@@ -2474,7 +2474,7 @@ onMounted(() => {
 `, js: `<script setup>
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { avatarText } from '@/@core/utils/formatters'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const editDialog = ref(false)
 const deleteDialog = ref(false)
@@ -2835,7 +2835,7 @@ onMounted(() => {
 export const rowSelection = { ts: `<script setup lang="ts">
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { avatarText } from '@/@core/utils/formatters'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const headers = [
   { title: 'NAME', key: 'full_name' },
@@ -2904,7 +2904,7 @@ const resolveStatusVariant = (status: number) => {
 `, js: `<script setup>
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { avatarText } from '@/@core/utils/formatters'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const headers = [
   {

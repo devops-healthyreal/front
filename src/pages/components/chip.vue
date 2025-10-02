@@ -1,5 +1,5 @@
 <script setup>
-import * as demoCode from '@/views/demos/components/chip/demoCodeChip'
+import * as demoCode from '@/pages/views/demos/components/chip/demoCodeChip';
 </script>
 
 <template>

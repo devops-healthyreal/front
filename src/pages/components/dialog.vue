@@ -1,5 +1,5 @@
 <script setup>
-import * as demoCode from '@/views/demos/components/dialog/demoCodeDialog'
+import * as demoCode from '@/pages/views/demos/components/dialog/demoCodeDialog';
 </script>
 
 <template>

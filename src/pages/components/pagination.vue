@@ -1,5 +1,5 @@
 <script setup>
-import * as demoCode from '@/views/demos/components/pagination/demoCodePagination'
+import * as demoCode from '@/pages/views/demos/components/pagination/demoCodePagination';
 </script>
 
 <template>

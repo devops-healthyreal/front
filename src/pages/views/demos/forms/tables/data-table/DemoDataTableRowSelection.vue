@@ -1,7 +1,7 @@
 <script setup>
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { avatarText } from '@/@core/utils/formatters'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable'
 
 const headers = [
   {

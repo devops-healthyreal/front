@@ -1,6 +1,7 @@
 <script setup>
+import profileBackground from '@/assets/images/pages/user-profile-header-bg.png'
 import axios from '@axios'
-import {useStore} from 'vuex'
+import { useStore } from 'vuex'
 
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
@@ -32,7 +33,7 @@ fetchHeaderData()
 <template>
   <VCard v-if="profileHeaderData">
     <VImg
-      src="/src/assets/images/pages/user-profile-header-bg.png"
+      :src="profileBackground"
       min-height="125"
       max-height="250"
       cover

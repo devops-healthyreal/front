@@ -1,6 +1,6 @@
 <script setup>
-import { VDataTable } from 'vuetify/labs/VDataTable'
-import data from '@/views/demos/forms/tables/data-table/datatable'
+import data from '@/pages/views/demos/forms/tables/data-table/datatable';
+import { VDataTable } from 'vuetify/labs/VDataTable';
 
 const headers = [
   {

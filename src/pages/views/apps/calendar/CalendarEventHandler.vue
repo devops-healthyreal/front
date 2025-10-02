@@ -1,7 +1,4 @@
 <script setup>
-import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
-import { VForm } from 'vuetify/components/VForm'
-import { useCalendarStore } from './useCalendarStore'
 import avatar1 from '@images/avatars/avatar-1.png'
 import avatar2 from '@images/avatars/avatar-2.png'
 import avatar3 from '@images/avatars/avatar-3.png'
@@ -12,6 +9,9 @@ import {
   requiredValidator,
   urlValidator,
 } from '@validators'
+import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
+import { VForm } from 'vuetify/components/VForm'
+import { useCalendarStore } from './useCalendarStore'
 
 const props = defineProps({
   isDrawerOpen: {
@@ -54,6 +54,7 @@ const removeEvent = () => {
 }
 
 const handleSubmit = () => {
+  console.log('사용 여부 테스트: handleSubmit 호출됨');
   refForm.value?.validate().then(({ valid }) => {
     if (valid) {
 

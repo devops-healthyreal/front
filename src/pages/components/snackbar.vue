@@ -1,5 +1,5 @@
 <script setup>
-import * as demoCode from '@/views/demos/components/snackbar/demoCodeSnackbar'
+import * as demoCode from '@/pages/views/demos/components/snackbar/demoCodeSnackbar'
 </script>
 
 <template>
