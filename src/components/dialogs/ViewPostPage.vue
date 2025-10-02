@@ -15,11 +15,11 @@ const props = defineProps({
   },
   comments: {
     type: Array,
-    required: true,
+    default: () => [],
   },
   bno: {
     type: Number,
-    required: true,
+    default: 0,
   },
   openUserProfileModal: {
     type: Function,
@@ -39,22 +39,28 @@ const props = defineProps({
   },
   likespro: {
     type: Array,
-    required: true,
+    default: () => [],
   },
   likesuser: {
     type: Array,
-    required: true,
+    default: () => [],
   },
 })
 
-const commentval = ref()
+const emit = defineEmits(['update:isDialogVisible'])
+
+const dialogVisibleUpdate = value => {
+  emit('update:isDialogVisible', value)
+}
+
+const commentval = ref('')
 let commentAddevent = ref(false)
 
 const commentAdd = (event, val) => {
   commentAddevent.value = !commentAddevent.value
 }
 
-const newcomment = ref()
+const newcomment = ref('')
 let parentcomm = ref(0)
 
 

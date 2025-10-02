@@ -1,6 +1,6 @@
 <script setup>
 import axios from '@axios'
-import { onMounted } from 'vue'
+import { computed, onMounted, reactive, ref, toRaw } from 'vue'
 import { useStore } from 'vuex'
 
 const store = useStore()
@@ -11,7 +11,7 @@ const connetId = computed(() => userInfo.value ? userInfo.value.id : null)
 
 const name = computed(() => store.state.userStore.userInfo ? store.state.userStore.userInfo.name : null)
 
-let noticlists = ref([])
+const noticlists = ref([])
 
 const getNoticList = async id => {
   if (!id) {
@@ -61,7 +61,7 @@ const writingModal = ref(false)
 const editingModal = ref(false)
 const userProfileModal = ref(false)
 const viewPostPageModal = ref(false)
-let postToEdit = ref("")
+const postToEdit = ref({})
 const connetAv = userInfo.value.pro_filepath
 
 const state = reactive({
@@ -172,7 +172,7 @@ const getComment = async function() {
       console.log('특정 게시물 데이타', groupedDataAll.value)
 
       postmodalData.value = {
-        comments: groupedDataAll.value[postbbsno.value],    
+        comments: groupedDataAll.value[postbbsno.value] ?? [],
       }
 
       // Allgroupbbs.value = groupedDataAll._rawValue[17]
@@ -188,8 +188,25 @@ const getComment = async function() {
   }
 }
 
-const postmodalData = ref({ comments: {} })
+const postmodalData = ref({ comments: [] })
 const postbbsno = ref(0)
+const currentBno = computed(() => {
+  const bno = postToEdit.value?.bno
+
+  return typeof bno === 'number' && !Number.isNaN(bno) ? bno : 0
+})
+
+const postLikesPro = computed(() => {
+  const likes = postToEdit.value?.likespro ?? postToEdit.value?.likesPro
+
+  return Array.isArray(likes) ? likes : []
+})
+
+const postLikesUser = computed(() => {
+  const likes = postToEdit.value?.likesuser ?? postToEdit.value?.likesUser
+
+  return Array.isArray(likes) ? likes : []
+})
 
 const openViewPostMoadl = async val =>{
   console.log('가져온 글번호', val)
@@ -198,7 +215,7 @@ const openViewPostMoadl = async val =>{
 
   // console.log('글번호에 대한 댓글', groupedDataAll.value._rawValue[postbbsno.value])
   postmodalData.value = {
-    comments: groupedDataAll.value[postbbsno.value],    
+    comments: groupedDataAll.value[postbbsno.value] ?? [],
   }
   console.log(postmodalData.value)
 }
@@ -289,37 +306,41 @@ const insertComment = async (bno, comment, type, parent_comment) => {
 </script>
 
 <template>
-  <Notifications
-    :noticlists="noticlists"
-    :noticflag="false"
-    :get-notic-list="getNoticList"
-    :open-view-post-moadl="openViewPostMoadl"
-    :submit-edit="submitEdit"
-    @click="getNoticList(connetId)"   
-  />
-  <UserProfileCommunity 
-    v-model:isDialogVisible="userProfileModal" 
-    :userid="modalData.userid"
-    :userprofile-path="modalData.userprofilePath"
-    :userpro-introduction="modalData.userproIntroduction"
-  />
-  <Writing
-    v-model:isDialogVisible="writingModal" 
-    @update-success="getData"
-  />
-  <Editing
-    v-model:isDialogVisible="editingModal"
-    :post-to-edit="postToEdit"
-    @update-success="getData"
-  />
-  <ViewPostPage
-    v-model:isDialogVisible="viewPostPageModal" 
-    :post-to-edit="postToEdit"
-    :comments="postmodalData.comments"
-    :bno="postToEdit.bno"
-    :open-user-profile-modal="openUserProfileModal"
-    :insert-comment="insertComment"
-    :searchuser="searchuser"
-    :get-comment="getComment"
-  /> 
+  <div class="nav-bar-notifications">
+    <Notifications
+      :noticlists="noticlists"
+      :noticflag="false"
+      :get-notic-list="getNoticList"
+      :open-view-post-moadl="openViewPostMoadl"
+      :submit-edit="submitEdit"
+      @click="getNoticList(connetId)"
+    />
+    <UserProfileCommunity
+      v-model:isDialogVisible="userProfileModal"
+      :userid="modalData.userid"
+      :userprofile-path="modalData.userprofilePath"
+      :userpro-introduction="modalData.userproIntroduction"
+    />
+    <Writing
+      v-model:isDialogVisible="writingModal"
+      @update-success="getData"
+    />
+    <Editing
+      v-model:isDialogVisible="editingModal"
+      :post-to-edit="postToEdit"
+      @update-success="getData"
+    />
+    <ViewPostPage
+      v-model:isDialogVisible="viewPostPageModal"
+      :post-to-edit="postToEdit"
+      :comments="postmodalData.comments"
+      :bno="currentBno"
+      :open-user-profile-modal="openUserProfileModal"
+      :insert-comment="insertComment"
+      :searchuser="searchuser"
+      :get-comment="getComment"
+      :likespro="postLikesPro"
+      :likesuser="postLikesUser"
+    />
+  </div>
 </template>
