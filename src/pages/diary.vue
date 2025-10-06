@@ -23,10 +23,6 @@ Quill.register("modules/emoji", Emoji)
 
 app.component('QuillEditor', QuillEditor)
 
-import timelineCardHeader from '@images/cards/timeline-card-header.png'
-import {
-  requiredValidatorDiaryPassword,
-} from '@validators'
 
 
 const biggeImgFile = ref(false)
@@ -36,7 +32,7 @@ const isDialogVisible = ref(false)
 const submitBtn = ref(false)
 const writeDiaryContent = ref(false)
 const readDiaryContent = ref(false)
-const diaryLock = ref(false)
+const diaryLock = ref(true)
 const selectedBtn = ref()
 const viewPassword = ref(false)
 const password = ref('Password')
@@ -57,10 +53,30 @@ const userId = ref(connetId)
 const inputEmotionPhoto = ref(false)
 const emotiondata=ref('')
 const imageData = ref('')
+const diaryRef = ref(null)
+const diaryHtml = ref('')
+const diaryTxt = ref('')
+const diaryPayload = ref({})
+const date = ref()
+
+const onTextChange = (payload) => {
+  console.log('onTextChange payload:-getText', payload.getText);
+  console.log('onTextChange payload:-payload', payload);
+  console.log('onTextChange payload:', diaryHtml.value);
+  console.log('onTextChange payload:diaryRef', diaryRef.value.getText());
+  diaryPayload.value = payload;
+  // diaryTxt.value = payload.text;
+}
 
 const getWordCloud = async () => {
+  console.log('diaryPayload:', diaryPayload.value);
+  const content = diaryRef.value.getText();
+  if(content === null || content.trim() === '') {
+    alert('일기 내용을 입력해주세요.');
+    return;
+  }
   await axios.post('http://localhost:5000/wordcloud', {
-    text: '<p>오늘은 학교에 다녀온 날이었습니다. 아침 일찍 일어나서 준비를 마치고 학교로 향했습니다. 학교에 도착하니 이미 많은 친구들이 모여있었고, 활기찬 분위기가 느껴졌습니다.</p><p>수업 시작 전에는 친구들과 이야기를 나누고 웃음 가득한 시간을 보냈습니다. 서로의 추억이 담긴 이야기를 나누며 학교 생활이 그리워졌던 순간이었습니다.</p><p>수업 시간에는 열심히 공부에 집중했습니다. 선생님들께서는 열정적으로 지식을 전달해 주셨고, 저희 학생들도 질문을 하며 적극적으로 수업에 참여했습니다. 새로운 지식을 습득하고 배우는 과정은 항상 흥미로웠습니다.</p><p>점심 시간에는 친구들과 함께 급식을 먹으며 이야기를 나누었습니다. 맛있는 음식을 함께 나누는 시간은 항상 즐거웠습니다. 함께 웃고 이야기하며 친밀감을 느낄 수 있어서 기분이 좋았습니다.</p>',
+    text: diaryRef.value.getText(),
   }).then(response => {
     console.log('체크..', response.data)
 
@@ -332,17 +348,10 @@ const postDiary = score => {
 <template>
   <VRow>
     <VCol>
-      <!-- Diary 위 이미지 -->
-      <VImg
-        cover
-        height="230"
-        :src="timelineCardHeader"
-      />
       <!-- Diary 시작 -->
       <VCard
         title=" "
         flat
-        :max-width="auto"
         class="mt-4 mt-sm- pa-0"
       >
         <VRow
@@ -372,7 +381,7 @@ const postDiary = score => {
                   ref="refVForm" 
                   @submit="diaryLock=true"
                 >
-                  <Transition name="fade">
+                  <!-- <Transition name="fade">
                     <VTextField
                       v-if="viewPassword"
                       v-model="password"
@@ -385,7 +394,7 @@ const postDiary = score => {
                       counter
                       @click:append-inner="show1 = !show1"
                     />
-                  </Transition>
+                  </Transition> -->
                 </VForm>
               </VCol>
               <VCol cols="1">
@@ -544,7 +553,7 @@ const postDiary = score => {
                         v-for="(url, index) in imgUrlEmotion" 
                         :key="index"
                         :src="url"
-                        style="width: 400px; height: auto; align-self: center;"
+                        style="width: 400px; align-self: center;"
                       />
                       <VCol style="text-align: center;">
                         {{ emotiondata.emotion }}
@@ -612,11 +621,14 @@ const postDiary = score => {
             <VCol>
               <VCol cols="12">
                 <QuillEditor
+                  ref="diaryRef"
                   id="quill-editor"
                   :toolbar="toolbarOptions"
+                  v-model:content="diaryHtml"
+                  content-type="html"
+                  @text-change="(payload) => onTextChange(payload)"
                   style="height: 800px;"
                   rows="30"
-                  @change="test"
                 />
               </VCol>
               <VCol cols="12">
@@ -722,8 +734,6 @@ const postDiary = score => {
           </VCard>
         </VForm>
       </VCard>
-      <!-- content부분 끝 -->
-      <FontAwesomeIcon icon="coffee" />
     </VCol>
   </VRow>
 </template>

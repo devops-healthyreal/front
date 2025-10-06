@@ -24,6 +24,7 @@ const props = defineProps({
   },
 })
 
+//부모에 변경 통지
 const emit = defineEmits([
   'update:isDrawerOpen',
   'addEvent',
@@ -32,6 +33,8 @@ const emit = defineEmits([
 ])
 
 const store = useCalendarStore()
+console.log('drawer')
+console.log('drawer 클릭한 값: ', store.clickedEvent)
 const refForm = ref()
 
 // 👉 Event
@@ -39,6 +42,7 @@ const event = ref(JSON.parse(JSON.stringify(props.event)))
 
 const resetEvent = () => {
   event.value = JSON.parse(JSON.stringify(props.event))
+  console.log('drawer resetEvent 호출됨', event.value)
   nextTick(() => {
     refForm.value?.resetValidation()
   })
@@ -101,7 +105,7 @@ const guestsOptions = [
 
 // 👉 Form
 const onCancel = () => {
-
+  console.log('onCancel 호출됨');
   // Close drawer
   emit('update:isDrawerOpen', false)
   nextTick(() => {

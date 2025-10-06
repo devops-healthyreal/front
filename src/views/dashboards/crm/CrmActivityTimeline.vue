@@ -8,7 +8,15 @@ const props = defineProps({
   rpathNo: {
     type: String,
   },
+  refreshKey: {
+    type: Number
+  }
 })
+
+watch(() => props.refreshKey, async () => {
+  console.log("타임라인 새로고침:", props.refreshKey)
+  await getData()
+}, { immediate: true })
 
 const emit = defineEmits(['update:summary', 'update:rpathNo'])
 const date = new Date()
@@ -64,6 +72,8 @@ const getCalLabel = cal => {
   }
 }
 
+const calendarsColorForIdx = ['primary', 'success', 'error', 'warning', 'info', 'secondary']
+
 const gotoMap = rpathNo  => {
   console.log("클릭 확인:", rpathNo)
   emit('update:rpathNo', rpathNo)
@@ -86,7 +96,7 @@ const gotoMap = rpathNo  => {
         <VTimelineItem
           v-for="calendarEvent in Data"
           :key="calendarEvent"
-          dot-color="error"
+          :dot-color="calendarsColorForIdx[calendarEvent.cal - 1]"
           size="x-small"
          
           @click="gotoMap(calendarEvent.rpathNo)"
@@ -105,7 +115,7 @@ const gotoMap = rpathNo  => {
               v-if="calendarEvent.cal"
               class="mb-0 app-timeline-text"
             >
-              {{ getCalLabel(calendarEvent.cal) }} : {{ calendarEvent.seat }}{{ calendarEvent.sexer }}
+              {{ getCalLabel(calendarEvent.cal) }} : {{ getCalLabel(calendarEvent.cal) == '운동' ? calendarEvent.sexer : calendarEvent.seat }}
             </p>
             <p
               v-if="calendarEvent.scontent"

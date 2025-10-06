@@ -34,6 +34,7 @@ const refForm = ref()
 // 👉 Event
 const event = ref(JSON.parse(JSON.stringify(props.event)))
 
+
 const resetEvent = () => {
   event.value = JSON.parse(JSON.stringify(props.event))
   nextTick(() => {
@@ -43,17 +44,20 @@ const resetEvent = () => {
 
 watch(() => props.isDrawerOpen, resetEvent)
 
+/**
+ * 일정 삭제
+ * @param event 삭제할 이벤트 객체 번호
+ */
 const removeEvent = event => {
-
-  console.log('삭제할거다~~~', event)
-
   emit('removeEvent', userInfo.value.id, event)
-
   // Close drawer
   emit('update:isDrawerOpen', false)
+  deleteConfirm.value = false
 }
 
-// 👉 Form
+/**
+ * 모달 닫기
+ */
 const onCancel = () => {
 
   // Close drawer
@@ -189,6 +193,7 @@ const exercise = ref('')
 const eat = ref('')
 const loading = ref(true)
 
+const deleteConfirm = ref(false);
 
 
 const sub = computed({
@@ -202,11 +207,14 @@ const sub = computed({
     }
   },
   set: newValue => {
-    switch (calendar.value) {
-    case 2: dietinfo.value[0] ? dietinfo.value[0].eating_foodname = newValue : eat.value = newValue; break
-    case 3: dietinfo.value[1] ? dietinfo.value[1].eating_foodname = newValue : eat.value = newValue; break
-    case 4: dietinfo.value[2] ? dietinfo.value[2].eating_foodname = newValue : eat.value = newValue; break
-    case 5: exercise.value = newValue; break
+    console.log('sub set 호출됨', event.value.no);
+    if(event.value.no !== '') {
+      switch (calendar.value) {
+      case 2: dietinfo.value[0] ? dietinfo.value[0].eating_foodname = newValue : eat.value = newValue; break
+      case 3: dietinfo.value[1] ? dietinfo.value[1].eating_foodname = newValue : eat.value = newValue; break
+      case 4: dietinfo.value[2] ? dietinfo.value[2].eating_foodname = newValue : eat.value = newValue; break
+      case 5: exercise.value = newValue; break
+      }
     }
   },
 })
@@ -231,6 +239,7 @@ const getEatingRecord = async () => {
         if(response.data.length > 0){
           // 초기화
           console.log('여긴안돼')
+          console.log('응답받은 행:', response.data)
           dietinfo.value = [null, null, null]
 
           response.data.forEach(data => {
@@ -247,7 +256,7 @@ const getEatingRecord = async () => {
         else{
           axios.get("http://localhost:4000/dietfood/search.do", { params: { 'id': connetId } })
             .then(response => {
-              console.log('응답받은 행:', response.data)
+              console.log('응답받은 행:', response)
               if(response.data === 0){
                 axios.get("http://localhost:5000/food_recommend", { params: { 'id': connetId } })
                   .then(response=>{
@@ -275,7 +284,16 @@ const getEatingRecord = async () => {
 
 onUpdated(() => {
   // 다른 함수를 실행
+  title.value = event.value.stitle || '';
+  calendar.value = event.value.calendar || null;
+  start.value = event.value.start || '';
+  end.value = event.value.end || '';
+  exercise.value = event.value.exercise || '';
+  eat.value = event.value.eat || '';
+  userInput.value = event.value.content || '';
 
+  // if(event.value.no=='') sub.value = '';
+  // else sub.value = event.value.eat || event.value.exercise;
   getEatingRecord()
   console.log("dietinfo", dietinfo)
 
@@ -283,7 +301,34 @@ onUpdated(() => {
 </script>
 
 <template>
+  <VDialog
+    :model-value="deleteConfirm"
+    persistent
+    width="300"
+    style="padding-top: 20px;"
+  >
+    <VCard>
+      <v-card-text>
+        정말 삭제하시겠습니까?
+      </v-card-text>
+      <template v-slot:actions>
+        <v-spacer></v-spacer>
+
+        <v-btn color="error" @click="()=>removeEvent(event.no)">
+          예
+        </v-btn>
+
+        <v-btn color="secondary" @click="()=>deleteConfirm=false">
+          아니요
+        </v-btn>
+      </template>
+    </VCard>
+  </VDialog>
   <VNavigationDrawer
+    style="z-index: 1000;"
+    :scrim="true"                
+    scroll-strategy="block"      
+    permanent  
     temporary
     location="end"
     :model-value="props.isDrawerOpen"
@@ -299,7 +344,7 @@ onUpdated(() => {
       <template #beforeClose>
         <IconBtn
           v-show="event.no"
-          @click="removeEvent(event.no)"
+          @click="deleteConfirm = true"
         >
           <VIcon
             size="18"
@@ -355,6 +400,7 @@ onUpdated(() => {
                   </template>
                 </VSelect>
               </VCol>
+              <!-- 👉 eat 또는 excercise -->
               <VCol
                 v-if="calendar !== 1 && calendar !== 6 && calendar !== null"
                 cols="12"
@@ -428,14 +474,14 @@ onUpdated(() => {
                   type="submit"
                   class="me-3"
                 >
-                  Submit
+                  저장
                 </VBtn>
                 <VBtn
                   variant="tonal"
                   color="secondary"
                   @click="onCancel"
                 >
-                  Cancel
+                  닫기
                 </VBtn>
               </VCol>
             </VRow>
@@ -445,5 +491,13 @@ onUpdated(() => {
       </VCard>
     </PerfectScrollbar>
   </VNavigationDrawer>
+
+  <VOverlay
+    :model-value="props.isDrawerOpen"
+    :scrim="true"
+    scroll-strategy="block"
+    persistent   
+    style="z-index: 1;"
+  />
 </template>
 
