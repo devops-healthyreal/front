@@ -9,7 +9,7 @@ import { Quill, QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.bubble.css'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import * as Emoji from "quill-emoji"
-import { createApp, ref } from 'vue'
+import { createApp, ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import SubmitConfirmModal from './components/diaryModal/SubmitConfirmModal.vue'
 
@@ -40,6 +40,7 @@ const diaryLock = ref(false)
 const selectedBtn = ref()
 const viewPassword = ref(false)
 const password = ref('Password')
+const show1 = ref(false) // 비밀번호 표시/숨김 토글
 const refVForm = ref()
 const inputDiaryPhoto = ref(false)
 const clickedImageUrl = ref('')
@@ -214,7 +215,11 @@ const deleteImage = index =>{
 }
 
 //input file에 사이즈에 대한 룰 설정
-const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 1000000 || 'Avatar size should be less than 1 MB!']
+const rules = {
+  required: value => !!value || '필수 입력 항목입니다.',
+  min: value => value.length >= 3 || '최소 3자 이상 입력해주세요.',
+  fileSize: fileList => !fileList || !fileList.length || fileList[0].size < 1000000 || 'Avatar size should be less than 1 MB!'
+}
 
 
 
@@ -283,8 +288,8 @@ function getTodayLabel() {
 
 
 //등록을 누르면 실행되는 코드
-const postDiary = score => {
-  console.log('값 잘 들어옴?:', score)
+const postDiary = emotionNumber => {
+  console.log('감정 숫자 값:', emotionNumber)
 
   const dateTag = document.getElementById("date").children[0]
   var dateVal = dateTag.value.replace(/-/g, '')+'-'+userId.value
@@ -296,22 +301,28 @@ const postDiary = score => {
   console.log('날짜:', dateTag.value)
   console.log("dateVal", dateVal)
 
-  // const today = new Date()
-  // const year = today.getFullYear()
-  // const month = String(today.getMonth() + 1).padStart(2, '0')
-  // const day = String(today.getDate()).padStart(2, '0')
-  
-  // const diaryId = `${year}${month}${day}-${userId.value}` //다이어리 아이디 설정
-
   const formData = new FormData()
 
+  console.log('=== 다이어리 전송 데이터 확인 ===')
   console.log('함수 안의 파일명:', files)
+  console.log('userId:', userId.value)
+  console.log('dateVal:', dateVal)
+  console.log('diaryContent:', diaryContent.value)
+  console.log('emotionNumber:', emotionNumber)
+  console.log('stress 값:', result.value.score.toFixed(2))
+  
   formData.append('id', userId.value)
   formData.append("diaryId", dateVal)
   formData.append('diary_content', diaryContent.value)
 
   //formData.append('imgUrls', files)
-  formData.append('emotion', score.toFixed(2))
+  formData.append('stress', result.value.score.toFixed(2))
+  formData.append('emotion', emotionNumber.toString())
+  
+  console.log('FormData 내용:')
+  for (let [key, value] of formData.entries()) {
+    console.log(key, value)
+  }
 
   if (files.length > 0) {
     for(var i=0;i<files.length;i++){
@@ -322,10 +333,19 @@ const postDiary = score => {
 
   axios.post("http://localhost:4000/manage/diary/upload", formData, { headers: { 'Content-Type': 'multipart/form-data' } })
     .then(resp => {
+      console.log('=== API 응답 확인 ===')
+      console.log('응답 상태:', resp.status)
+      console.log('응답 데이터:', resp.data)
       alert('글이 성공적으로 등록되었습니다.')
       window.location.href = 'http://localhost:3333/diary'
     })
-    .catch(()=>alert('글 등록에 실패했습니다. 관리자에게 문의하세요.'))
+    .catch(error => {
+      console.log('=== API 에러 확인 ===')
+      console.log('에러 상태:', error.response?.status)
+      console.log('에러 데이터:', error.response?.data)
+      console.log('에러 메시지:', error.message)
+      alert('글 등록에 실패했습니다. 관리자에게 문의하세요.')
+    })
 }
 </script>
 
@@ -586,7 +606,7 @@ const postDiary = score => {
                       </VCol>
                       <VCol cols="12">
                         <VFileInput
-                          :rules="rules"
+                          :rules="[rules.fileSize]"
                           label="Face IMG"
                           type="file"
                           accept="image/png, image/jpeg, image/bmp"
@@ -616,7 +636,7 @@ const postDiary = score => {
                   :toolbar="toolbarOptions"
                   style="height: 800px;"
                   rows="30"
-                  @change="test"
+                  @change="() => {}"
                 />
               </VCol>
               <VCol cols="12">
@@ -667,7 +687,7 @@ const postDiary = score => {
                         />
                         <VCol cols="12">
                           <VFileInput
-                            :rules="rules"
+                            :rules="[rules.fileSize]"
                             label="Face IMG"
                             type="file"
                             accept="image/png, image/jpeg, image/bmp"
