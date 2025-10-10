@@ -6,10 +6,11 @@ FROM node:18-alpine AS build
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files and @iconify for build:icons
 COPY package*.json ./
 COPY src/@iconify ./src/@iconify
-# Install dependencies
+
+# Install dependencies (postinstall will run build:icons)
 RUN npm install
 
 # Copy project files
