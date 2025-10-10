@@ -41,4 +41,11 @@
     color: #fff;
 }
 
-.pe-none { pointer-events: none; }
+.pe-none {
+    pointer-events: none;
+}
+
+.demo-form-div {
+    width: 70%;
+    padding: 12px;
+}

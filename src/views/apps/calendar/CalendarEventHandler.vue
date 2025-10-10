@@ -7,7 +7,7 @@ import { computed, onUpdated, ref } from 'vue'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { VForm } from 'vuetify/components/VForm'
 import { useStore } from 'vuex'
-import { startRecognition, transcript } from '/src/pages/stt.js'
+import { transcript } from '/src/pages/stt.js'
 
 const props = defineProps({
   isDrawerOpen: {
@@ -445,7 +445,7 @@ onUpdated(() => {
 
               <!-- 👉 Description -->
               <VCol cols="12">
-                <VBtn
+                <!-- <VBtn
                   id="startBtn"
                   class="d-flex flex-column align-end front-z-axis"
                   style=" z-index: 9999; height: 45px; margin-top: 80px;margin-left: 295px;"
@@ -457,12 +457,13 @@ onUpdated(() => {
                     icon="mdi-microphone-outline"
                     color="success"
                   />
-                </VBtn>
+                </VBtn> -->
+                <!-- style="margin-top: 0px;" -->
                 <VTextarea
                   v-model="userInput"
                   :rules="[requiredValidator]"
                   label="content"
-                  style="margin-top: -140px;"
+                  style="margin-top: 0px;"
                   no-resize
                 />
               </VCol>

@@ -89,7 +89,6 @@ declare module '@vue/runtime-core' {
     Shortcuts: typeof import('./src/@core/components/Shortcuts.vue')['default']
     Subject: typeof import('./src/views/demos/Subject.vue')['default']
     TermsAndConditions: typeof import('./src/views/demos/register/TermsAndConditions.vue')['default']
-    'TermsAndConditions copy': typeof import('./src/views/demos/register/TermsAndConditions copy.vue')['default']
     TheCustomizer: typeof import('./src/@core/components/TheCustomizer.vue')['default']
     ThemeSwitcher: typeof import('./src/@core/components/ThemeSwitcher.vue')['default']
     TimelineBasicExercise: typeof import('./src/components/dialogs/TimelineBasicExercise.vue')['default']
