@@ -104,7 +104,7 @@ const loginStore = {
       formdata.append("id", loginObj['id'])
       formdata.append("pwd", loginObj['pwd'])
       console.log('formdata:', formdata)
-      await axios.post('http://localhost:4000/login', formdata, {
+      await axios.post('/login', formdata, {
         headers: {
           'X-SKIP-INTERCEPTOR': true,
           'Content-Type': 'multipart/form-data',
@@ -120,7 +120,7 @@ const loginStore = {
           messaging.getToken(messaging, { vapidKey: config.vapidKey })
             .then(token=>{
               console.log('사용자의 firebase토큰:', token)
-              axios.post("http://localhost:4000/fmctoken", JSON.stringify({ 
+              axios.post("/fmctoken", JSON.stringify({ 
                 id: formdata.get("id"),
                 token: token,
               }), { headers: { 'Content-Type': 'application/json' } })
