@@ -16,7 +16,7 @@ RUN npm install
 COPY . .
 
 # Build Vue application for production
-RUN npm run dev
+RUN npm run build
 
 # ============================================
 # Stage 2: Production Nginx Server
