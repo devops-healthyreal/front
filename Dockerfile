@@ -8,6 +8,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
+COPY src/@iconify ./src/@iconify
 
 # Install dependencies
 RUN npm install
