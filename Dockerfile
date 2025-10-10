@@ -9,7 +9,6 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 COPY src/@iconify ./src/@iconify
-
 # Install dependencies
 RUN npm install
 
@@ -17,7 +16,7 @@ RUN npm install
 COPY . .
 
 # Build Vue application for production
-RUN npm run build
+RUN npm run dev
 
 # ============================================
 # Stage 2: Production Nginx Server
@@ -35,7 +34,7 @@ EXPOSE 7001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://15.164.146.96:7001/ || exit 1
+  CMD wget --quiet --tries=1 --spider http://localhost:7001/ || exit 1
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
