@@ -10,8 +10,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY yarn.lock* ./
 
-# Install dependencies with npm ci for production builds
-RUN npm ci --only=production --silent
+# Install all dependencies (including devDependencies for build)
+RUN npm ci --silent
 
 # Copy @iconify for build:icons
 COPY src/@iconify ./src/@iconify
