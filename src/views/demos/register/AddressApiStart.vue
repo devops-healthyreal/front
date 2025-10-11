@@ -16,6 +16,7 @@
       style="margin-top: -15px;"
     >
       <VBtn
+        variant="tonal"
         v-model="userAddress"
         color="primary"
         class="my-custom-button"
@@ -23,7 +24,7 @@
         width="200"
         @click="execDaumPostcode"
       >
-        우편번호 찾기
+        주소검색
       </VBtn>
     </VCol>
   </VRow>

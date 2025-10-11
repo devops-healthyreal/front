@@ -1,5 +1,5 @@
 <script setup>
-import { defineEmits, onUpdated } from 'vue'
+import { defineEmits, onUpdated, ref } from 'vue'
 
 const props = defineProps(["result", "diary", "urls"])
 
@@ -37,6 +37,7 @@ const btnIcons = [
 
 const previousBtn = ref(null)
 const selectedBtn = ref()
+const btnSize = ref('40') // 버튼 크기 설정
 
 const selectButton = value => {
   previousBtn.value = selectedBtn.value
@@ -101,7 +102,23 @@ onUpdated(()=>{
 
 const buttonController = isSubmit => {
   if(isSubmit) {
-    emit("update:submitEvent", props.result.score)
+    // 감정 점수에 따라 숫자 매핑
+    let emotionNumber = 2 // 기본값 (neutral)
+    const score = props.result.score
+    
+    if (score <= -0.6) {
+      emotionNumber = 0 // 매우 부정적
+    } else if (score <= -0.2) {
+      emotionNumber = 1 // 부정적
+    } else if (score <= 0.2) {
+      emotionNumber = 2 // 중립
+    } else if (score <= 0.6) {
+      emotionNumber = 3 // 긍정적
+    } else {
+      emotionNumber = 4 // 매우 긍정적
+    }
+    
+    emit("update:submitEvent", emotionNumber)
   }
   isDialogVisible.value = false
 }

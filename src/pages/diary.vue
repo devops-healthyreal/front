@@ -9,7 +9,7 @@ import { Quill, QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.bubble.css'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import * as Emoji from "quill-emoji"
-import { createApp, ref } from 'vue'
+import { createApp, ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import SubmitConfirmModal from './components/diaryModal/SubmitConfirmModal.vue'
 
@@ -23,10 +23,6 @@ Quill.register("modules/emoji", Emoji)
 
 app.component('QuillEditor', QuillEditor)
 
-import timelineCardHeader from '@images/cards/timeline-card-header.png'
-import {
-  requiredValidatorDiaryPassword,
-} from '@validators'
 
 
 const biggeImgFile = ref(false)
@@ -36,10 +32,11 @@ const isDialogVisible = ref(false)
 const submitBtn = ref(false)
 const writeDiaryContent = ref(false)
 const readDiaryContent = ref(false)
-const diaryLock = ref(false)
+const diaryLock = ref(true)
 const selectedBtn = ref()
 const viewPassword = ref(false)
 const password = ref('Password')
+const show1 = ref(false) // 비밀번호 표시/숨김 토글
 const refVForm = ref()
 const inputDiaryPhoto = ref(false)
 const clickedImageUrl = ref('')
@@ -57,10 +54,30 @@ const userId = ref(connetId)
 const inputEmotionPhoto = ref(false)
 const emotiondata=ref('')
 const imageData = ref('')
+const diaryRef = ref(null)
+const diaryHtml = ref('')
+const diaryTxt = ref('')
+const diaryPayload = ref({})
+const date = ref()
+
+const onTextChange = (payload) => {
+  console.log('onTextChange payload:-getText', payload.getText);
+  console.log('onTextChange payload:-payload', payload);
+  console.log('onTextChange payload:', diaryHtml.value);
+  console.log('onTextChange payload:diaryRef', diaryRef.value.getText());
+  diaryPayload.value = payload;
+  // diaryTxt.value = payload.text;
+}
 
 const getWordCloud = async () => {
+  console.log('diaryPayload:', diaryPayload.value);
+  const content = diaryRef.value.getText();
+  if(content === null || content.trim() === '') {
+    alert('일기 내용을 입력해주세요.');
+    return;
+  }
   await axios.post('http://localhost:5000/wordcloud', {
-    text: '<p>오늘은 학교에 다녀온 날이었습니다. 아침 일찍 일어나서 준비를 마치고 학교로 향했습니다. 학교에 도착하니 이미 많은 친구들이 모여있었고, 활기찬 분위기가 느껴졌습니다.</p><p>수업 시작 전에는 친구들과 이야기를 나누고 웃음 가득한 시간을 보냈습니다. 서로의 추억이 담긴 이야기를 나누며 학교 생활이 그리워졌던 순간이었습니다.</p><p>수업 시간에는 열심히 공부에 집중했습니다. 선생님들께서는 열정적으로 지식을 전달해 주셨고, 저희 학생들도 질문을 하며 적극적으로 수업에 참여했습니다. 새로운 지식을 습득하고 배우는 과정은 항상 흥미로웠습니다.</p><p>점심 시간에는 친구들과 함께 급식을 먹으며 이야기를 나누었습니다. 맛있는 음식을 함께 나누는 시간은 항상 즐거웠습니다. 함께 웃고 이야기하며 친밀감을 느낄 수 있어서 기분이 좋았습니다.</p>',
+    text: diaryRef.value.getText(),
   }).then(response => {
     console.log('체크..', response.data)
 
@@ -214,7 +231,11 @@ const deleteImage = index =>{
 }
 
 //input file에 사이즈에 대한 룰 설정
-const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 1000000 || 'Avatar size should be less than 1 MB!']
+const rules = {
+  required: value => !!value || '필수 입력 항목입니다.',
+  min: value => value.length >= 3 || '최소 3자 이상 입력해주세요.',
+  fileSize: fileList => !fileList || !fileList.length || fileList[0].size < 1000000 || 'Avatar size should be less than 1 MB!'
+}
 
 
 
@@ -283,8 +304,8 @@ function getTodayLabel() {
 
 
 //등록을 누르면 실행되는 코드
-const postDiary = score => {
-  console.log('값 잘 들어옴?:', score)
+const postDiary = emotionNumber => {
+  console.log('감정 숫자 값:', emotionNumber)
 
   const dateTag = document.getElementById("date").children[0]
   var dateVal = dateTag.value.replace(/-/g, '')+'-'+userId.value
@@ -296,22 +317,28 @@ const postDiary = score => {
   console.log('날짜:', dateTag.value)
   console.log("dateVal", dateVal)
 
-  // const today = new Date()
-  // const year = today.getFullYear()
-  // const month = String(today.getMonth() + 1).padStart(2, '0')
-  // const day = String(today.getDate()).padStart(2, '0')
-  
-  // const diaryId = `${year}${month}${day}-${userId.value}` //다이어리 아이디 설정
-
   const formData = new FormData()
 
+  console.log('=== 다이어리 전송 데이터 확인 ===')
   console.log('함수 안의 파일명:', files)
+  console.log('userId:', userId.value)
+  console.log('dateVal:', dateVal)
+  console.log('diaryContent:', diaryContent.value)
+  console.log('emotionNumber:', emotionNumber)
+  console.log('stress 값:', result.value.score.toFixed(2))
+  
   formData.append('id', userId.value)
   formData.append("diaryId", dateVal)
   formData.append('diary_content', diaryContent.value)
 
   //formData.append('imgUrls', files)
-  formData.append('emotion', score.toFixed(2))
+  formData.append('stress', result.value.score.toFixed(2))
+  formData.append('emotion', emotionNumber.toString())
+  
+  console.log('FormData 내용:')
+  for (let [key, value] of formData.entries()) {
+    console.log(key, value)
+  }
 
   if (files.length > 0) {
     for(var i=0;i<files.length;i++){
@@ -322,27 +349,29 @@ const postDiary = score => {
 
   axios.post("http://localhost:4000/manage/diary/upload", formData, { headers: { 'Content-Type': 'multipart/form-data' } })
     .then(resp => {
+      console.log('=== API 응답 확인 ===')
+      console.log('응답 상태:', resp.status)
+      console.log('응답 데이터:', resp.data)
       alert('글이 성공적으로 등록되었습니다.')
       window.location.href = 'http://localhost:3333/diary'
     })
-    .catch(()=>alert('글 등록에 실패했습니다. 관리자에게 문의하세요.'))
+    .catch(error => {
+      console.log('=== API 에러 확인 ===')
+      console.log('에러 상태:', error.response?.status)
+      console.log('에러 데이터:', error.response?.data)
+      console.log('에러 메시지:', error.message)
+      alert('글 등록에 실패했습니다. 관리자에게 문의하세요.')
+    })
 }
 </script>
 
 <template>
   <VRow>
     <VCol>
-      <!-- Diary 위 이미지 -->
-      <VImg
-        cover
-        height="230"
-        :src="timelineCardHeader"
-      />
       <!-- Diary 시작 -->
       <VCard
         title=" "
         flat
-        :max-width="auto"
         class="mt-4 mt-sm- pa-0"
       >
         <VRow
@@ -372,7 +401,7 @@ const postDiary = score => {
                   ref="refVForm" 
                   @submit="diaryLock=true"
                 >
-                  <Transition name="fade">
+                  <!-- <Transition name="fade">
                     <VTextField
                       v-if="viewPassword"
                       v-model="password"
@@ -385,7 +414,7 @@ const postDiary = score => {
                       counter
                       @click:append-inner="show1 = !show1"
                     />
-                  </Transition>
+                  </Transition> -->
                 </VForm>
               </VCol>
               <VCol cols="1">
@@ -544,7 +573,7 @@ const postDiary = score => {
                         v-for="(url, index) in imgUrlEmotion" 
                         :key="index"
                         :src="url"
-                        style="width: 400px; height: auto; align-self: center;"
+                        style="width: 400px; align-self: center;"
                       />
                       <VCol style="text-align: center;">
                         {{ emotiondata.emotion }}
@@ -586,7 +615,7 @@ const postDiary = score => {
                       </VCol>
                       <VCol cols="12">
                         <VFileInput
-                          :rules="rules"
+                          :rules="[rules.fileSize]"
                           label="Face IMG"
                           type="file"
                           accept="image/png, image/jpeg, image/bmp"
@@ -612,11 +641,14 @@ const postDiary = score => {
             <VCol>
               <VCol cols="12">
                 <QuillEditor
+                  ref="diaryRef"
                   id="quill-editor"
                   :toolbar="toolbarOptions"
+                  v-model:content="diaryHtml"
+                  content-type="html"
+                  @text-change="(payload) => onTextChange(payload)"
                   style="height: 800px;"
                   rows="30"
-                  @change="test"
                 />
               </VCol>
               <VCol cols="12">
@@ -667,7 +699,7 @@ const postDiary = score => {
                         />
                         <VCol cols="12">
                           <VFileInput
-                            :rules="rules"
+                            :rules="[rules.fileSize]"
                             label="Face IMG"
                             type="file"
                             accept="image/png, image/jpeg, image/bmp"
@@ -722,8 +754,6 @@ const postDiary = score => {
           </VCard>
         </VForm>
       </VCard>
-      <!-- content부분 끝 -->
-      <FontAwesomeIcon icon="coffee" />
     </VCol>
   </VRow>
 </template>
