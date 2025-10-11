@@ -1,3 +1,4 @@
+import '@/assets/css/globacl.css'
 import { useCalendarStore } from '@/views/apps/calendar/useCalendarStore'
 import { useThemeConfig } from '@core/composable/useThemeConfig'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -22,7 +23,10 @@ export const blankEvent = {
 
 
 // 캘린더 관련 기능을 제공하는 함수입니다.
-export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpen) => {
+export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpen, updateDetect) => {
+
+  console.log('event: ', event);
+
   // 애플리케이션의 테마 설정을 가져옵니다.
   const { isAppRtl } = useThemeConfig()
   const stores = useStore()
@@ -46,6 +50,9 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
     '운동': 'info',
     '경로': 'secondary',
   }
+
+  const calendarsColorForIdx = ['primary', 'success', 'error', 'warning', 'info', 'secondary']
+  const calendarsLabel = ['일정', '아침', '점심', '저녁', '운동', '경로']
 
 
   // API에서 받아온 이벤트 데이터를 추출하는 함수입니다.
@@ -118,36 +125,38 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
   watch(() => store.selectedCalendars, refetchEvents)
 
   // 새로운 이벤트를 추가하는 함수입니다.
-  const addEvent = _event => {
-    store.addEvent(_event)
+  const addEvent = async _event => {
+    await store.addEvent(_event)
       .then(() => {
         refetchEvents()
       })
+    refCalendar.value.getApi().render();
+    updateDetect();
   }
 
   // 기존 이벤트를 업데이트하는 함수입니다.
   const updateEvent = async _event => {
+    console.log('업데이트')
     try {
-      
-      // 업데이트할 이벤트 데이터를 서버로 전송합니다.
       await store.updateEvent(_event)
 
-      // 서버에서 업데이트된 이벤트 목록을 다시 가져옵니다.
-      await store.fetchEvents(userInfo.value.id)
-
-      // 캘린더의 이벤트를 새로고침합니다.
-      refetchEvents()
+      // 캘린더의 이벤트를 새로고침
+      refetchEvents();
+      // refCalendar.value.getApi().render();
+      updateDetect();
     } catch (error) {
       console.error('Error updating event:', error)
     }
   }
 
   // 이벤트를 삭제하는 함수입니다.
-  const removeEvent = (eventId, sNo) => {
-    store.removeEvent(eventId, sNo).then(() => {
+  const removeEvent = async (eventId, sNo) => {
+    await store.removeEvent(eventId, sNo).then(() => {
       removeEventInCalendar(eventId)
       refetchEvents()
+      updateDetect();
     })
+    refCalendar.value.getApi().render();
   }
 
 
@@ -156,11 +165,16 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
     plugins: [timeGridPlugin], // 사용할 플러그인들입니다.
     initialView: 'timeGridDay', 
     events: async (fetchInfo, successCallback, failureCallback) => {
+      //fetchInfo: { start, end, startStr, endStr, timeZone } (선택된 날짜의 범위 정보)
+      console.log("fetchInfo 확인해보자", fetchInfo)
       try {
         // userId를 사용자 ID로 설정해야 합니다. props.connetId 또는 다른 방식으로 얻을 수 있습니다.
         const userId = userInfo.value.id
- 
-        await store.fetchEvents(userId)
+        console.log("fetchInfo 확인해보자-startStr", fetchInfo.startStr.split('+')[0]);
+        store.dateFilter = [fetchInfo.startStr.split('+')[0], fetchInfo.endStr.split('+')[0]];
+        
+        //캘린더 데이터 가져오기
+        await store.fetchEvents(userId);
         successCallback(store.events)
       } catch (error) {
         console.error("Error loading events: ", error)
@@ -181,26 +195,20 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
     navLinks: true, // 날짜와 주 이름을 클릭 가능하게 합니다. 클릭 시 해당 날짜나 주로 이동합니다.
     eventClassNames({ event: calendarEvent }) {
       const calendarValue = calendarEvent._def.extendedProps.calendar
-      let colorName
-      switch (calendarValue) {
-      case 1: colorName = calendarsColor['일정']; break
-      case 2: colorName = calendarsColor['아침']; break
-      case 3: colorName = calendarsColor['점심']; break
-      case 4: colorName = calendarsColor['저녁']; break
-      case 5: colorName = calendarsColor['운동']; break
-      case 6: colorName = calendarsColor['경로']; break
-      default: colorName = 'default'
-      }
+      let colorName = calendarsColorForIdx[calendarValue-1];
     
       return [
         `bg-light-${colorName} text-${colorName}`, // 이벤트의 배경색과 텍스트 색을 설정합니다.
       ]
     }, // 이벤트를 클릭했을 때의 동작을 정의합니다.
-    eventClick({ event: clickedEvent }) {
-      // 클릭된 이벤트 정보를 추출하고, 이를 `event` 상태에 저장
-      event.value = extractEventDataFromEventApi(clickedEvent._def.extendedProps)
+    eventClick({event: clickedEvent}) {
 
-      console.log("여기로 들어오고 있기는 해??", event.value)
+      event.value = extractEventDataFromEventApi(clickedEvent._def.extendedProps)
+      event.value.start = clickedEvent.start
+      event.value.end = clickedEvent.end
+
+      console.log("클릭한 값", event.value)
+      store.clickedEvent = event.value; // 클릭된 이벤트 정보를 store에도 저장
     
       // 이벤트 핸들러 사이드바를 활성화하여 사용자가 이벤트를 수정할 수 있도록 함
       isEventHandlerSidebarActive.value = true
@@ -209,6 +217,7 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
     // 날짜를 클릭했을 때의 동작을 정의합니다.
     dateClick(info) {
       // 클릭된 날짜를 이벤트의 시작일로 설정하고, 이벤트 핸들러 사이드바를 활성화합니다.
+      console.log('dateClick: ', event.value)
       event.value = { ...event.value, sch_start: info.date }
       isEventHandlerSidebarActive.value = true
     },
@@ -238,24 +247,29 @@ export const useCalendar = (event, isEventHandlerSidebarActive, isLeftSidebarOpe
     },
     eventContent: function(args) {
       const event = args.event.extendedProps
-
-      console.log("값 확인하기", event)
+    //   return {
+    //     html: `
+    //     <div>
+    //     <strong style="font-weight: bold; margin-bottom: 5px;">${event.stitle ? `${event.stitle}  ` : '  '}<span class="badge badge-${calendarsColorForIdx[event.calendar-1]}">${calendarsLabel[event.calendar-1]}</span></strong>
+    //     <ul class="event-details list-unstyled">
+    //     <li>${event.calendar ? (event.calendar === 1 ? '일정 :' : 
+    // event.calendar === 2 ? '아침 :' : 
+    //   event.calendar === 3 ? '점심 :' : 
+    //     event.calendar === 4 ? '저녁 :' : 
+    //       event.calendar === 5 ? '운동 :' : 
+    //         event.calendar === 6 ? '경로 :' : '') : ''} ${event.eat ? event.eat : ''}${event.exercise ? event.exercise : ''}</li>
+    //         <div style="margin-bottom: 3px;">출발지: ${event.startArea ? event.startArea : '미정'}</div>
+    //         <div style="margin-bottom: 3px;">목적지: ${event.endArea ? event.endArea : '미정'}</div>
+    //         ${event.content ? `<div style="margin-bottom: 3px;">내용: ${event.content}</div>` : ''}
+    //         ${event.sMate ? `<div style="margin-bottom: 3px;">메이트: ${event.sMate}</div>` : ''}
+    //   </div>
+    //   `,
+    //   }
       
       return {
         html: `
         <div>
-        <strong style="font-weight: bold; margin-bottom: 5px;">${event.stitle ? `제목: ${event.stitle}` : ''}</strong>
-        <ul class="event-details list-unstyled">
-        <li>${event.calendar ? (event.calendar === 1 ? '일정 :' : 
-    event.calendar === 2 ? '아침 :' : 
-      event.calendar === 3 ? '점심 :' : 
-        event.calendar === 4 ? '저녁 :' : 
-          event.calendar === 5 ? '운동 :' : 
-            event.calendar === 6 ? '경로 :' : '') : ''} ${event.eat ? event.eat : ''}${event.exercise ? event.exercise : ''}</li>
-            <div style="margin-bottom: 3px;">출발지: ${event.startArea ? event.startArea : '미정'}</div>
-            <div style="margin-bottom: 3px;">목적지: ${event.endArea ? event.endArea : '미정'}</div>
-            ${event.content ? `<div style="margin-bottom: 3px;">내용: ${event.content}</div>` : ''}
-            ${event.sMate ? `<div style="margin-bottom: 3px;">메이트: ${event.sMate}</div>` : ''}
+        <strong style="font-weight: bold; margin-bottom: 5px;">${event.stitle ? `${event.stitle}  ` : '  '}<span class="badge badge-${calendarsColorForIdx[event.calendar-1]}">${calendarsLabel[event.calendar-1]}</span></strong>
       </div>
       `,
       }

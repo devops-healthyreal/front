@@ -107,7 +107,8 @@ const getallergyInfo = async() => {
     .then(response => {
       console.log('성공', response.data)
       checkboxContent.value = response.data.map(item => ({
-        bgImage: item.allergy_imagepath,
+        //'@/assets/images/allergy/' item.allergy_imagepath
+        bgImage: `/src/assets/images/allergy/${item.allergy_imagepath}`,
         value: item.allergy_no,
         name: item.allergy_name,
       }))
@@ -422,7 +423,7 @@ onMounted(getallergyInfo)
                     <VCol cols="12">
                       <VFileInput
                         :rules="rules"
-                        label="Face IMG"
+                        label="인바디 사진"
                         type="file"
                         accept="image/png, image/jpeg, image/bmp"
                         placeholder="Pick an avatar"
