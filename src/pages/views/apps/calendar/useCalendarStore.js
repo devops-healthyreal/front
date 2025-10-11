@@ -29,16 +29,16 @@ export const useCalendarStore = defineStore('calendar', {
   }),
   actions: {
     async fetchEvents() {
-      return axios.get('http://localhost:4000/apps/calendar', { params: { calendars: this.selectedCalendars.join(',') } })
+      return axios.get('/apps/calendar', { params: { calendars: this.selectedCalendars.join(',') } })
     },
     async addEvent(event) {
-      return axios.post('http://localhost:4000/apps/calendar', { event })
+      return axios.post('/apps/calendar', { event })
     },
     async updateEvent(event) {
-      return axios.post(`http://localhost:4000/apps/calendar/${event.id}`, { event })
+      return axios.post(`/apps/calendar/${event.id}`, { event })
     },
     async removeEvent(eventId) {
-      return axios.delete(`http://localhost:4000/apps/calendar/${eventId}`)
+      return axios.delete(`/apps/calendar/${eventId}`)
     },
   },
 })

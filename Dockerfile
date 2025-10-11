@@ -1,0 +1,56 @@
+# ============================================
+# Stage 1: Build Vue Application
+# ============================================
+FROM node:18-alpine AS build
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files first for better caching
+COPY package*.json ./
+COPY yarn.lock* ./
+
+# Install dependencies with npm ci for production builds
+RUN npm ci --only=production --silent
+
+# Copy @iconify for build:icons
+COPY src/@iconify ./src/@iconify
+
+# Copy source code
+COPY . .
+
+# Build Vue application for production
+RUN npm run build
+
+# ============================================
+# Stage 2: Production Nginx Server
+# ============================================
+FROM nginx:alpine
+
+# Install wget for health checks
+RUN apk add --no-cache wget
+
+# Copy built assets from build stage
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Create nginx cache directory
+RUN mkdir -p /var/cache/nginx && \
+    chown -R nginx:nginx /var/cache/nginx && \
+    chown -R nginx:nginx /usr/share/nginx/html
+
+# Expose port 7001 (configured in nginx.conf)
+EXPOSE 7001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://localhost:7001/health || exit 1
+
+# Start nginx as non-root user
+USER nginx
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
+

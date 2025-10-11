@@ -29,7 +29,7 @@ export const sendCommReqMessage = (userId, subToId, cate) => {
     title = '메이트 수락 알림'
     body = `${userId}님이 회원님의 메이트 요청을 수락하셨습니다`
   }
-  axios.get("http://localhost:4000/get/fmctoken", { params: {
+  axios.get("/get/fmctoken", { params: {
     id: subToId,
   } })
     .then(res=> {

@@ -1,13 +1,14 @@
 <script setup>
+import axiosflask from '@/plugins/axiosflask'
 import axios from '@axios'
 import {
   requiredValidator,
 } from '@validators'
+import { computed, onUpdated, ref } from 'vue'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { VForm } from 'vuetify/components/VForm'
-import { startRecognition, transcript } from '/src/pages/stt.js'
 import { useStore } from 'vuex'
-import { computed, onUpdated, ref } from 'vue'
+import { startRecognition, transcript } from '/src/pages/stt.js'
 
 const props = defineProps({
   isDrawerOpen: {
@@ -64,24 +65,24 @@ const onCancel = () => {
 const startDateTimePickerConfig = computed(() => {
   const config = {
     enableTime: !event.value.allDay,
-    dateFormat: `Y-m-d${ event.value.allDay ? '' : ' H:i' }`,
+    dateFormat: `Y-m-d${event.value.allDay ? '' : ' H:i'}`,
   }
 
   if (event.value.end)
     config.maxDate = event.value.end
-  
+
   return config
 })
 
 const endDateTimePickerConfig = computed(() => {
   const config = {
     enableTime: !event.value.allDay,
-    dateFormat: `Y-m-d${ event.value.allDay ? '' : ' H:i' }`,
+    dateFormat: `Y-m-d${event.value.allDay ? '' : ' H:i'}`,
   }
 
   if (event.value.start)
     config.minDate = event.value.start
-  
+
   return config
 })
 
@@ -150,7 +151,7 @@ const availableCalendars = ref([
 async function handleSubmit() {
   // 필수 필드 검사
   if (!title.value || !calendar.value || !start.value || !end.value || !userInput.value) {
-    
+
     return
   }
 
@@ -170,7 +171,7 @@ async function handleSubmit() {
   console.log("보내기 전 데이터:", postData)
 
   try {
-    const response = await axios.post('http://localhost:4000/sch/insert.do', postData)
+    const response = await axios.post('/sch/insert.do', postData)
 
     console.log("달력값 들어갔어??", response.data)
     emit('update:isDrawerOpen', false)
@@ -189,19 +190,19 @@ const loading = ref(true)
 const sub = computed({
   get: () => {
     switch (calendar.value) {
-    case 2: return dietinfo.value[0]?.eating_foodname || eat.value
-    case 3: return dietinfo.value[1]?.eating_foodname || eat.value
-    case 4: return dietinfo.value[2]?.eating_foodname || eat.value
-    case 5: return exercise.value
-    default: return ''
+      case 2: return dietinfo.value[0]?.eating_foodname || eat.value
+      case 3: return dietinfo.value[1]?.eating_foodname || eat.value
+      case 4: return dietinfo.value[2]?.eating_foodname || eat.value
+      case 5: return exercise.value
+      default: return ''
     }
   },
   set: newValue => {
     switch (calendar.value) {
-    case 2: dietinfo.value[0] ? dietinfo.value[0].eating_foodname = newValue : eat.value = newValue; break
-    case 3: dietinfo.value[1] ? dietinfo.value[1].eating_foodname = newValue : eat.value = newValue; break
-    case 4: dietinfo.value[2] ? dietinfo.value[2].eating_foodname = newValue : eat.value = newValue; break
-    case 5: exercise.value = newValue; break
+      case 2: dietinfo.value[0] ? dietinfo.value[0].eating_foodname = newValue : eat.value = newValue; break
+      case 3: dietinfo.value[1] ? dietinfo.value[1].eating_foodname = newValue : eat.value = newValue; break
+      case 4: dietinfo.value[2] ? dietinfo.value[2].eating_foodname = newValue : eat.value = newValue; break
+      case 5: exercise.value = newValue; break
     }
   },
 })
@@ -220,10 +221,10 @@ const getEatingRecord = async () => {
     const connetId = userInfo.value.id
 
     console.log('4차')
-    console.log('체크해보자 : '+connetId)
-    await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
+    console.log('체크해보자 : ' + connetId)
+    await axios.get('/Dietfood/DailyView.do', { params: { 'id': connetId } })
       .then(response => {
-        if(response.data.length > 0){
+        if (response.data.length > 0) {
           // 초기화
           console.log('여긴안돼')
           dietinfo.value = [null, null, null]
@@ -236,19 +237,19 @@ const getEatingRecord = async () => {
             } else if (data.mealType === '저녁') {
               dietinfo.value[2] = data
             }
-            
+
           })
         }
-        else{
-          axios.get("http://localhost:4000/dietfood/search.do", { params: { 'id': connetId } })
+        else {
+          axios.get("/dietfood/search.do", { params: { 'id': connetId } })
             .then(response => {
               console.log('응답받은 행:', response.data)
-              if(response.data === 0){
-                axios.get("http://localhost:5000/food_recommend", { params: { 'id': connetId } })
-                  .then(response=>{
+              if (response.data === 0) {
+                axiosflask.get("/food_recommend", { params: { 'id': connetId } })
+                  .then(response => {
 
                     dietinfo.value = [null, null, null]
-    
+
                     response.data.forEach(data => {
                       if (data.mealType === '아침') {
                         dietinfo.value[0] = data
@@ -278,28 +279,14 @@ onUpdated(() => {
 </script>
 
 <template>
-  <VNavigationDrawer
-    temporary
-    location="end"
-    :model-value="props.isDrawerOpen"
-    width="420"
-    class="scrollable-content"
-    @update:model-value="(val) => $emit('update:isDrawerOpen', val)"
-  >
+  <VNavigationDrawer temporary location="end" :model-value="props.isDrawerOpen" width="420" class="scrollable-content"
+    @update:model-value="(val) => $emit('update:isDrawerOpen', val)">
     <!-- 👉 Header -->
-    <AppDrawerHeaderSection
-      :title="event.id ? 'Update Event' : 'Add Event'"
-      @cancel="$emit('update:isDrawerOpen', false)"
-    >
+    <AppDrawerHeaderSection :title="event.id ? 'Update Event' : 'Add Event'"
+      @cancel="$emit('update:isDrawerOpen', false)">
       <template #beforeClose>
-        <IconBtn
-          v-show="event.id"
-          @click="removeEvent"
-        >
-          <VIcon
-            size="18"
-            icon="mdi-trash-can-outline"
-          />
+        <IconBtn v-show="event.id" @click="removeEvent">
+          <VIcon size="18" icon="mdi-trash-can-outline" />
         </IconBtn>
       </template>
     </AppDrawerHeaderSection>
@@ -308,137 +295,74 @@ onUpdated(() => {
       <VCard flat>
         <VCardText>
           <!-- SECTION Form -->
-          <VForm
-            ref="refForm"
-            @submit.prevent="handleSubmit"
-          >
+          <VForm ref="refForm" @submit.prevent="handleSubmit">
             <VRow>
               <!-- 👉 Title -->
               <VCol cols="12">
-                <VTextField
-                  v-model="title"
-                  label="Title"
-                  :rules="[requiredValidator]"
-                />
+                <VTextField v-model="title" label="Title" :rules="[requiredValidator]" />
               </VCol>
 
               <!-- 👉 Calendar -->
               <VCol cols="12">
-                <VSelect
-                  v-model="calendar"
-                  label="Calendar"
-                  :rules="[requiredValidator]"
-                  :items="availableCalendars"
-                  :item-title="item => item.label"
-                  :item-value="item => item.value"
-                  placeholder="choies your schedule type"
-                >
+                <VSelect v-model="calendar" label="Calendar" :rules="[requiredValidator]" :items="availableCalendars"
+                  :item-title="item => item.label" :item-value="item => item.value"
+                  placeholder="choies your schedule type">
                   <template #selection="{ item }">
-                    <div
-                      v-show="calendar"
-                      class="align-center"
-                      :class="calendar ? 'd-flex' : ''"
-                    >
-                      <VBadge
-                        :color="item.raw.color"
-                        inline
-                        dot
-                        class="pa-1"
-                      />
+                    <div v-show="calendar" class="align-center" :class="calendar ? 'd-flex' : ''">
+                      <VBadge :color="item.raw.color" inline dot class="pa-1" />
                       <span>{{ item.raw.label }}</span>
                     </div>
                   </template>
                 </VSelect>
               </VCol>
-              <VCol
-                v-if="calendar !== 1 && calendar !== 6 && calendar !== null"
-                cols="12"
-              >
+              <VCol v-if="calendar !== 1 && calendar !== 6 && calendar !== null" cols="12">
                 <VTextField v-model="sub" />
               </VCol>
               <!-- 👉 Start date -->
               <VCol cols="12">
-                <AppDateTimePicker
-                  :key="JSON.stringify(startDateTimePickerConfig)"
-                  v-model="start"
-                  :rules="[requiredValidator]"
-                  label="Start date"
-                  :config="startDateTimePickerConfig"
-                />
+                <AppDateTimePicker :key="JSON.stringify(startDateTimePickerConfig)" v-model="start"
+                  :rules="[requiredValidator]" label="Start date" :config="startDateTimePickerConfig" />
               </VCol>
 
               <!-- 👉 End date -->
               <VCol cols="12">
-                <AppDateTimePicker
-                  :key="JSON.stringify(endDateTimePickerConfig)"
-                  v-model="end"
-                  :rules="[requiredValidator]"
-                  label="End date"
-                  :config="endDateTimePickerConfig"
-                />
+                <AppDateTimePicker :key="JSON.stringify(endDateTimePickerConfig)" v-model="end"
+                  :rules="[requiredValidator]" label="End date" :config="endDateTimePickerConfig" />
               </VCol>
 
               <!-- 👉 Location -->
               <VCol cols="12">
-                <AddressApiStart
-                  v-model="startArea"
-                  :new-address="startArea" 
-                  @update-address="handleUpdateAddressStart"
-                />
-                <AddressApiEnd
-                  v-model="endArea"
-                  :new-address="endArea" 
-                  @update-address="handleUpdateAddressEnd"
-                />
+                <AddressApiStart v-model="startArea" :new-address="startArea"
+                  @update-address="handleUpdateAddressStart" />
+                <AddressApiEnd v-model="endArea" :new-address="endArea" @update-address="handleUpdateAddressEnd" />
               </VCol>
 
               <!-- 👉 Description -->
               <VCol cols="12">
-                <VBtn
-                  id="startBtn"
-                  class="d-flex flex-column align-end front-z-axis"
-                  style=" z-index: 9999; height: 45px; margin-top: 80px;margin-left: 295px;"
-                  variant="tonal"
-                  @click="startRecognition"
-                >
-                  <VIcon
-                    size="x-large"
-                    icon="mdi-microphone-outline"
-                    color="success"
-                  />
+                <VBtn id="startBtn" class="d-flex flex-column align-end front-z-axis"
+                  style=" z-index: 9999; height: 45px; margin-top: 80px;margin-left: 295px;" variant="tonal"
+                  @click="startRecognition">
+                  <VIcon size="x-large" icon="mdi-microphone-outline" color="success" />
                 </VBtn>
-                <VTextarea
-                  v-model="userInput"
-                  :rules="[requiredValidator]"
-                  label="content"
-                  style="margin-top: -140px;"
-                  no-resize
-                />
+                <VTextarea v-model="userInput" :rules="[requiredValidator]" label="content" style="margin-top: -140px;"
+                  no-resize />
               </VCol>
-              
+
 
               <!-- 👉 Form buttons -->
               <VCol cols="12">
-                <VBtn
-                  type="submit"
-                  class="me-3"
-                >
+                <VBtn type="submit" class="me-3">
                   Submit
                 </VBtn>
-                <VBtn
-                  variant="tonal"
-                  color="secondary"
-                  @click="onCancel"
-                >
+                <VBtn variant="tonal" color="secondary" @click="onCancel">
                   Cancel
                 </VBtn>
               </VCol>
             </VRow>
           </VForm>
-        <!-- !SECTION -->
+          <!-- !SECTION -->
         </VCardText>
       </VCard>
     </PerfectScrollbar>
   </VNavigationDrawer>
 </template>
-

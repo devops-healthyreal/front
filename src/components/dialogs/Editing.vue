@@ -1,5 +1,4 @@
 <script setup>
-import avatar1 from '@images/avatars/avatar-1.png'
 
 
 import axios from '@axios'
@@ -28,7 +27,7 @@ const store = useStore()
 
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=userInfo.value.id
+const connetId = userInfo.value.id
 const connetAv = userInfo.value.pro_filepath
 const name = computed(() => store.state.userStore.userInfo ? store.state.userStore.userInfo.name : null)
 
@@ -63,7 +62,7 @@ const removeHashtag = hashtag => {
   }
 }
 
-const submitEdit = async function() {
+const submitEdit = async function () {
   // 수정할 데이터를 객체에 저장
   let data = {
     content: content.value,  // content ref의 값을 사용
@@ -76,7 +75,7 @@ const submitEdit = async function() {
 
 
   try {
-    const response = await axios.post('http://localhost:4000/bbs/Edit.do', data)
+    const response = await axios.post('/bbs/Edit.do', data)
 
     // 응답 처리
     if (response.status === 200) {
@@ -92,7 +91,7 @@ const submitEdit = async function() {
       content.value = ''
       hashtags.value = []
       hashtagValue.value = ''
-      
+
     } else {
       console.log('데이터 수정 실패')
     }
@@ -104,20 +103,14 @@ const submitEdit = async function() {
 
 
 <template>
-  <VDialog
-    :width="$vuetify.display.smAndDown ? 'auto' : 1100"
-    :model-value="props.isDialogVisible"
-    @update:model-value="dialogVisibleUpdate"
-  >
+  <VDialog :width="$vuetify.display.smAndDown ? 'auto' : 1100" :model-value="props.isDialogVisible"
+    @update:model-value="dialogVisibleUpdate">
     <!-- 닫기 버튼 -->
     <VCol cols="12">
       <VCard>
         <VRow>
           <VCol>
-            <VBtn
-              icon
-              @click="$emit('update:isDialogVisible', false)"
-            >
+            <VBtn icon @click="$emit('update:isDialogVisible', false)">
               <VIcon>mdi-close</VIcon>
             </VBtn>
           </VCol>
@@ -127,12 +120,7 @@ const submitEdit = async function() {
             </VCol>
           </VCol>
           <VCol cols="2">
-            <VSwitch
-              v-model="switch2"
-              :label="switch2 ? '공개' : '비공개'"
-              :true-value="Y"
-              :false-value="N"
-            />
+            <VSwitch v-model="switch2" :label="switch2 ? '공개' : '비공개'" :true-value="Y" :false-value="N" />
           </VCol>
           <VCol>
             <VBtn @click="submitEdit">
@@ -142,39 +130,16 @@ const submitEdit = async function() {
         </VRow>
         <VRow>
           <VCol cols="6">
-            <VCol
-              v-if="postToEdit.files && postToEdit.files.length ==1"
-              class="transparent-carousel"
-              show-arrows-on-hover
-              color="success"
-            >
-              <VCol
-                v-for="(img, index) in postToEdit.files"
-                :key="index"
-              >
-                <VImg
-                  :src="img"
-                  style="margin-top: 15%;"
-                />
+            <VCol v-if="postToEdit.files && postToEdit.files.length == 1" class="transparent-carousel"
+              show-arrows-on-hover color="success">
+              <VCol v-for="(img, index) in postToEdit.files" :key="index">
+                <VImg :src="img" style="margin-top: 15%;" />
               </VCol>
             </VCol>
-            <VImg
-              v-if="postToEdit.files && postToEdit.files.length ==0"
-              :src="backgroundimg"
-            />
-            <VCarousel
-              v-if="postToEdit.files && postToEdit.files.length >=2"
-              class="transparent-carousel"
-              show-arrows-on-hover
-              color="success"
-              style="margin-top: 0%;"
-              cycle
-              interval="2000"
-            >
-              <VCarouselItem
-                v-for="(img, index) in postToEdit.files"
-                :key="index"
-              >
+            <VImg v-if="postToEdit.files && postToEdit.files.length == 0" :src="backgroundimg" />
+            <VCarousel v-if="postToEdit.files && postToEdit.files.length >= 2" class="transparent-carousel"
+              show-arrows-on-hover color="success" style="margin-top: 0%;" cycle interval="2000">
+              <VCarouselItem v-for="(img, index) in postToEdit.files" :key="index">
                 <VImg :src="img" />
               </VCarouselItem>
             </VCarousel>
@@ -184,20 +149,13 @@ const submitEdit = async function() {
               <VCol>
                 <VRow style="margin-top: 1%;">
                   <VCol cols="1">
-                    <VAvatar 
-                      class="text-sm pointer-cursor"
-                      :image="connetAv"
-                      @click="userProfileModal=true"
-                    />
+                    <VAvatar class="text-sm pointer-cursor" :image="connetAv" @click="userProfileModal = true" />
                   </VCol>
                   <VCol cols="">
                     <VCol cols="12">
-                      <VCardSubtitle
-                        class="text-sm pointer-cursor"
-                        style="margin-left: -5%;"
-                        @click="userProfileModal=true"
-                      >
-                        {{ postToEdit.id }}  <!-- 유저 닉네임 뿌려주기 -->
+                      <VCardSubtitle class="text-sm pointer-cursor" style="margin-left: -5%;"
+                        @click="userProfileModal = true">
+                        {{ postToEdit.id }} <!-- 유저 닉네임 뿌려주기 -->
                       </VCardSubtitle>
                     </VCol>
                   </VCol>
@@ -206,47 +164,20 @@ const submitEdit = async function() {
               </VCol>
             </VRow>
             <VCol cols="12">
-              <VTextarea 
-                v-model="content"
-                rows="10"
-                style="height: 250px; margin-right: 2%;"
-                class="disabled-textarea"
-                no-resize
-                :placeholder="postToEdit.content"
-              />
+              <VTextarea v-model="content" rows="10" style="height: 250px; margin-right: 2%;" class="disabled-textarea"
+                no-resize :placeholder="postToEdit.content" />
             </VCol>
             <VCol>
-              <VBtn
-                icon="mdi-heart-outline"
-                variant="text"
-                color="success"
-              />
-              <VBtn
-                icon="mdi-chat-outline"
-                variant="text"
-                color="success"
-              />
-              <VBtn
-                icon="mdi-send"
-                variant="text"
-                color="success"
-              />
-              <VBtn
-                icon="mdi-bookmark-outline"
-                variant="text"
-                color="success"
-              />
+              <VBtn icon="mdi-heart-outline" variant="text" color="success" />
+              <VBtn icon="mdi-chat-outline" variant="text" color="success" />
+              <VBtn icon="mdi-send" variant="text" color="success" />
+              <VBtn icon="mdi-bookmark-outline" variant="text" color="success" />
             </VCol>
-            
-            
+
+
             <VRow>
               <VCol cols="9">
-                <VTextarea 
-                  label="댓글달기" 
-                  rows="1"
-                  style="height: 15px; border: none;"
-                  variant="underlined"
-                />
+                <VTextarea label="댓글달기" rows="1" style="height: 15px; border: none;" variant="underlined" />
               </VCol>
               <VCol cols="1">
                 <VBtn size="large">
@@ -256,24 +187,13 @@ const submitEdit = async function() {
             </VRow>
             <VRow style=" margin-top: 5; margin-right: 2%; margin-bottom: 0;">
               <VCol cols="12">
-                <VTextarea
-                  v-model="hashtagValue"
-                  rows="2"
-                  :placeholder="postToEdit.hashTag"
-                  no-resize
-                />
-            
+                <VTextarea v-model="hashtagValue" rows="2" :placeholder="postToEdit.hashTag" no-resize />
+
                 <div style="display: flex; flex-direction: row; flex-wrap: wrap;">
-                  <span
-                    v-for="(hashtag, index) in hashtags"
-                    :key="index"
-                    style="margin-right: 10px;"
-                  >
-                    {{ hashtag }} 
-                    <button 
-                      style="padding: 10px; margin-left: 5px; cursor: pointer;" 
-                      @click="() => removeHashtag(hashtag)"
-                    >
+                  <span v-for="(hashtag, index) in hashtags" :key="index" style="margin-right: 10px;">
+                    {{ hashtag }}
+                    <button style="padding: 10px; margin-left: 5px; cursor: pointer;"
+                      @click="() => removeHashtag(hashtag)">
                       x
                     </button>
                   </span>
@@ -286,7 +206,7 @@ const submitEdit = async function() {
     </VCol>
   </VDialog>
 </template>
-                    
+
 
 
 <style scoped>
@@ -297,13 +217,15 @@ const submitEdit = async function() {
 
 <style>
 .disabled-textarea {
-  color: black; /* 텍스트 색상을 검정색으로 설정합니다. */
+  color: black;
+  /* 텍스트 색상을 검정색으로 설정합니다. */
 }
 
 .image-container {
   position: relative;
   display: inline-block;
-  overflow: visible;  /* 이미지 크기 제한 풀기 */
+  overflow: visible;
+  /* 이미지 크기 제한 풀기 */
   border-style: solid;
   block-size: 400px;
   inline-size: 100%;
@@ -313,7 +235,8 @@ const submitEdit = async function() {
   block-size: 100%;
   inline-size: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease-in-out; /* 이 부분을 추가하여 확대/축소 애니메이션을 부드럽게 만듬. */
+  transition: transform 0.5s ease-in-out;
+  /* 이 부분을 추가하여 확대/축소 애니메이션을 부드럽게 만듬. */
 }
 
 .delete-button {

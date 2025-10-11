@@ -18,7 +18,7 @@ const data = ref({
 });
 
 async function fetchDataAndDrawChart() {
-  const response = await axios.get('http://localhost:4000/tab/getCount.do')
+  const response = await axios.get('/tab/getCount.do')
   tabData.value = response.data
 
 
@@ -30,14 +30,14 @@ async function fetchDataAndDrawChart() {
   const exercisePage = tabData.value.map(item => item.exercisePage);
   const mindPage = tabData.value.map(item => item.mindPage);
 
-  await nextTick(); 
+  await nextTick();
 
   console.log("tabDate---", tabDate)
   console.log("communityPage---", communityPage)
   console.log("dietPage---", dietPage)
   console.log("exercisePage---", exercisePage)
   console.log("mindPage---", mindPage)
-  
+
   data.value = {
     labels: tabDate,
     datasets: [
@@ -112,10 +112,5 @@ const chartConfig = computed(() => getLineChartConfig(vuetifyTheme.current.value
 </script>
 
 <template>
-  <LineChart
-    v-if="data"
-    :chart-options="chartConfig"
-    :height="400"
-    :chart-data="data"
-  />
+  <LineChart v-if="data" :chart-options="chartConfig" :height="400" :chart-data="data" />
 </template>

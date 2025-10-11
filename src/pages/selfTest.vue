@@ -1,4 +1,5 @@
 <script setup>
+import axiosflask from '@/plugins/axiosflask'
 import axios from '@axios'
 import ht1 from '@images/Unbalanced/1.jpg'
 import ht10 from '@images/Unbalanced/10.jpg'
@@ -31,7 +32,7 @@ const store = useStore()
 
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=computed(() => userInfo.value.id)
+const connetId = computed(() => userInfo.value.id)
 const name = computed(() => store.state.userStore.userInfo ? store.state.userStore.userInfo.name : null)
 
 const isDialogVisible = ref(false)
@@ -60,10 +61,10 @@ const upload = async () => {
 
     formData.append('file', fileToUpload.value)
 
-    isDialogVisible.value=false
+    isDialogVisible.value = false
 
     try {
-      const response = await axios.post('http://localhost:5000/ocr', formData, {
+      const response = await axiosflask.post('/ocr', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -71,7 +72,7 @@ const upload = async () => {
 
       console.log(response.data)
       fileToUpload.value = null
-      inbodysV.value=response.data
+      inbodysV.value = response.data
     } catch (error) {
       console.error(error)
     }
@@ -102,8 +103,8 @@ function extractNumbers(obj) {
 // 알러지 음식 정보 DB에서 가져오기
 const checkboxContent = ref([])
 
-const getallergyInfo = async() => {
-  await axios.get('http://localhost:4000/Allergy/ListView.do')
+const getallergyInfo = async () => {
+  await axios.get('/Allergy/ListView.do')
     .then(response => {
       console.log('성공', response.data)
       checkboxContent.value = response.data.map(item => ({
@@ -130,7 +131,7 @@ const handleAllergyList = AllergyList => {
 // 싫어하는 음식 정보 DB에서 가져오기
 // const checkboxContent2 = ref([])
 // const gethatefoodInfo = async() => {
-//   await axios.get('http://localhost:4000/HateFood/ListView.do')
+//   await axios.get('/HateFood/ListView.do')
 //   .then(response => {
 //     console.log('성공', response.data)
 //     checkboxContent2.value = response.data.map((item) => ({
@@ -160,10 +161,10 @@ const checkboxContent2 = [
   { bgImage: ht12, value: '30', name: '김치' },
   { bgImage: ht13, value: '31', name: '고구마' },
   { bgImage: ht14, value: '32', name: '감자' },
-  { bgImage: ht15, value: '33', name: '양배추' },  
+  { bgImage: ht15, value: '33', name: '양배추' },
   { bgImage: ht16, value: '34', name: '양상추' },
   { bgImage: ht17, value: '35', name: '비트' },
-  { bgImage: ht18, value: '36', name: '닭고기' },  
+  { bgImage: ht18, value: '36', name: '닭고기' },
   { bgImage: ht19, value: '37', name: '돼지고기' },
   { bgImage: ht20, value: '38', name: '소고기' },
   { bgImage: ht21, value: '39', name: '양갈비' },
@@ -185,7 +186,7 @@ const iconsSteps = [
     title: '기타',
     icon: 'mdi-text-box-edit',
   },
-  
+
 ]
 
 const inbodydatas = computed(() => [
@@ -195,25 +196,25 @@ const inbodydatas = computed(() => [
   },
   {
     title: '골격근량',
-    value: inbodysV.value[1] 
+    value: inbodysV.value[1]
       ? (inbodysV.value[1] > 100 ? inbodysV.value[1] - 100 : inbodysV.value[1]) + 'kg'
       : '',
   },
   {
     title: '체지방량',
-    value: inbodysV.value[2] 
+    value: inbodysV.value[2]
       ? (inbodysV.value[2] > 100 ? inbodysV.value[2] - 100 : inbodysV.value[2]) + 'kg'
       : '',
   },
   {
     title: 'BMI',
-    value: inbodysV.value[3] 
+    value: inbodysV.value[3]
       ? (inbodysV.value[3] > 100 ? inbodysV.value[3] - 100 : inbodysV.value[3]) + 'kg/m2'
       : '',
   },
   {
     title: '체지방률',
-    value: inbodysV.value[4] 
+    value: inbodysV.value[4]
       ? (inbodysV.value[4] > 100 ? inbodysV.value[4] - 100 : inbodysV.value[4]) + '%'
       : '',
   },
@@ -223,7 +224,7 @@ const currentStep = ref(0)
 
 const onSubmit = async () => {
   console.log(inbodysV.value)
-  if(inbodysV.value.length > 0){
+  if (inbodysV.value.length > 0) {
     const formData = new FormData()
 
     formData.append('id', connetId.value) //아이디
@@ -234,14 +235,14 @@ const onSubmit = async () => {
     formData.append('inb_pbf', inbodysV.value[4] > 100 ? inbodysV.value[4] - 100 : inbodysV.value[4]) //체지방률 (Percent Body Fat)
     console.log(formData)
     await axios
-      .post('http://localhost:4000/Inbody/Save.do', formData, {
+      .post('/Inbody/Save.do', formData, {
         headers: { 'Content-Type': 'application/json' },
       })
-      .then(response => {          
+      .then(response => {
         console.log('됐나?', response.data)
         router.push('/main')
       })
-  }else{
+  } else {
     console.log('저장할 정보가 없습니다.')
     alert('저장할 정보가 없습니다.')
   }
@@ -269,15 +270,15 @@ const saveMemberAllergy = async (receivedList, type) => {
   const receivedArray = extractNumbers(receivedList._rawValue._rawValue)
   let endpoint = ''
   formData.append('id', connetId.value)
-  if(type == 1){
+  if (type == 1) {
     formData.append('allergies', receivedArray)
     endpoint = 'Allergy'
-  }else if(type == 2){
+  } else if (type == 2) {
     formData.append('hatefoods', receivedArray)
     endpoint = 'HateFood'
   }
-  
-  await axios.post(`http://localhost:4000/SaveMember/${endpoint}`, formData, {
+
+  await axios.post(`/SaveMember/${endpoint}`, formData, {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -288,14 +289,14 @@ const saveMemberAllergy = async (receivedList, type) => {
 }
 
 const sendchkList = currentStep => {
-  if(currentStep == 1){
+  if (currentStep == 1) {
     const allergyNames = receivedAllergyList.value._rawValue.map(obj => Object.values(obj)[0])
 
     alert('[알러지 정보를 저장합니다.]\n\n\t선택한 알러지 목록 : ' + allergyNames.join(', '))
     saveMemberAllergy(receivedAllergyList, 1)
 
     // gethatefoodInfo()
-  }else if(currentStep == 2){
+  } else if (currentStep == 2) {
     console.log('[선택하신 알러지 정보를 저장합니다.]')
 
     const hateFoodNames = receivedHateFoodList.value._rawValue.map(obj => Object.values(obj)[0])
@@ -316,10 +317,7 @@ onMounted(getallergyInfo)
   <VCard>
     <VCardText>
       <!-- 👉 Stepper -->
-      <AppStepper
-        v-model:current-step="currentStep"
-        :items="iconsSteps"
-      />
+      <AppStepper v-model:current-step="currentStep" :items="iconsSteps" />
     </VCardText>
 
     <VDivider />
@@ -327,21 +325,15 @@ onMounted(getallergyInfo)
     <VCardText>
       <!-- 👉 stepper content -->
       <VForm>
-        <VWindow
-          v-model="currentStep"
-          class="disable-tab-transition"
-        >
+        <VWindow v-model="currentStep" class="disable-tab-transition">
           <!-- 첫번째 탭 (알레르기) -->
           <VWindowItem>
             <VRow>
               <div>
-                <CustomCheckboxesWithImage
-                  v-model:selected-checkbox="selectedCheckbox"
-                  :checkbox-content="checkboxContent"
-                  :grid-column="{ sm: '3', cols: '12' }"
-                  @AllergyList="handleAllergyList"
-                />
-              </div>              
+                <CustomCheckboxesWithImage v-model:selected-checkbox="selectedCheckbox"
+                  :checkbox-content="checkboxContent" :grid-column="{ sm: '3', cols: '12' }"
+                  @AllergyList="handleAllergyList" />
+              </div>
             </VRow>
           </VWindowItem>
           <!-- 두번쨰 탭 (좋아하는 음식) -->
@@ -349,12 +341,9 @@ onMounted(getallergyInfo)
           <VWindowItem>
             <VRow>
               <div>
-                <CustomCheckboxesWithImageIcon
-                  v-model:selected-checkbox="selectedCheckbox"
-                  :checkbox-content="checkboxContent2"
-                  :grid-column="{ sm: '3', cols: '12' }"
-                  @HateFoodList="handleHateFoodList"
-                />
+                <CustomCheckboxesWithImageIcon v-model:selected-checkbox="selectedCheckbox"
+                  :checkbox-content="checkboxContent2" :grid-column="{ sm: '3', cols: '12' }"
+                  @HateFoodList="handleHateFoodList" />
               </div>
             </VRow>
           </VWindowItem>
@@ -365,15 +354,8 @@ onMounted(getallergyInfo)
               <VCol cols="3">
                 <p />평균 수면 시간
               </VCol>
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <VTextField
-                  v-model="formData.sleep"
-                  placeholder="ex)8"
-                  label="평균 수면 시간"
-                />
+              <VCol cols="12" md="6">
+                <VTextField v-model="formData.sleep" placeholder="ex)8" label="평균 수면 시간" />
               </VCol>
 
               <VCol cols="2" />
@@ -383,59 +365,33 @@ onMounted(getallergyInfo)
               <VCol cols="5">
                 <p />인바디 정보 입력
               </VCol>
-              <VCol
-                cols="12"
-                md="4"
-              >
-                <VDialog
-                  v-model="isDialogVisible"
-                  width="1000"
-                >
+              <VCol cols="12" md="4">
+                <VDialog v-model="isDialogVisible" width="1000">
                   <!-- Activator -->
                   <template #activator="{ props }">
-                    <VBtn 
-                      v-bind="props"
-                      size="x-large"
-                    >
+                    <VBtn v-bind="props" size="x-large">
                       Inbody
                     </VBtn>
                   </template>
                   <!-- Dialog Content -->
                   <VCard title="Inbody">
-                    <DialogCloseBtn
-                      variant="text"
-                      size="small"
-                      @click="isDialogVisible = false"
-                    />
+                    <DialogCloseBtn variant="text" size="small" @click="isDialogVisible = false" />
                     <VCardText>
                       인바디 분석 용지를 사진 찍어주세요
                     </VCardText>
                     <VRow>
                       <VRow>
                         <!-- 원본 인바디 사진 -->
-                        <VImg
-                          id="diaryImages"
-                          :src="imageUrl"
-                          style=" width: 550px; height: 550px;align-self: center; margin: 50px;"
-                        />
+                        <VImg id="diaryImages" :src="imageUrl"
+                          style=" width: 550px; height: 550px;align-self: center; margin: 50px;" />
                       </VRow>
                     </VRow>
                     <VCol cols="12">
-                      <VFileInput
-                        :rules="rules"
-                        label="인바디 사진"
-                        type="file"
-                        accept="image/png, image/jpeg, image/bmp"
-                        placeholder="Pick an avatar"
-                        prepend-icon="mdi-camera-outline"
-                        @change="uploadImg"
-                      />
+                      <VFileInput :rules="rules" label="인바디 사진" type="file" accept="image/png, image/jpeg, image/bmp"
+                        placeholder="Pick an avatar" prepend-icon="mdi-camera-outline" @change="uploadImg" />
                     </VCol>
                     <VCol>
-                      <VBtn 
-                        block
-                        @click="upload"
-                      >
+                      <VBtn block @click="upload">
                         확인
                       </VBtn>
                     </VCol>
@@ -445,12 +401,8 @@ onMounted(getallergyInfo)
               <VCol cols="2" />
             </VRow>
             <VRow>
-              <VImg
-                id="diaryImages"
-                v-model="formData.imageUrl"
-                :src="imageUrl"
-                style=" width: 600px; height: 600px; align-self: center; margin: 50px;" 
-              />  
+              <VImg id="diaryImages" v-model="formData.imageUrl" :src="imageUrl"
+                style=" width: 600px; height: 600px; align-self: center; margin: 50px;" />
             </VRow>
             <!-- 너무 길다싶으면 style="width: ;" 이거 줘서 줄이면 됩니다 -->
             <VTable v-if="imageUrl.length > 0">
@@ -459,20 +411,14 @@ onMounted(getallergyInfo)
                   <th class="text-uppercase">
                     골격근, 지방분석
                   </th>
-                  <th
-                    class="text-uppercase align"
-                    style="text-align: end;"
-                  >
+                  <th class="text-uppercase align" style="text-align: end;">
                     단위
                   </th>
                 </tr>
               </thead>
 
               <tbody>
-                <tr
-                  v-for="inbody in inbodydatas"
-                  :key="inbody.value"
-                >
+                <tr v-for="inbody in inbodydatas" :key="inbody.value">
                   <td>
                     {{ inbody.title }}
                   </td>
@@ -559,40 +505,20 @@ onMounted(getallergyInfo)
         </VWindow>
 
         <div class="d-flex justify-sm-space-between gap-4 flex-wrap justify-center mt-8">
-          <VBtn
-            :color="currentStep === 0 ? 'secondary' : 'default'"
-            variant="outlined"
-            :disabled="currentStep === 0"
-            @click="currentStep--"
-          >
-            <VIcon
-              icon="mdi-arrow-left"
-              start
-              class="flip-in-rtl"
-            />
+          <VBtn :color="currentStep === 0 ? 'secondary' : 'default'" variant="outlined" :disabled="currentStep === 0"
+            @click="currentStep--">
+            <VIcon icon="mdi-arrow-left" start class="flip-in-rtl" />
             이전
           </VBtn>
 
-          <VBtn
-            v-if="iconsSteps.length - 1 === currentStep"
-            color="success"
-            append-icon="mdi-check"
-            @click="onSubmit"
-          >
+          <VBtn v-if="iconsSteps.length - 1 === currentStep" color="success" append-icon="mdi-check" @click="onSubmit">
             submit
           </VBtn>
 
-          <VBtn
-            v-else
-            @click="currentStep++, sendchkList(currentStep)"
-          >
+          <VBtn v-else @click="currentStep++, sendchkList(currentStep)">
             다음
 
-            <VIcon
-              icon="mdi-arrow-right"
-              end
-              class="flip-in-rtl"
-            />
+            <VIcon icon="mdi-arrow-right" end class="flip-in-rtl" />
           </VBtn>
         </div>
       </VForm>
@@ -609,15 +535,16 @@ onMounted(getallergyInfo)
 }
 
 .text-lg {
-  font-size: 1.25rem; /* 원하는 폰트 크기로 조정 */
+  font-size: 1.25rem;
+  /* 원하는 폰트 크기로 조정 */
 }
 
 .text-md {
-  font-size: 1rem; /* 원하는 폰트 크기로 조정 */
+  font-size: 1rem;
+  /* 원하는 폰트 크기로 조정 */
 }
 </style>
 
 <style lang="scss">
 @use "@core/scss/template/libs/apex-chart.scss";
 </style>
-

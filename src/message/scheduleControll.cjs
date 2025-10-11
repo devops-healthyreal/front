@@ -11,7 +11,7 @@ getAccessToken().then(token=>{
 
   console.log("SERVER_KEY:", SERVER_KEY)
   
-  axios.post("http://localhost:4000/fmctoken", JSON.stringify({
+  axios.post("/fmctoken", JSON.stringify({
     id: "google",
     token: SERVER_KEY,
   }), { headers: { 'Content-Type': 'application/json' } })

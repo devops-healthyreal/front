@@ -1,14 +1,24 @@
 import axios from '@axios'
 
+// API Base URL 환경별 설정
+export const API_BASE_URL = import.meta.env.PROD 
+  ? '/api'  // 프로덕션: Nginx 프록시 경로
+  : "http://localhost:4000"  // 개발: 로컬 Spring 서버
+
+export const API_FLASK_BASE_URL = import.meta.env.PROD
+  ? '/api-flask'  // 프로덕션: Nginx 프록시 경로
+  : 'http://localhost:5000'  // 개발: 로컬 Python 서버
+
 export var config = {
   vapidKey: "BIa23R2xZe0qRZYDcY5aXlxcBOFiujw7Vs-RLTPwEjQqmXAFgXNjRfWjBrjN_E0WWg6yUMmXncdutQN8zG6x2wY",
   google_key: "",
+  apiBaseUrl: API_BASE_URL,  // 다른 곳에서 사용 가능
 }
 
 export function getGoogleKey() {
   return new Promise((resolve, reject)=>{
     //구글 api 서버 키 불러오기
-    axios.get("http://localhost:4000/get/fmctoken", { params: {
+    axios.get("/get/fmctoken", { params: {
       id: "google",
     } })
       .then(res=>{

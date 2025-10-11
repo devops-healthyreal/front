@@ -116,7 +116,7 @@ const router = createRouter({
     
           const userInfo = computed(() => store.state.userStore.userInfo)
           const connetId = userInfo.value.id
-          const response = await axios.post('http://localhost:4000/croom/myRoomNum.do', { id: connetId }) // POST 요청
+          const response = await axios.post('/croom/myRoomNum.do', { id: connetId }) // POST 요청
           const data = response.data
     
           console.log("너의 방번호는?", data)
@@ -162,7 +162,7 @@ const router = createRouter({
 
           console.log("connetId------", connetId)
 
-          const response = await axios.post('http://localhost:4000/mroom/myRoomNum.do', { id: connetId }) // POST 요청
+          const response = await axios.post('/mroom/myRoomNum.do', { id: connetId }) // POST 요청
           const data = response.data
     
           console.log("너의 방번호는?", data)
@@ -223,7 +223,7 @@ router.beforeEach((to, from, next) => {
   } else if (to.fullPath.includes('/diary')) {
     counter = 'diary'
   }
-  const response = axios.post('http://localhost:4000/tab/count.do', { counter: counter })
+  const response = axios.post('/tab/count.do', { counter: counter })
 
 
   next()

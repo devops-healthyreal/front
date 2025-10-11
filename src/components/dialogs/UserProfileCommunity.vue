@@ -78,35 +78,29 @@ const requestFriend = val => {
   console.log("들어온 인자:", val)
   console.log("친구 요청 버튼:", document.getElementById("requestBTN"))
 
-  axios.post("http://localhost:4000/comm/request", JSON.stringify({
+  axios.post("/comm/request", JSON.stringify({
     userId: props.connectid,
     reqId: props.userid,
     type: '1',
   }), { headers: { 'Content-Type': 'application/json' } })
-    .then(()=>{
+    .then(() => {
       //sendCommReqMessage(props.connectid, props.userid, 'fReq')
       isRequested.value = true
       document.getElementById("requestBTN").style.display = 'none'
-      document.getElementById("requestCompleteBTN").style.display='block'
+      document.getElementById("requestCompleteBTN").style.display = 'block'
     })
     .catch(err => {
       console.log(err, '값을 받는 데 실패했습니다')
     })
-    
+
 }
 </script>
 
 <template>
-  <VDialog
-    :width="$vuetify.display.smAndDown ? 'auto' : 900"
-    :model-value="props.isDialogVisible"
-    @update:model-value="dialogVisibleUpdate"
-  >
+  <VDialog :width="$vuetify.display.smAndDown ? 'auto' : 900" :model-value="props.isDialogVisible"
+    @update:model-value="dialogVisibleUpdate">
     <!-- 👉 dialog close btn -->
-    <VBtn
-      icon
-      @click="$emit('update:isDialogVisible', false)"
-    >
+    <VBtn icon @click="$emit('update:isDialogVisible', false)">
       <VIcon>mdi-close</VIcon>
     </VBtn>
     <VCol cols="12">
@@ -114,17 +108,10 @@ const requestFriend = val => {
         <!-- 대표사진 -->
         <VImg :src="pages7" />
         <!-- 대표사진이 없을 경우 뿌려주는 img -->
-        <VImg 
-          v-if="false"
-          :src="defaultImg"
-        />
+        <VImg v-if="false" :src="defaultImg" />
         <VCardText class="position-relative">
           <!-- 유저 프로필 사진 -->
-          <VAvatar
-            size="75"
-            class="avatar-center"
-            :image="userprofilePath"
-          />
+          <VAvatar size="75" class="avatar-center" :image="userprofilePath" />
           <div class="d-flex justify-space-between flex-wrap pt-8">
             <div class="me-2 mb-2">
               <!-- 클릭 이벤트 : 해당 유저가 올린 게시물 보기 -->
@@ -135,19 +122,12 @@ const requestFriend = val => {
                 {{ userproIntroduction }}
               </VCardSubtitle>
             </div>
-            <VBtn
-              v-show="!userFriendCheck && !userFriendRequestCheck && !isSameUser"
-              id="requestBTN"
-              @click="requestFriend(userFriendCheck)"
-            >
+            <VBtn v-show="!userFriendCheck && !userFriendRequestCheck && !isSameUser" id="requestBTN"
+              @click="requestFriend(userFriendCheck)">
               친구 요청
             </VBtn>
-            <VBtn
-              v-show="userFriendRequestCheck && !isSameUser"
-              id="requestCompleteBTN"
-              disabled="true"
-              @click="requestFriend(userFriendCheck)"
-            >
+            <VBtn v-show="userFriendRequestCheck && !isSameUser" id="requestCompleteBTN" disabled="true"
+              @click="requestFriend(userFriendCheck)">
               친구 요청 완료
             </VBtn>
           </div>
@@ -169,4 +149,3 @@ const requestFriend = val => {
   cursor: pointer;
 }
 </style>
-

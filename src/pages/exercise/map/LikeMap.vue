@@ -1,35 +1,18 @@
 <template>
-  <div :style="{'height':'50px'}">
-    <PerfectScrollbar :options="{ wheelPropagation: false,suppressScrollX: true }">
-      <VSelect
-        v-model="country"
-        :items="items"
-        label="시/군/구"
-        variant="filled"
-        :style="{'width':'30%','float':'left', 'margin-right':'20px', 'margin-left':'20px'}"
-        prepend-icon="mdi-map-search-outline"
-      />
-      <VSelect
-        v-model="selectedPath"
-        :items="pathsName[country]"
-        label="경로"
-        variant="filled"
-        :style="{'width':'50%','float':'left'}"
-        prepend-icon="mdi-map-marker-path"
-        @update:model-value="changePath"
-      />
-      <VChip
-        color="info"
-        style="margin: 10px;"
-      >
+  <div :style="{ 'height': '50px' }">
+    <PerfectScrollbar :options="{ wheelPropagation: false, suppressScrollX: true }">
+      <VSelect v-model="country" :items="items" label="시/군/구" variant="filled"
+        :style="{ 'width': '30%', 'float': 'left', 'margin-right': '20px', 'margin-left': '20px' }"
+        prepend-icon="mdi-map-search-outline" />
+      <VSelect v-model="selectedPath" :items="pathsName[country]" label="경로" variant="filled"
+        :style="{ 'width': '50%', 'float': 'left' }" prepend-icon="mdi-map-marker-path" @update:model-value="changePath" />
+      <VChip color="info" style="margin: 10px;">
         <span>{{ message }}분</span>
       </VChip>
     </perfectscrollbar>
   </div>
-  <div
-    id="map"
-    :style="{'width':'100%','height':'450px'}"
-  /> <!-- @click="$emit('refreshChildRoad', lat[0], lng[0], drawingMap)" -->
+  <div id="map" :style="{ 'width': '100%', 'height': '450px' }" />
+  <!-- @click="$emit('refreshChildRoad', lat[0], lng[0], drawingMap)" -->
 </template>
 
 <script setup>
@@ -53,7 +36,7 @@ const emit = defineEmits(['update:selectedRpathNo', 'update:selectedTime'])
 
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId= ref(userInfo.value.id)
+const connetId = ref(userInfo.value.id)
 const message = ref(0)
 
 //메뉴 선택 핸들러 부분 start-----------
@@ -99,12 +82,12 @@ const markers = ref([]) //지도에 올려줄 마커들을 모아둔 객체 설�
 const infos = ref([]) //지도에 올려줄 인포들을 모아둔 객체 설정
 var polyline = ref()
 
-onMounted(()=>{
+onMounted(() => {
   const script = document.createElement("script")
 
-  axios.get("http://localhost:4000/exercise/allpaths", { params: { id: connetId.value } })
-    .then(resp=>{
-      for (var i=0; i<Object.keys(resp.data).length; i++){
+  axios.get("/exercise/allpaths", { params: { id: connetId.value } })
+    .then(resp => {
+      for (var i = 0; i < Object.keys(resp.data).length; i++) {
         var key = Object.keys(resp.data)[i]
         items.value.push(key) //시/군/구
         paths[key] = []
@@ -112,40 +95,40 @@ onMounted(()=>{
         pathsTime[key] = []
         pathsNo[key] = []
         resp.data[key]
-        for(const pkey in resp.data[key]){
+        for (const pkey in resp.data[key]) {
           paths[key].push(resp.data[key][pkey][0])
           pathLatlngs[key].push(resp.data[key][pkey][1])
           pathsTime[key].push(resp.data[key][pkey][2])
           pathsNo[key].push(pkey)
         }
       }
-      for(const key in paths){ //path의 첫번째 원소에 뿌려줄 값을 저장
+      for (const key in paths) { //path의 첫번째 원소에 뿌려줄 값을 저장
         pathsName[key] = []
-        for (const path of paths[key]){ 
+        for (const path of paths[key]) {
           var temp = ''
           path.forEach(point => {
             temp += point + '/'
           })
-          temp = temp.slice(0, temp.length-1)
+          temp = temp.slice(0, temp.length - 1)
           pathsName[key].push(temp)
         }
       }
       console.log("pathsName", pathsName)
     })
   script.onload = () => {
-    kakao.maps.load(()=>{ //kakao가 로드되었을 때 실행될 콜백함수 정의
+    kakao.maps.load(() => { //kakao가 로드되었을 때 실행될 콜백함수 정의
 
       //지도 띄우기
       //lng, lat 값 얻기
       var lng
       var lat
       getCurrentPosition()
-        .then(([currlng, currlat])=>{
+        .then(([currlng, currlat]) => {
           lng = currlng
           lat = currlat
           initMap(lng, lat)
           map.value.relayout()
-      
+
           createRoadView(map.value) //지도에 동동이 및 로드뷰 띄우기
         })
         .catch(err => {
@@ -154,7 +137,7 @@ onMounted(()=>{
     })
   }
   script.src =
-        "//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=ca9eb44c2889273e11b9860d99308508&libraries=services,clusterer,drawing"
+    "//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=ca9eb44c2889273e11b9860d99308508&libraries=services,clusterer,drawing"
   document.head.appendChild(script)
 })
 
@@ -171,7 +154,7 @@ const initMap = (lng, lat) => {
   map.value = new kakao.maps.Map(container, options)
   map.value.relayout()
 
-  polyline.value =  new kakao.maps.Polyline({ //지도에 올려줄 polyline 설정
+  polyline.value = new kakao.maps.Polyline({ //지도에 올려줄 polyline 설정
     strokeWeight: 3,
     strokeColor: '#007B2A',
     strokeOpacity: 1,
@@ -185,10 +168,10 @@ const changePath = () => {
   console.log('paths', paths)
   console.log('country', country.value) // country: 시, 군, 구
   console.log('selectedPath', selectedPath)
-  
+
   var loadName
   var load = []
-  for (var i=0; i<paths[country.value].length; i++) {
+  for (var i = 0; i < paths[country.value].length; i++) {
     if (pathsName[country.value][i] === selectedPath.value) {
       loadName = paths[country.value][i]
       load = pathLatlngs[country.value][i]

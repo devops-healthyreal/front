@@ -49,12 +49,12 @@ const validatePassword = () => {
   if (!regex.test(pwd.value)) {
     pwdErrorMsg.value = '비밀번호는 8~20자의 영문 대/소문자, 숫자, 특수문자를 모두 사용해 주세요.'
     pwdSuccessMsg.value = ''
-    
+
     return false
   } else {
     pwdSuccessMsg.value = '사용가능!'
     pwdErrorMsg.value = ''
-    
+
     return true
   }
 }
@@ -90,7 +90,7 @@ const updatePassword = async () => {
   if (!validatePassword()) return
 
   try {
-    const response = await axios.post('http://localhost:4000/update-password', {
+    const response = await axios.post('/update-password', {
       id: id.value,
       pwd: pwd.value,
     }, { withCredentials: true })
@@ -134,76 +134,40 @@ const isResetPasswordDialogVisible = computed(() => store.state.isResetPasswordD
 
 
 <template>
-  <VDialog
-    :model-value="props.isDialogVisible"
-    max-width="600"
-    @update:model-value="val => { emit('update:isDialogVisible', val); val || closeDialog(); }"
-  >
+  <VDialog :model-value="props.isDialogVisible" max-width="600"
+    @update:model-value="val => { emit('update:isDialogVisible', val); val || closeDialog(); }">
     <!-- Dialog Content -->
     <VCard title="비밀번호 수정">
-      <DialogCloseBtn
-        variant="text"
-        size="small"
-        @click="closeDialog"
-      />
+      <DialogCloseBtn variant="text" size="small" @click="closeDialog" />
 
       <VCardText>
         <VRow>
           <VCol cols="12">
-            <VTextField
-              v-model="id"
-              label="아이디"
-              readonly 
-              placeholder="id"
-            />
+            <VTextField v-model="id" label="아이디" readonly placeholder="id" />
           </VCol>
           <VCol cols="12">
-            <VTextField
-              id="pwd"
-              v-model="pwd"
-              placeholder="비밀번호"
-              persistent-placeholder
+            <VTextField id="pwd" v-model="pwd" placeholder="비밀번호" persistent-placeholder
               :type="isPasswordVisible ? 'text' : 'password'"
               :append-inner-icon="isPasswordVisible ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
-              @input="validatePassword"
-              @click:append-inner="isPasswordVisible = !isPasswordVisible"
-            />
-            <div
-              v-if="pwdErrorMsg"
-              :style="{ color: 'red' }"
-            >
+              @input="validatePassword" @click:append-inner="isPasswordVisible = !isPasswordVisible" />
+            <div v-if="pwdErrorMsg" :style="{ color: 'red' }">
               {{ pwdErrorMsg }}
             </div> <!-- 비밀번호 오류 메세지 -->
 
-            <div
-              v-if="pwdSuccessMsg"
-              :style="{ color: 'greenyellow' }"
-            >
+            <div v-if="pwdSuccessMsg" :style="{ color: 'greenyellow' }">
               {{ pwdSuccessMsg }}
             </div> <!-- 비밀번호 성공 메세지 -->
           </VCol>
           <VCol cols="12">
-            <VTextField
-              id="passwordCK"
-              v-model="pwdCK"
-              placeholder="비밀번호 확인"
-              persistent-placeholder
+            <VTextField id="passwordCK" v-model="pwdCK" placeholder="비밀번호 확인" persistent-placeholder
               :type="isCPasswordVisible ? 'text' : 'password'"
               :append-inner-icon="isCPasswordVisible ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
-              @input="validatePasswordCK"
-              @click:append-inner="isCPasswordVisible = !isCPasswordVisible"
-            />
-            <div
-              v-if="pwdCKErrorMsg && pwdCK !== ''"
-              :style="{ color: 'red' }"
-            >
+              @input="validatePasswordCK" @click:append-inner="isCPasswordVisible = !isCPasswordVisible" />
+            <div v-if="pwdCKErrorMsg && pwdCK !== ''" :style="{ color: 'red' }">
               {{ pwdCKErrorMsg }}
             </div> <!-- 비밀번호 확인 오류 메세지 -->
 
-            <div
-              v-if="pwdCKSuccessMsg && pwdCK !== ''"
-              :style="{ color: 'greenyellow' }"
-            >
+            <div v-if="pwdCKSuccessMsg && pwdCK !== ''" :style="{ color: 'greenyellow' }">
               {{ pwdCKSuccessMsg }}
             </div> <!-- 비밀번호 확인 성공 메세지 -->
           </VCol>
@@ -212,16 +176,10 @@ const isResetPasswordDialogVisible = computed(() => store.state.isResetPasswordD
 
       <VCardActions>
         <VSpacer />
-        <VBtn
-          color="error"
-          @click="closeDialog"
-        >
+        <VBtn color="error" @click="closeDialog">
           Close
         </VBtn>
-        <VBtn
-          color="success"
-          @click="updatePassword"
-        >
+        <VBtn color="success" @click="updatePassword">
           Save
         </VBtn>
       </VCardActions>

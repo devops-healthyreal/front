@@ -1,5 +1,5 @@
 <script setup>
-import axios from '@axios'
+import axiosflask from '@/plugins/axiosflask'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
@@ -14,7 +14,7 @@ const props = defineProps({
 const emit = defineEmits(['update:isDialogVisible'])
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=computed(() => userInfo.value.id)
+const connetId = computed(() => userInfo.value.id)
 
 const router = useRouter()
 const selectedPlan = ref('random')
@@ -62,29 +62,22 @@ const isConfirmDialogVisible = ref(false)
 const getData = async (obj, connetId) => {
   console.log(connetId, "가할 운동은???", obj)
 
-  const response = await axios.post('http://localhost:5000/recommendExercise', {
+  const response = await axiosflask.post('/recommendExercise', {
     message: obj,
     id: connetId,
   })
 
-  router.push('main') 
+  router.push('main')
 }
 </script>
 
 <template>
   <!-- 👉 upgrade plan -->
-  <VDialog
-    :width="$vuetify.display.smAndDown ? 'auto' : 650"
-    :model-value="props.isDialogVisible"
-    @update:model-value="val => $emit('update:isDialogVisible', val)"
-  >
+  <VDialog :width="$vuetify.display.smAndDown ? 'auto' : 650" :model-value="props.isDialogVisible"
+    @update:model-value="val => $emit('update:isDialogVisible', val)">
     <VCard class="py-8">
       <!-- 👉 dialog close btn -->
-      <DialogCloseBtn
-        variant="text"
-        size="small"
-        @click="$emit('update:isDialogVisible', false)"
-      />
+      <DialogCloseBtn variant="text" size="small" @click="$emit('update:isDialogVisible', false)" />
 
       <VCardItem class="text-center">
         <VCardTitle class="text-h5 mb-5">
@@ -98,24 +91,12 @@ const getData = async (obj, connetId) => {
 
       <VCardText class="d-flex align-center flex-column flex-sm-nowrap px-15">
         <div class="d-flex justify-space-between flex-wrap">
-          <CustomRadios
-            v-model="selectedPlan"
-            :radio-content="plansList"
-            :selected-radio="selectedPlan"
-            :grid-column="{ cols: '12', sm: '12' }"
-          />
-          <VBtn
-            class="mt-5"
-            @click="$emit('update:isDialogVisible', false), getData(selectedPlan, connetId)"
-          >
+          <CustomRadios v-model="selectedPlan" :radio-content="plansList" :selected-radio="selectedPlan"
+            :grid-column="{ cols: '12', sm: '12' }" />
+          <VBtn class="mt-5" @click="$emit('update:isDialogVisible', false), getData(selectedPlan, connetId)">
             확인
           </VBtn>
-          <VBtn
-            color="error"
-            variant="tonal"
-            class="mt-3"
-            @click="$emit('update:isDialogVisible', false)"
-          >
+          <VBtn color="error" variant="tonal" class="mt-3" @click="$emit('update:isDialogVisible', false)">
             취소
           </VBtn>
         </div>

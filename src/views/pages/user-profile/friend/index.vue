@@ -27,12 +27,12 @@ const controllInviteFunc = (ans, id) => { //DB에 접근
   console.log('이벤트 발생')
   console.log(ans, id)
   isInvited[id] = ref(false)
-  axios.post("http://localhost:4000/comm/request", JSON.stringify({
+  axios.post("/comm/request", JSON.stringify({
     userId: connetId.value,
     reqId: id,
     type: '1',
   }), { headers: { 'Content-Type': 'application/json' } })
-    .then(()=>{
+    .then(() => {
       //sendCommReqMessage(connetId.value, id, 'fReq')
     })
     .catch(err => {
@@ -42,21 +42,21 @@ const controllInviteFunc = (ans, id) => { //DB에 접근
 
 
 const switchController = value => {
-  if(value) {
+  if (value) {
     head.value = '친구 추천 목록'
-    if(recommendData.value.length === 0) {
-      axios.get("http://localhost:4000/comm/randomfriend", {
+    if (recommendData.value.length === 0) {
+      axios.get("/comm/randomfriend", {
         params: {
           id: userId.value,
         },
       })
         .then(resp => {
           recommendData.value = resp.data
-          for(const i of resp.data) {
+          for (const i of resp.data) {
             isInvited[i.friend_id] = ref(true)
           }
         })
-        .catch(err=>console.error(err))
+        .catch(err => console.error(err))
     }
   }
   else {
@@ -67,19 +67,19 @@ const switchController = value => {
 const fetchProjectData = () => {
   if (router.params.tab === 'friend') { //조회용
     axios.get("http://127.0.0.1:4000/comm/friend", { params: { id: userId.value } }) //이미 친구인 목록
-      .then(response=>{
+      .then(response => {
         connectionData.value = response.data
-        if(Object.keys(connectionData.value).length == 0) isFriendExist.value = true
+        if (Object.keys(connectionData.value).length == 0) isFriendExist.value = true
         else {
           isFriendExist.value = false
-          for(const key in connectionData.value) {
+          for (const key in connectionData.value) {
             isConnected[connectionData.value[key]['friend_id']] = ref(true)
             isFriendBlocked[connectionData.value[key]['friend_id']] = ref(false)
           }
         }
       })
-      .catch(()=>{console.log('서버가 꺼져있습니다.')})
-    
+      .catch(() => { console.log('서버가 꺼져있습니다.') })
+
   }
 }
 
@@ -99,7 +99,7 @@ const blockingController = (temp, id) => {
   username.value = id
 }
 
-const blockFriend = (bool, id) =>{
+const blockFriend = (bool, id) => {
   if (bool) {
     console.log(id, '차단됨')
   }
@@ -107,20 +107,20 @@ const blockFriend = (bool, id) =>{
     userId: userId.value,
     id: id,
   }), { headers: { "Content-Type": `application/json` } })
-    .then(()=>{
+    .then(() => {
       fetchProjectData()
     })
 }
 
 //페이지 이동 감시 테스트----------------------------------
 
-window.addEventListener('click', ()=>{ //친구 끊기용
-  if(isfriendscreenchanged.value) {
+window.addEventListener('click', () => { //친구 끊기용
+  if (isfriendscreenchanged.value) {
     console.log('url변경감지', isConnected)
-    for(const userid in isConnected) {
+    for (const userid in isConnected) {
       console.log('url변경감지 및 반복문')
       console.log(userid, isConnected[userid].value)
-      if (!isConnected[userid].value){
+      if (!isConnected[userid].value) {
         console.log('axios delete 안으로 들어옴', userid)
         axios.delete("http://127.0.0.1:4000/comm/friend/delete", {
           data: {
@@ -128,7 +128,7 @@ window.addEventListener('click', ()=>{ //친구 끊기용
             id: userid,
           },
         }, { headers: { "Content-Type": `application/json` } })
-          .then(()=>{
+          .then(() => {
             fetchProjectData()
           })
       }
@@ -152,47 +152,23 @@ const requestFriend = memberId => {
 <template>
   <VRow>
     <VCardText>
-      <h5
-        class="text-h5"
-        style="font-weight: bold;"
-      >
+      <h5 class="text-h5" style="font-weight: bold;">
         {{ head }}
       </h5>
     </VCardText>
-    <VSwitch
-      v-model="isSwitchOn"
-      style="margin-right: 20px;"
-      color="success"
-      label="추천보기"
-      @update:model-value="switchController"
-    />
+    <VSwitch v-model="isSwitchOn" style="margin-right: 20px;" color="success" label="추천보기"
+      @update:model-value="switchController" />
   </VRow>
-  <VAlert
-    v-show="isFriendExist && !isSwitchOn"
-    density="default"
-    color="secondary"
-    variant="tonal"
-    :style="{'margin-bottom':'200px'}"
-  >
+  <VAlert v-show="isFriendExist && !isSwitchOn" density="default" color="secondary" variant="tonal"
+    :style="{ 'margin-bottom': '200px' }">
     친구 목록이 없습니다
   </VAlert>
   <VRow>
-    <VCol
-      v-for="data in connectionData"
-      v-show="!isSwitchOn"
-      :key="data.friend_id"
-      sm="6"
-      lg="4"
-      cols="12"
-    >
+    <VCol v-for="data in connectionData" v-show="!isSwitchOn" :key="data.friend_id" sm="6" lg="4" cols="12">
       <VCard>
         <VCardItem>
           <VCardTitle class="d-flex flex-column align-center justify-center">
-            <VAvatar
-              size="100"
-              :image="data.profilePath"
-              class="mt-3"
-            />
+            <VAvatar size="100" :image="data.profilePath" class="mt-3" />
             <!-- 이름 부분 -->
             <p class="mt-6 mb-0">
               {{ data.friend_id }}
@@ -230,44 +206,25 @@ const requestFriend = memberId => {
             <VBtn
               :prepend-icon="isConnected[data.friend_id].value ? 'mdi-account-cancel-outline' : 'mdi-account-check-outline'"
               :variant="isConnected[data.friend_id].value ? 'tonal' : 'elevated'"
-              @click="connectionController(isConnected[data.friend_id])"
-            >
+              @click="connectionController(isConnected[data.friend_id])">
               {{ isConnected[data.friend_id].value ? '친구취소' : '취소 되돌리기' }}
             </VBtn>
 
-            <VBtn
-              prepend-icon="mdi-block-helper"
-              variant="outlined"
-              color="warning"
-              @click="blockingController(isFriendBlocked[data.friend_id], data.friend_id)"
-            >
+            <VBtn prepend-icon="mdi-block-helper" variant="outlined" color="warning"
+              @click="blockingController(isFriendBlocked[data.friend_id], data.friend_id)">
               차단하기
             </VBtn>
-            <BlockFriendConfirmModal 
-              v-model:isDialogVisible="modalControll"
-              :message="username"
-              @check-event="blockFriend"
-            />
+            <BlockFriendConfirmModal v-model:isDialogVisible="modalControll" :message="username"
+              @check-event="blockFriend" />
           </div>
         </VCardText>
       </VCard>
     </VCol>
-    <VCol
-      v-for="data in recommendData"
-      v-show="isSwitchOn"
-      :key="data.friend_id"
-      sm="6"
-      lg="4"
-      cols="12"
-    >
+    <VCol v-for="data in recommendData" v-show="isSwitchOn" :key="data.friend_id" sm="6" lg="4" cols="12">
       <VCard>
         <VCardItem>
           <VCardTitle class="d-flex flex-column align-center justify-center">
-            <VAvatar
-              size="100"
-              :image="data.profilePath"
-              class="mt-3"
-            />
+            <VAvatar size="100" :image="data.profilePath" class="mt-3" />
             <!-- 이름 부분 -->
             <p class="mt-6 mb-0">
               {{ data.friend_id }}
@@ -300,22 +257,12 @@ const requestFriend = memberId => {
 
           <div class="d-flex justify-center gap-4 mt-6">
             <!-- 친구신청 버튼 -->
-            <VBtn
-              v-show="isInvited[data.friend_id].value"
-              @click="requestFriend(data.friend_id)"
-            >
+            <VBtn v-show="isInvited[data.friend_id].value" @click="requestFriend(data.friend_id)">
               친구요청
             </VBtn>
-            <InviteFriendConfirmModal
-              v-model:isDialogVisible="requestModalControll"
-              :message="username"
-              @check-confirm="controllInviteFunc"
-            />
-            <VBtn
-              v-show="!isInvited[data.friend_id].value"
-              prepend-icon="mdi-account-check-outline"
-              disabled="true"
-            >
+            <InviteFriendConfirmModal v-model:isDialogVisible="requestModalControll" :message="username"
+              @check-confirm="controllInviteFunc" />
+            <VBtn v-show="!isInvited[data.friend_id].value" prepend-icon="mdi-account-check-outline" disabled="true">
               신청완료
             </VBtn>
           </div>

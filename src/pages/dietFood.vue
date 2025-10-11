@@ -53,7 +53,7 @@ const handleChoiceCategory = value => {
   console.log('선택한 카테고리:', choicecategorydata.value, '선택한 index :', updatediet.value)
 }
 
-const handleRecipedatach = value =>{
+const handleRecipedatach = value => {
   const { recipe, dietType } = value
 
   recipedatach.value[dietType] = recipe
@@ -93,11 +93,11 @@ const getEatingRecord = async () => {
   const connetId = userInfo.value.id
 
   console.log('체크해보자 : ', connetId)
-  await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
-    .then(response => {    
+  await axios.get('/Dietfood/DailyView.do', { params: { 'id': connetId } })
+    .then(response => {
       console.log('가져온 유저 Eating_Record', response.data)
 
-      if(response.data.length > 0){
+      if (response.data.length > 0) {
         // 레시피 & 재료도 가져오기
 
         // 초기화
@@ -112,7 +112,7 @@ const getEatingRecord = async () => {
             dietinfo.value[2] = data
           }
         })
-      }else {
+      } else {
         // 데이터가 없는 경우에도 dietinfo를 초기화합니다.
         dietinfo.value = [[], [], []]
       }
@@ -121,9 +121,9 @@ const getEatingRecord = async () => {
 }
 
 // DB에서 특정 카테고리에 대한 레시피를 가져와서 레시피를 기준으로 그룹 묶고 랜덤 5개만 자식 컴포넌트에 넘기기 
-const getrecipe = async (connetId, choicecategory, index) =>{
+const getrecipe = async (connetId, choicecategory, index) => {
   console.log('들어온 아이디와, 카테고리', connetId, choicecategory, index)
-  await axios.get('http://localhost:4000/recipe/View.do', { params: { 'id': connetId, 'category': choicecategory } })
+  await axios.get('/recipe/View.do', { params: { 'id': connetId, 'category': choicecategory } })
     .then(response => {
       // 음식명을 기준으로 데이터 묶기
       recipedata.value = response.data.reduce((acc, curr) => {
@@ -133,7 +133,7 @@ const getrecipe = async (connetId, choicecategory, index) =>{
         } else {
           acc[FOODNAMEAll] = [curr]
         }
-        
+
         return acc // 콜백 함수에서 값을 반환하도록 수정
       }, {})
       console.log('그룹으로 묶였는지 확인 -> ', recipedata.value)
@@ -148,14 +148,14 @@ const getrecipe = async (connetId, choicecategory, index) =>{
 const searchRestaurant = ref('')
 const searchindex = ref('')
 
-const getRestaurant = (foodname, index) =>{
+const getRestaurant = (foodname, index) => {
   isCheckedRestaurant.value = true
   searchRestaurant.value = foodname
   searchindex.value = index
   console.log(searchRestaurant.value)
 }
 
-const getcategory = async index =>{
+const getcategory = async index => {
   console.log('들어온 인덱스:', index)
   dietPlansListtype.value = index
 }
@@ -196,7 +196,7 @@ const savedietFood = async () => {
           eating_recipeCode: recipeCode,
           action: 'update', // update로 표시합니다.
         })
-      }else{
+      } else {
         // 데이터가 존재하지 않으면 insert 데이터로 추가합니다.
         dataToSave.push({
           id: connetId,
@@ -205,7 +205,7 @@ const savedietFood = async () => {
           eating_recipeCode: recipeCode,
           action: 'insert', // insert로 표시합니다.
         })
-      }          
+      }
     }
   }
   console.log('어디 볼까', dataToSave)
@@ -214,7 +214,7 @@ const savedietFood = async () => {
   if (dataToSave.length > 0) {
     try {
       // Axios를 사용하여 서버로 데이터를 전송합니다.
-      const response = await axios.post('http://localhost:4000/Dietfood/SaveBulk.do', dataToSave)
+      const response = await axios.post('/Dietfood/SaveBulk.do', dataToSave)
 
       console.log('데이터가 성공적으로 서버에 전송되었습니다.')
       isLoadingmo.value = true
@@ -250,129 +250,78 @@ watch(router, fetchProjectData, { immediate: true })
       <VCol cols="12">
         <VRow style="margin: 0 10px;">
           <VSpacer />
-          <VBtn
-            color="warning"
-            @click="savedietFood"
-          >
+          <VBtn color="warning" @click="savedietFood">
             저장하기
           </VBtn>
         </VRow>
       </VCol>
-      <VCol
-        v-for="list in dietPlansList"
-        :key="list.index"
-        cols="12"
-        md="4"
-      >
+      <VCol v-for="list in dietPlansList" :key="list.index" cols="12" md="4">
         <VCard class="text-center">
-          <VBtn
-            style=" margin-top: 10px;margin-left: -74%;"
-            color="warning"
-            size="small"
-            @click="isCategory = true, getcategory(list.index)"
-          >
+          <VBtn style=" margin-top: 10px;margin-left: -74%;" color="warning" size="small"
+            @click="isCategory = true, getcategory(list.index)">
             {{ selectedCategory[list.index] || '카테고리' }} <!-- 선택한 카테고리를 표시 -->
           </VBtn>
-          <VCardItem
-            class="d-flex flex-column justify-center align-center"
-            style="height: 250px; margin-top: 20px;"
-          >
-            <VAvatar
-              variant="tonal"
-              size="160"
-              class="mb-2"
-            >
-              <VImg
-                v-if="!(recipedatach[list.index] && recipedatach[list.index].length) && !(dietinfo[list.index])"
-                size="160px"
-              />
-              <VImg
-                v-else-if="!(recipedatach[list.index] && recipedatach[list.index].length) && dietinfo[list.index]"
-                style="height: 160px;"
-                :src="dietinfo[list.index].recipe_img"
-              />
-              <VImg
-                v-else
-                style="height: 160px;"
-                :src="recipedatach[list.index][0].RECIPE_IMG"
-              />
+          <VCardItem class="d-flex flex-column justify-center align-center" style="height: 250px; margin-top: 20px;">
+            <VAvatar variant="tonal" size="160" class="mb-2">
+              <VImg v-if="!(recipedatach[list.index] && recipedatach[list.index].length) && !(dietinfo[list.index])"
+                size="160px" />
+              <VImg v-else-if="!(recipedatach[list.index] && recipedatach[list.index].length) && dietinfo[list.index]"
+                style="height: 160px;" :src="dietinfo[list.index].recipe_img" />
+              <VImg v-else style="height: 160px;" :src="recipedatach[list.index][0].RECIPE_IMG" />
             </VAvatar>
-            <h6
-              class="text-h6"
-              style="font-weight: bold;"
-            >
-              <span v-if="!(recipedatach[list.index] && recipedatach[list.index].length) && dietinfo[list.index] && dietinfo[list.index] != ''">{{ dietinfo[list.index].eating_foodname }}</span>
-              <span v-else-if="(recipedatach[list.index] && recipedatach[list.index].length)">{{ recipedatach[list.index][0].FOODNAME }}</span>
-              <span v-else>{{ list.title }}</span>              
+            <h6 class="text-h6" style="font-weight: bold;">
+              <span
+                v-if="!(recipedatach[list.index] && recipedatach[list.index].length) && dietinfo[list.index] && dietinfo[list.index] != ''">{{
+                  dietinfo[list.index].eating_foodname }}</span>
+              <span v-else-if="(recipedatach[list.index] && recipedatach[list.index].length)">{{
+                recipedatach[list.index][0].FOODNAME }}</span>
+              <span v-else>{{ list.title }}</span>
             </h6>
           </VCardItem>
           <VCardText style="height: 40px; font-weight: bold;">
-            <span v-if="!(recipedatach[list.index] && recipedatach[list.index].length) && dietinfo[list.index] && dietinfo[list.index] != ''">{{ dietinfo[list.index].recipe_title }}</span>
-            <span v-else-if="(recipedatach[list.index] && recipedatach[list.index].length)">{{ recipedatach[list.index][0].RECIPE_TITLE }}</span>
+            <span
+              v-if="!(recipedatach[list.index] && recipedatach[list.index].length) && dietinfo[list.index] && dietinfo[list.index] != ''">{{
+                dietinfo[list.index].recipe_title }}</span>
+            <span v-else-if="(recipedatach[list.index] && recipedatach[list.index].length)">{{
+              recipedatach[list.index][0].RECIPE_TITLE }}</span>
             <span v-else>{{ list.content }}</span>
           </VCardText>
 
           <VCardText
             v-if="(dietinfo[list.index] && dietinfo[list.index] != '') && !(recipedatach[list.index] && recipedatach[list.index].length)"
-            style=" width: auto;height: 500px;"
-          >
+            style=" width: auto;height: 500px;">
             <span>
               <div>
                 <div v-if="dietinfo[list.index]">
                   <br><strong style="margin: 0 20px;">[조리순서]</strong>
-                  <div
-                    style=" width: auto;max-height: 200px; overflow-y: auto;"
-                    class="scrollbar"
-                  >
-                    <p
-                      v-for="(seq, seqIndex) in dietinfo[list.index].recipe_seq.split('||')"
-                      :key="seqIndex"
-                      style="margin: 10px 20px;"
-                    >
+                  <div style=" width: auto;max-height: 200px; overflow-y: auto;" class="scrollbar">
+                    <p v-for="(seq, seqIndex) in dietinfo[list.index].recipe_seq.split('||')" :key="seqIndex"
+                      style="margin: 10px 20px;">
                       {{ seqIndex + 1 }} ) {{ seq }}
                     </p>
-                  </div> 
-                 
+                  </div>
+
                   <br>
                   <strong style="margin: 10px 20px;">[재료]</strong>
                 </div>
-                
-                
-                
-                <span
-                  v-for="(jaro, ind) in dietinfo[list.index].ingredients"
-                  :key="ind"
-                >
+
+
+
+                <span v-for="(jaro, ind) in dietinfo[list.index].ingredients" :key="ind">
                   - {{ jaro.ingredient }} - {{ jaro.ri_amount }}<br>
-                </span>  
-               
-               
+                </span>
+
+
               </div>
             </span>
           </VCardText>
-          <VCardText
-            v-if="(recipedatach[list.index] && recipedatach[list.index].length)"
-            style="height: 500px;"
-          >
+          <VCardText v-if="(recipedatach[list.index] && recipedatach[list.index].length)" style="height: 500px;">
             <span>
-              <div
-                v-for="(gro, index) in recipedatach[list.index]"
-                :key="index"
-              >
-                <div
-                  v-if="index == 0 && gro.RECIPE_SEQ && gro.RECIPE_SEQ.length > 0"
-                  style="width: auto;"
-                >
+              <div v-for="(gro, index) in recipedatach[list.index]" :key="index">
+                <div v-if="index == 0 && gro.RECIPE_SEQ && gro.RECIPE_SEQ.length > 0" style="width: auto;">
                   <br><strong style="margin: 0 20px;">[조리순서]</strong>
-                  <div
-                    style=" width: auto;max-height: 200px; overflow-y: auto;"
-                    class="scrollbar"
-                  >
-                    <p
-                      v-for="(seq, seqIndex) in gro.RECIPE_SEQ.split('||')"
-                      :key="seqIndex"
-                      style="margin: 10px 20px;"
-                    >
+                  <div style=" width: auto;max-height: 200px; overflow-y: auto;" class="scrollbar">
+                    <p v-for="(seq, seqIndex) in gro.RECIPE_SEQ.split('||')" :key="seqIndex" style="margin: 10px 20px;">
                       {{ seqIndex + 1 }} ) {{ seq }}
                     </p>
                   </div>
@@ -386,19 +335,12 @@ watch(router, fetchProjectData, { immediate: true })
             </span>
           </VCardText>
           <VCardText class="justify-center">
-            <VBtn
-              color="warning"
-              variant="elevated"
-              style=" width: 90px;margin-right: 5px;"
-              @click="getrecipe(connetId, choicecategorydata[list.index], list.index), isRecipe = true"
-            >
+            <VBtn color="warning" variant="elevated" style=" width: 90px;margin-right: 5px;"
+              @click="getrecipe(connetId, choicecategorydata[list.index], list.index), isRecipe = true">
               식단 재추천
             </VBtn>
-            <VBtn
-              color="warning"
-              variant="elevated"
-              @click="getRestaurant(dietinfo[list.index].eating_foodname, list.index)"
-            >
+            <VBtn color="warning" variant="elevated"
+              @click="getRestaurant(dietinfo[list.index].eating_foodname, list.index)">
               음식점
             </VBtn>
           </VCardText>
@@ -406,38 +348,16 @@ watch(router, fetchProjectData, { immediate: true })
       </VCol>
     </VRow>
     <UserCheckedRecipe v-model:isDialogVisible="isCheckedRecipe" />
-    <UserFindRestaurant 
-      v-model:isDialogVisible="isCheckedRestaurant" 
-      :search-restaurant="searchRestaurant"
-      :searchindex="searchindex"
-    />
-    <UserCategory
-      v-model:isDialogVisible="isCategory"
-      :choicecategory="choicecategory"
-      :diet-plans-listtype="dietPlansListtype"
-      @update:choicecategory="handleChoiceCategory"
-    />
-    <RecipeView
-      v-model:isDialogVisible="isRecipe"
-      :recipedata="selectedGroups"
-      :diet-plans-listtype="dietPlansListtype"
-      :connet-id="connetId"
-      @update:recipedatach="handleRecipedatach"
-      @icon-clicked="handleIconClicked"
-    />
+    <UserFindRestaurant v-model:isDialogVisible="isCheckedRestaurant" :search-restaurant="searchRestaurant"
+      :searchindex="searchindex" />
+    <UserCategory v-model:isDialogVisible="isCategory" :choicecategory="choicecategory"
+      :diet-plans-listtype="dietPlansListtype" @update:choicecategory="handleChoiceCategory" />
+    <RecipeView v-model:isDialogVisible="isRecipe" :recipedata="selectedGroups" :diet-plans-listtype="dietPlansListtype"
+      :connet-id="connetId" @update:recipedatach="handleRecipedatach" @icon-clicked="handleIconClicked" />
     <!-- Dialog -->
-    <VDialog
-      v-model="isLoadingmo"
-      width="300"
-    >
-      <VCard
-        color="warning"
-        width="300"
-      >
-        <VCardText
-          class="pt-3"
-          style="align-self: center; margin-top: 5px;"
-        >
+    <VDialog v-model="isLoadingmo" width="300">
+      <VCard color="warning" width="300">
+        <VCardText class="pt-3" style="align-self: center; margin-top: 5px;">
           <VIcon icon="mdi-check-bookmark" />
           <strong>
             저장되었습니다
@@ -452,6 +372,7 @@ watch(router, fetchProjectData, { immediate: true })
 @use "@core/scss/template/libs/apex-chart.scss";
 
 .v-dialog__content {
-  z-index: 9999; /* 원하는 z-index 값으로 변경하세요 */
+  z-index: 9999;
+  /* 원하는 z-index 값으로 변경하세요 */
 }
 </style>

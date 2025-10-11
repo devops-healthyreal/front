@@ -2,6 +2,7 @@
 import ExerciseMainVue from '@/components/ExerciseMain.vue'
 import Calendar from '@/pages/apps/calendar.vue'
 import Timeline from '@/pages/components/timeline.vue'
+import axiosflask from '@/plugins/axiosflask'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
 import axios from '@axios'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -38,9 +39,9 @@ const getEatingRecord = async () => {
 
     const connetId = userInfo.value.id
 
-    await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
+    await axios.get('/Dietfood/DailyView.do', { params: { 'id': connetId } })
       .then(response => {
-        if(response.data.length > 0){
+        if (response.data.length > 0) {
 
           dietinfo.value = [[], [], []]
 
@@ -52,20 +53,20 @@ const getEatingRecord = async () => {
             } else if (data.mealType === '저녁') {
               dietinfo.value[2] = data
             }
-            
+
           })
         }
-        else{
+        else {
           if (!lastFoodRecommendationTime || Date.now() - lastFoodRecommendationTime > 60000) {
-            axios.get("http://localhost:4000/dietfood/search.do", { params: { 'id': connetId } })
+            axios.get("/dietfood/search.do", { params: { 'id': connetId } })
               .then(response => {
                 console.log('응답받은 행:', response.data)
-                if(response.data === 0){
-                  axios.get("http://localhost:5000/food_recommend", { params: { 'id': connetId } })
-                    .then(response=>{
+                if (response.data === 0) {
+                  axiosflask.get("/food_recommend", { params: { 'id': connetId } })
+                    .then(response => {
                       lastFoodRecommendationTime = Date.now()
                       dietinfo.value = [[], [], []]
-    
+
                       response.data.forEach(data => {
                         if (data.mealType === '아침') {
                           dietinfo.value[0] = data
@@ -82,7 +83,7 @@ const getEatingRecord = async () => {
         }
       })
   }
-  
+
 }
 
 onMounted(() => {
@@ -106,7 +107,7 @@ const refs = ref(null)
 watch(rpathNo, () => {
   console.log("main.vue에서 값 변경을 확인", rpathNo)
   mainMapNo.value = rpathNo
-  
+
   mainMapRef.value.test()
 })
 
@@ -158,7 +159,7 @@ const moveRecipe = () => {
 }
 
 const summaryData = ref([])
- 
+
 const handleSummaryUpdate = newSummaryArray => {
 
   summaryData.value = newSummaryArray
@@ -181,15 +182,9 @@ function onCalendarUpdated() {
 <template>
   <section>
     <VRow class="fill-height">
-      <VCol
-        cols="12"
-        md="8"
-      >
+      <VCol cols="12" md="8">
         <VExpansionPanels variant="accordion">
-          <VExpansionPanel
-            v-for="item in 1"
-            :key="item"
-          >
+          <VExpansionPanel v-for="item in 1" :key="item">
             <VExpansionPanelTitle>
               <h6 class="text-h6">
                 Calendar
@@ -201,62 +196,28 @@ function onCalendarUpdated() {
           </VExpansionPanel>
         </VExpansionPanels>
         <VCol cols="12" />
-        <VTabs
-          v-model="userTab"
-          class="v-tabs-pill"
-        >
-          <VTab
-            v-for="tab in tabs"
-            :key="tab.icon"
-            :color="tab.color"
-            block
-          >
-            <VIcon
-              start
-              :icon="tab.icon"
-            />
+        <VTabs v-model="userTab" class="v-tabs-pill">
+          <VTab v-for="tab in tabs" :key="tab.icon" :color="tab.color" block>
+            <VIcon start :icon="tab.icon" />
             <span>{{ tab.title }}</span>
           </VTab>
-        </VTabs>   
-        
-        <VWindow
-          v-model="userTab"
-          class="mt-6 disable-tab-transition"
-          :touch="false"
-        >
+        </VTabs>
+
+        <VWindow v-model="userTab" class="mt-6 disable-tab-transition" :touch="false">
           <VWindowItem>
             <VRow>
-              <VCol
-                v-for="list in dietPlansList"
-                :key="list.index"
-                cols="12"
-                md="4"
-                style="height: 400px;"
-              >
-                <VCard
-                  class="text-center"
-                  @click="moveRecipe"
-                >
+              <VCol v-for="list in dietPlansList" :key="list.index" cols="12" md="4" style="height: 400px;">
+                <VCard class="text-center" @click="moveRecipe">
                   <VCardItem class="d-flex flex-column justify-center align-center">
-                    <VAvatar
-                      variant="tonal"
-                      size="160"
-                      class="mb-2"
-                    >
-                      <VImg 
-                        v-if="!dietinfo[list.index]"
-                        size="160px"
-                      />
-                      <VImg 
-                        v-else
-                        style="height: 160px;" 
-                        :src="dietinfo[list.index]?.recipe_img"
-                      />
+                    <VAvatar variant="tonal" size="160" class="mb-2">
+                      <VImg v-if="!dietinfo[list.index]" size="160px" />
+                      <VImg v-else style="height: 160px;" :src="dietinfo[list.index]?.recipe_img" />
                     </VAvatar>
                     <h6 class="text-h6">
-                      <span v-if="dietinfo.length > 0 && dietinfo[list.index] != ''">{{ dietinfo[list.index]?.eating_foodname }}</span>
+                      <span v-if="dietinfo.length > 0 && dietinfo[list.index] != ''">{{
+                        dietinfo[list.index]?.eating_foodname }}</span>
 
-                      <span v-else>{{ list.index == 0? '아침': list.index == 1? '점심' : '저녁' }} 메뉴</span>
+                      <span v-else>{{ list.index == 0 ? '아침' : list.index == 1 ? '점심' : '저녁' }} 메뉴</span>
                     </h6>
                   </VCardItem>
                   <VCardText style="height: 100px;">
@@ -273,33 +234,18 @@ function onCalendarUpdated() {
 
           <!-- ------------------경로-------------------- -->
           <VWindowItem>
-            <MainMap
-              ref="mainMapRef"
-              v-model:rpathNo="mainMapNo"
-            />
+            <MainMap ref="mainMapRef" v-model:rpathNo="mainMapNo" />
           </VWindowItem>
         </VWindow>
         <VCol cols="12" />
         <VCard>
           <VRow>
             <VCardText style=" display: flex;width: 100%; justify-content: space-between;">
-              <VBtn
-                style="height: 40px;"
-                variant="text"
-                @click="startTTS"
-              >
-                <VIcon
-                  start
-                  icon="mdi-contactless-payment-circle-outline"
-                />
+              <VBtn style="height: 40px;" variant="text" @click="startTTS">
+                <VIcon start icon="mdi-contactless-payment-circle-outline" />
                 오늘의 스케쥴
               </VBtn>
-              <VBtn
-                
-                variant="flat"
-                color="info"
-                @click="stopSynthesis"
-              >
+              <VBtn variant="flat" color="info" @click="stopSynthesis">
                 중지
               </VBtn>
             </VCardText>
@@ -308,16 +254,9 @@ function onCalendarUpdated() {
         <!-- -->
       </VCol>
 
-      <VCol
-        cols="12"
-        md="4"
-      >
-        <CrmActivityTimeline
-          v-model:rpathNo="rpathNo"
-          @update:summary="handleSummaryUpdate"
-          @click="test"
-          :refreshKey="refreshTimeline"
-        />
+      <VCol cols="12" md="4">
+        <CrmActivityTimeline v-model:rpathNo="rpathNo" @update:summary="handleSummaryUpdate" @click="test"
+          :refreshKey="refreshTimeline" />
         <Timeline />
       </VCol>
     </VRow>
@@ -325,5 +264,5 @@ function onCalendarUpdated() {
 </template>
 
 <style lang="scss">
-  @use "@core/scss/template/libs/apex-chart.scss";
+@use "@core/scss/template/libs/apex-chart.scss";
 </style>

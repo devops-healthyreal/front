@@ -71,7 +71,7 @@ function resizeImage(file, maxWidth, maxHeight) {
 async function uploadImage() {
   if (!file.value) {
     console.log('Please select a file first.')
-    
+
     return
   }
 
@@ -79,7 +79,7 @@ async function uploadImage() {
 
   // 이미지 크기를 조절하고 업로드
   const resizedImage = await resizeImage(file.value, 768, 768)
-  
+
   // 이미지 크기 확인
   const img = new Image()
 
@@ -89,7 +89,7 @@ async function uploadImage() {
   formData.append('image', resizedImage)
 
   try {
-    const response = await axios.post('http://localhost:4000/upload', formData)
+    const response = await axios.post('/upload', formData)
 
     if (response.status === 200) {
       console.log('Response data:', response.data)
@@ -108,40 +108,21 @@ async function uploadImage() {
 
 <template>
   <div>
-    <VFileInput
-      v-model="selectedFile"
-      :rules="rules"
-      label="Avatar"
-      accept="image/png, image/jpeg, image/bmp"
-      placeholder="Pick an avatar"
-      prepend-icon="mdi-camera-outline"
-      @change="onFileChange"
-    />
+    <VFileInput v-model="selectedFile" :rules="rules" label="Avatar" accept="image/png, image/jpeg, image/bmp"
+      placeholder="Pick an avatar" prepend-icon="mdi-camera-outline" @change="onFileChange" />
 
     <div>
       <h2>입력 이미지:</h2>
-      <img
-        v-if="preview"
-        :src="preview"
-      >
+      <img v-if="preview" :src="preview">
     </div>
 
-    <VBtn
-      color="primary"
-      @click="uploadImage"
-    >
+    <VBtn color="primary" @click="uploadImage">
       Upload and Convert
     </VBtn>
 
     <div>
       <h2>결과 동영상:</h2>
-      <video
-        v-if="result"
-        :src="result"
-        controls
-        loop
-        autoplay
-      />
+      <video v-if="result" :src="result" controls loop autoplay />
     </div>
   </div>
 </template>

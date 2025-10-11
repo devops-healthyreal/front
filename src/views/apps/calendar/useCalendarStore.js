@@ -48,7 +48,7 @@ export const useCalendarStore = defineStore('calendar', {
   actions: {
     //데이터 불러오기
     async fetchEvents(userId) {
-      const response = await axios.post('http://localhost:4000/sch/seleteAll.do', { 
+      const response = await axios.post('/sch/seleteAll.do', { 
         id: userId,
         startStr: this.dateFilter.length === 2 ? this.dateFilter[0] : null,
         endStr: this.dateFilter.length === 2 ? this.dateFilter[1] : null,
@@ -80,7 +80,7 @@ export const useCalendarStore = defineStore('calendar', {
     async addEvent(eventData) {
       try {
         console.log("추가값 확인해보자", eventData);
-        const response = await axios.post('http://localhost:4000/sch/insert.do', eventData)
+        const response = await axios.post('/sch/insert.do', eventData)
 
         this.fetchEvents(eventData.id) // 이벤트 목록 갱신
       } catch (error) {
@@ -90,7 +90,7 @@ export const useCalendarStore = defineStore('calendar', {
     async updateEvent(event) {
       console.log("수정값 확인해보자", event)
 
-      const response = await axios.post(`http://localhost:4000/sch/update.do`,  event)
+      const response = await axios.post(`/sch/update.do`,  event)
 
 
       await this.fetchEvents(event.id) // 업데이트 후 캘린더 이벤트 목록 갱신
@@ -99,7 +99,7 @@ export const useCalendarStore = defineStore('calendar', {
     },
     async removeEvent(eventId, sNo) {
 
-      const response = await axios.post('http://localhost:4000/sch/delete.do', { id: eventId, sNo: sNo })
+      const response = await axios.post('/sch/delete.do', { id: eventId, sNo: sNo })
 
       await this.fetchEvents(eventId) // 삭제 후 캘린더 이벤트 목록 갱신
       

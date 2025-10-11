@@ -24,7 +24,7 @@ let Manager = ref({}) // 초기 값을 {}로 설정
 const deletepeople = async member => {
   console.log('강퇴할 유저:', member)
 
-  const response = await axios.delete('http://localhost:4000/mroom/deletePeople.do', { data: { id: member } })
+  const response = await axios.delete('/mroom/deletePeople.do', { data: { id: member } })
 
   // 강퇴 후 participantsData 업데이트
   participantsData.value = participantsData.value.filter(participant => participant.ID !== member)
@@ -47,30 +47,19 @@ onUpdated(() => {
   <VCol>
     <VCard class="share-project-dialog pa-5 pa-sm-8">
       <VCardText cols="3">
-        <VCol
-          class="text-h5 text-center mb-3"
-          style="margin-bottom: 20px; font-weight: bold; opacity: 0.7;"
-        >
+        <VCol class="text-h5 text-center mb-3" style="margin-bottom: 20px; font-weight: bold; opacity: 0.7;">
           참여자
         </VCol>
         <VCol class="card-list">
-          <VCol
-            v-for="participant in participantsData"
-            :key="participant.ID"
-          >
+          <VCol v-for="participant in participantsData" :key="participant.ID">
             <VRow>
               <VAvatar :image="participant.PRO_FILEPATH" />
               <VCol style="font-weight: bold;">
                 {{ participant.ID }}
               </VCol>
               <!-- 초대 버튼 -->
-              <VBtn
-                v-if="Manager.ID == connetId && Manager.ID != participant.ID" 
-                id="myButton"
-                size="small"
-                style="align-self: center;"
-                @click="deletepeople(participant.ID)"
-              >
+              <VBtn v-if="Manager.ID == connetId && Manager.ID != participant.ID" id="myButton" size="small"
+                style="align-self: center;" @click="deletepeople(participant.ID)">
                 강퇴하기
               </VBtn>
             </VRow>

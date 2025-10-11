@@ -1,8 +1,5 @@
 <template>
-  <div
-    id="mainmap"
-    :style="{'width':'100%','height':'450px'}"
-  /> 
+  <div id="mainmap" :style="{ 'width': '100%', 'height': '450px' }" />
 </template>
 
 <script setup>
@@ -14,7 +11,7 @@ const props = defineProps({
   rpathNo: {
     type: Object,
   },
-}) 
+})
 
 
 const map = ref() //지도객체
@@ -27,26 +24,26 @@ const pathNo = ref(421)
 
 
 
-const test = () =>{
-  if(props.rpathNo !== undefined) {
+const test = () => {
+  if (props.rpathNo !== undefined) {
     console.log("MainMap.vue", props.rpathNo.value)
     changePath(props.rpathNo.value)
   }
 }
 
-onMounted(()=>{
+onMounted(() => {
   const script = document.createElement("script")
-  
+
   script.onload = () => {
-    
-    kakao.maps.load(()=>{ //kakao가 로드되었을 때 실행될 콜백함수 정의
+
+    kakao.maps.load(() => { //kakao가 로드되었을 때 실행될 콜백함수 정의
 
       //지도 띄우기
       //lng, lat 값 얻기
       var lng
       var lat
       getCurrentPosition()
-        .then(([currlng, currlat])=>{
+        .then(([currlng, currlat]) => {
           lng = currlng
           lat = currlat
           initMap(lng, lat)
@@ -58,20 +55,20 @@ onMounted(()=>{
     })
   }
   script.src =
-        "//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=ca9eb44c2889273e11b9860d99308508&libraries=services,clusterer,drawing"
+    "//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=ca9eb44c2889273e11b9860d99308508&libraries=services,clusterer,drawing"
   document.head.appendChild(script)
 })
 
-const initMap = (lng, lat)=>{
+const initMap = (lng, lat) => {
   console.log("initMap:", lng, lat)
-  var container  = document.getElementById('mainmap'), // 이미지 지도를 표시할 div  
-    options = { 
+  var container = document.getElementById('mainmap'), // 이미지 지도를 표시할 div  
+    options = {
       center: new kakao.maps.LatLng(lat, lng), // 이미지 지도의 중심좌표
       level: 5, // 이미지 지도의 확대 레벨
     }
-    
+
   map.value = new kakao.maps.Map(container, options)
-  polyline.value =  new kakao.maps.Polyline({ //지도에 올려줄 polyline 설정
+  polyline.value = new kakao.maps.Polyline({ //지도에 올려줄 polyline 설정
     strokeWeight: 3,
     strokeColor: '#007B2A',
     strokeOpacity: 1,
@@ -81,8 +78,8 @@ const initMap = (lng, lat)=>{
 }
 
 const changePath = val => {
-  axios.get("http://localhost:4000/exercise/schedulepath", { params: { path_no: val } })
-    .then(resp=>{
+  axios.get("/exercise/schedulepath", { params: { path_no: val } })
+    .then(resp => {
       loadname = resp.data[0]
       load = resp.data[1]
       getPedePath(load, loadname, map.value, polyline.value, markers, infos)

@@ -14,7 +14,7 @@ import store from '@/store'
 
 
 watchEffect(() => {
-  if(store.state.userInfo){
+  if (store.state.userInfo) {
     fetchuserData()
   }
 })
@@ -54,21 +54,21 @@ let searchuser = '' //접속중인 유저 아이디값 받아넣기
 
 const fetchuserData = async () => {
 
-  
+
   const store = useStore()
   if (!store.state.loginStore.userInfo) {
     console.log('사용자 정보가 없습니다.')
     alert(" 로그인 후 이용 가능합니다.")
     router.push("/main")
 
-    
+
   }
   searchuser = store.state.loginStore.userInfo.id
 
   try {
     console.log('searchuser:', searchuser)
 
-    const response = await axios.get('http://localhost:4000/user/View', {
+    const response = await axios.get('/user/View', {
       params: {
         id: searchuser,
       },
@@ -98,7 +98,7 @@ const updateuserdata = async (colname, newcolval, id) => {
   formData.append('newcolval', newcolval)
 
   try {
-    const response = await axios.put('http://localhost:4000/user/Edit', formData, {
+    const response = await axios.put('/user/Edit', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -108,9 +108,9 @@ const updateuserdata = async (colname, newcolval, id) => {
     if (response.status === 200) {
       console.log('성공')
       console.log("searchuser", searchuser)
-  
+
       // 사용자 정보가 성공적으로 수정되었으므로, 다시 사용자 정보를 가져옵니다.
-      const userInfoResponse = await axios.get('http://localhost:4000/user/View', {
+      const userInfoResponse = await axios.get('/user/View', {
         params: {
           id: searchuser,
         },
@@ -119,7 +119,7 @@ const updateuserdata = async (colname, newcolval, id) => {
 
       // 가져온 사용자 정보로 Vuex 스토어의 사용자 정보를 업데이트합니다.
       store.dispatch('updateUserInfo', userInfoResponse.data)
-    }else {
+    } else {
       console.log('데이터 수정 실패')
     }
 
@@ -138,54 +138,29 @@ const updateuserdata = async (colname, newcolval, id) => {
           <!-- 첫 번째 카드 텍스트 - 이름 -->
           <VChip label>
             <strong>이름</strong>
-            <IconBtn
-              v-if="!edit1"
-              style=" float: inline-end;"
-            >
-              <VIcon
-                size="22"
-                icon="mdi-lead-pencil"
-                @click="editClick1=false, edit1=true" 
-              /> <!-- editClick1이 false일때는 입력이 안됨 / editClick이 true일때 입력 가능 -->
+            <IconBtn v-if="!edit1" style=" float: inline-end;">
+              <VIcon size="22" icon="mdi-lead-pencil" @click="editClick1 = false, edit1 = true" />
+              <!-- editClick1이 false일때는 입력이 안됨 / editClick이 true일때 입력 가능 -->
             </IconBtn>
-              
-            <Btnsu
-              v-if="edit1"
-              style="width: 60px; margin-left: 10px;"
-              @click="editClick1=true, edit1=false, updateuserdata('name', nameval , searchuser)"
-            />
+
+            <Btnsu v-if="edit1" style="width: 60px; margin-left: 10px;"
+              @click="editClick1 = true, edit1 = false, updateuserdata('name', nameval, searchuser)" />
           </VChip>
-          <Edit
-            v-model="nameval"
-            style="margin-top: 10px;"
-            :readonly="editClick1"
-            :placeholder="memberdata.name"
-          />
+          <Edit v-model="nameval" style="margin-top: 10px;" :readonly="editClick1" :placeholder="memberdata.name" />
         </VCol>
         <!-- 비밀번호 -->
         <VCol cols="6">
           <VChip label>
             <strong>비밀번호</strong>
             <IconBtn v-if="!edit2">
-              <VIcon
-                size="22"
-                icon="mdi-lead-pencil"
-                @click="editClick2=false, edit2=true"
-              />
+              <VIcon size="22" icon="mdi-lead-pencil" @click="editClick2 = false, edit2 = true" />
             </IconBtn>
-            
-            <Btnsu
-              v-if="edit2"
-              style="width: 60px; margin-left: 10px;"
-              @click="editClick2=true, edit2=false , updateuserdata('pwd', pwdval, searchuser)"
-            />
+
+            <Btnsu v-if="edit2" style="width: 60px; margin-left: 10px;"
+              @click="editClick2 = true, edit2 = false, updateuserdata('pwd', pwdval, searchuser)" />
           </VChip>
 
-          <PW
-            v-model="pwdval"
-            style="margin-top: 0;"
-            :readonly="editClick2"
-          />
+          <PW v-model="pwdval" style="margin-top: 0;" :readonly="editClick2" />
         </VCol>
       </VRow>
     </VCol>
@@ -200,26 +175,14 @@ const updateuserdata = async (colname, newcolval, id) => {
           <VChip label>
             <strong>키</strong>
             <IconBtn v-if="!edit3">
-              <VIcon
-                size="22"
-                icon="mdi-lead-pencil"
-                @click="editClick3=false, edit3=true"
-              />
+              <VIcon size="22" icon="mdi-lead-pencil" @click="editClick3 = false, edit3 = true" />
             </IconBtn>
 
-            <Btnsu
-              v-if="edit3"
-              style="width: 60px; margin-left: 10px;"
-              @click="editClick3=true, edit3=false, updateuserdata('height', heightval, searchuser)"
-            />
+            <Btnsu v-if="edit3" style="width: 60px; margin-left: 10px;"
+              @click="editClick3 = true, edit3 = false, updateuserdata('height', heightval, searchuser)" />
           </VChip>
-          <Edit
-            v-model="heightval"
-            style="margin-top: 10px;"
-            :readonly="editClick3"
-            prepend-inner-icon=" mdi-human-male-height"
-            :placeholder="memberdata.height"
-          />
+          <Edit v-model="heightval" style="margin-top: 10px;" :readonly="editClick3"
+            prepend-inner-icon=" mdi-human-male-height" :placeholder="memberdata.height" />
         </VCol>
 
 
@@ -229,26 +192,14 @@ const updateuserdata = async (colname, newcolval, id) => {
           <VChip label>
             <strong>몸무게</strong>
             <IconBtn v-if="!edit4">
-              <VIcon
-                size="22"
-                icon="mdi-lead-pencil"
-                @click="editClick4=false, edit4=true"
-              />
+              <VIcon size="22" icon="mdi-lead-pencil" @click="editClick4 = false, edit4 = true" />
             </IconBtn>
-          
-            <Btnsu
-              v-if="edit4"
-              style="width: 60px; margin-left: 10px;"
-              @click="editClick4=true, edit4=false, updateuserdata('weight', weightval, searchuser)"
-            />
+
+            <Btnsu v-if="edit4" style="width: 60px; margin-left: 10px;"
+              @click="editClick4 = true, edit4 = false, updateuserdata('weight', weightval, searchuser)" />
           </VChip>
-          <Edit
-            v-model="weightval"
-            style="margin-top: 10px;"
-            :readonly="editClick4"
-            prepend-inner-icon="mdi-weight-kilogram"
-            :placeholder="memberdata.weight"
-          />
+          <Edit v-model="weightval" style="margin-top: 10px;" :readonly="editClick4"
+            prepend-inner-icon="mdi-weight-kilogram" :placeholder="memberdata.weight" />
         </VCol>
       </VRow>
     </VCol>
@@ -260,58 +211,34 @@ const updateuserdata = async (colname, newcolval, id) => {
           <VChip label>
             <strong>전화번호</strong>
             <IconBtn v-if="!edit5">
-              <VIcon
-                size="22"
-                icon="mdi-lead-pencil"
-                @click="editClick5=false, edit5=true"
-              />
+              <VIcon size="22" icon="mdi-lead-pencil" @click="editClick5 = false, edit5 = true" />
             </IconBtn>
           </VChip>
-          <Btnsu
-            v-if="edit5"
-            style="width: 60px; margin-left: 10px;"
-            @click="editClick5=true, edit5=false, updateuserdata('tel', telval , searchuser)"
-          />
-          <Edit
-            v-model="telval"
-            style="margin-top: 10px;"
-            :readonly="editClick5"
-            prepend-inner-icon="mdi-phone"
-            :placeholder="memberdata.tel"
-          />
+          <Btnsu v-if="edit5" style="width: 60px; margin-left: 10px;"
+            @click="editClick5 = true, edit5 = false, updateuserdata('tel', telval, searchuser)" />
+          <Edit v-model="telval" style="margin-top: 10px;" :readonly="editClick5" prepend-inner-icon="mdi-phone"
+            :placeholder="memberdata.tel" />
         </VCol>
 
         <VCol cols="6">
           <VChip label>
             <strong>생년월일</strong>
             <IconBtn v-if="!edit6">
-              <VIcon
-                size="22"
-                icon="mdi-lead-pencil"
-                @click="editClick6=false, edit6=true"
-              />
+              <VIcon size="22" icon="mdi-lead-pencil" @click="editClick6 = false, edit6 = true" />
             </IconBtn>
 
-            <Btnsu
-              v-if="edit6"
-              style="width: 60px; margin-left: 10px;"
-              @click="editClick6=true, edit6=false, updateuserdata('b_day', b_dayval, searchuser)"
-            />
+            <Btnsu v-if="edit6" style="width: 60px; margin-left: 10px;"
+              @click="editClick6 = true, edit6 = false, updateuserdata('b_day', b_dayval, searchuser)" />
           </VChip>
-          <Edit
-            v-model="b_dayval"
-            style="margin-top: 10px;"
-            :readonly="editClick6"
-            prepend-inner-icon="mdi-cake-variant"
-            :placeholder="memberdata.b_day"
-          />
+          <Edit v-model="b_dayval" style="margin-top: 10px;" :readonly="editClick6"
+            prepend-inner-icon="mdi-cake-variant" :placeholder="memberdata.b_day" />
         </VCol>
       </VRow>
     </VCol>
 
 
 
-    
+
 
     <VCol>
       <VRow>
@@ -319,18 +246,12 @@ const updateuserdata = async (colname, newcolval, id) => {
           <VChip label>
             <strong>사용 목적</strong>
           </VChip>
-          <Sub
-            :value="memberdata.goal_No"
-            style="margin-top: 10px;"
-          />
+          <Sub :value="memberdata.goal_No" style="margin-top: 10px;" />
         </VCol>
-    
+
         <!-- 성별 -->
         <VCol cols="3">
-          <VCard
-            cols="6"
-            style="padding: 10px; margin: 10px;"
-          >
+          <VCard cols="6" style="padding: 10px; margin: 10px;">
             <VChip label>
               <strong>성별</strong>
             </VChip>
@@ -344,31 +265,16 @@ const updateuserdata = async (colname, newcolval, id) => {
     <VCol>
       <VRow>
         <VCol cols="12">
-          <VChip
-            label
-            cols="6"
-          >
+          <VChip label cols="6">
             <strong>주소</strong>
             <IconBtn v-if="!edit7">
-              <VIcon
-                size="22"
-                icon="mdi-lead-pencil"
-                @click="editClick7=false, edit7=true"
-              />
+              <VIcon size="22" icon="mdi-lead-pencil" @click="editClick7 = false, edit7 = true" />
             </IconBtn>
-            <Btnsu
-              v-if="edit7"
-              style="width: 60px; margin-left: 10px;"
-              @click="editClick7=true, edit7=false, updatedata('userAddress', userAddressval, searchuser)"
-            />
+            <Btnsu v-if="edit7" style="width: 60px; margin-left: 10px;"
+              @click="editClick7 = true, edit7 = false, updatedata('userAddress', userAddressval, searchuser)" />
           </VChip>
-          <VTextField
-            v-model="userAddressval"
-            prepend-inner-icon="mdi-home"
-            style="margin-top: 10px;"
-            :readonly="editClick7"
-            :placeholder="memberdata.userAddress"
-          />
+          <VTextField v-model="userAddressval" prepend-inner-icon="mdi-home" style="margin-top: 10px;"
+            :readonly="editClick7" :placeholder="memberdata.userAddress" />
         </VCol>
       </VRow>
     </VCol>
