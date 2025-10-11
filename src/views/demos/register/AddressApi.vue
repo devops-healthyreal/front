@@ -1,72 +1,28 @@
 <template>
-  <VCol cols="12">
-    <VRow class="my-1">
-      <VCol cols="4" />
-      <VCol cols="2">
-        <VTextField
-          id="postcode"
-          v-model="postcode"
-          type="text"
-          placeholder="우편번호"
-          size="large"
-        />
-      </VCol>
-      <VCol cols="2">
-        <VBtn
-          v-model="userAddress"
-          color="primary"
-          class="my-custom-button"
-          height="55px"
-          width="200"
-          @click="execDaumPostcode"
-        >
-          우편번호 찾기
-        </VBtn>
-      </VCol>
-    </VRow>
-  </VCol>
+  <VRow>
+    <VCol cols="8">
+      <VTextField id="postcode" v-model="postcode" type="text" placeholder="우편번호" size="large" />
+    </VCol>
+    <VCol cols="4">
+      <VBtn v-model="userAddress" color="primary" class="my-custom-button" height="55px" width="200"
+        @click="execDaumPostcode">
+        우편번호 찾기
+      </VBtn>
+    </VCol>
+  </VRow>
   <br>
-  <VCol cols="12">
-    <VRow>
-      <VCol
-        cols="12"
-        md="4"
-      />
-      <VCol
-        cols="12"
-        md="4"
-      >
-        <VTextField
-          id="address"
-          v-model="address"
-          type="text"
-          placeholder="주소"
-        />
-      </VCol>
-    </VRow>
-  </VCol>
+  <VRow style="padding: 12px;">
+    <VTextField id="address" v-model="address" type="text" placeholder="주소" />
+  </VRow>
+
   <br>
-  <VCol
-    v-if="hidden"
-    cols="12"
-  >
+  <VCol v-if="hidden" cols="12">
     <VRow>
-      <VCol
-        cols="12"
-        md="4"
-      >
+      <VCol cols="12" md="4">
         <label for="extraAddress">참고항목</label>
       </VCol>
-      <VCol
-        cols="12"
-        md="4"
-      >
-        <VTextField
-          id="extraAddress"
-          v-model="extraAddress"
-          type="text"
-          placeholder="참고항목"
-        />
+      <VCol cols="12" md="4">
+        <VTextField id="extraAddress" v-model="extraAddress" type="text" placeholder="참고항목" />
       </VCol>
     </VRow>
   </VCol>
@@ -93,7 +49,7 @@ function updateAndEmitUserAddress() {
 }
 function execDaumPostcode() {
   new daum.Postcode({
-    oncomplete: function(data) {
+    oncomplete: function (data) {
       let addr = ''
       let extraAddr = ''
       if (data.userSelectedType === 'R') {
