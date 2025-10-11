@@ -9,7 +9,7 @@ import { useStore } from 'vuex'
 const store = useStore()
 
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId= ref(userInfo.value.id)
+const connetId = ref(userInfo.value.id)
 
 
 const searchQuery = ref('')
@@ -38,17 +38,17 @@ watch(() => users, () => {
 // 체크박스가 토글될 때마다 처리하는 함수
 const handleCheckboxToggle = (rowIndex, isChecked) => {
   console.log("rowIndex:", rowIndex)
-  if(typeof isChecked == 'boolean' && !checkedRows.value.includes(rowIndex.value.ID)) {
+  if (typeof isChecked == 'boolean' && !checkedRows.value.includes(rowIndex.value.ID)) {
     checkedRows.value.push(rowIndex.value.ID)
   }
-  else if(typeof isChecked == 'string'){
-    checkedRows.value = checkedRows.value.filter(ele => ele!==rowIndex.value.ID)
+  else if (typeof isChecked == 'string') {
+    checkedRows.value = checkedRows.value.filter(ele => ele !== rowIndex.value.ID)
   }
 }
 
 //유저 데이터 가져오기
 const userData = async () => {
-  const response = await axios.get('http://localhost:4000/user/findAllUser')
+  const response = await axios.get('/user/findAllUser')
   if (response.status === 200) {
     users.value = response.data.map(user => {
       const date = new Date(user.REGIDATE)
@@ -66,14 +66,14 @@ const userData = async () => {
       }
     })
     totalUsers.value = users.value.length
-    
+
   } else {
     console.log('유저들의 데이타 가져오기 실패')
   }
 
 }
 
-onMounted(async () => { 
+onMounted(async () => {
   await userData()
 })
 
@@ -105,7 +105,7 @@ const headers = [
 const isModalShow = ref(false)
 
 const blockUsers = () => {
-  if(checkedRows.value.length === 0) {
+  if (checkedRows.value.length === 0) {
     alert('선택된 값이 없습니다')
   }
   else {
@@ -114,67 +114,43 @@ const blockUsers = () => {
 }
 
 const controllConfirm = () => {
-  axios.post('http://localhost:4000/manage/complained/create', JSON.stringify({
+  axios.post('/manage/complained/create', JSON.stringify({
     id: connetId.value,
     cl_id: checkedRows.value,
     cl_reason: '관리자 문의',
   }), { headers: { "Content-Type": `application/json` } })
-    .then(()=>{
+    .then(() => {
       console.log('등록 성공')
       userData()
     })
-    .catch(err=>console.error(err))
+    .catch(err => console.error(err))
 }
 </script>
 
 <template>
   <section>
     <VCard cols="8">
-      <VCardText
-        class="d-flex flex-wrap gap-4 "
-        style="display: flex; justify-content: space-between;"
-      >
+      <VCardText class="d-flex flex-wrap gap-4 " style="display: flex; justify-content: space-between;">
         <div class="app-user-search-filter   ">
           <!-- 👉 Search  -->
-          <VTextField
-            v-model="searchQuery"
-            placeholder="찾을 유저"
-            density="compact"
-            style="width: 12rem;"
-          />
+          <VTextField v-model="searchQuery" placeholder="찾을 유저" density="compact" style="width: 12rem;" />
         </div>
         <VBtn @click="blockUsers">
           신고
         </VBtn>
-        <BlockUsersConfirm
-          v-model:isDialogVisible="isModalShow"
-          :selected-users="checkedRows"
-          @request-complete="controllConfirm"
-        />
+        <BlockUsersConfirm v-model:isDialogVisible="isModalShow" :selected-users="checkedRows"
+          @request-complete="controllConfirm" />
       </VCardText>
 
       <!-- SECTION datatable -->
-      <VDataTableServer
-        v-model:items-per-page="options.itemsPerPage"
-        v-model:page="options.page"
-        :items="users"
-        :items-length="totalUsers"
-        :headers="headers"
-        class="text-no-wrap rounded-0 "
-        @update:options="options = $event"
-      >
+      <VDataTableServer v-model:items-per-page="options.itemsPerPage" v-model:page="options.page" :items="users"
+        :items-length="totalUsers" :headers="headers" class="text-no-wrap rounded-0 "
+        @update:options="options = $event">
         <!-- User -->
         <template #item.user="{ item }">
           <div class="d-flex ">
-            <VAvatar
-              size="34"
-              :variant="!item.raw.PROFILEIMAGE ? 'tonal' : undefined"
-              class="me-3"
-            >
-              <VImg
-                v-if="item.raw.PROFILEIMAGE"
-                :src="item.raw.PROFILEIMAGE"
-              />
+            <VAvatar size="34" :variant="!item.raw.PROFILEIMAGE ? 'tonal' : undefined" class="me-3">
+              <VImg v-if="item.raw.PROFILEIMAGE" :src="item.raw.PROFILEIMAGE" />
             </VAvatar>
 
             <div class="d-flex flex-column">
@@ -210,11 +186,8 @@ const controllConfirm = () => {
               {{ item.raw.REGIDATE }}
             </VCol>
             <span>
-              <VCheckbox
-                v-model="item.raw.checked"
-                :value="item.raw.ID"
-                @click="handleCheckboxToggle(item, item.raw.checked)"
-              />
+              <VCheckbox v-model="item.raw.checked" :value="item.raw.ID"
+                @click="handleCheckboxToggle(item, item.raw.checked)" />
             </span>
           </VRow>
         </template>
@@ -228,37 +201,20 @@ const controllConfirm = () => {
           <div class="d-flex justify-end gap-x-6 pa-2 flex-wrap">
             <div class="d-flex align-center gap-x-2 text-sm">
               Rows Per Page:
-              <VSelect
-                v-model="options.itemsPerPage"
-                class="per-page-select text-high-emphasis"
-                variant="plain"
-                density="compact"
-                :items="[10, 20, 25, 50, 100]"
-              />
+              <VSelect v-model="options.itemsPerPage" class="per-page-select text-high-emphasis" variant="plain"
+                density="compact" :items="[10, 20, 25, 50, 100]" />
             </div>
 
-            <span class="d-flex align-center text-sm me-2 text-high-emphasis">{{ paginationMeta(options, totalUsers) }}</span>
+            <span class="d-flex align-center text-sm me-2 text-high-emphasis">{{ paginationMeta(options, totalUsers)
+              }}</span>
 
             <div class="d-flex gap-x-2 align-center me-2">
-              <VBtn
-                icon="mdi-chevron-left"
-                class="flip-in-rtl"
-                variant="text"
-                density="comfortable"
-                color="default"
-                :disabled="options.page <= 1"
-                @click="options.page <= 1 ? options.page = 1 : options.page--"
-              />
+              <VBtn icon="mdi-chevron-left" class="flip-in-rtl" variant="text" density="comfortable" color="default"
+                :disabled="options.page <= 1" @click="options.page <= 1 ? options.page = 1 : options.page--" />
 
-              <VBtn
-                class="flip-in-rtl"
-                icon="mdi-chevron-right"
-                density="comfortable"
-                variant="text"
-                color="default"
+              <VBtn class="flip-in-rtl" icon="mdi-chevron-right" density="comfortable" variant="text" color="default"
                 :disabled="options.page >= Math.ceil(totalUsers / options.itemsPerPage)"
-                @click="options.page >= Math.ceil(totalUsers / options.itemsPerPage) ? options.page = Math.ceil(totalUsers / options.itemsPerPage) : options.page++ "
-              />
+                @click="options.page >= Math.ceil(totalUsers / options.itemsPerPage) ? options.page = Math.ceil(totalUsers / options.itemsPerPage) : options.page++" />
             </div>
           </div>
         </template>
@@ -291,11 +247,14 @@ const controllConfirm = () => {
 }
 
 .scrollbar::-webkit-scrollbar-thumb {
-  border-radius: 10px; /* 스크롤바 둥근 테두리 */
-  background: rgb(247, 177, 177); /* 스크롤바 색상 */
+  border-radius: 10px;
+  /* 스크롤바 둥근 테두리 */
+  background: rgb(247, 177, 177);
+  /* 스크롤바 색상 */
 }
 
 .scrollbar::-webkit-scrollbar-track {
-  background: rgba(220, 20, 60, 10%);  /* 스크롤바 뒷 배경 색상 */
+  background: rgba(220, 20, 60, 10%);
+  /* 스크롤바 뒷 배경 색상 */
 }
 </style>

@@ -32,7 +32,7 @@ const handleUpdateAddress = newAddress => {
   userAddress.address = newAddress.address
 }
 
-  
+
 const goal = ref("")
 const userset = ref(4) //정원 수
 const achievementset = ref(50) //달성기준
@@ -65,11 +65,11 @@ const createRoom = async () => {
   console.log("openRoomYN---", openRoomYN)
   console.log("dateRange---", dateRange)
   console.log("connetId-----", connetId)
-  
+
   try {
     console.log("userAddress.address---", userAddress.address)
 
-    const response = await axios.post('http://localhost:4000/croom/createRoom.do', {
+    const response = await axios.post('/croom/createRoom.do', {
       goal: goal.value,
       userset: userset.value,
       achievementset: achievementset.value,
@@ -104,7 +104,7 @@ const isValid = computed(() => {
   if (toggleSwitch.value === true && selectedCheckbox.value.length === 0) {
     return false
   }
-  
+
   return userset.value > 0 && achievementset.value > 0 && userAddress.address !== '' && selectedOption1.value !== '' && dateRange.value !== '' && content.value !== '' && title.value !== ''
 })
 
@@ -128,7 +128,7 @@ const toggleSwitch = ref(true) // 참여자 제한 유무
 
 const capitalizedLabel = label => {
   const convertLabelText = label.toString()
-  
+
   return convertLabelText.charAt(0).toUpperCase() + convertLabelText.slice(1)
 }
 
@@ -156,184 +156,83 @@ const router = useRouter()
 
 
 <template>
-  <VDialog
-    :model-value="props.isDialogVisible"
-    max-width="900"
-    persistent  
-    @update:model-value="dialogVisibleUpdate"
-  >
+  <VDialog :model-value="props.isDialogVisible" max-width="900" persistent @update:model-value="dialogVisibleUpdate">
     <VCard class="share-project-dialog pa-5 pa-sm-8">
       <!-- 👉 dialog close btn -->
-      <DialogCloseBtn
-        variant="text"
-        size="small"
-        @click="emit('update:isDialogVisible', false)"
-      />
+      <DialogCloseBtn variant="text" size="small" @click="emit('update:isDialogVisible', false)" />
 
       <VCardText>
-        <VSwitch
-          v-model="openRoomYN"
-          :label="areaSet = capitalizedLabel(openRoomYN) === 'True' ? '공개' : '비공개' "
-        />
+        <VSwitch v-model="openRoomYN" :label="areaSet = capitalizedLabel(openRoomYN) === 'True' ? '공개' : '비공개'" />
         <VCardText style=" border-radius: 20px;">
           <div class="text-h5 mb-1 text-center">
             <Goal @update:model-value="handleGoalNoChanged" />
           </div>
         </VCardText>
-        <VRow
-          class="fbox"
-          style="padding-bottom: 0; margin-top: 20px;"
-        >
-          <VCol
-            class="fitem"
-            cols="4"
-            rows="4" 
-          >
+        <VRow class="fbox" style="padding-bottom: 0; margin-top: 20px;">
+          <VCol class="fitem" cols="4" rows="4">
             정원 설정 : <strong>{{ userset }}</strong>
-            
-            <VSlider
-              v-model="userset"
-              :step="1"
-              :min="2"
-              :max="8"
-              :ticks="usersetlabel"
-              show-ticks="always"
-              tick-size="4"
-            />
+
+            <VSlider v-model="userset" :step="1" :min="2" :max="8" :ticks="usersetlabel" show-ticks="always"
+              tick-size="4" />
           </VCol>
-          <VCol
-            class="fitem"
-            cols="4"
-            rows="4"                
-          >
+          <VCol class="fitem" cols="4" rows="4">
             달성기준 : <strong>{{ achievementset }} % </strong>
-            <VSlider
-              v-model="achievementset"
-              :step="1"
-              :min="0"
-              :max="100"
-              :ticks="achievementlabel"
-              show-ticks="always"
-              tick-size="4"
-            />
+            <VSlider v-model="achievementset" :step="1" :min="0" :max="100" :ticks="achievementlabel"
+              show-ticks="always" tick-size="4" />
           </VCol>
-          <VCol
-            class="fitem"
-            cols="4"
-            rows="5" 
-            style="text-align: center;"
-          >
-            <AddressApi
-              v-model="userAddress"
-              :new-address="userAddress" 
-              @update-address="handleUpdateAddress"
-            />
+          <VCol class="fitem" cols="4" rows="5" style="text-align: center;">
+            <AddressApi v-model="userAddress" :new-address="userAddress" @update-address="handleUpdateAddress" />
           </VCol>
         </VRow>
         <VCol>
           <div class="d-flex align-center flex-wrap justify-space-between mt-1 mb-4">
             <h4>참여자 제한 설정</h4>
-            <VSwitch
-              v-model="toggleSwitch"
-              style="float: inline-end;"
-              :label="areaSet = capitalizedLabel(toggleSwitch) === 'True' ? 'ON' : 'OFF' "
-            />
+            <VSwitch v-model="toggleSwitch" style="float: inline-end;"
+              :label="areaSet = capitalizedLabel(toggleSwitch) === 'True' ? 'ON' : 'OFF'" />
           </div>
           <Transition name="fade">
-            <VRow
-              v-if="areaSet === 'ON'"
-              class="fbox"
-              style="border-radius: 10px;background-color: #e9e9e9;"
-            >
-              <VCol
-                class="fitem"
-                cols="6"
-                rows="4" 
-              >
+            <VRow v-if="areaSet === 'ON'" class="fbox" style="border-radius: 10px;background-color: #e9e9e9;">
+              <VCol class="fitem" cols="6" rows="4">
                 <h4>성별</h4>
-                <CustomCheckboxes
-                  v-model:selected-checkbox="selectedCheckbox"
-                  :checkbox-content="checkboxContent"
-                  :grid-column="{ sm: '6', cols: '12' }"
-                />
+                <CustomCheckboxes v-model:selected-checkbox="selectedCheckbox" :checkbox-content="checkboxContent"
+                  :grid-column="{ sm: '6', cols: '12' }" />
               </VCol>
-              <VCol
-                class="fitem"
-                cols="6"
-                rows="4"                    
-              >
+              <VCol class="fitem" cols="6" rows="4">
                 <h4>
-                  연령 : {{ (sliderValues[0] == 0 && sliderValues[1] == 100) ? '전체 연령' : sliderValues[0].toString() + '살 ~' + sliderValues[1].toString() + '살' }}                 
+                  연령 : {{ (sliderValues[0] == 0 && sliderValues[1] == 100) ? '전체 연령'
+                    : sliderValues[0].toString() + '살~' + sliderValues[1].toString() + '살' }}
                 </h4>
                 <VCol style=" display: flex;width: 100%; justify-content: center;">
-                  <VRangeSlider
-                    v-model="sliderValues"
-                    step="1"
-                  />
+                  <VRangeSlider v-model="sliderValues" step="1" />
                 </VCol>
               </VCol>
             </VRow>
           </Transition>
         </VCol>
-        <VRow
-          class="fbox"
-          style="height: 100px;margin-top: 10px;"
-        >
-          <VCol
-            class="fitem"
-            cols="2"
-            rows="5" 
-            style="justify-content: center;padding-top: 30px;text-align: center;"
-          >
+        <VRow class="fbox" style="height: 100px;margin-top: 10px;">
+          <VCol class="fitem" cols="2" rows="5" style="justify-content: center;padding-top: 30px;text-align: center;">
             참여비
           </VCol>
           <VCol cols="4">
-            <VSelect
-              v-model="selectedOption1"
-              style="height: 20px;"
-              :items="pay"
-              label="Select"
-              single-line
-              variant="filled"
-            />
+            <VSelect v-model="selectedOption1" style="height: 20px;" :items="pay" label="Select" single-line
+              variant="filled" />
           </VCol>
-          <VCol
-            class="fitem"
-            cols="2"
-            rows="5" 
-            style="justify-content: center;padding-top: 30px;text-align: center;"                  
-          >
+          <VCol class="fitem" cols="2" rows="5" style="justify-content: center;padding-top: 30px;text-align: center;">
             기간 설정
           </VCol>
           <VCol>
-            <AppDateTimePicker
-              v-model="dateRange"
-              label="기간을 설정해주세요"
-              :config="{ mode: 'range', closeOnSelect: true }"
-            />
+            <AppDateTimePicker v-model="dateRange" label="기간을 설정해주세요"
+              :config="{ mode: 'range', closeOnSelect: true }" />
           </VCol>
         </VRow>
 
         <VCol cols="12">
-          <VTextarea
-            v-model="title"
-            rows="1"
-            label="제목"
-          />
+          <VTextarea v-model="title" rows="1" label="제목" />
         </VCol>
-        <VCol
-          cols="12"
-          rows="4"
-        >
-          <VTextarea
-            v-model="content"
-            label="내용"
-          />
+        <VCol cols="12" rows="4">
+          <VTextarea v-model="content" label="내용" />
           <VCol style="text-align: center;">
-            <VBtn
-              :disabled="!isValid"
-              @click="createRoom"
-            >
+            <VBtn :disabled="!isValid" @click="createRoom">
               확인
             </VBtn>
           </VCol>

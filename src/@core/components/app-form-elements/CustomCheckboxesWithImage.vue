@@ -22,7 +22,7 @@ const emit = defineEmits(['update:selectedCheckbox'])
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=computed(() => userInfo.value.id)
+const connetId = computed(() => userInfo.value.id)
 const name = computed(() => store.state.userStore.userInfo ? store.state.userStore.userInfo.name : null)
 
 const selectedOption = ref(structuredClone(toRaw(props.selectedCheckbox)))
@@ -48,7 +48,7 @@ const checkval = item => {
   allergyFoodchk.value.sort((a, b) => {
     const valueA = Object.keys(a)[0]
     const valueB = Object.keys(b)[0]
-    
+
     return valueA - valueB
   })
   console.log('현재', allergyFoodchk.value)
@@ -60,11 +60,11 @@ const sendAllergyList = val => {
   emit('AllergyList', val)
 }
 
-const getuserAllergy = async() =>{
-  await axios.get('http://localhost:4000/GetMember/Allergy', { params: { id: connetId.value } })
+const getuserAllergy = async () => {
+  await axios.get('/GetMember/Allergy', { params: { id: connetId.value } })
     .then(response => {
       console.log(response.data)
-      if(response.data !== null){
+      if (response.data !== null) {
         getallergyList.value = response.data.map(item => ({
           value: item.allergy_no,
           name: item.allergy_name,
@@ -80,7 +80,7 @@ const getuserAllergy = async() =>{
 
           // 추출한 값으로 원하는 작업 수행
           console.log(selectedAllergy)
-          checkval(selectedAllergy)  
+          checkval(selectedAllergy)
         }
       }
     }).catch(error => {
@@ -92,32 +92,15 @@ onMounted(getuserAllergy)
 </script>
 
 <template>
-  <VRow
-    v-if="props.checkboxContent && selectedOption"
-    v-model="selectedOption"
-  >
-    <VCol
-      v-for="item in props.checkboxContent"
-      :key="item.value"
-      v-bind="gridColumn"
-    >
-      <VLabel
-        class="custom-input custom-checkbox rounded cursor-pointer w-100"
-        :class="selectedOption.includes(item.value) ? 'active' : ''"
-      >
+  <VRow v-if="props.checkboxContent && selectedOption" v-model="selectedOption">
+    <VCol v-for="item in props.checkboxContent" :key="item.value" v-bind="gridColumn">
+      <VLabel class="custom-input custom-checkbox rounded cursor-pointer w-100"
+        :class="selectedOption.includes(item.value) ? 'active' : ''">
         <div>
-          <VCheckbox
-            v-model="selectedOption"
-            :value="item.value"
-            @click="checkval(item)"
-          />
+          <VCheckbox v-model="selectedOption" :value="item.value" @click="checkval(item)" />
           <!-- @click="checkval(item)" -->
         </div>
-        <img
-          :src="item.bgImage"
-          alt="bg-img"
-          class="custom-checkbox-image"
-        >
+        <img :src="item.bgImage" alt="bg-img" class="custom-checkbox-image">
       </VLabel>
     </VCol>
   </VRow>

@@ -16,11 +16,11 @@ let noticlists = ref([])
 const getNoticList = async id => {
   if (!id) {
     console.log('id is null')
-    
+
     return
   }
 
-  await axios.get('http://localhost:4000/Notic/View.do', { params: { id: id } })
+  await axios.get('/Notic/View.do', { params: { id: id } })
     .then(response => {
       console.log('가져오기 성공')
       console.log('내 알림', response.data)
@@ -39,7 +39,7 @@ const executePeriodically = () => {
 
 // 초기 실행
 onMounted(() => {
-  
+
   if (connetId.value) {
     getNoticList(connetId.value)
     getData()
@@ -68,9 +68,9 @@ const state = reactive({
   items: [],
 })
 
-const getData = async function() {
+const getData = async function () {
   try {
-    const response = await axios.post('http://localhost:4000/bbs/List.do', {
+    const response = await axios.post('/bbs/List.do', {
       selectedItems: selected.value,
       id: connetId,
     }, {
@@ -82,7 +82,7 @@ const getData = async function() {
 
 
     // 응답 처리
-    if (response.status === 200) {      
+    if (response.status === 200) {
       state.items = response.data // 데이터 저장
       console.log('데이터 받기 성공', state.items)
     }
@@ -95,7 +95,7 @@ const getData = async function() {
 // 글 수정 코드
 const submitEdit = async bno => {
   try {
-    const response = await axios.get('http://localhost:4000/bbs/ViewOne.do', { params: { bno: bno } })
+    const response = await axios.get('/bbs/ViewOne.do', { params: { bno: bno } })
 
     if (response.status === 200) {
       console.log('글 번호 전송 성공')
@@ -125,10 +125,10 @@ const statecomm = ref({
   comment: [],
 })
 
-const getComment = async function() {
+const getComment = async function () {
 
   try {
-    const response = await axios.get('http://localhost:4000/commentline/View.do', {
+    const response = await axios.get('/commentline/View.do', {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -146,7 +146,7 @@ const getComment = async function() {
         } else {
           acc[bbsNoAll] = [curr]
         }
-        
+
         return acc
       }, {})
 
@@ -172,13 +172,13 @@ const getComment = async function() {
       console.log('특정 게시물 데이타', groupedDataAll.value)
 
       postmodalData.value = {
-        comments: groupedDataAll.value[postbbsno.value],    
+        comments: groupedDataAll.value[postbbsno.value],
       }
 
       // Allgroupbbs.value = groupedDataAll._rawValue[17]
       statecomm.value.comment = toRaw(groupedData)
       group.value = toRaw(statecomm.value.comment)
-      console.log('그룹 데이터 확인', group.value)      
+      console.log('그룹 데이터 확인', group.value)
 
     } else {
       console.log('데이터 전송 실패')
@@ -191,14 +191,14 @@ const getComment = async function() {
 const postmodalData = ref({ comments: {} })
 const postbbsno = ref(0)
 
-const openViewPostMoadl = async val =>{
+const openViewPostMoadl = async val => {
   console.log('가져온 글번호', val)
   postbbsno.value = val
-  viewPostPageModal.value=true
+  viewPostPageModal.value = true
 
   // console.log('글번호에 대한 댓글', groupedDataAll.value._rawValue[postbbsno.value])
   postmodalData.value = {
-    comments: groupedDataAll.value[postbbsno.value],    
+    comments: groupedDataAll.value[postbbsno.value],
   }
   console.log(postmodalData.value)
 }
@@ -209,14 +209,14 @@ const profiledata = ref([])//내 프로필 데이터
 const openUserProfileModal = val => {
   console.log('오픈할 유저 프로필:', val)
   let id
-  
+
   if (typeof val === 'object' && val.id) {
     id = val.id // val이 객체이고 id 속성이 존재하는 경우
   } else {
     id = val // 그 외의 경우 val 그대로 사용
   }
   axios
-    .get('http://localhost:4000/comm/profile', {
+    .get('/comm/profile', {
       params: {
         id: id,
       },
@@ -255,32 +255,32 @@ const insertComment = async (bno, comment, type, parent_comment) => {
 
   formData.append('bbs_no', bno)
   formData.append('id', searchuser)
-  formData.append('ccomment', comment)  
-  if(type == 2 && parent_comment !== 0){
+  formData.append('ccomment', comment)
+  if (type == 2 && parent_comment !== 0) {
     formData.append('parent_comment', parent_comment)
     formData.append('type', 2)
-  }else{
+  } else {
     formData.append('type', 1)
   }
   console.log(bno, searchuser, comment, parent_comment)
 
-  await axios.post('http://localhost:4000/commentline/Write.do', formData, { 
+  await axios.post('/commentline/Write.do', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   })
     .then(response => {
-    // 성공적으로 업데이트되었을 때의 처리
+      // 성공적으로 업데이트되었을 때의 처리
       console.log('성공')
       console.log(response.data)
 
       // 댓글 입력 필드 초기화
-      commentinput.value = ''  
+      commentinput.value = ''
 
-      getComment() 
+      getComment()
     })
     .catch(error => {
-    // 업데이트 중 오류가 발생했을 때의 처리
+      // 업데이트 중 오류가 발생했을 때의 처리
       console.log('실패')
     })
 }
@@ -289,37 +289,13 @@ const insertComment = async (bno, comment, type, parent_comment) => {
 </script>
 
 <template>
-  <Notifications
-    :noticlists="noticlists"
-    :noticflag="false"
-    :get-notic-list="getNoticList"
-    :open-view-post-moadl="openViewPostMoadl"
-    :submit-edit="submitEdit"
-    @click="getNoticList(connetId)"   
-  />
-  <UserProfileCommunity 
-    v-model:isDialogVisible="userProfileModal" 
-    :userid="modalData.userid"
-    :userprofile-path="modalData.userprofilePath"
-    :userpro-introduction="modalData.userproIntroduction"
-  />
-  <Writing
-    v-model:isDialogVisible="writingModal" 
-    @update-success="getData"
-  />
-  <Editing
-    v-model:isDialogVisible="editingModal"
-    :post-to-edit="postToEdit"
-    @update-success="getData"
-  />
-  <ViewPostPage
-    v-model:isDialogVisible="viewPostPageModal" 
-    :post-to-edit="postToEdit"
-    :comments="postmodalData.comments"
-    :bno="postToEdit.bno"
-    :open-user-profile-modal="openUserProfileModal"
-    :insert-comment="insertComment"
-    :searchuser="searchuser"
-    :get-comment="getComment"
-  /> 
+  <Notifications :noticlists="noticlists" :noticflag="false" :get-notic-list="getNoticList"
+    :open-view-post-moadl="openViewPostMoadl" :submit-edit="submitEdit" @click="getNoticList(connetId)" />
+  <UserProfileCommunity v-model:isDialogVisible="userProfileModal" :userid="modalData.userid"
+    :userprofile-path="modalData.userprofilePath" :userpro-introduction="modalData.userproIntroduction" />
+  <Writing v-model:isDialogVisible="writingModal" @update-success="getData" />
+  <Editing v-model:isDialogVisible="editingModal" :post-to-edit="postToEdit" @update-success="getData" />
+  <ViewPostPage v-model:isDialogVisible="viewPostPageModal" :post-to-edit="postToEdit"
+    :comments="postmodalData.comments" :bno="postToEdit.bno" :open-user-profile-modal="openUserProfileModal"
+    :insert-comment="insertComment" :searchuser="searchuser" :get-comment="getComment" />
 </template>

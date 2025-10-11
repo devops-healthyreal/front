@@ -1,5 +1,6 @@
 <script setup>
 import AppStepper from '@/@core/components/AppStepper.vue'
+import axiosflask from '@/plugins/axiosflask'
 import axios from '@axios'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useStore } from 'vuex'
@@ -11,7 +12,7 @@ const userId = computed(() => store.state.userStore.userInfo.id)
 
 console.log('connectId', userId.value)
 
-const time=ref(60)
+const time = ref(60)
 
 const videoRef1 = ref('')
 const videoRef2 = ref('')
@@ -34,7 +35,7 @@ const numberedSteps = [
   },
 ]
 
-const exerciseSteps =ref([
+const exerciseSteps = ref([
   {
     title: '1set',
     subtitle: '10회',
@@ -64,7 +65,7 @@ const currentExerciseStep = ref(0)  // 운동 단계를 추적하는 변수
 const currentNumberedStep = ref(0)  // numberedSteps 단계를 추적하는 변수
 const currentVideoSrc = ref('') // iframe에 표시될 현재 비디오의 URL
 
-const isRestTime = ref(false) 
+const isRestTime = ref(false)
 
 const userVideoRef = ref(null)
 
@@ -98,16 +99,16 @@ watch(currentNumberedStep, () => {
   const step = numberedSteps[currentNumberedStep.value]
   if (step) {
     // 여기서 직접 videoSrc를 업데이트합니다.
-    switch(currentNumberedStep.value) {
-    case 0:
-      currentVideoSrc.value = videoRef1.value
-      break
-    case 1:
-      currentVideoSrc.value = videoRef2.value
-      break
-    case 2:
-      currentVideoSrc.value = videoRef3.value
-      break
+    switch (currentNumberedStep.value) {
+      case 0:
+        currentVideoSrc.value = videoRef1.value
+        break
+      case 1:
+        currentVideoSrc.value = videoRef2.value
+        break
+      case 2:
+        currentVideoSrc.value = videoRef3.value
+        break
     }
   }
 })
@@ -129,19 +130,19 @@ const startExercise = async () => {
 
   // 현재 선택된 운동 단계에 따라 비디오 URL 결정
   switch (currentNumberedStep.value) {
-  case 0:
-    videoUrlToSend = videoRef1.value // 운동1 선택 시
-    break
-  case 1:
-    videoUrlToSend = videoRef2.value // 운동2 선택 시
-    break
-  case 2:
-    videoUrlToSend = videoRef3.value // 운동3 선택 시
-    break
-  default:
-    console.error('선택된 운동 단계가 유효하지 않습니다.')
-    
-    return // 에러 시 함수 종료
+    case 0:
+      videoUrlToSend = videoRef1.value // 운동1 선택 시
+      break
+    case 1:
+      videoUrlToSend = videoRef2.value // 운동2 선택 시
+      break
+    case 2:
+      videoUrlToSend = videoRef3.value // 운동3 선택 시
+      break
+    default:
+      console.error('선택된 운동 단계가 유효하지 않습니다.')
+
+      return // 에러 시 함수 종료
   }
 
   // 결정된 비디오 URL을 서버에 전송
@@ -168,7 +169,7 @@ const getData = async () => {
 // sendServer 함수 수정 (videoUrl 파라미터 추가)
 const sendServer = async videoUrl => {
   try {
-    const response = await axios.post('http://localhost:5000/PoseDetector', {
+    const response = await axiosflask.post('/PoseDetector', {
       video_url: videoUrl, // 함수 호출 시 전달받은 비디오 URL 사용
     }, {
       headers: {
@@ -210,7 +211,7 @@ const startTimer = async () => {
           // 모든 세트가 완료되면 타이머를 중지합니다.
           stopTimer()
           alert('운동이 모두 끝났습니다!')
-          
+
           return
         }
         time.value = 60 // 운동 시간을 다시 60초로 설정합니다.
@@ -239,16 +240,16 @@ const capitalizedLabel = label => {
   const convertLabelText = label.toString()
 
   console.log(convertLabelText.charAt(0).toUpperCase() + convertLabelText.slice(1))
-  if(convertLabelText.charAt(0).toUpperCase() + convertLabelText.slice(1)=='True'){
+  if (convertLabelText.charAt(0).toUpperCase() + convertLabelText.slice(1) == 'True') {
     console.log('true')
     menuSize.value = 3
-    isVisible.value= true
+    isVisible.value = true
   }
   else {
     console.log('false')
 
     //menuSize.value = 0
-    isVisible.value= false
+    isVisible.value = false
   }
 }
 
@@ -275,10 +276,7 @@ onMounted(async () => {
   <VContainer>
     <!-- fluid 속성 추가 -->
     <VRow>
-      <VCol
-        v-show="isVisible"
-        :style="{'opacity':'0.7','position':'relative'}"
-      >
+      <VCol v-show="isVisible" :style="{ 'opacity': '0.7', 'position': 'relative' }">
         <!--
           <VDialog
           v-model="isVisible"
@@ -288,47 +286,30 @@ onMounted(async () => {
         <VCard>
           <!-- 운동 순서에 대한 메뉴창 -->
           <VCardItem>
-            <AppStepper
-              v-model:current-step="currentExerciseStep"
-              direction="horizontal"
-              :items="exerciseSteps"
-              :style="{'height':'100%'}"
-            />
-            
-            <VCardItem :style="{'margin-top':'10px'}">
+            <AppStepper v-model:current-step="currentExerciseStep" direction="horizontal" :items="exerciseSteps"
+              :style="{ 'height': '100%' }" />
+
+            <VCardItem :style="{ 'margin-top': '10px' }">
               <VCol style="margin-bottom: -20px;">
                 <VRow align="center">
                   <VCol cols="3">
                     <strong style="width: 90%; color: black; font-size: 25px;">
                       <VIcon icon="mdi-clock-time-eight" />
-                      {{ isRestTime ? 'Rest time' : 'Exercise' }}  <!-- 휴식 시간인지 운동 시간인지 표시 -->
+                      {{ isRestTime ? 'Rest time' : 'Exercise' }} <!-- 휴식 시간인지 운동 시간인지 표시 -->
                     </strong>
                   </VCol>
                   <VCol cols="3">
-                    <strong
-                      id="sec"
-                      style="color: black;font-size: 25px;"
-                    >
+                    <strong id="sec" style="color: black;font-size: 25px;">
                       {{ time }}
                     </strong>
                   </VCol>
                   <VCol cols="2">
-                    <VTextField
-                      v-model.number="setCount"
-                      type="number"
-                      label="세트 수"
-                      variant="outlined"
-                      @input="UpdateExerciseSteps"
-                    />
+                    <VTextField v-model.number="setCount" type="number" label="세트 수" variant="outlined"
+                      @input="UpdateExerciseSteps" />
                   </VCol>
                   <VCol cols="2">
-                    <VTextField
-                      v-model.number="repetitionCount"
-                      type="number"
-                      label="횟수"
-                      variant="outlined"
-                      @input="UpdateExerciseSteps"
-                    />
+                    <VTextField v-model.number="repetitionCount" type="number" label="횟수" variant="outlined"
+                      @input="UpdateExerciseSteps" />
                   </VCol>
                   <VCol cols="1">
                     <VBtn @click="startTimer">
@@ -342,65 +323,41 @@ onMounted(async () => {
                   </VCol>
                 </VRow>
                 <br>
-                <hr :style="{'width':'90%','margin':'auto'}">
+                <hr :style="{ 'width': '90%', 'margin': 'auto' }">
               </vcol>
             </VCardItem>
           </vcarditem>
         </VCard>
-      <!-- </VDialog> -->
+        <!-- </VDialog> -->
       </VCol>
     </VRow>
     <VRow>
       <VCol>
         <VLayout class="chat-app-layout bg-surface">
-          <VCol
-            cols="2"
-            :style="{'background-color':'#FFFFF2'}"
-          >
+          <VCol cols="2" :style="{ 'background-color': '#FFFFF2' }">
             <!-- 몇 세트인지에 대한 메뉴창 -->
-            <VSwitch
-              v-model="toggleSwitch"
-              :label="capitalizedLabel(toggleSwitch)"
-            />
+            <VSwitch v-model="toggleSwitch" :label="capitalizedLabel(toggleSwitch)" />
             <p>시간 측정 시작하기</p>
 
-            <AppStepper
-              v-model:current-step="currentNumberedStep"
-              direction="vertical"
-              :items="numberedSteps"
-              :style="{'height':'80%'}"
-            />
-            <VBtn
-              color="primary"
-              class="custom-margin"
-              @click="startExercise"
-            >
+            <AppStepper v-model:current-step="currentNumberedStep" direction="vertical" :items="numberedSteps"
+              :style="{ 'height': '80%' }" />
+            <VBtn color="primary" class="custom-margin" @click="startExercise">
               자세 측정
             </VBtn>
           </VCol> <!-- 몇 세트인지에 대한 메뉴창 end -->
-    
+
           <!--  운동 순서에 대한 메뉴창 end -->
           <div class="responsive-iframe-container">
-            <div
-              v-for="(step, index) in numberedSteps"
-              :key="index"
-              @click="selectStep(index)"
-            />
+            <div v-for="(step, index) in numberedSteps" :key="index" @click="selectStep(index)" />
             <VCol cols="5">
               <!-- <VCol :cols="9-menuSize"> -->
               <!-- 운동 자세 영상 -->
-              <iframe
-                id="player"
-                :src="currentVideoSrc"
-                class="iframe"
-                frameborder="0"
-                allowfullscreen
-              />
+              <iframe id="player" :src="currentVideoSrc" class="iframe" frameborder="0" allowfullscreen />
             </VCol> <!-- 운동 자세 영상 end -->
           </div>
           <VCol cols="5">
             <!-- <VCol :cols="9-menuSize"> -->
-          </VCol> 
+          </VCol>
         </VLayout>
       </vcol>
     </VRow>
@@ -515,14 +472,22 @@ $chat-app-header-height: 68px;
 }
 
 .iframe {
-  position: relative; /* 상위 요소 대비 상대적 위치 */
-  top: 0; /* 상위 요소 대비 상단에서 50px 아래에 위치 */
-  left: -40px; /* 상위 요소 대비 왼쪽에서 20px 옆에 위치 */
-  display: block; /* Block-level 요소로 만들어 줌 */
-  width: 1170px; /* 너비 조정 */
-  height: 600px; /* 높이 조정 */
-  border: 2px solid #000; /* 테두리 추가 */
-  margin: 0 auto; /* 가운데 정렬을 위해 사용 */
+  position: relative;
+  /* 상위 요소 대비 상대적 위치 */
+  top: 0;
+  /* 상위 요소 대비 상단에서 50px 아래에 위치 */
+  left: -40px;
+  /* 상위 요소 대비 왼쪽에서 20px 옆에 위치 */
+  display: block;
+  /* Block-level 요소로 만들어 줌 */
+  width: 1170px;
+  /* 너비 조정 */
+  height: 600px;
+  /* 높이 조정 */
+  border: 2px solid #000;
+  /* 테두리 추가 */
+  margin: 0 auto;
+  /* 가운데 정렬을 위해 사용 */
 }
 
 /* 기본 스타일 */
@@ -531,29 +496,35 @@ $chat-app-header-height: 68px;
   block-size: 500px;
   inline-size: 500px;
   inset-block-end: 0;
-  inset-inline-start: 820px; /* 기본 위치 */
+  inset-inline-start: 820px;
+  /* 기본 위치 */
   object-fit: cover;
 }
 
 /* 화면 너비가 1024px 이하일 때 */
 @media (max-width: 1024px) {
   .videoStyle {
-    inset-inline-start: 50%; /* 화면 중앙에 위치하도록 조정 */
-    transform: translateX(-40%); /* 정확히 중앙에 오도록 조정 */
+    inset-inline-start: 50%;
+    /* 화면 중앙에 위치하도록 조정 */
+    transform: translateX(-40%);
+    /* 정확히 중앙에 오도록 조정 */
   }
 }
 
 /* 화면 너비가 768px 이하일 때 */
 @media (max-width: 768px) {
   .videoStyle {
-    block-size: auto; /* 비율 유지를 위해 자동으로 높이 조정 */
-    inline-size: 100%; /* 화면 너비에 맞춰 조정 */
+    block-size: auto;
+    /* 비율 유지를 위해 자동으로 높이 조정 */
+    inline-size: 100%;
+    /* 화면 너비에 맞춰 조정 */
     inset-block-end: 0;
     inset-inline-start: 0;
   }
 }
 
 .custom-margin {
-  margin-left: 35px; /* 원하는 마진 크기로 조정하세요 */
+  margin-left: 35px;
+  /* 원하는 마진 크기로 조정하세요 */
 }
 </style>

@@ -12,12 +12,12 @@ const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
 const connetId = userInfo.value.id
 
-const series=ref([])
+const series = ref([])
 const chartInstance = ref(null)
- 
+
 onMounted(async () => {
   await updateInbodyData()
-  
+
   // series가 변경될 때마다 차트를 갱신합니다.
   watchEffect(() => {
     if (series.value.length > 0 && chartInstance.value) {
@@ -34,7 +34,7 @@ const categories = ref([])
 
 async function updateInbodyData() {
   try {
-    const response = await axios.post('http://localhost:4000/Inbody/findAllInbody.do', { id: connetId })
+    const response = await axios.post('/Inbody/findAllInbody.do', { id: connetId })
     const data = response.data
 
     console.log("인바디 전체 데이터:", data)
@@ -44,10 +44,10 @@ async function updateInbodyData() {
       const year = date.getFullYear().toString().substr(-2) // 마지막 두 자리만 가져오기
       const month = (date.getMonth() + 1).toString().padStart(2, '0') // 월은 0부터 시작하므로 1을 더한 후, 두 자리 숫자로 만들기
       const day = date.getDate().toString().padStart(2, '0') // 두 자리 숫자로 만들기
-      
+
       return `${year}-${month}-${day}`
     }).reverse()
-    
+
     const seriesData = [
       ['체중', 'inb_weight'],
       ['골격근량', 'inb_smm'],
@@ -73,11 +73,5 @@ async function updateInbodyData() {
 </script>
 
 <template>
-  <VueApexCharts
-    ref="chartInstance"
-    type="area"
-    height="400"
-    :options="chartConfig"
-    :series="series"
-  />
+  <VueApexCharts ref="chartInstance" type="area" height="400" :options="chartConfig" :series="series" />
 </template>

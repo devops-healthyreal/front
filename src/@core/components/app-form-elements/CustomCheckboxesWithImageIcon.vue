@@ -24,7 +24,7 @@ const emit = defineEmits(['update:selectedCheckbox'])
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=computed(() => userInfo.value.id)
+const connetId = computed(() => userInfo.value.id)
 const name = computed(() => store.state.userStore.userInfo ? store.state.userStore.userInfo.name : null)
 
 const selectedOption = ref(structuredClone(toRaw(props.selectedCheckbox)))
@@ -49,7 +49,7 @@ const checkval = item => {
   hateFoodchk.value.sort((a, b) => {
     const valueA = Object.keys(a)[0]
     const valueB = Object.keys(b)[0]
-    
+
     return valueA - valueB
   })
   console.log('현재', hateFoodchk.value)
@@ -60,11 +60,11 @@ const sendHateFoodList = val => {
   emit('HateFoodList', val)
 }
 
-const getuserHateFood = async() =>{
-  await axios.get('http://localhost:4000/GetMember/HateFood', { params: { id: connetId.value } })
+const getuserHateFood = async () => {
+  await axios.get('/GetMember/HateFood', { params: { id: connetId.value } })
     .then(response => {
       console.log(response.data)
-      if(response.data !== null){
+      if (response.data !== null) {
         gethatefoodList.value = response.data.map(item => ({
           value: item.hatefood_no,
           name: item.hatefood_name,
@@ -81,7 +81,7 @@ const getuserHateFood = async() =>{
 
           // 추출한 값으로 원하는 작업 수행
           console.log(selectedHateFood)
-          checkval(selectedHateFood)  
+          checkval(selectedHateFood)
         }
       }
     }).catch(error => {
@@ -93,36 +93,15 @@ onMounted(getuserHateFood)
 </script>
 
 <template>
-  <VRow
-    v-if="props.checkboxContent && selectedOption"
-    v-model="selectedOption"
-  >
-    <VCol
-      v-for="item in props.checkboxContent"
-      :key="item.value"
-      v-bind="gridColumn"
-    >
-      <VLabel
-        class="custom-input custom-checkbox rounded cursor-pointer w-100"
-        :class="selectedOption.includes(item.value) ? 'active' : ''"
-      >
+  <VRow v-if="props.checkboxContent && selectedOption" v-model="selectedOption">
+    <VCol v-for="item in props.checkboxContent" :key="item.value" v-bind="gridColumn">
+      <VLabel class="custom-input custom-checkbox rounded cursor-pointer w-100"
+        :class="selectedOption.includes(item.value) ? 'active' : ''">
         <div>
-          <VCheckbox
-            v-model="selectedOption"
-            :value="item.value"
-            @click="checkval(item)"
-          />
+          <VCheckbox v-model="selectedOption" :value="item.value" @click="checkval(item)" />
         </div>
-        <img
-          :src="item.bgImage"
-          alt="bg-img"
-          class="custom-checkbox-image"
-        >
-        <img
-          :src="heart"
-          alt="heart-icon"
-          class="heart-icon"
-        > <!-- 하트 아이콘 이미지 -->
+        <img :src="item.bgImage" alt="bg-img" class="custom-checkbox-image">
+        <img :src="heart" alt="heart-icon" class="heart-icon"> <!-- 하트 아이콘 이미지 -->
       </VLabel>
     </VCol>
   </VRow>
@@ -150,17 +129,20 @@ onMounted(getuserHateFood)
 
   .heart-icon {
     position: absolute;
-    z-index: 1; /* 이미지의 층위를 조정 */
+    z-index: 1;
+    /* 이미지의 층위를 조정 */
     inset-block-start: 50%;
     inset-inline-start: 50%;
-    opacity: 0; /* 초기에 투명하게 설정 */
+    opacity: 0;
+    /* 초기에 투명하게 설정 */
     transform: translate(-50%, -50%);
-    transition: opacity 0.5s ease-in-out; /* 효과를 주기 위한 애니메이션 설정 */
+    transition: opacity 0.5s ease-in-out;
+    /* 효과를 주기 위한 애니메이션 설정 */
   }
 
   &.active .heart-icon {
-    opacity: 1; /* 액티브 상태에서 나타나도록 설정 */
+    opacity: 1;
+    /* 액티브 상태에서 나타나도록 설정 */
   }
 }
 </style>
-

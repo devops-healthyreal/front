@@ -1,11 +1,11 @@
 <script setup>
 import DialogCloseBtn from '@/@core/components/DialogCloseBtn.vue'
 import '@/assets/css/globacl.css'
+import { API_BASE_URL } from '@/config'
 import AddressApi from '@/views/demos/register/AddressApi.vue'
 import Sub from '@/views/demos/register/DemoSelectCustomTextAndValue.vue'
 import Myradio from '@/views/demos/register/Myradio.vue'
 import axios from '@axios'
-import { API_BASE_URL } from '@/config'
 import { onBeforeUnmount, onMounted, provide, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Birthyday from './Birthyday.vue'
@@ -392,7 +392,7 @@ const sendMessage = async () => {
     const data = await handleCertification()
 
     // 해당 번호가 이미 존재하는지 확인하는 API를 호출합니다.
-    const checkResponse = await instance.post('http://localhost:4000/checkPhoneNumber', { phone: data.tel })
+    const checkResponse = await instance.post('/checkPhoneNumber', { phone: data.tel })
 
     // 이미 존재하는 번호라면, 에러 메시지를 보여줍니다.
     if (checkResponse.data.exists) {
@@ -432,7 +432,7 @@ const sendMessage = async () => {
 // 인증을 검증하는 함수
 const verifyCertification = async () => {
   try {
-    const response = await instance.post('http://localhost:4000/verify', {
+    const response = await instance.post('/verify', {
       phone: tel.value,
       authCode: certifiedPN.value,
     })
@@ -459,7 +459,7 @@ const verifyCertification = async () => {
 const resendVerificationCode = async () => {
   try {
     // 인증번호를 만료하고 새로운 인증번호를 발급합니다.
-    const response = await axios.post('http://localhost:4000/resendVerificationCode', {
+    const response = await axios.post('/resendVerificationCode', {
       phone: tel.value,
     })
 
@@ -484,7 +484,7 @@ provide('isSnackbarVisible', isSnackbarVisible)
 const registerUser = async (data, isValidCertifiedPN) => {
   try {
     if (isValidCertifiedPN.value) {
-      const registerResponse = await axios.post('http://localhost:4000/register', data)
+      const registerResponse = await axios.post('/register', data)
 
       console.log(registerResponse.data, '회원가입 성공')
 

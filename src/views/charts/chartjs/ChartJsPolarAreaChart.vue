@@ -30,23 +30,23 @@ const totalCholesterol = ref(0)
 
 //당일 섭취한 영양분 가져오기
 const getNutri = () => {
-   axios.get('http://localhost:4000/Actuality/dalilyNutri.do', {params : {id : connetId}})
-  .then(response => {
-    console.log('가져올 데이터입니다. ',response.data);
+  axios.get('/Actuality/dalilyNutri.do', { params: { id: connetId } })
+    .then(response => {
+      console.log('가져올 데이터입니다. ', response.data);
 
-    totalCarbohydrate.value = response.data.reduce((acc, cur) => acc + parseInt(cur.total_carbohydrate), 0)
-    totalProtein.value = response.data.reduce((acc, cur) => acc + parseInt(cur.total_protein), 0)
-    totalFat.value = response.data.reduce((acc, cur) => acc + parseInt(cur.total_fat), 0)
-    totalSodium.value = response.data.reduce((acc, cur) => acc + parseInt(cur.total_sodium)/1000, 0)
-    totalCholesterol.value = response.data.reduce((acc, cur) => acc + parseInt(cur.total_cholesterol)/1000, 0)
+      totalCarbohydrate.value = response.data.reduce((acc, cur) => acc + parseInt(cur.total_carbohydrate), 0)
+      totalProtein.value = response.data.reduce((acc, cur) => acc + parseInt(cur.total_protein), 0)
+      totalFat.value = response.data.reduce((acc, cur) => acc + parseInt(cur.total_fat), 0)
+      totalSodium.value = response.data.reduce((acc, cur) => acc + parseInt(cur.total_sodium) / 1000, 0)
+      totalCholesterol.value = response.data.reduce((acc, cur) => acc + parseInt(cur.total_cholesterol) / 1000, 0)
 
-    console.log('총 탄수화물?', totalCarbohydrate.value)
-    console.log('총 단백질?', totalProtein.value)
-    console.log('총 지방?', totalFat.value)
-    console.log('총 나트륨?', totalSodium.value)
-    console.log('총 콜레스테롤?', totalCholesterol.value)
+      console.log('총 탄수화물?', totalCarbohydrate.value)
+      console.log('총 단백질?', totalProtein.value)
+      console.log('총 지방?', totalFat.value)
+      console.log('총 나트륨?', totalSodium.value)
+      console.log('총 콜레스테롤?', totalCholesterol.value)
 
-  })
+    })
 }
 
 
@@ -69,9 +69,5 @@ onMounted(() => {
 </script>
 
 <template>
-  <PolarAreaChart
-    :height="400"
-    :chart-data="data"
-    :chart-options="chartConfig"
-  />
+  <PolarAreaChart :height="400" :chart-data="data" :chart-options="chartConfig" />
 </template>

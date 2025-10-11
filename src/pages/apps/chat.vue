@@ -37,8 +37,8 @@ const receivedMessage = ref([])
 const msg = ref('')
 let sendMessage = null
 let messages = ref([]) // 메시지를 저장할 배열 변수 선언
-let contactId = null 
-let senderId = null  
+let contactId = null
+let senderId = null
 
 // 웹소켓 연결 생성
 const socket = new WebSocket('ws://192.168.0.111:4000/chat')
@@ -89,7 +89,7 @@ socket.addEventListener('open', async function (event) {
       }))
 
       // 데이터베이스에 메시지 저장
-      const response = await axios.post("http://localhost:4000/chat/SoloWrite.do", {
+      const response = await axios.post("/chat/SoloWrite.do", {
         id: senderId,
         ruser: contactId,
         content: message.value,
@@ -122,7 +122,7 @@ socket.addEventListener('open', async function (event) {
           newchat.value.messages.push(newMessageData)
         }
       }
-     
+
       // 활성 연락처에 대한 마지막 메시지 설정
       const contact = chatsContacts.value.find(c => {
         if (newchat.value)
@@ -134,7 +134,7 @@ socket.addEventListener('open', async function (event) {
       if (contact && contact.chat) {
         contact.chat.lastMessage = newMessageData
       }
-      
+
 
       // 메시지 보내는 란 초기화
       msg.value = ''
@@ -142,7 +142,7 @@ socket.addEventListener('open', async function (event) {
     } catch (error) {
       console.error(`데이터를 가져오는데 실패했습니다: ${error}`)
     }
-    
+
     setTimeout(() => {
       scrollToBottomInChatLog()
     }, 50)
@@ -239,61 +239,30 @@ const refInputEl = ref()
 <template>
   <VLayout class="chat-app-layout bg-surface">
     <!-- 👉 Left sidebar   -->
-    <VNavigationDrawer
-      v-model="isLeftSidebarOpen"
-      absolute
-      touchless
-      location="start"
-      width="370"
-      :temporary="$vuetify.display.smAndDown"
-      class="chat-list-sidebar"
-      :permanent="$vuetify.display.mdAndUp"
-    >
-      <ChatLeftSidebarContent
-        v-model:isDrawerOpen="isLeftSidebarOpen"
-        v-model:search="q"
-        @open-chat-of-contact="openChatOfContact"
-        @close="isLeftSidebarOpen = false"
-      />
+    <VNavigationDrawer v-model="isLeftSidebarOpen" absolute touchless location="start" width="370"
+      :temporary="$vuetify.display.smAndDown" class="chat-list-sidebar" :permanent="$vuetify.display.mdAndUp">
+      <ChatLeftSidebarContent v-model:isDrawerOpen="isLeftSidebarOpen" v-model:search="q"
+        @open-chat-of-contact="openChatOfContact" @close="isLeftSidebarOpen = false" />
     </VNavigationDrawer>
 
     <!-- 👉 Chat content -->
     <VMain class="chat-content-container">
       <!-- 👉 Right content: Active Chat -->
-      <div
-        v-if="newchat"
-        class="d-flex flex-column h-100"
-      >
+      <div v-if="newchat" class="d-flex flex-column h-100">
         <!-- 👉 Active chat header -->
         <div class="active-chat-header d-flex align-center text-medium-emphasis">
           <!-- Sidebar toggler -->
-          <IconBtn
-            class="d-md-none me-3"
-            @click="isLeftSidebarOpen = true"
-          >
+          <IconBtn class="d-md-none me-3" @click="isLeftSidebarOpen = true">
             <VIcon icon="mdi-menu" />
           </IconBtn>
 
           <!-- avatar -->
-          <VBadge
-            dot
-            location="bottom right"
-            offset-x="3"
-            offset-y="3"
-            :color="resolveAvatarBadgeVariant(newchat.contact.status)"
-            bordered
-          >
-            <VAvatar
-              size="40"
-              :variant="!newchat.contact.avatar ? 'tonal' : undefined"
+          <VBadge dot location="bottom right" offset-x="3" offset-y="3"
+            :color="resolveAvatarBadgeVariant(newchat.contact.status)" bordered>
+            <VAvatar size="40" :variant="!newchat.contact.avatar ? 'tonal' : undefined"
               :color="!newchat.contact.avatar ? resolveAvatarBadgeVariant(newchat.contact.status) : undefined"
-              class="cursor-pointer"
-            >
-              <VImg
-                v-if="newchat.contact.avatar"
-                :src="newchat.contact.avatar"
-                :alt="newchat.contact.fullName"
-              />
+              class="cursor-pointer">
+              <VImg v-if="newchat.contact.avatar" :src="newchat.contact.avatar" :alt="newchat.contact.fullName" />
               <span v-else>{{ avatarText(newchat.contact.fullName) }}</span>
             </VAvatar>
           </VBadge>
@@ -309,47 +278,21 @@ const refInputEl = ref()
         <VDivider />
 
         <!-- Chat log -->
-        <PerfectScrollbar
-          ref="chatLogPS"
-          tag="ul"
-          :options="{ wheelPropagation: false }"
-          class="flex-grow-1"
-        >
-          <ChatLog
-            :new-chat="newchat"
-            :received-message="receivedMessage"
-          />
+        <PerfectScrollbar ref="chatLogPS" tag="ul" :options="{ wheelPropagation: false }" class="flex-grow-1">
+          <ChatLog :new-chat="newchat" :received-message="receivedMessage" />
         </PerfectScrollbar>
 
         <!-- Message form -->
-        <VForm
-          class="chat-log-message-form mb-5 mx-5"
-          @submit.prevent="sendMessage"
-        >
-          <VTextField
-            :key="newchat?.contact.id"
-            v-model="msg"
-            variant="solo"
-            class="chat-message-input"
-            placeholder="메세지를 입력해주세요"
-            autofocus
-          >
+        <VForm class="chat-log-message-form mb-5 mx-5" @submit.prevent="sendMessage">
+          <VTextField :key="newchat?.contact.id" v-model="msg" variant="solo" class="chat-message-input"
+            placeholder="메세지를 입력해주세요" autofocus>
             <template #append-inner>
               <IconBtn>
-                <VIcon
-                  icon="mdi-microphone-outline"
-                  size="22"
-                />
+                <VIcon icon="mdi-microphone-outline" size="22" />
               </IconBtn>
 
-              <IconBtn
-                class="me-4"
-                @click="refInputEl?.click()"
-              >
-                <VIcon
-                  icon="mdi-attachment"
-                  size="22"
-                />
+              <IconBtn class="me-4" @click="refInputEl?.click()">
+                <VIcon icon="mdi-attachment" size="22" />
               </IconBtn>
 
               <VBtn @click="sendMessage">
@@ -358,36 +301,17 @@ const refInputEl = ref()
             </template>
           </VTextField>
 
-          <input
-            ref="refInputEl"
-            type="file"
-            name="file"
-            accept=".jpeg,.png,.jpg,GIF"
-            hidden
-          >
+          <input ref="refInputEl" type="file" name="file" accept=".jpeg,.png,.jpg,GIF" hidden>
         </VForm>
       </div>
 
       <!-- 👉 Start conversation -->
-      <div
-        v-else
-        class="d-flex h-100 align-center justify-center flex-column"
-      >
-        <VAvatar
-          size="109"
-          class="elevation-3 mb-6 bg-surface"
-        >
-          <VIcon
-            size="50"
-            class="rounded-0 text-high-emphasis"
-            icon="mdi-message-outline"
-          />
+      <div v-else class="d-flex h-100 align-center justify-center flex-column">
+        <VAvatar size="109" class="elevation-3 mb-6 bg-surface">
+          <VIcon size="50" class="rounded-0 text-high-emphasis" icon="mdi-message-outline" />
         </VAvatar>
-        <p
-          class="mb-0 px-6 py-1 font-weight-medium text-lg elevation-3 rounded-xl text-high-emphasis bg-surface"
-          :class="[{ 'cursor-pointer': $vuetify.display.smAndDown }]"
-          @click="startConversation"
-        >
+        <p class="mb-0 px-6 py-1 font-weight-medium text-lg elevation-3 rounded-xl text-high-emphasis bg-surface"
+          :class="[{ 'cursor-pointer': $vuetify.display.smAndDown }]" @click="startConversation">
           채팅방을 선택해주세요!
         </p>
       </div>

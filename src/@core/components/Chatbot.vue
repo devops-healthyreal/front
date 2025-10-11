@@ -1,5 +1,6 @@
 <script setup>
-import axios from '@axios'
+import axiosflask from '@/plugins/axiosflask'
+
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 
 const props = defineProps({
@@ -12,7 +13,7 @@ const props = defineProps({
 
 const router = useRouter()
 
-const messages = ref([]) 
+const messages = ref([])
 const isLoading = ref(false)  // 로딩 상태를 저장
 const userInput = ref('') // 사용자의 입력을 저장할 ref를 선언
 
@@ -25,11 +26,11 @@ async function sendMessage() {
 
   isLoading.value = true  // 로딩 상태를 시작
 
-  const response = await axios.post('http://localhost:5000/ChatAI', {
+  const response = await axiosflask.post('/ChatAI', {
     message: userInput.value,
   })
 
-  userInput.value = '' 
+  userInput.value = ''
 
   isLoading.value = false  // 로딩 상태를 종료
 
@@ -40,7 +41,7 @@ async function sendMessage() {
     type: 'receive',
     content: response.data.answer,
   })
-  
+
 }
 
 // 아이콘을 누르면 채팅창이 초기화되는 함수를 선언합니다.
@@ -51,23 +52,10 @@ async function sendMessage() {
 
 <template>
   <IconBtn>
-    <VIcon
-      :icon="props.togglerIcon"
-      size="x-large"
-      color="success"
-    />
+    <VIcon :icon="props.togglerIcon" size="x-large" color="success" />
 
-    <VMenu
-      activator="parent"
-      offset="20px"
-      location="bottom end"
-      :close-on-content-click="false"
-    >
-      <VCard
-        width="550"
-        max-height="700"
-        class="d-flex flex-column"
-      >
+    <VMenu activator="parent" offset="20px" location="bottom end" :close-on-content-click="false">
+      <VCard width="550" max-height="700" class="d-flex flex-column">
         <VCardItem class="py-4">
           <VCardTitle>ChatBot</VCardTitle>
 
@@ -88,11 +76,7 @@ async function sendMessage() {
                   안녕하세요! 어떤 도움이 필요하신가요?
                 </p>
               </div>
-              <div
-                v-for="(message, index) in messages"
-                :key="index"
-                :class="message.type"
-              >
+              <div v-for="(message, index) in messages" :key="index" :class="message.type">
                 <p class="chat-bubble">
                   {{ message.content }}
                 </p>
@@ -103,25 +87,12 @@ async function sendMessage() {
         <VCol cols="12">
           <VRow>
             <VCol cols="9">
-              <VTextField
-                v-model="userInput"
-                prepend-inner-icon="mdi-comment-outline"
-                label="메시지 입력"
-              />
+              <VTextField v-model="userInput" prepend-inner-icon="mdi-comment-outline" label="메시지 입력" />
             </VCol>
             <VCol cols="2">
-              <VBtn
-                size="x-large"
-                @click="sendMessage"
-              >
+              <VBtn size="x-large" @click="sendMessage">
                 전송
-                <VProgressCircular
-                  v-if="isLoading"
-                  indeterminate
-                  color="#8B4513"
-                  width="3" 
-                  size="20"
-                />
+                <VProgressCircular v-if="isLoading" indeterminate color="#8B4513" width="3" size="20" />
               </VBtn>
             </VCol>
           </VRow>

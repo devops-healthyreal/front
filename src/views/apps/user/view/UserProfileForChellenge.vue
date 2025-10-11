@@ -35,13 +35,13 @@ const resolveUserStatusVariant = stat => {
   if (stat < props.implementation)
     return 'warning'
   else (stat >= props.implementation)
-  
+
   return 'info'
 }
 
 const getHourDifference = (date1, date2) => {
   const diff = Math.abs(new Date(date1) - new Date(date2))
-  
+
   return diff / (1000 * 60 * 60)
 }
 
@@ -50,7 +50,7 @@ watch(
   async (newVal, oldVal) => {
     if (newVal !== oldVal && newVal.length > 0) {
       console.log("participantsData has been updated.", newVal)
-      
+
       // 각 사용자의 이미지 업로드를 위한 Promise 배열 생성
       const uploadPromises = newVal.map(async participant => {
         const oldProfilePath = participant.PRO_FILEPATH // 기존 이미지 URL을 임시로 저장
@@ -94,8 +94,8 @@ function dataURLtoFile(dataurl, filename) {
     bstr = atob(arr[1]),
     n = bstr.length,
     u8arr = new Uint8Array(n)
-      
-  while(n--){
+
+  while (n--) {
     u8arr[n] = bstr.charCodeAt(n)
   }
 
@@ -139,12 +139,12 @@ function resizeImage(file, maxWidth, maxHeight) {
       }, file.type)
     }
     console.log("/", file instanceof Blob) // true가 출력되어야 합니다
-    
-    console.log("URL.createObjectURL(file)", URL.createObjectURL(file)) 
+
+    console.log("URL.createObjectURL(file)", URL.createObjectURL(file))
     console.log(file instanceof File) // true가 출력되어야 합니다.
     img.src = URL.createObjectURL(file)
 
-    console.log("URL.createObjectURL(file)", URL.createObjectURL(file)) 
+    console.log("URL.createObjectURL(file)", URL.createObjectURL(file))
   })
 }
 
@@ -153,7 +153,7 @@ function resizeImage(file, maxWidth, maxHeight) {
 async function uploadImage(participant) {
   if (!file.value) {
     console.log('Please select a file first.')
-    
+
     return
   }
 
@@ -162,7 +162,7 @@ async function uploadImage(participant) {
   // 이미지 크기를 조절하고 업로드
   const blob = await resizeImage(file.value, 768, 768)
   const resizedImage = new File([blob], file.value.name, { type: file.value.type })
-  
+
   // 이미지 크기 확인
   const img = new Image()
 
@@ -172,7 +172,7 @@ async function uploadImage(participant) {
   formData.append('image', resizedImage)
 
   try {
-    const response = await axios.post('http://localhost:4000/upload', formData, { withCredentials: true })
+    const response = await axios.post('/upload', formData, { withCredentials: true })
 
     if (response.status === 200) {
       console.log('Response data:', response.data)
@@ -188,11 +188,11 @@ async function uploadImage(participant) {
 }
 const isHovered = ref(false)
 
-const handleMouseOver = participant =>{
+const handleMouseOver = participant => {
   participant.isHovered = true
 }
 
-const handleMouseLeave = participant =>{
+const handleMouseLeave = participant => {
   participant.isHovered = false
 }
 
@@ -201,11 +201,11 @@ const dialog = ref(false)
 
 // 특정 참가자를 위한 dialog 상태관리
 const openDialog = participant => {
-  participant.dialog = true 
+  participant.dialog = true
 }
 
 const closeDialog = participant => {
-  participant.dialog = false 
+  participant.dialog = false
 }
 </script>
 
@@ -213,76 +213,36 @@ const closeDialog = participant => {
   <VCol>
     <VRow>
       <!-- SECTION User Details -->
-      <VCol
-        v-for="(participant, index) in participantsData"
-        :key="index"
-        cols="3"
-      >
+      <VCol v-for="(participant, index) in participantsData" :key="index" cols="3">
         <VCard>
           <VCardText class="text-center mt-12 mt-sm-0 pa-0">
             <!-- 👉 Avatar -->
-            <VAvatar
-              rounded="sm"
-              :size="participant.isHovered ? 140 : 120"
+            <VAvatar rounded="sm" :size="participant.isHovered ? 140 : 120"
               :color="!participant.PRO_FILEPATH ? 'primary' : undefined"
-              :variant="!participant.PRO_FILEPATH ? 'tonal' : undefined"
-              @click="openDialog(participant)"
-              @mouseover="handleMouseOver(participant)"
-              @mouseleave="handleMouseLeave(participant)"
-            >
-              <VImg
-                v-if="participant.PRO_FILEPATH && !participant.videoFilePath"
-                :src="participant.PRO_FILEPATH"
-                style="margin-top: 15px; margin-left: 35px;"
-              />
-              <VDialog
-                v-model="participant.dialog"
-                max-width="600px"
-              >
+              :variant="!participant.PRO_FILEPATH ? 'tonal' : undefined" @click="openDialog(participant)"
+              @mouseover="handleMouseOver(participant)" @mouseleave="handleMouseLeave(participant)">
+              <VImg v-if="participant.PRO_FILEPATH && !participant.videoFilePath" :src="participant.PRO_FILEPATH"
+                style="margin-top: 15px; margin-left: 35px;" />
+              <VDialog v-model="participant.dialog" max-width="600px">
                 <VCard>
-                  <VImg
-                    v-if="!participant.videoFilePath"
-                    :src="participant.PRO_FILEPATH"
-                  />
-                  <video
-                    v-else
-                    :src="participant.videoFilePath"
-                    autoplay
-                    loop
-                  />
+                  <VImg v-if="!participant.videoFilePath" :src="participant.PRO_FILEPATH" />
+                  <video v-else :src="participant.videoFilePath" autoplay loop />
                 </VCard>
               </VDialog>
-              <video
-                v-if="participant.videoFilePath"
-                :src="participant.videoFilePath"
-                autoplay
-                loop
-                style=" width: 100%; height: 100%;margin-top: 15px; object-fit: cover;"
-              />
-              
-              <span
-                v-else
-                class="text-5xl font-weight-medium"
-              >
+              <video v-if="participant.videoFilePath" :src="participant.videoFilePath" autoplay loop
+                style=" width: 100%; height: 100%;margin-top: 15px; object-fit: cover;" />
+
+              <span v-else class="text-5xl font-weight-medium">
                 {{ avatarText(participant.ID) }}
               </span>
             </VAvatar>
 
             <!-- 👉 User fullName -->
-            <VChip
-              v-if="participant.CHALL_MANAGER === 'Y'"
-              color="success"
-              density="compact"
-              style="margin-bottom: -10%;"
-            >
+            <VChip v-if="participant.CHALL_MANAGER === 'Y'" color="success" density="compact"
+              style="margin-bottom: -10%;">
               방장
             </VChip>
-            <VChip
-              v-else
-              color="info"
-              density="compact"
-              style="margin-bottom: -10%;"
-            >
+            <VChip v-else color="info" density="compact" style="margin-bottom: -10%;">
               참여자
             </VChip>
             <h6 class="text-h6 mt-4">
@@ -290,26 +250,20 @@ const closeDialog = participant => {
             </h6>
 
             <!-- 👉 이행률 -->
-            <VChip
-              density="comfortable"
-              class="text-capitalize mt-4"
-              style=" margin-top: -5%;margin-bottom: 15px;"
-              :color="resolveUserStatusVariant(((participant.CHALL_IMPLEMENTATION_RATE/(getHourDifference(new Date(cendDate), new Date(cstartDate))/24*3))*100).toFixed(0))"
-            >
-              {{ ((participant.CHALL_IMPLEMENTATION_RATE/(getHourDifference(new Date(cendDate), new Date(cstartDate))/24*3))*100).toFixed(0) }}%
+            <VChip density="comfortable" class="text-capitalize mt-4" style=" margin-top: -5%;margin-bottom: 15px;"
+              :color="resolveUserStatusVariant(((participant.CHALL_IMPLEMENTATION_RATE / (getHourDifference(new Date(cendDate), new Date(cstartDate)) / 24 * 3)) * 100).toFixed(0))">
+              {{ ((participant.CHALL_IMPLEMENTATION_RATE / (getHourDifference(new Date(cendDate), new
+                Date(cstartDate)) / 24 * 3)) * 100).toFixed(0) }}%
             </VChip>
           </VCardText>
         </VCard>
       </VCol>
-    <!-- !SECTION -->
+      <!-- !SECTION -->
     </VRow>
-  
+
 
     <!-- 👉 Edit user info dialog -->
-    <UserInfoEditDialog
-      v-model:isDialogVisible="isUserInfoEditDialogVisible"
-      :user-data="props.userData"
-    />
+    <UserInfoEditDialog v-model:isDialogVisible="isUserInfoEditDialogVisible" :user-data="props.userData" />
 
     <!-- 👉 Upgrade plan dialog -->
     <UserUpgradePlanDialog v-model:isDialogVisible="isUpgradePlanDialogVisible" />

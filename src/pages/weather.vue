@@ -7,7 +7,7 @@ import { useStore } from 'vuex'
 
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=ref('')
+const connetId = ref('')
 
 const weather = ref({})
 const code = ref('')
@@ -18,7 +18,7 @@ const userAddress = ref('')
 const getuseraddress = () => {
   if (!userInfo.value) {
     console.log('userInfo.value is null')
-    
+
     return
   }
 
@@ -27,7 +27,7 @@ const getuseraddress = () => {
 
   params.append('id', connetId.value)
 
-  axios.get('http://localhost:4000/getUserAddress', { params })
+  axios.get('/getUserAddress', { params })
     .then(response => {
       console.log('받은 정보:', response.data)
       userAddress.value = response.data.user_address
@@ -37,11 +37,11 @@ const getuseraddress = () => {
       const addressArray = userAddress.value.split(' ')
       if (addressArray.length === 0) {
         location.value = '서울'
-      }        
+      }
       else if (addressArray[1] === '서울' || addressArray[1] === '부산' || addressArray[1] === '울산') {
         location.value = addressArray[1].trim()
       }
-      else{
+      else {
         location.value = addressArray[2].trim()
 
         // 시나 군으로 끝나면 맨 뒤 글자 제거
@@ -91,71 +91,47 @@ onMounted(() => {
       setInterval(() => {
         getuseraddress()
       }, 3600000) // 10분은 600000밀리초입니다.
-    } 
+    }
   }, { immediate: true }) // 초기 값에 대해서도 반응
 })
 </script>
 
-    
+
 <template>
   <div id="weather">
     <!-- 날씨 정보가 있을 경우 -->
-    <div
-      v-if="typeof weather.main !='undefined' "
-      class="d-flex align-center flex-wrap mt-4 mb-4"
-    >
+    <div v-if="typeof weather.main != 'undefined'" class="d-flex align-center flex-wrap mt-4 mb-4">
       <div style="margin-right: 8px;">
         <strong>{{ location }}</strong>
       </div>
       <div style="margin-right: 8px;">
         <div>
-          <!-- Clear -->        
-          <VIcon
-            v-if="code == 800"
-            color="error"
-          >
+          <!-- Clear -->
+          <VIcon v-if="code == 800" color="error">
             {{ icons[5] }}
           </VIcon>
           <!-- Thunderstorm -->
-          <VIcon
-            v-else-if="code.substr(0, 1) == 2"
-            color="#FFD700"
-          >
+          <VIcon v-else-if="code.substr(0, 1) == 2" color="#FFD700">
             {{ icons[0] }}
           </VIcon>
           <!-- Drizzle -->
-          <VIcon
-            v-else-if="code.substr(0, 1) == 3"
-            color="info"
-          >
+          <VIcon v-else-if="code.substr(0, 1) == 3" color="info">
             {{ icons[1] }}
           </VIcon>
           <!-- Rain -->
-          <VIcon
-            v-else-if="code.substr(0, 1) == 5"
-            color="#4169E1"
-          >
+          <VIcon v-else-if="code.substr(0, 1) == 5" color="#4169E1">
             {{ icons[2] }}
           </VIcon>
           <!-- Snow -->
-          <VIcon
-            v-else-if="code.substr(0, 1) == 6"
-            color="#6A5ACD"
-          >
+          <VIcon v-else-if="code.substr(0, 1) == 6" color="#6A5ACD">
             {{ icons[3] }}
           </VIcon>
           <!-- Atmosphere -->
-          <VIcon
-            v-else-if="code.substr(0, 1) == 7"
-            color="#C0C0C0"
-          >
+          <VIcon v-else-if="code.substr(0, 1) == 7" color="#C0C0C0">
             {{ icons[4] }}
           </VIcon>
           <!-- Clouds -->
-          <VIcon
-            v-else
-            color="#C0C0C0"
-          >
+          <VIcon v-else color="#C0C0C0">
             {{ icons[6] }}
           </VIcon>
         </div>

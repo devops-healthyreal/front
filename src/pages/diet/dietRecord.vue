@@ -6,15 +6,15 @@ import { useStore } from 'vuex'
 
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=computed(() => userInfo.value.id)
+const connetId = computed(() => userInfo.value.id)
 
 //영양소 분석 모달창
 const isSubmitDisabled = ref(true) //submit버튼 활성화 컨트롤 변수
 
 //이미지 파일 업로드 시 업로드한 이미지가 미리 보이도록 하는 함수
-const uploadImg = (e, tagId) =>{  
+const uploadImg = (e, tagId) => {
   console.log(isSubmitDisabled)
-  
+
   //(param)e : <input>태그에 발생한 change 이벤트 객체
   //(param)tagId : 업로드한 이미지를 뿌려줄 <img>태그의 아이디값
   const imgUrl = URL.createObjectURL(e.target.files[0]) //이미지 url 생성
@@ -22,7 +22,7 @@ const uploadImg = (e, tagId) =>{
   imgTag.style.width = '250px'
   imgTag.style.height = '250px'
   imgTag.src = imgUrl
-  if(tagId == 'imgBefore') {
+  if (tagId == 'imgBefore') {
     isSubmitDisabled.value = false
   }
   console.log(isSubmitDisabled)
@@ -77,19 +77,19 @@ const foodocr = async imageFile => {
         before_food.value = data.detected_food_names[0]?.replace(/"/g, '').trim() // optional chaining 사용
 
         // detected_food_names 배열의 각 요소를 순회하면서 모든 값을 저장하기
-        for(let i = 0; i < data.detected_food_names.length; i++) {
+        for (let i = 0; i < data.detected_food_names.length; i++) {
           //각 요소의 값이 존재하는지 확인하고 빈 값이 아니면 저장
-          if(data.detected_food_names[i]) {
+          if (data.detected_food_names[i]) {
             all_food_values.push(data.detected_food_names[i].replace(/"/g, '').trim())
           }
         }
 
-        console.log('저장한 데이터 확인 :', all_food_values)          
+        console.log('저장한 데이터 확인 :', all_food_values)
 
         // 음식명이 존재하는 경우에만 처리
-        if(all_food_values.length > 0) {
+        if (all_food_values.length > 0) {
           // 음식 정보를 가져와서 결과값을 저장한다.
-          const foodInfos = await Promise.all(all_food_values.map(food => getfoodinfostart(food)))        
+          const foodInfos = await Promise.all(all_food_values.map(food => getfoodinfostart(food)))
 
           console.log('모든 음식 정보:', foodInfos)
 
@@ -119,14 +119,14 @@ const foodocr = async imageFile => {
 
 const getfoodinfostart = async data => {
   try {
-    const response = await axios.get('http://localhost:4000/foodlist/foodinfo.do', { params: { foodname: data } })
+    const response = await axios.get('/foodlist/foodinfo.do', { params: { foodname: data } })
 
     console.log('받은 데이터:', response.data)
-    
+
     return response.data
   } catch (error) {
     console.error('음식 정보를 가져오는 중 오류 발생:', error)
-    
+
     return null
   }
 }
@@ -135,12 +135,12 @@ const getfoodinfostart = async data => {
 //////
 const makeDisable = () => {
   console.log('함수 실행됨')
-  
+
   return false
 }
 
 //버튼을 누르면 input태그가 클릭되도록 작동하는 함수
-const handleUpload = tagId => { 
+const handleUpload = tagId => {
   //(param)tagId : upload버튼을 눌렀을 때 실행되어야 할 <input>태그의 아이디값
   var filebtn = document.getElementById(tagId)
   console.log('파일버튼', filebtn)
@@ -156,28 +156,28 @@ const userdietinfo = ref([])
 const dietinfo = ref([])
 const checkedItems = ref([])
 
-const handleSubmit = async(connetId, selectcurr, bfood) =>{
+const handleSubmit = async (connetId, selectcurr, bfood) => {
   isNutrientAnalysisVisible.value = !isNutrientAnalysisVisible.value
   console.log('유저 ID :', connetId, '음식 :', bfood, '식사타입:', selectcurr)
-  await axios.get('http://localhost:4000/saverecord/dietinfo.do', { params: { id: connetId, ae_foodname: bfood, ae_diettype: selectcurr } })
+  await axios.get('/saverecord/dietinfo.do', { params: { id: connetId, ae_foodname: bfood, ae_diettype: selectcurr } })
     .then(response => {
       console.log('받은 데이터 :', response.data) //오늘의 식사 data를 넘겨받음
       console.log('받은 첫번째 데이터 :', response.data[0])
       userdietinfo.value = response.data
       console.log('받은 데이터 값 : ', userdietinfo.value)
 
-      axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
+      axios.get('/Dietfood/DailyView.do', { params: { 'id': connetId } })
         .then(response => {
-          if(response.data.length > 0){
+          if (response.data.length > 0) {
             // 초기화
             dietinfo.value = [[], [], []]
 
             response.data.forEach(data => {
-              if (data.mealType === '아침' && selectcurr==data.mealType) {
+              if (data.mealType === '아침' && selectcurr == data.mealType) {
                 dietinfo.value[0] = data
                 if (bfood.includes(dietinfo.value[0].eating_foodname)) {
                   console.log("bfood는", dietinfo.value[0].eating_foodname, "을 포함하고 있습니다.")
-                  axios.post('http://localhost:4000/croom/implementationSetting.do', { id: connetId })
+                  axios.post('/croom/implementationSetting.do', { id: connetId })
                     .then(response => {
                       checkedItems.value = []
                       let eattingString = response.data.eatting
@@ -190,17 +190,17 @@ const handleSubmit = async(connetId, selectcurr, bfood) =>{
                       }
 
                       checkedItems.value.push('B')
-                      axios.post('http://localhost:4000/croom/implementationFood.do', { 
+                      axios.post('/croom/implementationFood.do', {
                         foodCheckCount: checkedItems.value,
-                        id: connetId, 
+                        id: connetId,
                       })
                     })
                 }
-              } else if (data.mealType === '점심' && selectcurr==data.mealType) {
+              } else if (data.mealType === '점심' && selectcurr == data.mealType) {
                 dietinfo.value[1] = data
                 if (bfood.includes(dietinfo.value[1].eating_foodname)) {
                   console.log("bfood는", dietinfo.value[1].eating_foodname, "을 포함하고 있습니다.")
-                  axios.post('http://localhost:4000/croom/implementationSetting.do', { id: connetId })
+                  axios.post('/croom/implementationSetting.do', { id: connetId })
                     .then(response => {
                       checkedItems.value = []
                       let eattingString = response.data.eatting
@@ -217,17 +217,17 @@ const handleSubmit = async(connetId, selectcurr, bfood) =>{
                       checkedItems.value.push('L')
                       console.log("L을 추가한 이행률은??", checkedItems.value)
 
-                      axios.post('http://localhost:4000/croom/implementationFood.do', { 
+                      axios.post('/croom/implementationFood.do', {
                         foodCheckCount: checkedItems.value,
-                        id: connetId, 
+                        id: connetId,
                       })
                     })
                 }
-              } else if (data.mealType === '저녁' && selectcurr==data.mealType) {
+              } else if (data.mealType === '저녁' && selectcurr == data.mealType) {
                 dietinfo.value[2] = data
                 if (bfood.includes(dietinfo.value[2].eating_foodname)) {
                   console.log("bfood는", dietinfo.value[2].eating_foodname, "을 포함하고 있습니다.")
-                  axios.post('http://localhost:4000/croom/implementationSetting.do', { id: connetId })
+                  axios.post('/croom/implementationSetting.do', { id: connetId })
                     .then(response => {
                       checkedItems.value = []
                       let eattingString = response.data.eatting
@@ -239,9 +239,9 @@ const handleSubmit = async(connetId, selectcurr, bfood) =>{
                         checkedItems.value = eattingArray
                       }
                       checkedItems.value.push('D')
-                      axios.post('http://localhost:4000/croom/implementationFood.do', { 
+                      axios.post('/croom/implementationFood.do', {
                         foodCheckCount: checkedItems.value,
-                        id: connetId, 
+                        id: connetId,
                       })
                     })
                 }
@@ -256,7 +256,7 @@ const handleSubmit = async(connetId, selectcurr, bfood) =>{
 
 <template>
   <VCard>
-    <VCardItem :style="{'background-color':'#F6F6F6'}">
+    <VCardItem :style="{ 'background-color': '#F6F6F6' }">
       <VCardText>
         <p class="text-h4">
           식단의 사진을 등록해주세요
@@ -266,54 +266,28 @@ const handleSubmit = async(connetId, selectcurr, bfood) =>{
         </VChip>
       </VCardText>
     </VCardItem>
-    <VRow :style="{'margin-top':'120px', 'display':'flex', 'justify-content':'center'}">
-      <VCol
-        cols="6"
-        :style="{'display':'flex', 'justify-content':'center'}"
-      >
-        <VCard
-          class="text-high-emphasis text-center"
-          :style="{'width':'80%', 'margin-bottom':'100px'}"
-        >
+    <VRow :style="{ 'margin-top': '120px', 'display': 'flex', 'justify-content': 'center' }">
+      <VCol cols="6" :style="{ 'display': 'flex', 'justify-content': 'center' }">
+        <VCard class="text-high-emphasis text-center" :style="{ 'width': '80%', 'margin-bottom': '100px' }">
           <VCol>
-            <VSelect
-              v-model="selectcurr"
-              :items="selectitem"
-              label="식사를 선택해주세요"
-              placeholder="식사를 선택해주세요"
-            />
+            <VSelect v-model="selectcurr" :items="selectitem" label="식사를 선택해주세요" placeholder="식사를 선택해주세요" />
           </VCol>
           <!-- 식전사진 업로드 -->
-          <div :style="{'margin':'30px'}">
+          <div :style="{ 'margin': '30px' }">
             <h2>식전 사진</h2>
           </div>
-          <VCardItem :style="{'margin-top':'10px'}">
-            <input
-              id="filebtn"
-              type="file"
-              accept="image/*"
-              hidden
-              @change="uploadImg($event,'imgBefore')"
-            >
+          <VCardItem :style="{ 'margin-top': '10px' }">
+            <input id="filebtn" type="file" accept="image/*" hidden @change="uploadImg($event, 'imgBefore')">
             <!-- label의 for속성값과 input의 id값을 맞춰줘야 label영역을 클릭했을 때 input태그가 활성화됨 -->
-            <label
-              for="filebtn"
-              class="input-plus"
-            > 
-              <div :style="{'width':'100%', 'height':'300px', 'display':'flex','justify-content': 'center','align-items': 'center'}">
-                <img
-                  id="imgBefore"
-                  :style="{'width':'50px', 'height':'60px'}"
-                  src="@images/noimage.png"
-                >
+            <label for="filebtn" class="input-plus">
+              <div
+                :style="{ 'width': '100%', 'height': '300px', 'display': 'flex', 'justify-content': 'center', 'align-items': 'center' }">
+                <img id="imgBefore" :style="{ 'width': '50px', 'height': '60px' }" src="@images/noimage.png">
               </div>
             </label>
           </VCardItem>
           <VCardText>
-            <p
-              v-if="before_food == ''"
-              class="text-base clamp-text"
-            >
+            <p v-if="before_food == ''" class="text-base clamp-text">
               음식이 모두 보이도록<br>사진을 업로드해주세요.
             </p>
             <p v-else>
@@ -327,60 +301,43 @@ const handleSubmit = async(connetId, selectcurr, bfood) =>{
           <ShareProjectDialog v-model:isDialogVisible="isShareProjectDialogVisible" />
         </VCard> <!-- 식전사진 업로드 end -->
       </VCol>
-      <VCol
-        cols="6"
-        :style="{'display':'flex', 'justify-content':'center'}"
-      >
-        <VCard
-          class="text-high-emphasis text-center"
-          :style="{'width':'80%', 'margin-bottom':'100px'}"
-        >
+      <VCol cols="6" :style="{ 'display': 'flex', 'justify-content': 'center' }">
+        <VCard class="text-high-emphasis text-center" :style="{ 'width': '80%', 'margin-bottom': '100px' }">
           <!-- 식후사진 업로드 -->
-          <div :style="{'display':'flex', 'justify-content':'center','margin':'30px'}">
-            <strong style="font-size: x-large;">업로드한 식단 정보</strong>            
-          </div>          
-          <VCardItem
-            v-if="bfood"
-            :style="{'margin-top':'10px'}"
-          >
+          <div :style="{ 'display': 'flex', 'justify-content': 'center', 'margin': '30px' }">
+            <strong style="font-size: x-large;">업로드한 식단 정보</strong>
+          </div>
+          <VCardItem v-if="bfood" :style="{ 'margin-top': '10px' }">
             <VCol>
               칼로리 : {{ totalCalory }} ㎉
             </VCol>
-            <VCol>            
+            <VCol>
               탄수화물 : {{ totalCarbohydrate }} g
             </VCol>
-            <VCol>            
+            <VCol>
               단백질 : {{ totalProtein }} g
             </VCol>
-            <VCol>            
+            <VCol>
               지방 : {{ totalFat }} g
             </VCol>
-            <VCol>            
-              나트륨 : {{ totalSodium/1000 }} g
+            <VCol>
+              나트륨 : {{ totalSodium / 1000 }} g
             </VCol>
-            <VCol>            
-              콜레스트롤 : {{ totalCholesterol/1000 }} g
+            <VCol>
+              콜레스트롤 : {{ totalCholesterol / 1000 }} g
             </VCol>
           </VCardItem>
           <ShareProjectDialog v-model:isDialogVisible="isShareProjectDialogVisible" />
         </VCard>
       </VCol>
     </VRow>
-    <VRow :style="{'display':'flex', 'justify-content': 'center'}">
-      <VBtn
-        :disabled="isSubmitDisabled"
-        :style="{'margin-bottom':'50px'}"        
-        @click="handleSubmit(connetId, selectcurr, bfood)"
-      >
+    <VRow :style="{ 'display': 'flex', 'justify-content': 'center' }">
+      <VBtn :disabled="isSubmitDisabled" :style="{ 'margin-bottom': '50px' }"
+        @click="handleSubmit(connetId, selectcurr, bfood)">
         <!-- @click="isNutrientAnalysisVisible = !isNutrientAnalysisVisible" -->
         SUBMIT
       </VBtn>
-      <NutrientAnalysis
-        v-model:isDialogVisible="isNutrientAnalysisVisible"
-        :userdietinfo="userdietinfo"
-      />
+      <NutrientAnalysis v-model:isDialogVisible="isNutrientAnalysisVisible" :userdietinfo="userdietinfo" />
     </VRow>
   </VCard>
 </template>
-
-

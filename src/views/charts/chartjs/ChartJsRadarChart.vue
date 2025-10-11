@@ -23,7 +23,7 @@ const chartConfig = computed(() => getRadarChartConfig(vuetifyTheme.current.valu
 onMounted(async () => { await setting() })
 
 const setting = async () => {
-  const response = await axios.post('http://localhost:4000/Inbody/findinbody.do',  { id: connetId } )
+  const response = await axios.post('/Inbody/findinbody.do', { id: connetId })
 
   console.log("인바디 데이타!!response.data:", response.data)
 
@@ -59,11 +59,6 @@ const setting = async () => {
 <template>
   <div>
     <!-- isDataLoaded가 true일 때만 RadarChart 컴포넌트를 렌더링합니다. -->
-    <RadarChart
-      v-if="isDataLoaded"
-      :height="400"
-      :chart-data="chartData"
-      :chart-options="chartConfig"
-    />
+    <RadarChart v-if="isDataLoaded" :height="400" :chart-data="chartData" :chart-options="chartConfig" />
   </div>
 </template>
