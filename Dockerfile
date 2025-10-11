@@ -10,11 +10,11 @@ WORKDIR /app
 COPY package*.json ./
 COPY yarn.lock* ./
 
+# Copy @iconify BEFORE npm install (required for postinstall script)
+COPY src/@iconify ./src/@iconify
+
 # Install all dependencies (including devDependencies for build)
 RUN npm ci --silent
-
-# Copy @iconify for build:icons
-COPY src/@iconify ./src/@iconify
 
 # Copy source code
 COPY . .
