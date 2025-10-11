@@ -4,8 +4,7 @@ import Calendar from '@/pages/apps/calendar.vue'
 import Timeline from '@/pages/components/timeline.vue'
 import CrmActivityTimeline from '@/views/dashboards/crm/CrmActivityTimeline.vue'
 import axios from '@axios'
-import mainImg from "@images/cards/card-meetup_copy_1.jpg"
-import { computed, onUpdated, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import MainMap from './exercise/map/MainMap.vue'
@@ -86,7 +85,7 @@ const getEatingRecord = async () => {
   
 }
 
-onUpdated(() => {
+onMounted(() => {
   // 다른 함수를 실행
   getEatingRecord()
 
@@ -169,14 +168,18 @@ const handleSummaryUpdate = newSummaryArray => {
 const startTTS = () => {
   startSynthesis(summaryData.value.summary)
 }
+
+const refreshTimeline = ref(0);
+function onCalendarUpdated() {
+  // 키 변경 → Timeline이 watch해서 재조회
+  console.log('캘린더 변경 감지 - 타임라인 새로고침');
+  refreshTimeline.value++
+}
+
 </script>
 
 <template>
   <section>
-    <VImg
-      :src="mainImg"
-      style="width: auto; margin-bottom: 30px;"
-    />
     <VRow class="fill-height">
       <VCol
         cols="12"
@@ -193,7 +196,7 @@ const startTTS = () => {
               </h6>
             </VExpansionPanelTitle>
             <VExpansionPanelText>
-              <Calendar :connet-id="userInfo.id" />
+              <Calendar :connet-id="userInfo.id" @events-updated="onCalendarUpdated" />
             </VExpansionPanelText>
           </VExpansionPanel>
         </VExpansionPanels>
@@ -313,6 +316,7 @@ const startTTS = () => {
           v-model:rpathNo="rpathNo"
           @update:summary="handleSummaryUpdate"
           @click="test"
+          :refreshKey="refreshTimeline"
         />
         <Timeline />
       </VCol>
