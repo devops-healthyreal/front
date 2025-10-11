@@ -46,7 +46,7 @@
         "src/styles/*"
       ],
       "@axios": [
-        "src/plugins/axios"
+        "src/plugins/axiosflask"
       ],
       "@validators": [
         "src/@core/utils/validators"
