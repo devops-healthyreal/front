@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - dev
-      - main
+      - release
   workflow_dispatch:  # Allow manual trigger
 
 # Permissions for GITHUB_TOKEN
@@ -45,8 +45,8 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: dev
-          base: main
-          title: "🚀 [Auto PR] Deploy dev to main"
+          base: release
+          title: "🚀 [Auto PR] Deploy dev to release"
           body: |
             ## 📦 자동 생성된 배포 PR
             
@@ -87,7 +87,7 @@ jobs:
   
   # Notify Jenkins on main branch push
   notify-jenkins:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/release'
     runs-on: ubuntu-latest
     
     steps:

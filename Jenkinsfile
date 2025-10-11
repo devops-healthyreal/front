@@ -4,7 +4,7 @@ pipeline {
     environment {
         // Docker configuration
         DOCKER_IMAGE_NAME = 'healthyreal-vue'
-        DOCKERHUB_CREDENTIALS = credentials('jimin dockerhub credentials')
+        DOCKERHUB_CREDENTIALS = credentials('jimin-dockerhub-credentials')
         CONTAINER_NAME = 'healthyreal-vue-dev'
         EXTERNAL_PORT = '7001'
         INTERNAL_PORT = '7001'  // Dev server port
@@ -26,16 +26,16 @@ pipeline {
                 echo 'Checking out code from GitHub...'
                 echo '======================================'
                 
-                // 팀 서버 - main 브랜치만 빌드
+                // 팀 서버 - release 브랜치 빌드 (테스트용)
                 checkout([$class: 'GitSCM', 
-                    branches: [[name: '*/main']], 
+                    branches: [[name: '*/release']], 
                     userRemoteConfigs: scm.userRemoteConfigs
                 ])
                 
                 // Display current commit info
                 sh '''
                     echo "Current commit: $(git rev-parse --short HEAD)"
-                    echo "Branch: main (production)"
+                    echo "Branch: release (testing)"
                     echo "Commit message: $(git log -1 --pretty=%B)"
                     echo "Repository: ${GIT_URL}"
                 '''
