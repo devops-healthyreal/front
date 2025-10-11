@@ -1,7 +1,7 @@
 
 // store/modules/loginStore.js
 import axiosIns from '@/plugins/axios'
-import axiosflask from '@/plugins/axiosflask'
+import axiosflask from '@/plugins/axios'
 import router from '@/router'
 import axios from '@axios'
 
