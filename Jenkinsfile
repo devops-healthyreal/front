@@ -71,7 +71,7 @@ pipeline {
                             docker build \
                                 -t ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:latest \
                                 -t ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} \
-                                -t ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:$(git rev-parse --short HEAD) \
+                                -t ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:\$(git rev-parse --short HEAD) \
                                 -f ${DOCKERFILE_PATH} \
                                 .
                         """
@@ -96,7 +96,7 @@ pipeline {
                     sh """
                         docker push ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:latest
                         docker push ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}
-                        docker push ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:$(git rev-parse --short HEAD)
+                        docker push ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:\$(git rev-parse --short HEAD)
                     """
                     
                     // Logout from DockerHub
