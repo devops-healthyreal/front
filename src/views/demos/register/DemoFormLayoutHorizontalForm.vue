@@ -5,6 +5,7 @@ import AddressApi from '@/views/demos/register/AddressApi.vue'
 import Sub from '@/views/demos/register/DemoSelectCustomTextAndValue.vue'
 import Myradio from '@/views/demos/register/Myradio.vue'
 import axios from '@axios'
+import { API_BASE_URL } from '@/config'
 import { onBeforeUnmount, onMounted, provide, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Birthyday from './Birthyday.vue'
@@ -38,7 +39,7 @@ const emits = defineEmits({
 
 // Axios 인스턴스 생성
 const instance = axios.create({
-  baseURL: 'http://localhost:4000/',
+  baseURL: API_BASE_URL,
 })
 
 

@@ -2,6 +2,7 @@
 import AddressApi from '@/views/demos/register/AddressApi.vue'
 import Sub from '@/views/demos/register/DemoSelectCustomTextAndValue.vue'
 import axios from '@axios'
+import { API_BASE_URL } from '@/config'
 import { onBeforeUnmount, onMounted, provide, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
@@ -67,7 +68,7 @@ const getUserInfo = async () => {
       return
     }
 
-    const response = await axios.get(`http://localhost:4000/getMemberById?id=${userId.value}`, { withCredentials: true })
+    const response = await axios.get(`/getMemberById?id=${userId.value}`, { withCredentials: true })
     
     // response.data에서 필요한 사용자 정보를 추출합니다.
     const { id, gender, weight, height, goal_No, tel, userAddress } = response.data
@@ -92,7 +93,7 @@ getUserInfo()
 
 // Axios 인스턴스 생성
 const instance = axios.create({
-  baseURL: 'http://localhost:4000/',
+  baseURL: API_BASE_URL,
 })
 
 

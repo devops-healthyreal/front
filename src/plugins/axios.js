@@ -2,12 +2,16 @@ import router from '@/router'
 
 import axios from 'axios'
 
+// 환경에 따라 baseURL 자동 설정
+const baseURL = import.meta.env.PROD 
+  ? '/api'  // 프로덕션: 상대 경로 (Nginx가 /api/)
+  : 'http://localhost:4000'  // 개발: 로컬  서버
+
 const axiosIns = axios.create({
-// You can add your headers here
-// ================================
-// baseURL: 'https://some-domain.com/api/',
-// timeout: 1000,
-// headers: {'X-Custom-Header': 'foobar'}
+  baseURL: baseURL,
+  timeout: 30000,
+  withCredentials: true,
+  // headers: {'X-Custom-Header': 'foobar'}
 })
 
 
