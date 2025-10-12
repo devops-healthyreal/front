@@ -54,24 +54,24 @@ else {
 
 var messaging
 
-Notification.requestPermission().then(permission=>{
+Notification.requestPermission().then(permission => {
   console.log('permission', permission)
-  if (permission=='granted') {
+  if (permission == 'granted') {
     console.log('have permission')
-    
-  } else{
+
+  } else {
     console.log('FCM rejected by user')
   }
 })
- 
+
 console.log('firebase.messaging(firebaseApp):', messaging)
 
-if('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && firebase.messaging.isSupported()) {
   Notification.requestPermission().then(permission => {
     if (permission === 'granted') {
-      window.addEventListener('load', ()=>{
+      window.addEventListener('load', () => {
         return navigator.serviceWorker.register('sw.js') //포그라운드에서 실행될 파일
-          .then(registration=>{
+          .then(registration => {
             console.log('등록 완료', registration)
             messaging = firebase.messaging()
             messaging = firebase.messaging(firebaseApp)
@@ -94,25 +94,25 @@ if('serviceWorker' in navigator) {
                   })
               }
             })
-            
+
             return messaging.getToken(messaging, { vapidKey: config.vapidKey })
           })
-          .then(token=>{console.log(token)})
-          .catch(err=>console.error(err))
+          .then(token => { console.log(token) })
+          .catch(err => console.error(err))
       })
     }
-    else {console.log('알림이 차단됨')}
+    else { console.log('알림이 차단됨') }
   })
-  
+
 }
 
 
 
 //#4. 브라우저 백그라운드 진입시 사용할 파일 적용
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker
-    .register("firebase-messaging-sw.js")
-    .then(function (registration) {
-      console.log("ServiceWorker registration successful with scope: ")
-    })
-}
+// if ("serviceWorker" in navigator) {
+//   navigator.serviceWorker
+//     .register("firebase-messaging-sw.js")
+//     .then(function (registration) {
+//       console.log("ServiceWorker registration successful with scope: ")
+//     })
+// }
