@@ -27,16 +27,16 @@ pipeline {
                 echo 'Checking out code from GitHub...'
                 echo '======================================'
                 
-                // 팀 서버 - release 브랜치 빌드 (테스트용)
+                // 팀 서버 - main 브랜치 빌드  
                 checkout([$class: 'GitSCM', 
-                    branches: [[name: '*/release']], 
+                    branches: [[name: '*/main']], 
                     userRemoteConfigs: scm.userRemoteConfigs
                 ])
                 
                 // Display current commit info
                 sh '''
                     echo "Current commit: $(git rev-parse --short HEAD)"
-                    echo "Branch: release (testing)"
+                    echo "Branch: main (testing)"
                     echo "Commit message: $(git log -1 --pretty=%B)"
                     echo "Repository: ${GIT_URL}"
                 '''
