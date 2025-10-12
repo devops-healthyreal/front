@@ -36,9 +36,13 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create nginx cache directory
+# Create nginx cache and run directories with proper permissions
+# /run/nginx: PID 파일 생성을 위한 디렉터리 (권한 문제 해결)
+# /var/cache/nginx: Nginx 캐시 디렉터리
 RUN mkdir -p /var/cache/nginx && \
+    mkdir -p /run/nginx && \
     chown -R nginx:nginx /var/cache/nginx && \
+    chown -R nginx:nginx /run/nginx && \
     chown -R nginx:nginx /usr/share/nginx/html
 
 # Expose port 7001 (configured in nginx.conf)
