@@ -17,6 +17,7 @@ pipeline {
         // Deployment configuration
         DEPLOY_SERVER = '13.124.109.82'
         DEPLOY_USER = 'ubuntu'
+        DEPLOY_PATH = '/home/ubuntu/healthyreal-vue'
     }
     
     stages {
@@ -158,15 +159,24 @@ pipeline {
                 echo '======================================'
                 script {
                     sshagent(credentials: ['admin']) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} << EOF
+                                # Create directory if it doesn't exist
+                                mkdir -p ${DEPLOY_PATH}
+                                
+                                exit
+EOF
+                        """
+                        
                         // Copy docker-compose.yml to production server
                         sh """
-                            scp -o StrictHostKeyChecking=no docker-compose.yml ${DEPLOY_USER}@${DEPLOY_SERVER}:/opt/healthyreal-vue/
+                            scp -o StrictHostKeyChecking=no docker-compose.yml ${DEPLOY_USER}@${DEPLOY_SERVER}:${DEPLOY_PATH}/
                         """
                         
                         // Deploy Vue Frontend on production server
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} '
-                                cd /opt/healthyreal-vue
+                            ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} << EOF
+                                cd ${DEPLOY_PATH}
                                 
                                 # Ensure Docker network exists (for communication with backend services)
                                 docker network create healthyreal-network || true
@@ -188,13 +198,15 @@ pipeline {
                                         echo "Vue container is healthy!"
                                         break
                                     fi
-                                    echo "Waiting... (\$i/30)"
+                                    echo "Waiting... (\\\$i/30)"
                                     sleep 2
                                 done
                                 
                                 # Clean up old images
                                 docker image prune -f || true
-                            '
+                                
+                                exit
+EOF
                         """
                     }
                 }
@@ -212,22 +224,24 @@ pipeline {
                     sshagent(credentials: ['admin']) {
                         // Check Vue deployment on production server
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} '
+                            ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} << EOF
                                 echo "Vue container status:"
                                 docker ps -f name=${CONTAINER_NAME}
                                 
-                                echo "\nVue container logs (last 20 lines):"
+                                echo "\\nVue container logs (last 20 lines):"
                                 docker logs --tail 20 ${CONTAINER_NAME}
                                 
-                                echo "\nVue container health status:"
+                                echo "\\nVue container health status:"
                                 docker inspect --format="{{.State.Health.Status}}" ${CONTAINER_NAME} || echo "Health check not available yet"
                                 
-                                echo "\nTesting Vue health endpoint:"
+                                echo "\\nTesting Vue health endpoint:"
                                 curl -f http://localhost:${EXTERNAL_PORT}/health || echo "Vue health check failed"
                                 
-                                echo "\nTesting Vue frontend:"
+                                echo "\\nTesting Vue frontend:"
                                 curl -f http://localhost:${EXTERNAL_PORT}/ || echo "Vue frontend not accessible"
-                            '
+                                
+                                exit
+EOF
                         """
                     }
                 }
@@ -268,13 +282,15 @@ pipeline {
             script {
                 sshagent(credentials: ['admin']) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} '
+                        ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} << EOF
                             if docker ps -aq -f name=${CONTAINER_NAME}; then
                                 echo "Container logs:"
                                 docker logs ${CONTAINER_NAME}
                             fi
-                        ' || true
-                    """
+                            
+                            exit
+EOF
+                    """ || true
                 }
             }
         }
