@@ -182,14 +182,14 @@ EOF
                                 docker network create healthyreal-network || true
                                 
                                 # Pull latest Vue image
-                                docker-compose pull vue-dev
+                                docker compose pull vue-dev
                                 
                                 # Stop and remove old Vue container
-                                docker-compose stop vue-dev || true
-                                docker-compose rm -f vue-dev || true
+                                docker compose stop vue-dev || true
+                                docker compose rm -f vue-dev || true
                                 
                                 # Start new Vue container
-                                docker-compose up -d vue-dev
+                                docker compose up -d vue-dev
                                 
                                 # Wait for health check
                                 echo "Waiting for Vue container to be healthy..."
