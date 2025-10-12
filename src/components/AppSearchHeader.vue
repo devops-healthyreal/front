@@ -1,5 +1,5 @@
 <script setup>
-import axios from '@axios'
+import axiosflask from '@/plugins/axiosflask'
 import { useGenerateImageVariant } from '@core/composable/useGenerateImageVariant'
 import AppSearchHeaderBgDark from '@images/pages/app-search-header-bg-dark.png'
 import AppSearchHeaderBgLight from '@images/pages/app-search-header-bg-light.png'
@@ -36,10 +36,12 @@ const loading = ref(false)
 const kincrawling = () => {
   showSuggestions.value = false
   loading.value = true //로딩 시작
-  axios.get('http://localhost:5000/kinCrawling', { params: {
-    search: searchKeyword.value,
-    id: props.connetId,
-  } })
+  axiosflask.get('/kinCrawling', {
+    params: {
+      search: searchKeyword.value,
+      id: props.connetId,
+    }
+  })
     .then(response => {
       kincrawlingresult.value = response.data
 
@@ -50,7 +52,7 @@ const kincrawling = () => {
     .catch(error => {
       console.error(error)
     })
-    .finally(() =>{
+    .finally(() => {
       loading.value = false //로딩 상태 종료
     })
 }
@@ -122,68 +124,37 @@ window.addEventListener('keydown', event => {
 </script>
 
 <template>
-  <VCard
-    flat
-    class="text-center search-header"
-    :class="props.customClass"
-    :style="`background: url(${themeBackgroundImg});`"
-  >
+  <VCard flat class="text-center search-header" :class="props.customClass"
+    :style="`background: url(${themeBackgroundImg});`">
     <VCardText style=" height: 150px;align-items: center;">
       <h5 class="text-h5 text-primary mb-6">
         {{ props.title }}
       </h5>
-      <VTextField
-        ref="searchInput"
-        v-model="searchKeyword"
-        placeholder="Search"
-        class="search-header-input mx-auto my-3"
-        @input="handleInput"
-        @keyup.enter="kincrawling"
-      >
+      <VTextField ref="searchInput" v-model="searchKeyword" placeholder="Search"
+        class="search-header-input mx-auto my-3" @input="handleInput" @keyup.enter="kincrawling">
         <template #prepend-inner>
-          <VIcon
-            icon="mdi-magnify"
-            size="24"
-          />        
+          <VIcon icon="mdi-magnify" size="24" />
         </template>
         <Transition name="fade">
-          <ul
-            v-if="showSuggestions"
-            class="autocomplete-suggestions"
-            style=" margin-top: 11%;"
-          >
-            <li
-              v-for="(suggestion, index) in suggestions"
-              :key="suggestion"
+          <ul v-if="showSuggestions" class="autocomplete-suggestions" style=" margin-top: 11%;">
+            <li v-for="(suggestion, index) in suggestions" :key="suggestion"
               :class="{ 'selected': index === selectedSuggestion }"
               style="background-color: rgb(255, 255, 255); color: rgb(3, 141, 37);"
-              @click="selectSuggestion(suggestion)"
-            >
+              @click="selectSuggestion(suggestion)">
               <strong>{{ suggestion }}</strong>
             </li>
           </ul>
         </Transition>
       </VTextField>
       <!-- 로딩 표시 -->
-      <div
-        v-if="loading"
-        class="loading-indicator"
-        style="font-weight: bold;"
-      >
+      <div v-if="loading" class="loading-indicator" style="font-weight: bold;">
         Loading...
       </div>
-      <VProgressLinear
-        v-if="loading"
-        indeterminate
-        color="primary"
-      />
-      
-      
+      <VProgressLinear v-if="loading" indeterminate color="primary" />
 
-      <p
-        v-if="!loading"
-        style="font-weight: bold;"
-      >
+
+
+      <p v-if="!loading" style="font-weight: bold;">
         {{ props.subtitle }}
       </p>
     </VCardText>

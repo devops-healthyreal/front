@@ -40,12 +40,12 @@ const scrollToBottomInChatLog = () => {
   scrollEl.scrollTop = scrollEl.scrollHeight
 }
 
-const openChatOfContact = async()  => {
+const openChatOfContact = async () => {
   await allData(props.mateNo)
 
   // Reset message input
   msg.value = ''
-  
+
   // if smAndDown =>  Close Chat & Contacts left sidebar
   if (vuetifyDisplays.smAndDown.value)
     isLeftSidebarOpen.value = false
@@ -67,11 +67,11 @@ async function sendMessage(msgValue) {
   if (msgValue && msgValue.trim() !== "") {
     try {
       // 서버에 메시지 전송 요청
-      const response = await axios.post("http://localhost:4000/chat/challWrite.do", { content: msgValue, id: connetId, mateNo: props.mateNo, ruser: 'all' })
-      
-      
+      const response = await axios.post("/chat/challWrite.do", { content: msgValue, id: connetId, mateNo: props.mateNo, ruser: 'all' })
+
+
       console.log('메시지 전송 성공')
-      
+
 
       // 웹소켓을 통해 메시지 전송
       props.socket.send(JSON.stringify({ content: msgValue, id: connetId, mateNo: props.mateNo, ruser: 'all' }))
@@ -83,7 +83,7 @@ async function sendMessage(msgValue) {
         senderId: connetId,
         notice: false, // 이 부분은 실제 메시지 데이터 구조에 맞게 수정해야 합니다.
       })
-      
+
       // 입력 필드 초기화
       msg.value = ""
 
@@ -96,7 +96,7 @@ async function sendMessage(msgValue) {
 let chat = ref([])
 async function allData(mateNo) {
   try {
-    const response = await axios.post("http://localhost:4000/chat/allChallChating.do", { mateNo: mateNo })
+    const response = await axios.post("/chat/allChallChating.do", { mateNo: mateNo })
 
     console.log("받은 데이타", response)
     if (response.data && Array.isArray(response.data)) {
@@ -135,7 +135,7 @@ const msgGroups = computed(() => {
 })
 
 onMounted(() => {
-  props.socket.onmessage = function(event) {
+  props.socket.onmessage = function (event) {
     // 메시지 파싱
     const messageData = JSON.parse(event.data)
 
@@ -151,7 +151,7 @@ onMounted(() => {
 
 const getProfileImagePath = id => {
   const participant = props.participantsData.find(p => p.ID === id)
-  
+
   return participant ? participant.PRO_FILEPATH : ''
 }
 
@@ -169,19 +169,9 @@ console.log("채팅창2", msgGroups)
         <div class="active-chat-header d-flex align-center text-medium-emphasis">
           <!-- avatar -->
 
-          <div
-            v-for="(participant, index) in props.participantsData"
-            :key="index"
-          >
-            <VAvatar
-              size="40"
-              :variant="!participant.PRO_FILEPATH ? 'tonal' : undefined"
-              class="cursor-pointer"
-            >
-              <VImg
-                v-if="participant.PRO_FILEPATH"
-                :src="participant.PRO_FILEPATH"
-              />
+          <div v-for="(participant, index) in props.participantsData" :key="index">
+            <VAvatar size="40" :variant="!participant.PRO_FILEPATH ? 'tonal' : undefined" class="cursor-pointer">
+              <VImg v-if="participant.PRO_FILEPATH" :src="participant.PRO_FILEPATH" />
             </VAvatar>
           </div>
 
@@ -191,45 +181,29 @@ console.log("채팅창2", msgGroups)
         <VDivider />
 
         <!-- Chat log -->
-        <PerfectScrollbar
-          ref="chatLogPS"
-          tag="ul"
-          :options="{ wheelPropagation: false }"
-          class="flex-grow-6"
-        >
+        <PerfectScrollbar ref="chatLogPS" tag="ul" :options="{ wheelPropagation: false }" class="flex-grow-6">
           <div class="chat-log pa-5">
-            <div
-              v-for="(msgGrp, index) in msgGroups"
-              :key="'msgGrp-' + index"
-              class="chat-group d-flex align-start"
+            <div v-for="(msgGrp, index) in msgGroups" :key="'msgGrp-' + index" class="chat-group d-flex align-start"
               :class="[
                 msgGrp.senderId !== connetId ? 'flex-row' : 'flex-row-reverse',
                 { 'mb-8': msgGroups?.length - 1 !== index }
-              ]"
-            >
-              <div
-                class="chat-avatar"
-                :class="msgGrp.senderId !== connetId ? 'me-4' : 'ms-4'"
-              >
+              ]">
+              <div class="chat-avatar" :class="msgGrp.senderId !== connetId ? 'me-4' : 'ms-4'">
                 <VAvatar size="32">
                   <VImg :src="msgGrp.senderId === connetId ? connetAv : getProfileImagePath(msgGrp.senderId)" />
                 </VAvatar>
               </div>
-              <div
-                class="chat-body d-inline-flex flex-column"
-                :class="msgGrp.senderId !== connetId ? 'align-start' : 'align-end'"
-              >
-                <p
-                  class="chat-content text-sm py-3 px-4 elevation-1"
-                  :class="[
-                    msgGrp.senderId === connetId ? 'bg-primary text-white chat-right' : 'bg-surface chat-left',
-                    { 'mb-3': msgGroups?.length - 1 !== index },
-                  ]"
-                >
+              <div class="chat-body d-inline-flex flex-column"
+                :class="msgGrp.senderId !== connetId ? 'align-start' : 'align-end'">
+                <p class="chat-content text-sm py-3 px-4 elevation-1" :class="[
+                  msgGrp.senderId === connetId ? 'bg-primary text-white chat-right' : 'bg-surface chat-left',
+                  { 'mb-3': msgGroups?.length - 1 !== index },
+                ]">
                   {{ msgGrp.messages[0].message }}
                 </p>
                 <div :class="{ 'text-right': msgGrp.senderId === connetId }">
-                  <span class="text-xs me-1 text-disabled">{{ formatDate(msgGrp.messages[msgGrp.messages.length - 1].time, { hour: 'numeric', minute: 'numeric' }) }}</span>
+                  <span class="text-xs me-1 text-disabled">{{ formatDate(msgGrp.messages[msgGrp.messages.length -
+                    1].time, { hour: 'numeric', minute: 'numeric' }) }}</span>
                 </div>
               </div>
             </div>
@@ -238,24 +212,12 @@ console.log("채팅창2", msgGroups)
 
         <!-- Message form -->
         <VForm class="chat-log-message-form mb-5 mx-5">
-          <VTextField
-            v-model="msg"
-            variant="solo"
-            class="chat-message-input"
-            placeholder="메세지를 입력하세요"
-            autofocus
-          >
+          <VTextField v-model="msg" variant="solo" class="chat-message-input" placeholder="메세지를 입력하세요" autofocus>
             <template #append-inner>
               <IconBtn>
-                <VIcon
-                  icon="mdi-microphone-outline"
-                  size="22"
-                />
+                <VIcon icon="mdi-microphone-outline" size="22" />
               </IconBtn>
-              <VBtn
-                type="submit"
-                @click="sendMessage(msg)"
-              >
+              <VBtn type="submit" @click="sendMessage(msg)">
                 보내기
               </VBtn>
             </template>
@@ -330,7 +292,8 @@ $chat-app-header-height: 68px;
 }
 
 .chat-log {
-  block-size: 500px; /* 원하는 높이로 설정 */
+  block-size: 500px;
+  /* 원하는 높이로 설정 */
   overflow-y: auto;
 
   .chat-content {

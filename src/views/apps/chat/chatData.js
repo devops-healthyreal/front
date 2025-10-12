@@ -1,5 +1,5 @@
 import axios from '@axios'
-import { onMounted, ref, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 
 export default function useDatabase() {
@@ -55,7 +55,7 @@ export default function useDatabase() {
   async function fetchDatabase(userId) {
     try {
   
-      const response = await axios.get("http://localhost:4000/comm/profile", { params: { id: userId } })
+      const response = await axios.get("/comm/profile", { params: { id: userId } })
   
       if (response.data) {
         database.value.profileUser.id = userId
@@ -76,7 +76,7 @@ export default function useDatabase() {
   async function allData(userId) {
     try {
   
-      const response = await axios.get("http://localhost:4000/chat/allChating.do", { params: { id: userId } })
+      const response = await axios.get("/chat/allChating.do", { params: { id: userId } })
   
       if (response.data && Array.isArray(response.data)) {
   
@@ -131,7 +131,7 @@ export default function useDatabase() {
 
   async function fetchFriendDatabase(userId) {
     try {
-      const response = await axios.get("http://localhost:4000/comm/friend", { params: { id: userId } })
+      const response = await axios.get("/comm/friend", { params: { id: userId } })
       
       if (response.data && Array.isArray(response.data)) {
 

@@ -27,12 +27,12 @@ const state = reactive({
 })
 
 // axios를 사용하여 데이터를 받는 함수
-const getData = async function() {
+const getData = async function () {
 
   try {
     console.log("props.id", props.id)
 
-    const response = await axios.get(`http://localhost:4000/bbs/ViewMy.do?id=${props.id}`, {
+    const response = await axios.get(`/bbs/ViewMy.do?id=${props.id}`, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -54,7 +54,7 @@ const getData = async function() {
 //삭제코드
 const deleteItem = async bno => {
   try {
-    const response = await axios.get(`http://localhost:4000/bbs/${bno}/Delete.do`)
+    const response = await axios.get(`/bbs/${bno}/Delete.do`)
     if (response.data === 1) {
       const bnoInt = parseInt(bno) // bno를 숫자로 변환
 
@@ -71,7 +71,7 @@ const deleteItem = async bno => {
 // 글 수정 코드
 const submitEdit = async bno => {
   try {
-    const response = await axios.get('http://localhost:4000/bbs/ViewOne.do', { params: { bno: bno } })
+    const response = await axios.get('/bbs/ViewOne.do', { params: { bno: bno } })
 
     if (response.status === 200) {
       console.log('글 번호 전송 성공')
@@ -100,10 +100,10 @@ const statecomm = ref({
   comment: [],
 })
 
-const getComment = async function() {
+const getComment = async function () {
 
   try {
-    const response = await axios.get('http://localhost:4000/commentline/View.do', {
+    const response = await axios.get('/commentline/View.do', {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -121,7 +121,7 @@ const getComment = async function() {
         } else {
           acc[bbsNoAll] = [curr]
         }
-        
+
         return acc
       }, {})
 
@@ -147,13 +147,13 @@ const getComment = async function() {
       console.log('특정 게시물 데이타', groupedDataAll.value)
 
       postmodalData.value = {
-        comments: groupedDataAll.value[postbbsno.value],    
+        comments: groupedDataAll.value[postbbsno.value],
       }
 
       // Allgroupbbs.value = groupedDataAll._rawValue[17]
       statecomm.value.comment = toRaw(groupedData)
       group.value = toRaw(statecomm.value.comment)
-      console.log('그룹 데이터 확인', group.value)      
+      console.log('그룹 데이터 확인', group.value)
 
     } else {
       console.log('데이터 전송 실패')
@@ -166,14 +166,14 @@ const getComment = async function() {
 const postmodalData = ref({ comments: {} })
 const postbbsno = ref(0)
 
-const openViewPostMoadl = async val =>{
+const openViewPostMoadl = async val => {
   console.log('가져온 글번호', val)
   postbbsno.value = val
-  viewPostPageModal.value=true
+  viewPostPageModal.value = true
 
   // console.log('글번호에 대한 댓글', groupedDataAll.value._rawValue[postbbsno.value])
   postmodalData.value = {
-    comments: groupedDataAll.value[postbbsno.value],    
+    comments: groupedDataAll.value[postbbsno.value],
   }
   console.log(postmodalData.value)
 }
@@ -184,14 +184,14 @@ const profiledata = ref([])//내 프로필 데이터
 const openUserProfileModal = val => {
   console.log('오픈할 유저 프로필:', val)
   let id
-  
+
   if (typeof val === 'object' && val.id) {
     id = val.id // val이 객체이고 id 속성이 존재하는 경우
   } else {
     id = val // 그 외의 경우 val 그대로 사용
   }
   axios
-    .get('http://localhost:4000/comm/profile', {
+    .get('/comm/profile', {
       params: {
         id: id,
       },
@@ -230,32 +230,32 @@ const insertComment = async (bno, comment, type, parent_comment) => {
 
   formData.append('bbs_no', bno)
   formData.append('id', searchuser)
-  formData.append('ccomment', comment)  
-  if(type == 2 && parent_comment !== 0){
+  formData.append('ccomment', comment)
+  if (type == 2 && parent_comment !== 0) {
     formData.append('parent_comment', parent_comment)
     formData.append('type', 2)
-  }else{
+  } else {
     formData.append('type', 1)
   }
   console.log(bno, searchuser, comment, parent_comment)
 
-  await axios.post('http://localhost:4000/commentline/Write.do', formData, { 
+  await axios.post('/commentline/Write.do', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   })
     .then(response => {
-    // 성공적으로 업데이트되었을 때의 처리
+      // 성공적으로 업데이트되었을 때의 처리
       console.log('성공')
       console.log(response.data)
 
       // 댓글 입력 필드 초기화
-      commentinput.value = ''  
+      commentinput.value = ''
 
-      getComment() 
+      getComment()
     })
     .catch(error => {
-    // 업데이트 중 오류가 발생했을 때의 처리
+      // 업데이트 중 오류가 발생했을 때의 처리
       console.log('실패')
     })
 }
@@ -264,10 +264,10 @@ const insertComment = async (bno, comment, type, parent_comment) => {
 const scrollTimeout = ref(null)
 
 const handleScroll = () => {
-  if(scrollTimeout.value !== null) 
-    clearTimeout(scrollTimeout.value)  
+  if (scrollTimeout.value !== null)
+    clearTimeout(scrollTimeout.value)
 
-  scrollTimeout.value = setTimeout(function() {
+  scrollTimeout.value = setTimeout(function () {
     // 스크롤이 페이지 하단에서 100px 이내로 가까워졌을 때 loadMore 함수 호출
     if ((window.innerHeight + document.documentElement.scrollTop) >= (document.documentElement.offsetHeight - 100)) {
       loadMore()
@@ -278,11 +278,11 @@ const handleScroll = () => {
 //이벤트 리스터 추가 
 onMounted(() => {
   getData(), // 컴포넌트가 마운트될 때 getData 함수 실행
-  getComment()
+    getComment()
 
   // 그 후 매 5초마다 getData 함수를 반복해서 실행
   //setInterval(getData, 5000)
-  
+
   window.addEventListener('scroll', handleScroll)
 })
 
@@ -301,7 +301,7 @@ const loadMore = () => {
   //moreItems로 새로 추가할 배열의 길이 설정
 
   const moreItems = Array.from({ length: 5 })
-  
+
   //items 배열에 moreItems 배열 추가해서 화면에 표시되는 게시글 추가
 
   items.value = items.value.concat(moreItems)
@@ -314,41 +314,26 @@ const loadMore = () => {
   <section>
     <VRow style="margin-top: -50px;">
       <VCol cols="12">
-        <VCard
-          flat
-          :max-width="auto"
-          class="mt-12 mt-sm- pa-0"
-        >
+        <VCard flat :max-width="auto" class="mt-12 mt-sm- pa-0">
           <VCardText>
             <VCol>
               <VCol>
                 <!-- 게시물 작성 공간 -->
                 <VCol v-if="state.items.length > 0">
                   <!-- 게시물이 있을 때의 템플릿 -->
-                  <VCol
-                    v-for="(item, index) in state.items"
-                    :key="index"
-                    cols="12"
-                  >
+                  <VCol v-for="(item, index) in state.items" :key="index" cols="12">
                     <VCard>
                       <!-- 게시물의 상단 유저 프로필/ 유저 닉네임 / MoreBtn :image="state.avatar1" -->
                       <VCol>
                         <VRow>
                           <VCol cols="1">
-                            <VAvatar 
-                              class="text-sm pointer-cursor"
-                              :image="connetAv"
-                              style=" margin-top: 10% ;margin-left: 10%;"
-                              @click="userProfileModal=true"
-                            />
+                            <VAvatar class="text-sm pointer-cursor" :image="connetAv"
+                              style=" margin-top: 10% ;margin-left: 10%;" @click="userProfileModal = true" />
                           </VCol>
                           <VCol cols="4">
                             <VCol cols="12">
-                              <VCardSubtitle
-                                class="text-sm pointer-cursor"
-                                style="margin-left: -15%;"
-                                @click="userProfileModal=true"
-                              >
+                              <VCardSubtitle class="text-sm pointer-cursor" style="margin-left: -15%;"
+                                @click="userProfileModal = true">
                                 {{ item.id }} <!-- 유저 닉네임 뿌려주기 -->
                               </VCardSubtitle>
                             </VCol>
@@ -356,20 +341,12 @@ const loadMore = () => {
                           <VCol cols="6" />
                           <VCol cols="1">
                             <VCol cols="1">
-                              <VBtn
-                                icon
-                                variant="text"
-                                size="small"
-                                color="medium-emphasis"
-                              >
-                                <VIcon
-                                  size="24"
-                                  icon="mdi-dots-vertical"
-                                />
+                              <VBtn icon variant="text" size="small" color="medium-emphasis">
+                                <VIcon size="24" icon="mdi-dots-vertical" />
 
                                 <VMenu activator="parent">
                                   <VList>
-                                    <VListItem @click="editingModal=true; submitEdit(item.bno)">
+                                    <VListItem @click="editingModal = true; submitEdit(item.bno)">
                                       <template #prepend>
                                         <VIcon icon="mdi-comment-edit-outline" />
                                       </template>
@@ -389,75 +366,42 @@ const loadMore = () => {
                           </VCol>
                         </VRow>
                       </VCol>
-                      <VCol
-                        v-if="item.files && item.files.length ==1"
-                        class="transparent-carousel"
-                        show-arrows-on-hover
-                      >
-                        <VCol
-                          v-for="(image, i) in item.files" 
-                          :key="i"
-                          :class="{'active-slide': i === activeIndex}"
-                        >
-                          <VImg
-                            :src="image"
-                            class="pointer-cursor"
-                            style="width: auto; height: auto;"
-                            @click="openViewPostMoadl(item.bno);submitEdit(item.bno)"
-                          />
+                      <VCol v-if="item.files && item.files.length == 1" class="transparent-carousel"
+                        show-arrows-on-hover>
+                        <VCol v-for="(image, i) in item.files" :key="i" :class="{ 'active-slide': i === activeIndex }">
+                          <VImg :src="image" class="pointer-cursor" style="width: auto; height: auto;"
+                            @click="openViewPostMoadl(item.bno); submitEdit(item.bno)" />
                         </VCol>
                       </VCol>
-                      <VCarousel
-                        v-if="item.files && item.files.length >=2"
-                        class="transparent-carousel"
-                        show-arrows-on-hover
-                        color="success"
-                        style="width: auto; height: auto;"
-                        cycle
-                        interval="2000"
-                      >
-                        <VCarouselItem
-                          v-for="(image, i) in item.files" 
-                          :key="i"
-                          :class="{'active-slide': i === activeIndex}"
-                        >
-                          <VImg
-                            :src="image"
-                            class="pointer-cursor"
-                            @click="openViewPostMoadl(item.bno);submitEdit(item.bno)"
-                          />
+                      <VCarousel v-if="item.files && item.files.length >= 2" class="transparent-carousel"
+                        show-arrows-on-hover color="success" style="width: auto; height: auto;" cycle interval="2000">
+                        <VCarouselItem v-for="(image, i) in item.files" :key="i"
+                          :class="{ 'active-slide': i === activeIndex }">
+                          <VImg :src="image" class="pointer-cursor"
+                            @click="openViewPostMoadl(item.bno); submitEdit(item.bno)" />
                         </VCarouselItem>
                       </VCarousel>
                       <VCardItem>
-                        <VCardTitle
-                          class="pointer-cursor"
-                          @click="openViewPostMoadl(item.bno); submitEdit(item.bno)"
-                        >
+                        <VCardTitle class="pointer-cursor" @click="openViewPostMoadl(item.bno); submitEdit(item.bno)">
                           {{ item.content }}
-                        </VCardTitle> 
+                        </VCardTitle>
                       </VCardItem>
 
                       <VCardText>
                         <VCol v-if="group[item.bno]">
-                          <strong>{{ group[item.bno].C_NO }}번 {{ group[item.bno].ID }}</strong> {{ group[item.bno].CCOMMENT }}
-                        </VCol>  
+                          <strong>{{ group[item.bno].C_NO }}번 {{ group[item.bno].ID }}</strong> {{
+                            group[item.bno].CCOMMENT }}
+                        </VCol>
                       </VCardText>
                     </VCard>
-                  </VCol> 
+                  </VCol>
                 </VCol>
               </VCol>
             </VCol>
           </VCardText>
-          <VCol
-            v-if="state.items.length <= 0"
-            class="d-flex justify-center align-center"
-            style="height: 300px;"
-          >
+          <VCol v-if="state.items.length <= 0" class="d-flex justify-center align-center" style="height: 300px;">
             <!-- 게시물이 없을 때의 템플릿 -->
-            <VCol
-              class="d-flex flex-column align-center justify-center"
-              style="height: 100%;"
-            >
+            <VCol class="d-flex flex-column align-center justify-center" style="height: 100%;">
               <VCardTitle class="headline font-weight-bold">
                 등록한 게시물이 없습니다
               </VCardTitle>
@@ -466,27 +410,12 @@ const loadMore = () => {
         </VCard>
       </VCol>
     </VRow>
-    <UserProfileCommunity 
-      v-model:isDialogVisible="userProfileModal" 
-      :userid="modalData.userid"
-      :userprofile-path="modalData.userprofilePath"
-      :userpro-introduction="modalData.userproIntroduction"
-    />
-    <Editing
-      v-model:isDialogVisible="editingModal"
-      :post-to-edit="postToEdit"
-      @update-success="getData"
-    />
-    <ViewPostPage
-      v-model:isDialogVisible="viewPostPageModal" 
-      :post-to-edit="postToEdit"
-      :comments="postmodalData.comments"
-      :bno="postToEdit.bno"
-      :open-user-profile-modal="openUserProfileModal"
-      :insert-comment="insertComment"
-      :searchuser="searchuser"
-      :get-comment="getComment"
-    />
+    <UserProfileCommunity v-model:isDialogVisible="userProfileModal" :userid="modalData.userid"
+      :userprofile-path="modalData.userprofilePath" :userpro-introduction="modalData.userproIntroduction" />
+    <Editing v-model:isDialogVisible="editingModal" :post-to-edit="postToEdit" @update-success="getData" />
+    <ViewPostPage v-model:isDialogVisible="viewPostPageModal" :post-to-edit="postToEdit"
+      :comments="postmodalData.comments" :bno="postToEdit.bno" :open-user-profile-modal="openUserProfileModal"
+      :insert-comment="insertComment" :searchuser="searchuser" :get-comment="getComment" />
   </section>
 </template>
 

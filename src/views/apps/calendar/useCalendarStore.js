@@ -1,9 +1,12 @@
-import axios from '@axios'
-import { defineStore } from 'pinia'
+import axios from '@axios';
+import { defineStore } from 'pinia';
 
 export const useCalendarStore = defineStore('calendar', {
   // arrow function recommended for full type inference
   state: () => ({
+    /**
+     * 스케쥴 카테고리 메뉴
+     */
     availableCalendars: [
       {
         color: 'success',
@@ -37,16 +40,22 @@ export const useCalendarStore = defineStore('calendar', {
       },
     ],
     selectedCalendars: [1, 2, 3, 4, 5, 6],
-    events: [], // 캘린더 이벤트 데이터를 저장할 상태
+    events: [], // 캘린더 이벤트 데이터를 저장할 상태 (이 값이 데이터에 뿌려짐)
+    categoryFitler: [], // 카테고리 필터 상태
+    dateFilter: [], // 날짜 필터 상태
+    clickedEvent: null, // 클릭된 이벤트 정보를 저장할 상태
   }),
   actions: {
+    //데이터 불러오기
     async fetchEvents(userId) {
-      const response = await axios.post('http://localhost:4000/sch/seleteAll.do', { id: userId })
-
-      console.log("타이틀 확인해보자", response.data)
+      const response = await axios.post('/sch/seleteAll.do', { 
+        id: userId,
+        startStr: this.dateFilter.length === 2 ? this.dateFilter[0] : null,
+        endStr: this.dateFilter.length === 2 ? this.dateFilter[1] : null,
+        category: this.categoryFitler.length === 0 ? null : this.categoryFitler
+      })
 
       this.events = response.data.map(eventData => ({
-
         no: eventData.sno,
         id: eventData.id,
         stitle: eventData.stitle,
@@ -63,13 +72,15 @@ export const useCalendarStore = defineStore('calendar', {
         sMate: eventData.smate,
 
       }))
+
+      console.log("가져온 이벤트 데이터", this.events)
       
       return this.events // 수정된 부분
     },
     async addEvent(eventData) {
       try {
         console.log("추가값 확인해보자", eventData);
-        const response = await axios.post('http://localhost:4000/sch/insert.do', eventData)
+        const response = await axios.post('/sch/insert.do', eventData)
 
         this.fetchEvents(eventData.id) // 이벤트 목록 갱신
       } catch (error) {
@@ -79,7 +90,7 @@ export const useCalendarStore = defineStore('calendar', {
     async updateEvent(event) {
       console.log("수정값 확인해보자", event)
 
-      const response = await axios.post(`http://localhost:4000/sch/update.do`,  event)
+      const response = await axios.post(`/sch/update.do`,  event)
 
 
       await this.fetchEvents(event.id) // 업데이트 후 캘린더 이벤트 목록 갱신
@@ -88,9 +99,7 @@ export const useCalendarStore = defineStore('calendar', {
     },
     async removeEvent(eventId, sNo) {
 
-      console.log("삭제가 되긴해???", eventId, sNo)
-
-      const response = await axios.post('http://localhost:4000/sch/delete.do', { id: eventId, sNo: sNo })
+      const response = await axios.post('/sch/delete.do', { id: eventId, sNo: sNo })
 
       await this.fetchEvents(eventId) // 삭제 후 캘린더 이벤트 목록 갱신
       

@@ -47,7 +47,7 @@ const userName = computed(() => {
   if (!store.state.userStore.userInfo) {
     return null
   }
-  
+
   return store.state.userStore.userInfo.id
 })
 
@@ -68,7 +68,7 @@ watch(userName, async (newName, oldName) => {
   // userInfo.value가 null인 경우 함수를 종료
   if (!userInfo.value) {
     console.log('userInfo.value is null')
-    
+
     return
   }
 
@@ -101,7 +101,7 @@ const resolveUserStatusVariant = stat => {
     return 'success'
   if (stat === 'inactive')
     return 'secondary'
-  
+
   return 'primary'
 }
 
@@ -116,12 +116,12 @@ const profiledata = ref([])//내 프로필 데이터
 async function fetchData() {
   if (!userInfo.value || !userInfo.value || !userInfo.value.id) {
     console.log('비회원으로 데이터를 가져올 수 없습니다.')
-    
+
     return
   }
 
   try {
-    const response = await axios.get('http://localhost:4000/user/relationship', {
+    const response = await axios.get('/user/relationship', {
       params: {
         id: userInfo.value.id,
       },
@@ -146,16 +146,16 @@ async function fetchData() {
 async function fetchProfile() {
   if (!userInfo.value || !userInfo.value || !userInfo.value.id) {
     console.log('비회원으로 데이터를 가져올 수 없습니다.')
-    
+
     return
   }
   try {
-    const response = await axios.get('http://localhost:4000/comm/profile', {
-      
+    const response = await axios.get('/comm/profile', {
+
       params: {
         id: userInfo.value.id,
       },
-      
+
       withCredentials: true,
     })
 
@@ -182,7 +182,7 @@ const updateprofile = newcolval => {
     proIntroduction: newcolval,
   }
 
-  axios.put('http://localhost:4000/comm/intro/update', data, { withCredentials: true }, {
+  axios.put('/comm/intro/update', data, { withCredentials: true }, {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -219,24 +219,26 @@ const showIcon = ref(false) // 프로필 사진에 마우스 올리면 아이콘
 const imagechange = () => {
   if (!userInfo.value || !userInfo.value || !userInfo.value.id) {
     console.log('비회원으로 데이터를 가져올 수 없습니다.')
-    
+
     return
   }
 
   const requestData = {
     id: userInfo.value ? userInfo.value.id : null,
-    profilePath: 'https://ictimg.s3.ap-northeast-2.amazonaws.com/image/'+inputfilename.value,
+    profilePath: 'https://ictimg.s3.ap-northeast-2.amazonaws.com/image/' + inputfilename.value,
   }
 
   console.log('정상작동')
   axios
-    .put('http://localhost:4000/comm/profile/update', requestData, {  params: {
-      id: userInfo.value.id,
-    }, withCredentials: true })
+    .put('/comm/profile/update', requestData, {
+      params: {
+        id: userInfo.value.id,
+      }, withCredentials: true
+    })
     .then(response => {
       console.log('프로필 이미지 업데이트 성공')
 
-      updateProFilepath('https://ictimg.s3.ap-northeast-2.amazonaws.com/image/'+inputfilename.value)
+      updateProFilepath('https://ictimg.s3.ap-northeast-2.amazonaws.com/image/' + inputfilename.value)
 
       fetchProfile()
     })
@@ -248,7 +250,7 @@ const imagechange = () => {
 
 // .then(() => {
 //     // 이미지 업로드가 성공적으로 완료된 후에 updateProFilepath를 호출
-//       updateProFilepath('http://localhost:4000/images/'+inputfilename.value)
+//       updateProFilepath('/images/'+inputfilename.value)
 //     })
 
 // 프로필 파일 업로드할때 필요한 함수
@@ -281,7 +283,7 @@ const uploadImg = e => {
 const uploadFile = file => {
   if (!userInfo.value.id) {
     console.log('비회원으로 데이터를 가져올 수 없습니다.')
-    
+
     return
   }
   const formData = new FormData()
@@ -289,10 +291,12 @@ const uploadFile = file => {
   formData.append('file', file)
 
   // axios.post가 Promise를 반환하므로 return 문을 사용하여 Promise를 반환하도록 합니다.
-  return axios.post('http://localhost:4000/comm/upload', formData, {  params: {
-    id: userInfo.value ? userInfo.value.id : null,
-  }, withCredentials: true })
-    
+  return axios.post('/comm/upload', formData, {
+    params: {
+      id: userInfo.value ? userInfo.value.id : null,
+    }, withCredentials: true
+  })
+
 }
 
 
@@ -318,66 +322,31 @@ onMounted(async () => {
         <VCardText class="text-center pt-15">
           <!-- 👉 Avatar -->
           <div class="avatar-container">
-            <VAvatar
-              rounded="sm"
-              size="150"
-              :image="profilePathWithTime"
-              class="mt-3"
-              @click="showDialog = true"
-              @mouseover="showIcon = true"
-              @mouseout="showIcon = false"
-            />  
+            <VAvatar rounded="sm" size="150" :image="profilePathWithTime" class="mt-3" @click="showDialog = true"
+              @mouseover="showIcon = true" @mouseout="showIcon = false" />
             <!-- 아래 Icon은 교체 아이콘으로... -->
-            <VIcon
-              v-if="showIcon"
-              size="x-large"
-              color="success"
-              icon="mdi-autorenew"
-              class="icon"
-              style="opacity: 1;"
-              @click="showDialog = true"
-            />
+            <VIcon v-if="showIcon" size="x-large" color="success" icon="mdi-autorenew" class="icon" style="opacity: 1;"
+              @click="showDialog = true" />
           </div>
           <!-- -->
-          <VDialog
-            v-model="showDialog"
-            max-width="500"
-          >
+          <VDialog v-model="showDialog" max-width="500">
             <VCard title="설정할 프로필 사진을 선택해주세요">
-              <DialogCloseBtn
-                variant="text"
-                size="small"
-                @click="showDialog = false"
-              />
+              <DialogCloseBtn variant="text" size="small" @click="showDialog = false" />
               <VCardText v-if="FileInputbtn">
                 사진을 추가해주세요
               </VCardText>
-              <VImg
-                v-if="imgUrl"
-                :src="imgUrl"
-                style="width: 400px; height: 400px; align-self: center;"
-              />
+              <VImg v-if="imgUrl" :src="imgUrl" style="width: 400px; height: 400px; align-self: center;" />
               <VCol cols="12">
-                <VFileInput
-                  :rules="rules"
-                  label="Profile IMG"
-                  type="file"
-                  accept="image/png, image/jpeg, image/bmp"
-                  placeholder="Pick an avatar"
-                  prepend-icon="mdi-camera-outline"
-                  @change="uploadImg"
-                />
+                <VFileInput :rules="rules" label="Profile IMG" type="file" accept="image/png, image/jpeg, image/bmp"
+                  placeholder="Pick an avatar" prepend-icon="mdi-camera-outline" @change="uploadImg" />
               </VCol>
               <VCol>
-                <VBtn
-                  block
-                  @click="showDialog = false, imagechange()"
-                >
+                <VBtn block @click="showDialog = false, imagechange()">
                   확인
                 </VBtn>
               </VCol>
             </VCard>
-          </VDialog>  
+          </VDialog>
 
           <!-- 👉 User fullName -->
           <h6 class="text-h6 mt-4">
@@ -385,12 +354,7 @@ onMounted(async () => {
           </h6>
 
           <!-- 👉 Role chip -->
-          <VChip
-            label
-            color="success"
-            density="comfortable"
-            class="text-capitalize mt-4"
-          >
+          <VChip label color="success" density="comfortable" class="text-capitalize mt-4">
             {{ profiledata.date }}
           </VChip>
         </VCardText>
@@ -398,17 +362,8 @@ onMounted(async () => {
         <VCardText class="d-flex justify-space-between flex-wrap mt-1">
           <!-- 👉 Done task -->
           <div class="d-flex align-center">
-            <VAvatar
-              :size="44"
-              rounded
-              color="primary"
-              variant="tonal"
-              class="me-4"
-            >
-              <VIcon
-                size="24"
-                icon="mdi-emoticon-wink"
-              />
+            <VAvatar :size="44" rounded color="primary" variant="tonal" class="me-4">
+              <VIcon size="24" icon="mdi-emoticon-wink" />
             </VAvatar>
 
             <div>
@@ -421,17 +376,8 @@ onMounted(async () => {
 
           <!-- 👉 Done Project -->
           <div class="d-flex align-center">
-            <VAvatar
-              :size="44"
-              rounded
-              color="primary"
-              variant="tonal"
-              class="me-4"
-            >
-              <VIcon
-                size="24"
-                icon="mdi-star"
-              />
+            <VAvatar :size="44" rounded color="primary" variant="tonal" class="me-4">
+              <VIcon size="24" icon="mdi-star" />
             </VAvatar>
 
             <div>
@@ -443,17 +389,8 @@ onMounted(async () => {
           </div>
 
           <div class="d-flex align-center">
-            <VAvatar
-              :size="44"
-              rounded
-              color="primary"
-              variant="tonal"
-              class="me-4"
-            >
-              <VIcon
-                size="24"
-                icon="mdi-walk"
-              />
+            <VAvatar :size="44" rounded color="primary" variant="tonal" class="me-4">
+              <VIcon size="24" icon="mdi-walk" />
             </VAvatar>
 
             <div>
@@ -468,37 +405,18 @@ onMounted(async () => {
         <!-- 👉 Details -->
         <VCardText>
           <VRow align="center ml-4">
-            <h6
-              class="text-h6"
-              style="margin-top: 10px; margin-bottom: 5px;"
-            >
+            <h6 class="text-h6" style="margin-top: 10px; margin-bottom: 5px;">
               자기소개
             </h6>
             <IconBtn>
-              <VIcon
-                v-if="!edit"
-                icon="mdi-lead-pencil"
-                size="22"
-                @click="editClick=!editClick, edit=!edit"
-              />
+              <VIcon v-if="!edit" icon="mdi-lead-pencil" size="22" @click="editClick = !editClick, edit = !edit" />
             </IconBtn>
           </VRow>
-          <VCol
-            cols="12"
-            md="12"
-            rows="12"
-            style="height: 380px;"
-          >
-            <SelfEdit
-              v-model="profiledata.proIntroduction"
-              :readonly="editClick"              
-              :value="profiledata.proIntroduction"
-            />
-            <div
-              v-if="edit"
-              style=" margin-top: 10px;float: inline-end;"
-            >
-              <Btnsu @click="editClick=true, edit=false, updateprofile(profiledata.proIntroduction)" />
+          <VCol cols="12" md="12" rows="12" style="height: 380px;">
+            <SelfEdit v-model="profiledata.proIntroduction" :readonly="editClick"
+              :value="profiledata.proIntroduction" />
+            <div v-if="edit" style=" margin-top: 10px;float: inline-end;">
+              <Btnsu @click="editClick = true, edit = false, updateprofile(profiledata.proIntroduction)" />
             </div>
           </VCol>
         </VCardText>
@@ -508,10 +426,7 @@ onMounted(async () => {
   </VRow>
 
   <!-- 👉 Edit user info dialog -->
-  <UserInfoEditDialog
-    v-model:isDialogVisible="isUserInfoEditDialogVisible"
-    :user-data="props.userData"
-  />
+  <UserInfoEditDialog v-model:isDialogVisible="isUserInfoEditDialogVisible" :user-data="props.userData" />
 
   <!-- 👉 Upgrade plan dialog -->
   <UserUpgradePlanDialog v-model:isDialogVisible="isUpgradePlanDialogVisible" />

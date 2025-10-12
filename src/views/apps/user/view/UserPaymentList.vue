@@ -8,11 +8,11 @@ const store = useStore()
 
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=userInfo.value.id
+const connetId = userInfo.value.id
 const name = computed(() => store.state.userStore.userInfo ? store.state.userStore.userInfo.name : null)
 
 // ...
-const headers= [
+const headers = [
   { title: '결제 일자', sortable: false, key: 'payDate' },
   { title: '결제명', key: 'payName' },
   { title: '결제 금액', key: 'payPrice' },
@@ -49,15 +49,15 @@ const pointval = ref()
 const paylist = ref([])
 const form = ref('')
 
-const userpoint = async () =>{
+const userpoint = async () => {
   axios
-    .get('http://localhost:4000/searchPoint',{
-      params:{
+    .get('/searchPoint', {
+      params: {
         id: connetId,
       }
     })
     .then(response => {
-      if(response.status === 200){
+      if (response.status === 200) {
         pointval.value = response.data.POINT
       }
     })
@@ -65,7 +65,7 @@ const userpoint = async () =>{
 
 const fetchData = async () => {
   axios
-    .get('http://localhost:4000/PaymentList', {
+    .get('/PaymentList', {
       params: {
         id: connetId,
       },
@@ -105,43 +105,24 @@ onMounted(fetchData)
       <VCard title="결제 이력 정보">
         <VCardText>
           <VRow>
-            <VCol
-              cols="12"
-              lg="12"
-            >
+            <VCol cols="12" lg="12">
               <VCol>
                 <!-- 카테고리 추가 -->
                 <VRow>
-                  <VCol
-                    cols="5"
-                    style="margin-top: -15px;"
-                  >
-                    <VSelect
-                      v-model="selected"
-                      :items="items"
-                      label="카테고리"
-                      chips
-                      multiple
-                    />
+                  <VCol cols="5" style="margin-top: -15px;">
+                    <VSelect v-model="selected" :items="items" label="카테고리" chips multiple />
                   </VCol>
-                  <VCol
-                    cols="5"
-                    style="margin-top: -15px; display: flex; justify-content: flex-end; align-items: center;"
-                  >
-                      <h3 style="padding: 5px;">보유 포인트 : {{ pointval }} Point</h3>
+                  <VCol cols="5"
+                    style="margin-top: -15px; display: flex; justify-content: flex-end; align-items: center;">
+                    <h3 style="padding: 5px;">보유 포인트 : {{ pointval }} Point</h3>
                   </VCol>
                 </VRow>
               </VCol>
             </VCol>
-            <VDataTable
-              :headers="headers"
-              :items="filteredPaylist"
-              :items-per-page="5"
-            />
+            <VDataTable :headers="headers" :items="filteredPaylist" :items-per-page="5" />
           </VRow>
         </VCardText>
       </VCard>
     </VCol>
   </VRow>
 </template>
-

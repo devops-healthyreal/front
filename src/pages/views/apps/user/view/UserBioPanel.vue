@@ -32,7 +32,7 @@ const resolveUserStatusVariant = stat => {
     return 'success'
   if (stat === 'inactive')
     return 'secondary'
-  
+
   return 'primary'
 }
 
@@ -62,7 +62,7 @@ const resolveUserRoleVariant = role => {
       color: 'error',
       icon: 'mdi-dns-outline',
     }
-  
+
   return {
     color: 'primary',
     icon: 'mdi-account-outline',
@@ -70,7 +70,7 @@ const resolveUserRoleVariant = role => {
 }
 
 const fetchData = () => {
-  // axios.get("http://localhost:4000/user/relationship", {params: {
+  // axios.get("/user/relationship", {params: {
   //   name: 
   // }})
   console.log("fetchData:", props.userData)
@@ -86,20 +86,10 @@ onMounted(fetchData)
       <VCard v-if="props.userData">
         <VCardText class="text-center pt-15">
           <!-- 👉 Avatar -->
-          <VAvatar
-            rounded="sm"
-            :size="120"
-            :color="!props.userData.avatar ? 'primary' : undefined"
-            :variant="!props.userData.avatar ? 'tonal' : undefined"
-          >
-            <VImg
-              v-if="props.userData.avatar"
-              :src="props.userData.avatar"
-            />
-            <span
-              v-else
-              class="text-5xl font-weight-medium"
-            >
+          <VAvatar rounded="sm" :size="120" :color="!props.userData.avatar ? 'primary' : undefined"
+            :variant="!props.userData.avatar ? 'tonal' : undefined">
+            <VImg v-if="props.userData.avatar" :src="props.userData.avatar" />
+            <span v-else class="text-5xl font-weight-medium">
               {{ avatarText(props.userData.fullName) }}
             </span>
           </VAvatar>
@@ -110,12 +100,8 @@ onMounted(fetchData)
           </h6>
 
           <!-- 👉 Role chip -->
-          <VChip
-            label
-            :color="resolveUserRoleVariant(props.userData.role).color"
-            density="comfortable"
-            class="text-capitalize mt-4"
-          >
+          <VChip label :color="resolveUserRoleVariant(props.userData.role).color" density="comfortable"
+            class="text-capitalize mt-4">
             {{ props.userData.role }}
           </VChip>
         </VCardText>
@@ -123,17 +109,8 @@ onMounted(fetchData)
         <VCardText class="d-flex justify-space-between flex-wrap mt-1">
           <!-- 👉 Done task -->
           <div class="d-flex align-center">
-            <VAvatar
-              :size="44"
-              rounded
-              color="primary"
-              variant="tonal"
-              class="me-4"
-            >
-              <VIcon
-                size="24"
-                icon="mdi-check"
-              />
+            <VAvatar :size="44" rounded color="primary" variant="tonal" class="me-4">
+              <VIcon size="24" icon="mdi-check" />
             </VAvatar>
 
             <div>
@@ -146,17 +123,8 @@ onMounted(fetchData)
 
           <!-- 👉 Done Project -->
           <div class="d-flex align-center">
-            <VAvatar
-              :size="44"
-              rounded
-              color="primary"
-              variant="tonal"
-              class="me-4"
-            >
-              <VIcon
-                size="24"
-                icon="mdi-star-outline"
-              />
+            <VAvatar :size="44" rounded color="primary" variant="tonal" class="me-4">
+              <VIcon size="24" icon="mdi-star-outline" />
             </VAvatar>
 
             <div>
@@ -203,12 +171,8 @@ onMounted(fetchData)
                 <h6 class="text-sm font-weight-medium">
                   Status:
 
-                  <VChip
-                    label
-                    density="comfortable"
-                    :color="resolveUserStatusVariant(props.userData.status)"
-                    class="text-capitalize"
-                  >
+                  <VChip label density="comfortable" :color="resolveUserStatusVariant(props.userData.status)"
+                    class="text-capitalize">
                     {{ props.userData.status }}
                   </VChip>
                 </h6>
@@ -266,16 +230,10 @@ onMounted(fetchData)
 
         <!-- 👉 Edit and Suspend button -->
         <VCardText class="d-flex justify-center gap-4">
-          <VBtn
-            variant="elevated"
-            @click="isUserInfoEditDialogVisible = true"
-          >
+          <VBtn variant="elevated" @click="isUserInfoEditDialogVisible = true">
             Edit
           </VBtn>
-          <VBtn
-            variant="outlined"
-            color="error"
-          >
+          <VBtn variant="outlined" color="error">
             Suspend
           </VBtn>
         </VCardText>
@@ -285,17 +243,10 @@ onMounted(fetchData)
 
     <!-- SECTION Current Plan -->
     <VCol cols="12">
-      <VCard
-        flat
-        class="current-plan"
-      >
+      <VCard flat class="current-plan">
         <VCardText class="d-flex">
           <!-- 👉 Standard Chip -->
-          <VChip
-            label
-            color="primary"
-            density="comfortable"
-          >
+          <VChip label color="primary" density="comfortable">
             Standard
           </VChip>
 
@@ -307,23 +258,17 @@ onMounted(fetchData)
             <h3 class="text-h3 text-primary font-weight-regular">
               99
             </h3>
-            <sub class="mt-3"><h6 class="text-sm font-weight-regular">/ month</h6></sub>
+            <sub class="mt-3">
+              <h6 class="text-sm font-weight-regular">/ month</h6>
+            </sub>
           </div>
         </VCardText>
 
         <VCardText>
           <!-- 👉 Price Benefits -->
           <VList class="card-list">
-            <VListItem
-              v-for="benefit in standardPlan.benefits"
-              :key="benefit"
-            >
-              <VIcon
-                size="10"
-                color="#E0E0E0"
-                class="me-2"
-                icon="mdi-checkbox-blank-circle"
-              />
+            <VListItem v-for="benefit in standardPlan.benefits" :key="benefit">
+              <VIcon size="10" color="#E0E0E0" class="me-2" icon="mdi-checkbox-blank-circle" />
               <span>{{ benefit }}</span>
             </VListItem>
           </VList>
@@ -341,12 +286,7 @@ onMounted(fetchData)
             </div>
 
             <!-- 👉 Progress -->
-            <VProgressLinear
-              rounded
-              :model-value="86"
-              height="8"
-              color="primary"
-            />
+            <VProgressLinear rounded :model-value="86" height="8" color="primary" />
 
             <p class="text-xs mt-2">
               4 days remaining
@@ -354,10 +294,7 @@ onMounted(fetchData)
           </div>
 
           <!-- 👉 Upgrade Plan -->
-          <VBtn
-            block
-            @click="isUpgradePlanDialogVisible = true"
-          >
+          <VBtn block @click="isUpgradePlanDialogVisible = true">
             Upgrade Plan
           </VBtn>
         </VCardText>
@@ -367,10 +304,7 @@ onMounted(fetchData)
   </VRow>
 
   <!-- 👉 Edit user info dialog -->
-  <UserInfoEditDialog
-    v-model:isDialogVisible="isUserInfoEditDialogVisible"
-    :user-data="props.userData"
-  />
+  <UserInfoEditDialog v-model:isDialogVisible="isUserInfoEditDialogVisible" :user-data="props.userData" />
 
   <!-- 👉 Upgrade plan dialog -->
   <UserUpgradePlanDialog v-model:isDialogVisible="isUpgradePlanDialogVisible" />

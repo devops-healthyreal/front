@@ -8,7 +8,7 @@ import { useStore } from 'vuex'
 
 const store = useStore()
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=userInfo.value.id
+const connetId = userInfo.value.id
 
 // ----------------------------------------------------------------------------------------
 const checkedItems = ref([])
@@ -21,7 +21,7 @@ const isLChecked = computed(() => checkedItems.value && checkedItems.value.inclu
 const isDChecked = computed(() => checkedItems.value && checkedItems.value.includes('D'))
 
 
-function handleDataFromChildExer (data) {
+function handleDataFromChildExer(data) {
   checkedExerciseItems.value = data
   console.log(checkedExerciseItems.value)
   console.log('여기다운동')
@@ -29,9 +29,9 @@ function handleDataFromChildExer (data) {
 }
 
 //-----------------------------------------------------------------------------------------
-onMounted( async () => {
+onMounted(async () => {
   await setting(), await getEatingRecord()
-  
+
 })
 
 
@@ -39,18 +39,18 @@ onMounted( async () => {
 const setting = async () => {
   console.log(connetId)
 
-  const response = await axios.post('http://localhost:4000/croom/implementationSetting.do', { id: connetId })
+  const response = await axios.post('/croom/implementationSetting.do', { id: connetId })
 
   console.log(response)
   if (response.status === 200) {
     checkedItems.value = []
-    checkedExerciseItems.value= []
- 
-    const exerciseString = response.data.exercise 
+    checkedExerciseItems.value = []
+
+    const exerciseString = response.data.exercise
     const eattingString = response.data.eatting
 
 
-    if (exerciseString && exerciseString.length > 2 || eattingString && eattingString.length > 2) { 
+    if (exerciseString && exerciseString.length > 2 || eattingString && eattingString.length > 2) {
       const exerciseArray = exerciseString.substring(1, exerciseString.length - 1).split(',').map(item => item.trim()) // "[B, D, L]" -> "B, D, L" -> ["B", "D", "L"]
 
       checkedExerciseItems.value = exerciseArray // 배열 할당
@@ -64,23 +64,23 @@ const setting = async () => {
 
       checkedItems.value = eattingArray // 배열 할당
 
-      if(eattingArray[0] == ""){
-        checkedItems.value =[]
+      if (eattingArray[0] == "") {
+        checkedItems.value = []
       }
 
       console.log('이행률 데이터는---', response)
       console.log('checkedItems.value---', checkedItems.value)
-      
-    }else{
-      
-      if (Array.isArray(checkedItems.value)){
+
+    } else {
+
+      if (Array.isArray(checkedItems.value)) {
         checkedItems.value = eattingString
-      } 
-      if (Array.isArray(checkedExerciseItems.value)){
+      }
+      if (Array.isArray(checkedExerciseItems.value)) {
         checkedExerciseItems.value = exerciseString
-      } 
+      }
     }
-    
+
   } else {
     console.error('이행률 데이터 가져오기 실패')
   }
@@ -96,20 +96,20 @@ const series = computed(() => {
   const result = Array.isArray(checkedItems.value) ? 100 * (checkedItems.value?.length / 3) : 0
   const resultexr = Array.isArray(checkedExerciseItems.value) ? 100 * (checkedExerciseItems.value?.length / 3) : 0
 
-  if (result % 1 === 0 && resultexr % 1===0 ){
+  if (result % 1 === 0 && resultexr % 1 === 0) {
     console.log(result.toFixed(2))
     console.log(resultexr.toFixed(2))
-    
+
     return [result, resultexr]
   }
-  else if(result || resultexr) {
+  else if (result || resultexr) {
     console.log(result.toFixed(2))
     console.log(resultexr.toFixed(2))
-    
+
     return [parseFloat(result.toFixed(2)), parseFloat(resultexr.toFixed(2))]
   }
-  else{
-    return [0, 0] 
+  else {
+    return [0, 0]
   }
 })
 
@@ -120,9 +120,9 @@ const dietinfo = ref([])
 
 const getEatingRecord = async () => {
   console.log('체크해보자 : ')
-  await axios.get('http://localhost:4000/Dietfood/DailyView.do', { params: { 'id': connetId } })
+  await axios.get('/Dietfood/DailyView.do', { params: { 'id': connetId } })
     .then(response => {
-      if(response.data.length > 0){
+      if (response.data.length > 0) {
         // 초기화
         dietinfo.value = [[], [], []]
 
@@ -160,80 +160,47 @@ const sendDataToParent = value => {
     // checkedItems.value가 배열이 아닌 경우
     console.error('checkedItems.value is not an array.')
   }
-  
-  axios.post('http://localhost:4000/croom/implementationFood.do', { 
+
+  axios.post('/croom/implementationFood.do', {
     foodCheckCount: checkedItems.value,
-    id: connetId, 
+    id: connetId,
   })
 }
 </script>
 
 <template>
-  <VueApexCharts
-    :key="series"
-    type="radialBar"
-    height="400"
-    :options="statisticsChartConfig"
-    :series="series"
-  />
+  <VueApexCharts :key="series" type="radialBar" height="400" :options="statisticsChartConfig" :series="series" />
 
-  <VTabs
-    v-model="currentTab"
-    grow
-    stacked
-  >
+  <VTabs v-model="currentTab" grow stacked>
     <!-- 탭 목록 -->
-    <VTab value="tab-1"> 
-      <VIcon
-        icon="mdi-food-fork-drink"
-        class="mb-2"
-      />
+    <VTab value="tab-1">
+      <VIcon icon="mdi-food-fork-drink" class="mb-2" />
       <span>식단</span>
     </VTab>
 
     <VTab value="tab-2">
-      <VIcon
-        icon="mdi-dumbbell"
-        class="mb-2"
-      />
+      <VIcon icon="mdi-dumbbell" class="mb-2" />
       <span>운동</span>
     </VTab>
   </VTabs>
-  <VWindow
-    v-model="currentTab"
-    class="mt-5"
-  >
+  <VWindow v-model="currentTab" class="mt-5">
     <!-- 식단쪽 이행률 체크 타임라인 -->
     <VWindowItem value="tab-1">
       <VCard title="식단 이행률">
         <VCardText>
-          <VTimeline
-            side="end"
-            align="start"
-            line-inset="8"
-            truncate-line="both"
-            density="compact"
-          >
+          <VTimeline side="end" align="start" line-inset="8" truncate-line="both" density="compact">
             <!-- SECTION Timeline Item: Interview Schedule -->
-            <VTimelineItem
-              size="x-small"
-              dot-color="warning"
-            >
+            <VTimelineItem size="x-small" dot-color="warning">
               <!-- 👉 Header -->
               <div class="d-flex justify-space-between align-center gap-2 flex-wrap">
                 <span class="app-timeline-title">
                   아침 식단
                 </span>
                 <div class="d-flex">
-                  <span class="app-timeline-meta align-self-center">{{ dietinfo[0]?.eating_foodname }}, {{ dietinfo[0]?.calory }}kcal</span>
-                  <VCheckbox
-                    id="checkboxB"
-                    v-model="isBChecked"
-                    style="margin-left: 10px;"
-                    color="warning"
-                    class="BCheckbox"
-                    @click="sendDataToParent('B')"
-                  />
+                  <span class="app-timeline-meta align-self-center">{{ dietinfo[0]?.eating_foodname }}, {{
+                    dietinfo[0]?.calory }}kcal</span>
+                  <VCheckbox id="checkboxB" v-model="isBChecked" style="margin-left: 10px;" color="warning"
+                    class="BCheckbox" @click="sendDataToParent('B')" />
                 </div>
               </div>
               <!-- 👉 Divider -->
@@ -243,35 +210,25 @@ const sendDataToParent = value => {
               <div class="d-flex align-center justify-center flex-wrap">
                 <!-- 👉 Avatar & Personal Info -->
                 <div>
-                  <img
-                    id="diaryImages"
-                    :src="dietinfo[0]?.recipe_img"
-                    style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
-                  >
+                  <img id="diaryImages" :src="dietinfo[0]?.recipe_img"
+                    style=" width: 400px; height: 300px; align-self: center; margin: 10px;">
                 </div>
               </div>
             </VTimelineItem>
             <!-- !SECTION -->
 
             <!-- !SECTION -->
-            <VTimelineItem
-              size="x-small"
-              dot-color="warning"
-            >
+            <VTimelineItem size="x-small" dot-color="warning">
               <!-- 👉 Header -->
               <div class="d-flex justify-space-between align-center gap-2 flex-wrap">
                 <span class="app-timeline-title">
                   점심 식단
                 </span>
                 <div class="d-flex">
-                  <span class="app-timeline-meta align-self-center">{{ dietinfo[1]?.eating_foodname }}, {{ dietinfo[1]?.calory }}kcal</span>
-                  <VCheckbox
-                    id="checkboxL"
-                    v-model="isLChecked"
-                    style="margin-left: 10px;"
-                    color="warning" 
-                    @click="sendDataToParent('L')"
-                  />
+                  <span class="app-timeline-meta align-self-center">{{ dietinfo[1]?.eating_foodname }}, {{
+                    dietinfo[1]?.calory }}kcal</span>
+                  <VCheckbox id="checkboxL" v-model="isLChecked" style="margin-left: 10px;" color="warning"
+                    @click="sendDataToParent('L')" />
                 </div>
               </div>
 
@@ -282,34 +239,24 @@ const sendDataToParent = value => {
               <!-- 👉 Person -->
               <div class="d-flex align-center justify-center flex-wrap">
                 <div>
-                  <img
-                    id="diaryImages"
-                    :src="dietinfo[1]?.recipe_img"
-                    style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
-                  >
+                  <img id="diaryImages" :src="dietinfo[1]?.recipe_img"
+                    style=" width: 400px; height: 300px; align-self: center; margin: 10px;">
                 </div>
               </div>
             </VTimelineItem>
 
             <!-- !SECTION -->
-            <VTimelineItem
-              size="x-small"
-              dot-color="warning"
-            >
+            <VTimelineItem size="x-small" dot-color="warning">
               <!-- 👉 Header -->
               <div class="d-flex justify-space-between align-center gap-2 flex-wrap">
                 <span class="app-timeline-title ">
                   저녁 식단
                 </span>
                 <div class="d-flex">
-                  <span class="app-timeline-meta align-self-center">{{ dietinfo[2]?.eating_foodname }}, {{ dietinfo[2]?.calory }}kcal</span>
-                  <VCheckbox
-                    id="checkboxD"
-                    v-model="isDChecked"
-                    style="margin-left: 10px;"
-                    color="warning" 
-                    @click="sendDataToParent('D')"
-                  />
+                  <span class="app-timeline-meta align-self-center">{{ dietinfo[2]?.eating_foodname }}, {{
+                    dietinfo[2]?.calory }}kcal</span>
+                  <VCheckbox id="checkboxD" v-model="isDChecked" style="margin-left: 10px;" color="warning"
+                    @click="sendDataToParent('D')" />
                 </div>
               </div>
 
@@ -320,11 +267,8 @@ const sendDataToParent = value => {
               <!-- 👉 Person -->
               <div class="d-flex align-center justify-center flex-wrap">
                 <!-- 👉 Avatar & Personal Info -->
-                <img
-                  id="diaryImages"
-                  :src="dietinfo[2]?.recipe_img"
-                  style=" width: 400px; height: 300px; align-self: center; margin: 10px;"
-                >
+                <img id="diaryImages" :src="dietinfo[2]?.recipe_img"
+                  style=" width: 400px; height: 300px; align-self: center; margin: 10px;">
               </div>
             </VTimelineItem>
           </VTimeline>
@@ -333,10 +277,7 @@ const sendDataToParent = value => {
     </VWindowItem>
     <!-- 운동쪽 이행률 체크 타임라인 -->
     <VWindowItem value="tab-2">
-      <TimelineBasicExercise
-        :checked-exercise-items="checkedExerciseItems"
-        @sendDataExer="handleDataFromChildExer"
-      />
+      <TimelineBasicExercise :checked-exercise-items="checkedExerciseItems" @sendDataExer="handleDataFromChildExer" />
     </VWindowItem>
   </VWindow>
 </template>

@@ -1,9 +1,10 @@
 <script setup>
 import Text from '@/pages/views/demos/forms/form-elements/textarea/WritingText.vue'
+import axiosflask from '@/plugins/axiosflask'
 import Sub from '@/views/demos/Subject.vue'
 import axios from '@axios'
 import { size } from '@floating-ui/dom'
-import logo from '@images/logo.svg' // 로고 이미지 불러오기
+import logo from '@images/logo.svg'; // 로고 이미지 불러오기
 import bg from '@images/pages/writing.jpg'
 import { computed, reactive, ref, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
@@ -26,7 +27,7 @@ const emit = defineEmits(['update:isDialogVisible', "update-success"])
 const store = useStore()
 
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=userInfo.value.id
+const connetId = userInfo.value.id
 const name = computed(() => store.state.userStore.userInfo ? store.state.userStore.userInfo.name : null)
 
 const isprofile = ref(false)
@@ -56,7 +57,7 @@ const dialogVisibleUpdate = value => {
 
 
 const isButtonDisabled = computed(() => {
-  return subValue.value == '카테고리' || !textValue.value && !hashtagValue.value === 0 
+  return subValue.value == '카테고리' || !textValue.value && !hashtagValue.value === 0
 })
 
 const members = [
@@ -67,12 +68,12 @@ const members = [
 ]
 
 // axios를 사용하여 데이터를 서버로 보내는 함수
-const submitData = async function() {
+const submitData = async function () {
   let formData = new FormData()
   formData.append('id', connetId)
   formData.append('content', textValue.value)
   formData.append('hashTag', hashtagValue.value)
-  formData.append('type', subValue.value.value )
+  formData.append('type', subValue.value.value)
   formData.append('disclosureYN', switchValue.value)
   formData.append('ciu', JSON.stringify(ciu.value))  // ciu 리스트를 JSON 문자열로 변환
   console.log(ciu.value)
@@ -87,7 +88,7 @@ const submitData = async function() {
 
 
   try {
-    const response = await axios.post('http://localhost:4000/bbs/Write.do', formData, {
+    const response = await axios.post('/bbs/Write.do', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -103,15 +104,15 @@ const submitData = async function() {
     }
   } catch (error) {
     console.error(`데이터 전송 실패: ${error}`)
-  }finally {
+  } finally {
     emit('update:isDialogVisible', false)  // 모달 닫기
 
     // 값 초기화
     textValue.value = ''
     hashtags.value = []
     hashtagValue.value = ''
-    subValue.value='카테고리'
-    images.files=[]
+    subValue.value = '카테고리'
+    images.files = []
     ciu.value = []
 
     //router.push({ name: 'community_post' }).then(() => router.go(0)) // community_post.vue 페이지로 이동 후 리로드
@@ -142,7 +143,7 @@ const removeHashtag = hashtag => {
 async function createImage() {
   isLoading.value = true  // 요청 전에 로딩 상태를 true로 설정
   try {
-    const response = await axios.post('http://localhost:5000/CreateIm', { message: message.value, id: connetId })
+    const response = await axiosflask.post('/CreateIm', { message: message.value, id: connetId })
 
     console.log(response.data.image_url)
 
@@ -219,16 +220,10 @@ const zoomOut = e => {
 </script>
 
 <template>
-  <VDialog
-    :width="$vuetify.display.smAndDown ? 'auto' : 1100"
-    :model-value="props.isDialogVisible"
-    @update:model-value="dialogVisibleUpdate"
-  >
+  <VDialog :width="$vuetify.display.smAndDown ? 'auto' : 1100" :model-value="props.isDialogVisible"
+    @update:model-value="dialogVisibleUpdate">
     <!-- 닫기 버튼 -->
-    <VBtn
-      icon
-      @click="$emit('update:isDialogVisible', false)"
-    >
+    <VBtn icon @click="$emit('update:isDialogVisible', false)">
       <VIcon>mdi-close</VIcon>
     </VBtn>
     <VCol cols="12">
@@ -241,16 +236,9 @@ const zoomOut = e => {
 
       <VCard>
         <VCardText>
-          <div
-            class="d-flex justify-center align-center"
-            style="margin-top: 10px;"
-          >
-            <img :src="logo">  <!-- 로고 이미지 추가 -->
-            <VBtn
-              :disabled="isButtonDisabled"
-              style="position: absolute; right: 40px;"
-              @click="submitData"
-            >
+          <div class="d-flex justify-center align-center" style="margin-top: 10px;">
+            <img :src="logo"> <!-- 로고 이미지 추가 -->
+            <VBtn :disabled="isButtonDisabled" style="position: absolute; right: 40px;" @click="submitData">
               글 등록
             </VBtn>
           </div>
@@ -258,23 +246,12 @@ const zoomOut = e => {
             <VCol cols="6">
               <VRow style=" margin-top: 20px;">
                 <VCol cols="8">
-                  <VListItem 
-                    v-for="(member, index) in members" 
-                    :key="index"
-                  >
+                  <VListItem v-for="(member, index) in members" :key="index">
                     <template #prepend>
-                      <VAvatar 
-                        class="text pointer-cursor"
-                        :image="member.avatar" 
-                        @click="isprofile=true"
-                      />
+                      <VAvatar class="text pointer-cursor" :image="member.avatar" @click="isprofile = true" />
                     </template>
-                    <VListItemTitle 
-                      class="text pointer-cursor"
-                      style="font-weight: bold;"
-                      @click="isprofile=true"
-                      @mouseover="size"  
-                    >
+                    <VListItemTitle class="text pointer-cursor" style="font-weight: bold;" @click="isprofile = true"
+                      @mouseover="size">
                       {{ member.name }}
                     </VListItemTitle>
                   </VListItem>
@@ -290,24 +267,13 @@ const zoomOut = e => {
               </VRow>
               <VRow style=" margin-top: -10px;">
                 <VCol cols="12">
-                  <VTextarea
-                    v-model="hashtagValue"
-                    rows="2"
-                    placeholder="#해쉬태그"
-                    no-resize
-                  />
+                  <VTextarea v-model="hashtagValue" rows="2" placeholder="#해쉬태그" no-resize />
 
                   <div style="display: flex; flex-direction: row; flex-wrap: wrap;">
-                    <span
-                      v-for="(hashtag, index) in hashtags"
-                      :key="index"
-                      style="margin-right: 10px;"
-                    >
-                      {{ hashtag }} 
-                      <button 
-                        style="padding: 10px; margin-left: 5px; cursor: pointer;" 
-                        @click="() => removeHashtag(hashtag)"
-                      >
+                    <span v-for="(hashtag, index) in hashtags" :key="index" style="margin-right: 10px;">
+                      {{ hashtag }}
+                      <button style="padding: 10px; margin-left: 5px; cursor: pointer;"
+                        @click="() => removeHashtag(hashtag)">
                         x
                       </button>
                     </span>
@@ -315,21 +281,12 @@ const zoomOut = e => {
                 </VCol>
               </VRow>
               <VRow style="margin-top: -10px;">
-                <div
-                  class="demo-space-x"
-                  style="display: flex; width: 100%; justify-content: flex-end;"
-                >
+                <div class="demo-space-x" style="display: flex; width: 100%; justify-content: flex-end;">
                   <VSwitch v-model="people" />
-                  <h3
-                    v-if="people"
-                    style="margin-top: 17px; margin-left: 2px;"
-                  >
+                  <h3 v-if="people" style="margin-top: 17px; margin-left: 2px;">
                     공개
                   </h3>
-                  <h3
-                    v-if="!people"
-                    style="margin-top: 17px; margin-left: 2px;"
-                  >
+                  <h3 v-if="!people" style="margin-top: 17px; margin-left: 2px;">
                     비공개
                   </h3>
                 </div>
@@ -338,82 +295,39 @@ const zoomOut = e => {
             <VCol cols="6">
               <VCardItem>
                 <div>
-                  <VTextarea
-                    v-model="message"
-                    label="원하는 사진을 입력하세요"
-                    rows="2"
-                    no-resize
-                    style="margin-top: 10px;"
-                  />
+                  <VTextarea v-model="message" label="원하는 사진을 입력하세요" rows="2" no-resize style="margin-top: 10px;" />
 
                   <VRow>
                     <VCol cols="12">
-                      <VBtn
-                        block
-                        style="margin: 15px 0;"
-                        @click="sendMessage"
-                      >
+                      <VBtn block style="margin: 15px 0;" @click="sendMessage">
                         이미지 생성하기
                       </VBtn>
                     </VCol>
                   </VRow>
                   <div class="image-container">
-                    <img
-                      v-if="!isLoading"
-                      class="preview-image"
-                      :src="files.length > 0 ? createImageUrl(files[activeTab]) : bg"
-                      @click="dialog = true"
-                      @mouseover="zoomIn"
-                      @mouseout="zoomOut"
-                    >
-                    <VProgressCircular
-                      v-else
-                      class="loading"
-                      indeterminate
-                      color="primary"
-                    />
-                    <VBtn
-                      v-if="!isLoading && files.length > 0" 
-                      class="delete-button"
-                      icon
-                      small
-                      @click.stop="removeImage(activeTab)"
-                    >
+                    <img v-if="!isLoading" class="preview-image"
+                      :src="files.length > 0 ? createImageUrl(files[activeTab]) : bg" @click="dialog = true"
+                      @mouseover="zoomIn" @mouseout="zoomOut">
+                    <VProgressCircular v-else class="loading" indeterminate color="primary" />
+                    <VBtn v-if="!isLoading && files.length > 0" class="delete-button" icon small
+                      @click.stop="removeImage(activeTab)">
                       <VIcon>mdi-close-outline</VIcon>
                     </VBtn>
                   </div>
-                  <VDialog
-                    v-model="dialog"
-                    max-width="500px"
-                  >
+                  <VDialog v-model="dialog" max-width="500px">
                     <VCard>
                       <VImg :src="files.length > 0 ? createImageUrl(files[activeTab]) : bg" />
                     </VCard>
                   </VDialog>
 
-                  <VTabs
-                    v-model="activeTab"
-                    style="margin-bottom: 10px;"
-                  >
-                    <VTab
-                      v-for="(file, index) in files"
-                      :key="index"
-                      :value="index"
-                    >
+                  <VTabs v-model="activeTab" style="margin-bottom: 10px;">
+                    <VTab v-for="(file, index) in files" :key="index" :value="index">
                       <VIcon icon="mdi-leaf-circle" />
                     </VTab>
                   </VTabs>
 
-                  <VFileInput
-                    ref="fileInput"
-                    multiple
-                    label="파일을 첨부하세요" 
-                    show-size
-                    prepend-icon="mdi-instagram"
-                    accept="image/*"
-                    @change="onFileChange"
-                    @file-input="handleFileInput"
-                  >
+                  <VFileInput ref="fileInput" multiple label="파일을 첨부하세요" show-size prepend-icon="mdi-instagram"
+                    accept="image/*" @change="onFileChange" @file-input="handleFileInput">
                     <template #selection="{ text }">
                       <div class="text-truncate">
                         {{ fileNames }}
@@ -438,7 +352,8 @@ const zoomOut = e => {
 .image-container {
   position: relative;
   display: inline-block;
-  overflow: visible;  /* 이미지 크기 제한 풀기 */
+  overflow: visible;
+  /* 이미지 크기 제한 풀기 */
   border-style: solid;
   block-size: 400px;
   inline-size: 100%;
@@ -448,7 +363,8 @@ const zoomOut = e => {
   block-size: 100%;
   inline-size: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease-in-out; /* 이 부분을 추가하여 확대/축소 애니메이션을 부드럽게 만듬. */
+  transition: transform 0.5s ease-in-out;
+  /* 이 부분을 추가하여 확대/축소 애니메이션을 부드럽게 만듬. */
 }
 
 .delete-button {

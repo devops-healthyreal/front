@@ -23,15 +23,15 @@ const store = useStore()
 
 // 로그인 스토어와 사용자 스토어의 상태를 가져옵니다.
 const userInfo = computed(() => store.state.userStore.userInfo)
-const connetId=userInfo.value.id
+const connetId = userInfo.value.id
 
 const payHandler = async () => {    //await과 함께 사용하는 함수
   let response // response 변수 선언
   try {
     response = await Bootpay.requestPayment({
-      "application_id": `${BOOTPAY_API_KEY}`,  
+      "application_id": `${BOOTPAY_API_KEY}`,
       "price": props.pay,
-      "order_name": "HealthyReal 챌린지 "+props.challroomno,
+      "order_name": "HealthyReal 챌린지 " + props.challroomno,
       "order_id": "TEST_ORDER_ID",
 
       // "pg": "카카오페이",
@@ -96,7 +96,7 @@ const payHandler = async () => {    //await과 함께 사용하는 함수
   }
 }
 
-function paycheck(response){
+function paycheck(response) {
   console.log(response)
 
   const status_locale = response.data.status_locale
@@ -116,7 +116,7 @@ function paycheck(response){
   }
 }
 
-const payListInsert = async (id, pay_type, pay_name, pay_price, pay_method) =>{
+const payListInsert = async (id, pay_type, pay_name, pay_price, pay_method) => {
   let formData = new FormData()
   formData.append('id', id)
   formData.append('pay_type', pay_type)
@@ -124,18 +124,18 @@ const payListInsert = async (id, pay_type, pay_name, pay_price, pay_method) =>{
   formData.append('pay_price', pay_price)
   formData.append('pay_method', pay_method)
 
-  await axios.post('http://localhost:4000/Payment/Write.do', formData, { 
+  await axios.post('/Payment/Write.do', formData, {
     headers: {
       'Content-Type': 'application/json',
     },
   }).then(response => {
     // 성공적으로 업데이트되었을 때의 처리
     console.log('성공')
-    console.log(response.data)        
+    console.log(response.data)
   }).catch(error => {
     // 업데이트 중 오류가 발생했을 때의 처리
     console.log('실패')
-  })    
+  })
 }
 </script>
 
@@ -143,8 +143,5 @@ const payListInsert = async (id, pay_type, pay_name, pay_price, pay_method) =>{
 
 <template>
   <!-- onClick속성에 함수넣기 -->
-  <VBtn
-    text="결제"
-    @click="payHandler"
-  />
+  <VBtn text="결제" @click="payHandler" />
 </template>

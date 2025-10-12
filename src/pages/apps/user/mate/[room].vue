@@ -11,7 +11,7 @@ import { useStore } from 'vuex'
 
 const isShareProjectDialogVisible = ref(false)
 const chatflag = ref(false) // 채팅방 열기&닫기 flag
-const room= ref([])
+const room = ref([])
 const delayChat = ref(false)
 const router = useRouter()
 const route = useRoute() //route객체
@@ -25,7 +25,7 @@ let intervalId = null
 
 const capitalizedLabel = label => {
   const convertLabelText = label.toString()
-  
+
   return convertLabelText.charAt(0).toUpperCase() + convertLabelText.slice(1)
 }
 
@@ -34,12 +34,12 @@ const isareaCrawlingResultDialogVisible = ref(false)
 
 function togglechatFlag() {
   chatflag.value = !chatflag.value
-  if(chatflag.value){
+  if (chatflag.value) {
     setTimeout(() => {
       delayChat.value = chatflag.value
     }, 150)
   }
-  else{
+  else {
     delayChat.value = chatflag.value
   }
 }
@@ -56,7 +56,7 @@ watch(() => chatflag.value, newValue => {
 })
 
 const openClose = async () => {
-  const response = await axios.post('http://localhost:4000/mroom/openClose.do', { mateNo: route.params.room, open: openRoomYN.value }   )
+  const response = await axios.post('/mroom/openClose.do', { mateNo: route.params.room, open: openRoomYN.value })
 }
 
 //참가자 데이터 가져오기
@@ -64,7 +64,7 @@ const participants = async () => {
 
   console.log(' router.params.room---', route.params.room)
 
-  const response = await axios.get('http://localhost:4000/mroom/participantsData.do', { params: { challNo: route.params.room } } )
+  const response = await axios.get('/mroom/participantsData.do', { params: { challNo: route.params.room } })
 
   if (response.status === 200) {
     participantsData.value = response.data
@@ -75,16 +75,16 @@ const participants = async () => {
 
 }
 
-const crawlingData=ref("")
+const crawlingData = ref("")
 let isLoading = ref(false)  // 로딩 상태를 나타내는 데이터 추가
 
 //방 데이터 가져오기
 const roomData = async () => {
-  try{
+  try {
 
     console.log("challNo----", route.params.room)
 
-    const response = await axios.post('http://localhost:4000/mroom/roomData.do', { challNo: route.params.room })
+    const response = await axios.post('/mroom/roomData.do', { challNo: route.params.room })
 
 
     if (response.status === 200) {
@@ -102,29 +102,29 @@ const roomData = async () => {
       console.log('방의 데이타 가져오기 실패')
       router.push({ name: 'mateList' })
     }
-  }catch(e){
+  } catch (e) {
     router.push({ name: 'mateList' })
   }
 }
 
 const deleteData = async () => {
-  if(room.value.manager === connetId && participantsData.value.length == 1){
-    const response = await axios.delete('http://localhost:4000/mroom/deleteRoom.do', { data: { id: connetId } })
+  if (room.value.manager === connetId && participantsData.value.length == 1) {
+    const response = await axios.delete('/mroom/deleteRoom.do', { data: { id: connetId } })
 
     stopMatching()
     console.log("방 나가기 성공")
     router.push({ name: 'mateList' }) //넘겨줄 Vue 경로 입력하기
 
-  }else if(room.value.manager === connetId){
-    const response = await axios.delete('http://localhost:4000/mroom/deleteManager.do', { data: { id: connetId } })
+  } else if (room.value.manager === connetId) {
+    const response = await axios.delete('/mroom/deleteManager.do', { data: { id: connetId } })
 
     stopMatching()
     console.log("방장 나가기 성공")
     router.push({ name: 'mateList' }) //넘겨줄 Vue 경로 입력하
   }
 
-  else{
-    const response = await axios.delete('http://localhost:4000/mroom/deletePeople.do', { data: { id: connetId } })
+  else {
+    const response = await axios.delete('/mroom/deletePeople.do', { data: { id: connetId } })
 
     console.log("일반사람 나가기 성공")
     router.push({ name: 'mateList' }) //넘겨줄 Vue 경로 입력하기
@@ -210,20 +210,20 @@ onUnmounted(() => {
 })
 
 
-onMounted(async () => { await participants(), await roomData(), await startCrawling()})
+onMounted(async () => { await participants(), await roomData(), await startCrawling() })
 
 // 매칭 시작 함수
 const startMatching = async () => {
   try {
     // 서버에 매칭 요청
-    const response = await axios.post("http://localhost:4000/mroom/start.do", { roomNo: route.params.room, people: participantsData.value.length  })
+    const response = await axios.post("/mroom/start.do", { roomNo: route.params.room, people: participantsData.value.length })
 
     if (response.status === 200) {
       console.log('매칭이 시작되었습니다.')
 
       // 로딩 시작
       isLoading1.value = true
-      
+
       // 매칭이 시작되면 1초마다 participants()와 roomData() 함수를 호출
       intervalId = setInterval(async () => {
         await participants()
@@ -251,7 +251,7 @@ const stopMatching = () => {
   if (intervalId) {
     clearInterval(intervalId)
     intervalId = null
-    
+
     // 로딩 종료
     isLoading1.value = false
   }
@@ -266,53 +266,32 @@ const handleInviteUpdate = async () => {
 <template>
   <section>
     <VRow>
-      <VCol
-        :cols="chatflag ? '7' : '12'"
-        class="transition-effect"
-      >
+      <VCol :cols="chatflag ? '7' : '12'" class="transition-effect">
         <VCard>
           <VCol>
             <VRow style="display: flex; justify-content: space-between;">
               <VCol cols="7">
-                <VBtn
-                  v-if="participantsData.length < room.mateCapacity"
-                  style=" width: 90px;"
-                  @click="isShareProjectDialogVisible = !isShareProjectDialogVisible"
-                >
+                <VBtn v-if="participantsData.length < room.mateCapacity" style=" width: 90px;"
+                  @click="isShareProjectDialogVisible = !isShareProjectDialogVisible">
                   초대하기
                 </VBtn>
-                <ShareProjectDialogTemp
-                  v-model:isDialogVisible="isShareProjectDialogVisible"
-                  :participants-data=" participantsData"
-                  :mate-no="route.params.room"
-                  @inviteUpdate="handleInviteUpdate"
-                />
-                <VBtn
-                  style=" width: 90px;margin-left: 10px;"
-                  @click="isareaCrawlingResultDialogVisible = !isareaCrawlingResultDialogVisible;"
-                >
+                <ShareProjectDialogTemp v-model:isDialogVisible="isShareProjectDialogVisible"
+                  :participants-data="participantsData" :mate-no="route.params.room"
+                  @inviteUpdate="handleInviteUpdate" />
+                <VBtn style=" width: 90px;margin-left: 10px;"
+                  @click="isareaCrawlingResultDialogVisible = !isareaCrawlingResultDialogVisible;">
                   장소 찾기
                 </VBtn>
-                <VBtn
-                  style=" width: 90px;margin-left: 10px;"
-                  @click="togglechatFlag"
-                >
+                <VBtn style=" width: 90px;margin-left: 10px;" @click="togglechatFlag">
                   <span v-if="!chatflag">채팅방 열기</span>
                   <span v-else>채팅방 닫기</span>
-                </VBtn>                     
+                </VBtn>
                 <AreaCrawlingresult v-model:isDialogVisible="isareaCrawlingResultDialogVisible" />
-              </VCol>                        
+              </VCol>
               <!-- 아래 방공개는 방장에게만 보여주기 / 조건 추가 필요 -->
-              <VCol
-                v-if="room.manager==connetId"
-                cols="3"
-                class="d-flex justify-end align-center"
-              >
-                <VSwitch
-                  v-model="openRoomYN"
-                  :label="areaSet = capitalizedLabel(openRoomYN) === 'True' ? '공개' : '비공개'"
-                  @change="openClose"
-                />
+              <VCol v-if="room.manager == connetId" cols="3" class="d-flex justify-end align-center">
+                <VSwitch v-model="openRoomYN" :label="areaSet = capitalizedLabel(openRoomYN) === 'True' ? '공개' : '비공개'"
+                  @change="openClose" />
               </VCol>
             </VRow>
           </VCol>
@@ -323,44 +302,18 @@ const handleInviteUpdate = async () => {
             <VIcon icon="mdi-calendar-range" /><span> : 시작날짜 : {{ formatDate(room.mateDate) }}</span>
           </VCol>
           <div style="height: 350px;">
-            <VProgressCircular
-              v-if="isLoading"
-              indeterminate
-              size="64"
-              color="primary"
-              class="loading-indicator"
-            />
+            <VProgressCircular v-if="isLoading" indeterminate size="64" color="primary" class="loading-indicator" />
             <VRow v-if="crawlingData && !isLoading">
-              <VCol
-                v-for="index in 3"
-                :key="index"
-                cols="4"
-              >
-                <VCard
-                  cols="12"
-                  style="margin: 0 10px;"
-                >
-                  <VCol
-                    cols="12"
-                    style=" display: flex;flex-wrap: wrap; align-items: center; justify-content: center;"
-                  >
-                    <img
-                      :src="crawlingData[index].src"
-                      alt="이미지"
-                      style="width: 300px;height: 200px;object-fit: cover;"
-                    >
+              <VCol v-for="index in 3" :key="index" cols="4">
+                <VCard cols="12" style="margin: 0 10px;">
+                  <VCol cols="12" style=" display: flex;flex-wrap: wrap; align-items: center; justify-content: center;">
+                    <img :src="crawlingData[index].src" alt="이미지" style="width: 300px;height: 200px;object-fit: cover;">
                   </VCol>
-                  <VCol
-                    cols="12"
-                    style="height: 50px;"
-                  >
-                    <a
-                      :href="crawlingData[index].link"
-                      class="my-custom-button"
-                    >{{ crawlingData[index].title }}</a>
+                  <VCol cols="12" style="height: 50px;">
+                    <a :href="crawlingData[index].link" class="my-custom-button">{{ crawlingData[index].title }}</a>
                   </VCol>
                   <VCol cols="12">
-                    요금 : {{ crawlingData[index].pay }}         
+                    요금 : {{ crawlingData[index].pay }}
                   </VCol>
                   <!-- 금액 : {{crawlingData[index].pay}}  -->
                   <!-- </VCardItem> -->
@@ -368,35 +321,22 @@ const handleInviteUpdate = async () => {
               </VCol>
             </VRow>
           </div>
-          <VColmateRoomParticipants :participants-data=" participantsData" />
-          <VCol
-            cols="12"
-            style="display: flex; justify-content: space-between;"
-          >
+          <VColmateRoomParticipants :participants-data="participantsData" />
+          <VCol cols="12" style="display: flex; justify-content: space-between;">
             <VBtn @click="deleteData">
               나가기
             </VBtn>
-            
+
             <!-- 매칭잡기 버튼 방장만 가능하게 -->
-            <VBtn
-              v-if="room.manager === connetId && room.mateCapacity != participantsData.length"
-              :loading="isLoading1"
-              @click="startMatching"
-            >
+            <VBtn v-if="room.manager === connetId && room.mateCapacity != participantsData.length" :loading="isLoading1"
+              @click="startMatching">
               매칭잡기
             </VBtn>
           </VCol>
         </VCard>
       </VCol>
-      <VCol
-        v-if="delayChat"
-        cols="5"
-      >
-        <Chat
-          :participants-data=" participantsData"
-          :socket="socket"
-          :mate-no="route.params.room"
-        />
+      <VCol v-if="delayChat" cols="5">
+        <Chat :participants-data="participantsData" :socket="socket" :mate-no="route.params.room" />
       </VCol>
     </VRow>
   </section>
@@ -404,19 +344,23 @@ const handleInviteUpdate = async () => {
 
 <style>
 .transition-effect {
-  transform: translateX(0%); /* 초기에 오른쪽으로 이동되어 숨겨진 상태로 시작 */
-  transition: all 0.15s ease-out; /* 트랜지션 효과 설정 */
+  transform: translateX(0%);
+  /* 초기에 오른쪽으로 이동되어 숨겨진 상태로 시작 */
+  transition: all 0.15s ease-out;
+  /* 트랜지션 효과 설정 */
 }
 
 .transition-effect.active {
-  transform: translateX(100%); /* 왼쪽으로 이동되어 나타나는 상태로 변환 */
+  transform: translateX(100%);
+  /* 왼쪽으로 이동되어 나타나는 상태로 변환 */
 }
 
 .loading-indicator {
   position: absolute;
-  inset-block-start: 30%; /* 상단에서부터의 위치를 조정합니다. */
+  inset-block-start: 30%;
+  /* 상단에서부터의 위치를 조정합니다. */
   inset-inline-start: 50%;
-  transform: translate(-50%, -10%); /* 세로 위치를 더 상단으로 조정 */
+  transform: translate(-50%, -10%);
+  /* 세로 위치를 더 상단으로 조정 */
 }
 </style>
-

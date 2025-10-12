@@ -23,25 +23,25 @@ const checkUserExistence = async (name, b_day) => {
   try {
     console.log("data", name.value, b_day.value)
 
-    const response = await axios.post('http://localhost:4000/check-userID', {
-      
+    const response = await axios.post('/check-userID', {
+
       name: name.value,
       b_day: b_day.value,
     })
 
-    
-    
+
+
     return response.status === 200
   } catch (error) {
     console.error('요청 처리 중 오류 발생: ', error)
-    
+
     return false
   }
 }
 
 const sendEmailVerificationRequest = async (name, b_day, email) => {
   try {
-    const response = await axios.post('http://localhost:4000/email-verification-request', {
+    const response = await axios.post('/email-verification-request', {
       name: name.value,
       b_day: b_day.value,
       email: email.value,
@@ -80,73 +80,38 @@ const handleConfirmButtonClick = async () => {
       </h1>
     </div>
 
-    <VRow
-      class="auth-wrapper"
-      no-gutters
-    >
-      <VCol
-        cols="12"
-        class="auth-card-v2 d-flex align-center justify-center"
-      >
-        <VCard
-          flat
-          :max-width="500"
-          class="mt-12 mt-sm-0 pa-4"
-          style="width: 500px;height: 500px;border: solid 2px gray;"
-        >
-          <VCol
-            class="text-center" 
-            style="display: flex;"
-          >
-            <RouterLink
-              class="text-primary ms-2 text-center"
-              :to="{ name: 'login' }"
-              style="line-height: 70px;"
-            >
-              <VIcon
-                class="flip-in-rtl"
-                icon="mdi-chevron-left"
-              />
+    <VRow class="auth-wrapper" no-gutters>
+      <VCol cols="12" class="auth-card-v2 d-flex align-center justify-center">
+        <VCard flat :max-width="500" class="mt-12 mt-sm-0 pa-4"
+          style="width: 500px;height: 500px;border: solid 2px gray;">
+          <VCol class="text-center" style="display: flex;">
+            <RouterLink class="text-primary ms-2 text-center" :to="{ name: 'login' }" style="line-height: 70px;">
+              <VIcon class="flip-in-rtl" icon="mdi-chevron-left" />
               <span>Back</span>
             </RouterLink>
             <VCardText style="padding-left: 5px;">
               <h5 class="text-h5 mb-1">
-                아이디 찾기 🔒  
+                아이디 찾기 🔒
               </h5>
             </VCardText>
-          </VCol> 
+          </VCol>
 
           <VCardText>
             <VForm>
               <VRow>
                 <VCol cols="12">
-                  <VTextField
-                    v-model="name"
-                    label="이름"
-                    type="name"
-                  />
+                  <VTextField v-model="name" label="이름" type="name" />
                 </VCol>
                 <VCol cols="12">
-                  <Birthyday
-                    v-model="b_day"
-                    label="생년월일"
-                  />
+                  <Birthyday v-model="b_day" label="생년월일" />
                 </VCol>
                 <VCol cols="12">
-                  <VTextField
-                    v-model="email"
-                    label="이메일"
-                    type="email"
-                  />
+                  <VTextField v-model="email" label="이메일" type="email" />
                 </VCol>
 
                 <!-- Reset link -->
                 <VCol cols="12">
-                  <VBtn
-                    block
-                    type="submit"
-                    @click.prevent="handleConfirmButtonClick(name, b_day, email)"
-                  >
+                  <VBtn block type="submit" @click.prevent="handleConfirmButtonClick(name, b_day, email)">
                     Send Reset Link
                   </VBtn>
                 </VCol>

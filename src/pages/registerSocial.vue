@@ -7,7 +7,7 @@ const store = useStore()
 
 onMounted(async () => {
   // 서버에서 토큰을 가져와 로컬 스토리지에 저장
-  const response = await axios.post('http://localhost:4000/user/getToken', {}, { withCredentials: true })
+  const response = await axios.post('/user/getToken', {}, { withCredentials: true })
   const token = response.data
 
   localStorage.setItem('access_token', token)
@@ -39,7 +39,7 @@ const iconsSteps = [
     icon: 'custom-wizard-personal',
   },
 
-  
+
 ]
 
 const currentStep = ref(0)
@@ -74,10 +74,7 @@ const onSubmit = () => {
   <VCard style="width: 70%; margin-left: 15%;">
     <VCardText>
       <!-- 👉 Stepper -->
-      <AppStepper
-        v-model:current-step="currentStep"
-        :items="iconsSteps"
-      />
+      <AppStepper v-model:current-step="currentStep" :items="iconsSteps" />
     </VCardText>
 
     <VDivider />
@@ -85,10 +82,7 @@ const onSubmit = () => {
     <VCardText cols="6">
       <!-- 👉 stepper content -->
       <VForm>
-        <VWindow
-          v-model="currentStep"
-          class="disable-tab-transition"
-        >
+        <VWindow v-model="currentStep" class="disable-tab-transition">
           <VWindowItem>
             <VRow>
               <VCol cols="3" />
@@ -99,11 +93,7 @@ const onSubmit = () => {
           </VWindowItem>
 
           <VWindowItem>
-            <VCol
-              cols="12"
-              margin-left="50px"
-              class="centered-content"
-            >
+            <VCol cols="12" margin-left="50px" class="centered-content">
               <h6 class="text-lg font-weight-medium">
                 간편회원 가입 필수 추가정보 입력
               </h6>
@@ -116,40 +106,19 @@ const onSubmit = () => {
         </VWindow>
 
         <div class="d-flex justify-sm-space-between gap-4 flex-wrap justify-center mt-8">
-          <VBtn
-            :color="currentStep === 0 ? 'secondary' : 'default'"
-            variant="outlined"
-            :disabled="currentStep === 0"
-            @click="currentStep--"
-          >
-            <VIcon
-              icon="mdi-arrow-left"
-              start
-              class="flip-in-rtl"
-            />
+          <VBtn :color="currentStep === 0 ? 'secondary' : 'default'" variant="outlined" :disabled="currentStep === 0"
+            @click="currentStep--">
+            <VIcon icon="mdi-arrow-left" start class="flip-in-rtl" />
             이전
           </VBtn>
 
-          <VBtn
-            v-if="iconsSteps.length - 1 === currentStep"
-            color="success"
-            append-icon="mdi-check"
-            @click="onSubmit"
-          >
+          <VBtn v-if="iconsSteps.length - 1 === currentStep" color="success" append-icon="mdi-check" @click="onSubmit">
             submit
           </VBtn>
 
-          <VBtn
-            v-else
-          
-            @click="currentStep++"
-          >
+          <VBtn v-else @click="currentStep++">
             다음
-            <VIcon
-              icon="mdi-arrow-right"
-              end
-              class="flip-in-rtl"
-            />
+            <VIcon icon="mdi-arrow-right" end class="flip-in-rtl" />
           </VBtn>
         </div>
       </VForm>
@@ -166,11 +135,13 @@ const onSubmit = () => {
 }
 
 .text-lg {
-  font-size: 1.25rem; /* 원하는 폰트 크기로 조정 */
+  font-size: 1.25rem;
+  /* 원하는 폰트 크기로 조정 */
 }
 
 .text-md {
-  font-size: 1rem; /* 원하는 폰트 크기로 조정 */
+  font-size: 1rem;
+  /* 원하는 폰트 크기로 조정 */
 }
 </style>
 

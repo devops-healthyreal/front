@@ -28,7 +28,7 @@ const myData = ref([])
 const my = async () => {
   console.log("connetId---", connetId)
 
-  myData.value = await axios.get('http://localhost:4000/mroom/myData.do', { params: { id: connetId } })
+  myData.value = await axios.get('/mroom/myData.do', { params: { id: connetId } })
 
   if (myData.value.status === 200) {  // 수정된 부분
     console.log('내 데이타는---', myData.value.data)
@@ -41,7 +41,7 @@ const my = async () => {
 
 const getData = async () => {
   try {
-    const response = await axios.get('http://localhost:4000/mroom/listChall.do')
+    const response = await axios.get('/mroom/listChall.do')
 
     challenges.value = response.data
 
@@ -53,11 +53,11 @@ const getData = async () => {
 }
 
 
-onMounted(async () => { await getData(), await my()})
+onMounted(async () => { await getData(), await my() })
 
 const getHourDifference = (date1, date2) => {
   const diff = Math.abs(new Date(date1) - new Date(date2))
-  
+
   return diff / (1000 * 60 * 60)
 }
 
@@ -113,9 +113,9 @@ const checkEntrance = async challenge => {
   console.log("connetId---", connetId)
   console.log("challNo---", challenge.mateNo)
 
-  if (myData.value && calculateAge(myData.value.data.B_DAY) >= challenge.ageMin && calculateAge(myData.value.data.B_DAY) <= challenge.ageMax && (getGenderCode(myData.value.data.GENDER)===challenge.glimit || challenge.glimit===0)) {
+  if (myData.value && calculateAge(myData.value.data.B_DAY) >= challenge.ageMin && calculateAge(myData.value.data.B_DAY) <= challenge.ageMax && (getGenderCode(myData.value.data.GENDER) === challenge.glimit || challenge.glimit === 0)) {
 
-    const response = await axios.post('http://localhost:4000/mroom/joinRoom.do', { id: connetId, challNo: challenge.mateNo })
+    const response = await axios.post('/mroom/joinRoom.do', { id: connetId, challNo: challenge.mateNo })
 
     router.push({ name: 'apps-user-mate-room', params: { room: challenge.mateNo } }) //넘겨줄 Vue 경로 입력하기
 
@@ -129,13 +129,7 @@ const checkEntrance = async challenge => {
   <section>
     <VCol>
       <VRow v-if="challenges.length > 0">
-        <VCol
-          v-for="challenge in challenges"
-          :key="challenge.mateNo"
-          cols="12"
-          sm="6"
-          lg="4"
-        >
+        <VCol v-for="challenge in challenges" :key="challenge.mateNo" cols="12" sm="6" lg="4">
           <VCard>
             <VCardItem>
               <template #prepend>
@@ -147,41 +141,24 @@ const checkEntrance = async challenge => {
                 -->
               </template>
 
-              <VCardTitle><span style="font-size: xx-large; font-weight: bold;">{{ challenge.mateTitle }}</span></VCardTitle>
+              <VCardTitle><span style="font-size: xx-large; font-weight: bold;">{{ challenge.mateTitle }}</span>
+              </VCardTitle>
               <div class="d-flex align-center flex-wrap justify-space-between mt-1 mb-0">
                 <span style="margin-top: 20px;color: rgb(112, 196, 230); font-weight: b;">
-                  <VIcon
-                    start
-                    size="30"
-                    icon="mdi-face-man-shimmer-outline"
-                    color="info"
-                  />
+                  <VIcon start size="30" icon="mdi-face-man-shimmer-outline" color="info" />
                   {{ challenge.manager }}
                 </span>
-                <span
-                  class="font-weight-medium me-1"
-                  style="margin-top: 20px;"
-                >정원: <span style="color: rgb(127, 153, 238); font-weight: bold;">{{ challenge.mateCapacity }}</span>명</span>
+                <span class="font-weight-medium me-1" style="margin-top: 20px;">정원: <span
+                    style="color: rgb(127, 153, 238); font-weight: bold;">{{ challenge.mateCapacity }}</span>명</span>
               </div>
               <div class="d-flex align-center flex-wrap  mt-1 mb-0">
-                <VIcon
-                  start
-                  size="18"
-                  icon="mdi-check-decagram"
-                  style="margin-top: 20px;"
-                  color="info"
-                /> 
+                <VIcon start size="18" icon="mdi-check-decagram" style="margin-top: 20px;" color="info" />
                 <span style="margin-top: 20px;color: black;">
                   {{ challenge.mateSport }}
                 </span>
               </div>
               <div class="d-flex align-center flex-wrap mt-1 mb-0">
-                <VIcon
-                  start
-                  size="18"
-                  icon="mdi-map-marker"
-                  color="info"
-                /> 
+                <VIcon start size="18" icon="mdi-map-marker" color="info" />
                 <span style="color: black;">
                   {{ challenge.mateArea }}
                 </span>
@@ -193,26 +170,16 @@ const checkEntrance = async challenge => {
                 <div style=" margin-bottom: 4px;text-align: center;">
                   <span style="font-weight: bold;">{{ formatDate(challenge.mateDate) }} </span>
                 </div>
-                <VChip
-                  color="info"
-                  density="compact"
-                >
-                  <VIcon
-                    start
-                    size="18"
-                    icon="mdi-calendar"
-                  />
-                  <span class="text-xs">    
-                    D-day : -{{ Math.floor((getHourDifference(new Date(challenge.mateDate), new Date())+9)/24) }}일
+                <VChip color="info" density="compact">
+                  <VIcon start size="18" icon="mdi-calendar" />
+                  <span class="text-xs">
+                    D-day : -{{ Math.floor((getHourDifference(new Date(challenge.mateDate), new Date()) + 9) / 24) }}일
                   </span>
                 </VChip>
               </div>
 
 
-              <p
-                class="mt-4 mb-0 clamp-text"
-                style="font-weight: bold;"
-              >
+              <p class="mt-4 mb-0 clamp-text" style="font-weight: bold;">
                 {{ challenge.mateContent }}
               </p>
             </VCardText>
@@ -221,17 +188,10 @@ const checkEntrance = async challenge => {
 
             <VCardText>
               <div class="d-flex align-center justify-end flex-wrap gap-2">
-                <VChip
-                  color="success"
-                  density="compact"
-                >
-                  <VIcon
-                    start
-                    size="18"
-                    icon="mdi-location-enter"
-                  />
+                <VChip color="success" density="compact">
+                  <VIcon start size="18" icon="mdi-location-enter" />
                   <span class="text-xs">
-                    {{ challenge.ageMin }} ~ {{ challenge.ageMax }}세   / 
+                    {{ challenge.ageMin }} ~ {{ challenge.ageMax }}세 /
 
                     <span v-if="challenge.glimit === 0">모두 입장가능</span>
                     <span v-else-if="challenge.glimit === 1">남자만 입장가능</span>
@@ -242,29 +202,20 @@ const checkEntrance = async challenge => {
               <div class="d-flex align-center justify-space-between flex-wrap gap-2 mt-3">
                 <div class="d-flex align-center">
                   <div class="v-avatar-group me-2">
-                    <VAvatar
-                      v-for="participant in challenge.participantsData"
-                      :key="participant.ID"
-                      :image="participant.PRO_FILEPATH"
-                      :size="36"
-                    />
+                    <VAvatar v-for="participant in challenge.participantsData" :key="participant.ID"
+                      :image="participant.PRO_FILEPATH" :size="36" />
                   </div>
                   <span class="text-xs">
                     {{ challenge.participantsData.length }}
                   </span>
                 </div>
                 <span>
-                  <VBtn 
-                    v-if="challenge.participantsData.length <= challenge.mateCapacity"
-                    @click="checkEntrance(challenge)"
-                  >
+                  <VBtn v-if="challenge.participantsData.length <= challenge.mateCapacity"
+                    @click="checkEntrance(challenge)">
                     입장
-                    <VSnackbar
-                      v-model="isSnackbarCenteredVisible"
-                      location="center"
-                    >
+                    <VSnackbar v-model="isSnackbarCenteredVisible" location="center">
                       입장할 수 없습니다.
-                    </VSnackbar>  
+                    </VSnackbar>
                   </VBtn>
                   <strong v-else>참여불가</strong>
                 </span>
@@ -273,29 +224,18 @@ const checkEntrance = async challenge => {
           </VCard>
         </VCol>
       </VRow>
-      <VRow
-        v-else
-        class="d-flex flex-column align-center justify-center"
-        style="height: 100%;"
-      >
-        <VCard 
-          class="d-flex align-center justify-center" 
-          style="position: relative; width: 400px; height: 400px; margin-bottom: 20px; font-weight: bold;"
-        >
+      <VRow v-else class="d-flex flex-column align-center justify-center" style="height: 100%;">
+        <VCard class="d-flex align-center justify-center"
+          style="position: relative; width: 400px; height: 400px; margin-bottom: 20px; font-weight: bold;">
           방을 새로 만들어보세요!
         </VCard>
       </VRow>
     </VCol>
     <VRow style="margin-top: 50px;">
       <VCol cols="4" />
-      <VCol
-        cols="4"
-        class="d-flex flex-column align-center justify-center"
-      >
-        <VBtn
-          :style="{'margin-left':'10px'}"
-          @click="isAddMateRoomSettingDialogVisible = !isAddMateRoomSettingDialogVisible"
-        >
+      <VCol cols="4" class="d-flex flex-column align-center justify-center">
+        <VBtn :style="{ 'margin-left': '10px' }"
+          @click="isAddMateRoomSettingDialogVisible = !isAddMateRoomSettingDialogVisible">
           Mate
         </VBtn>
         <AddMateRoomSetting v-model:isDialogVisible="isAddMateRoomSettingDialogVisible" />
