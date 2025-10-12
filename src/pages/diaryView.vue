@@ -1,7 +1,7 @@
 <script setup>
 import AppDateTimePicker from '@/@core/components/app-form-elements/AppDateTimePicker.vue'
 import axios from '@axios'
-import DiaryView from '@images/cards/DiaryView.png'
+import DiaryView from '@images/cards/diaryView.png'
 import { ref, computed, onMounted } from 'vue'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { useStore } from 'vuex'

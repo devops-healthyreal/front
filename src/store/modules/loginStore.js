@@ -1,9 +1,9 @@
 
 // store/modules/loginStore.js
-import axiosIns from '@/plugins/axios'
+import axiosIns from '@/plugins/axiosflask'
 import axiosflask from '@/plugins/axiosflask'
 import router from '@/router'
-import axios from '@axios'
+import axios from '@/plugins/axiosflask'
 
 /*알림 test용 start*/
 import { API_BASE_URL, config, firebaseConfig, getGoogleKey } from '@/config'

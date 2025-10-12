@@ -4,7 +4,7 @@ pipeline {
     environment {
         // Docker configuration
         DOCKER_IMAGE_NAME = 'healthyreal-vue'
-        DOCKERHUB_CREDENTIALS = credentials('jimin dockerhub credentials')
+        DOCKERHUB_CREDENTIALS = credentials('jimin-dockerhub-credentials')
         CONTAINER_NAME = 'healthyreal-vue-dev'
         EXTERNAL_PORT = '7001'
         INTERNAL_PORT = '7001'  // Dev server port
@@ -17,6 +17,7 @@ pipeline {
         // Deployment configuration
         DEPLOY_SERVER = '13.124.109.82'
         DEPLOY_USER = 'ubuntu'
+        DEPLOY_PATH = '/home/ubuntu/healthyreal-vue'
     }
     
     stages {
@@ -26,7 +27,7 @@ pipeline {
                 echo 'Checking out code from GitHub...'
                 echo '======================================'
                 
-                // 팀 서버 - main 브랜치만 빌드
+                // 팀 서버 - main 브랜치 빌드  
                 checkout([$class: 'GitSCM', 
                     branches: [[name: '*/main']], 
                     userRemoteConfigs: scm.userRemoteConfigs
@@ -35,7 +36,7 @@ pipeline {
                 // Display current commit info
                 sh '''
                     echo "Current commit: $(git rev-parse --short HEAD)"
-                    echo "Branch: main (production)"
+                    echo "Branch: main (testing)"
                     echo "Commit message: $(git log -1 --pretty=%B)"
                     echo "Repository: ${GIT_URL}"
                 '''
@@ -71,7 +72,7 @@ pipeline {
                             docker build \
                                 -t ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:latest \
                                 -t ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} \
-                                -t ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:$(git rev-parse --short HEAD) \
+                                -t ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:\$(git rev-parse --short HEAD) \
                                 -f ${DOCKERFILE_PATH} \
                                 .
                         """
@@ -96,7 +97,7 @@ pipeline {
                     sh """
                         docker push ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:latest
                         docker push ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}
-                        docker push ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:$(git rev-parse --short HEAD)
+                        docker push ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE_NAME}:\$(git rev-parse --short HEAD)
                     """
                     
                     // Logout from DockerHub
@@ -157,44 +158,57 @@ pipeline {
                 echo 'Deploying Vue Frontend to production server...'
                 echo '======================================'
                 script {
-                    // Copy docker-compose.yml to production server
-                    sh """
-                        scp docker-compose.yml ${DEPLOY_USER}@${DEPLOY_SERVER}:/opt/healthyreal-vue/
-                    """
-                    
-                    // Deploy Vue Frontend on production server
-                    sh """
-                        ssh ${DEPLOY_USER}@${DEPLOY_SERVER} '
-                            cd /opt/healthyreal-vue
-                            
-                            # Ensure Docker network exists (for communication with backend services)
-                            docker network create healthyreal-network || true
-                            
-                            # Pull latest Vue image
-                            docker-compose pull vue-dev
-                            
-                            # Stop and remove old Vue container
-                            docker-compose stop vue-dev || true
-                            docker-compose rm -f vue-dev || true
-                            
-                            # Start new Vue container
-                            docker-compose up -d vue-dev
-                            
-                            # Wait for health check
-                            echo "Waiting for Vue container to be healthy..."
-                            for i in {1..30}; do
-                                if docker inspect --format="{{.State.Health.Status}}" ${CONTAINER_NAME} | grep -q "healthy"; then
-                                    echo "Vue container is healthy!"
-                                    break
-                                fi
-                                echo "Waiting... (\$i/30)"
-                                sleep 2
-                            done
-                            
-                            # Clean up old images
-                            docker image prune -f || true
-                        '
-                    """
+                    sshagent(credentials: ['admin']) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} << EOF
+                                # Create directory if it doesn't exist
+                                mkdir -p ${DEPLOY_PATH}
+                                
+                                exit
+EOF
+                        """
+                        
+                        // Copy docker-compose.yml to production server
+                        sh """
+                            scp -o StrictHostKeyChecking=no docker-compose.yml ${DEPLOY_USER}@${DEPLOY_SERVER}:${DEPLOY_PATH}/
+                        """
+                        
+                        // Deploy Vue Frontend on production server
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} << EOF
+                                cd ${DEPLOY_PATH}
+                                
+                                # Ensure Docker network exists (for communication with backend services)
+                                docker network create healthyreal-network || true
+                                
+                                # Pull latest Vue image
+                                docker compose pull vue-dev
+                                
+                                # Stop and remove old Vue container
+                                docker compose stop vue-dev || true
+                                docker compose rm -f vue-dev || true
+                                
+                                # Start new Vue container
+                                docker compose up -d vue-dev
+                                
+                                # Wait for health check
+                                echo "Waiting for Vue container to be healthy..."
+                                for i in {1..30}; do
+                                    if docker inspect --format="{{.State.Health.Status}}" ${CONTAINER_NAME} | grep -q "healthy"; then
+                                        echo "Vue container is healthy!"
+                                        break
+                                    fi
+                                    echo "Waiting... (\\\$i/30)"
+                                    sleep 2
+                                done
+                                
+                                # Clean up old images
+                                docker image prune -f || true
+                                
+                                exit
+EOF
+                        """
+                    }
                 }
                 
                 echo 'Vue Frontend deployment completed successfully!'
@@ -207,25 +221,29 @@ pipeline {
                 echo 'Verifying Vue Frontend deployment...'
                 echo '======================================'
                 script {
-                    // Check Vue deployment on production server
-                    sh """
-                        ssh ${DEPLOY_USER}@${DEPLOY_SERVER} '
-                            echo "Vue container status:"
-                            docker ps -f name=${CONTAINER_NAME}
-                            
-                            echo "\nVue container logs (last 20 lines):"
-                            docker logs --tail 20 ${CONTAINER_NAME}
-                            
-                            echo "\nVue container health status:"
-                            docker inspect --format="{{.State.Health.Status}}" ${CONTAINER_NAME} || echo "Health check not available yet"
-                            
-                            echo "\nTesting Vue health endpoint:"
-                            curl -f http://localhost:${EXTERNAL_PORT}/health || echo "Vue health check failed"
-                            
-                            echo "\nTesting Vue frontend:"
-                            curl -f http://localhost:${EXTERNAL_PORT}/ || echo "Vue frontend not accessible"
-                        '
-                    """
+                    sshagent(credentials: ['admin']) {
+                        // Check Vue deployment on production server
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} << EOF
+                                echo "Vue container status:"
+                                docker ps -f name=${CONTAINER_NAME}
+                                
+                                echo "\\nVue container logs (last 20 lines):"
+                                docker logs --tail 20 ${CONTAINER_NAME}
+                                
+                                echo "\\nVue container health status:"
+                                docker inspect --format="{{.State.Health.Status}}" ${CONTAINER_NAME} || echo "Health check not available yet"
+                                
+                                echo "\\nTesting Vue health endpoint:"
+                                curl -f http://localhost:${EXTERNAL_PORT}/health || echo "Vue health check failed"
+                                
+                                echo "\\nTesting Vue frontend:"
+                                curl -f http://localhost:${EXTERNAL_PORT}/ || echo "Vue frontend not accessible"
+                                
+                                exit
+EOF
+                        """
+                    }
                 }
                 
                 echo 'Vue Frontend deployment verification completed!'
@@ -261,14 +279,20 @@ pipeline {
             echo 'Check the logs above for error details'
             
             // Print container logs if container exists on production server
-            sh """
-                ssh ${DEPLOY_USER}@${DEPLOY_SERVER} '
-                    if docker ps -aq -f name=${CONTAINER_NAME}; then
-                        echo "Container logs:"
-                        docker logs ${CONTAINER_NAME}
-                    fi
-                ' || true
-            """ 
+            script {
+                sshagent(credentials: ['admin']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} << EOF
+                            if docker ps -aq -f name=${CONTAINER_NAME}; then
+                                echo "Container logs:"
+                                docker logs ${CONTAINER_NAME}
+                            fi
+                            
+                            exit
+EOF
+                    """ || true
+                }
+            }
         }
         
         always {

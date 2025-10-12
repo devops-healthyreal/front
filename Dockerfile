@@ -10,11 +10,11 @@ WORKDIR /app
 COPY package*.json ./
 COPY yarn.lock* ./
 
-# Install dependencies with npm ci for production builds
-RUN npm ci --only=production --silent
-
-# Copy @iconify for build:icons
+# Copy @iconify BEFORE npm install (required for postinstall script)
 COPY src/@iconify ./src/@iconify
+
+# Install all dependencies (including devDependencies for build)
+RUN npm ci --silent
 
 # Copy source code
 COPY . .
@@ -36,10 +36,6 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create nginx cache directory
-RUN mkdir -p /var/cache/nginx && \
-    chown -R nginx:nginx /var/cache/nginx && \
-    chown -R nginx:nginx /usr/share/nginx/html
 
 # Expose port 7001 (configured in nginx.conf)
 EXPOSE 7001
@@ -48,8 +44,6 @@ EXPOSE 7001
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD wget --quiet --tries=1 --spider http://localhost:7001/health || exit 1
 
-# Start nginx as non-root user
-USER nginx
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
