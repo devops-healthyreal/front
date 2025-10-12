@@ -15,14 +15,20 @@ import jwtDecode from 'jwt-decode'
 
 
 //웹, 앱 알람 (서비스 워커 안에 파이어베이스 SDK 삽입)
+// console.log('fmc 지원?', window.navigator.serviceWorker);
+const isSupported = firebase.messaging.isSupported(); //boolean 값
+
+
 let firebaseApp = firebase.initializeApp(firebaseConfig)
-let messaging = firebase.messaging()
-if ('serviceWorker' in navigator) {
+let messaging = isSupported ? firebase.messaging() : null;
+if ('serviceWorker' in navigator && isSupported) {
+  // console.log('firebase 지원?', isSupported());
   Notification.requestPermission().then(permission => {
     if (permission === 'granted') {
       window.addEventListener('load', () => {
         return navigator.serviceWorker.register('sw.js') //포그라운드에서 실행될 파일
           .then(registration => {
+
             console.log('등록 완료', registration)
             messaging = firebase.messaging()
             messaging = firebase.messaging(firebaseApp)
@@ -118,15 +124,17 @@ const loginStore = {
           foodRecommend(formdata.get("id"))
 
           //FMC 토큰 등록용 코드 start (로그인 한 사용자의 브라우저가 받은 FMC 토큰 값 저장)
-          messaging.getToken(messaging, { vapidKey: config.vapidKey })
-            .then(token => {
-              console.log('사용자의 firebase토큰:', token)
-              axios.post("/fmctoken", JSON.stringify({
-                id: formdata.get("id"),
-                token: token,
-              }), { headers: { 'Content-Type': 'application/json' } })
-            })
-            .catch(err => console.log("[firebase]이미 등록된 사용자입니다"))
+          if (messaging !== null) {
+            messaging.getToken(messaging, { vapidKey: config.vapidKey })
+              .then(token => {
+                console.log('사용자의 firebase토큰:', token)
+                axios.post("/fmctoken", JSON.stringify({
+                  id: formdata.get("id"),
+                  token: token,
+                }), { headers: { 'Content-Type': 'application/json' } })
+              })
+              .catch(err => console.log("[firebase]이미 등록된 사용자입니다"))
+          }
 
           getGoogleKey()
 
