@@ -1,5 +1,3 @@
-version: '3.8'
-
 # ============================================
 # Vue Frontend - Production Docker Compose
 # ============================================
@@ -36,19 +34,17 @@ services:
 # ==========================================
 networks:
   healthyreal-network:
-    driver: bridge
+    external: true  # Jenkins에서 미리 생성한 네트워크 사용
     name: healthyreal-network
-    # 네트워크가 없으면 자동 생성
-    # external: true  # 다른 docker-compose와 함께 사용 시 주석 해제
 
 # ==========================================
 # Vue 프로덕션 서버 사용 가이드
 # ==========================================
-# Vue 서비스 시작: docker-compose up -d
-# Vue 서비스 중지: docker-compose down
-# Vue 로그 확인: docker-compose logs -f vue-dev
-# Vue 이미지 빌드: docker-compose build
-# Vue 이미지 업데이트: docker-compose pull && docker-compose up -d
+# Vue 서비스 시작: docker compose up -d
+# Vue 서비스 중지: docker compose down
+# Vue 로그 확인: docker compose logs -f vue-dev
+# Vue 이미지 빌드: docker compose build
+# Vue 이미지 업데이트: docker compose pull && docker compose up -d
 # 
 # 프로덕션 환경:
 # - 포트: 7001
@@ -56,6 +52,6 @@ networks:
 # - NGINX가 정적 파일 서빙
 # 
 # 네트워크:
-# - healthyreal-network (자동 생성 또는 기존 네트워크 사용)
-# - 다른 서비스와 통합 시 external: true로 설정
+# - healthyreal-network (Jenkins에서 미리 생성한 외부 네트워크 사용)
+# - external: true로 설정하여 기존 네트워크와 충돌 방지
 
