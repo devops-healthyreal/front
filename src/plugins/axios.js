@@ -3,7 +3,7 @@ import router from '@/router'
 import axios from 'axios'
 
 // 환경에 따라 baseURL 자동 설정
-const baseURL = import.meta.env.VITE_API_FLASK_BASE_URL
+const baseURL = import.meta.env.VITE_API_BASE_URL
 
 const axiosIns = axios.create({
   baseURL: baseURL,
