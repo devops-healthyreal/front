@@ -94,7 +94,7 @@ const moveToWritePage = `console.log('버튼 클릭됨')`
 const showDiary = diaryId => { //다이어리 내용 불러오는 함수
   const diaryShowTag = document.getElementById("diary")
 
-  axios("http://127.0.0.1:4000/manage/diary", { params: { userNDate: diaryId } })
+  axios("/manage/diary", { params: { userNDate: diaryId } })
     .then(resp => {
       console.log('typeof 받아온 값', typeof resp.data)
       score.value = resp.data.stress

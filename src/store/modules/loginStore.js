@@ -1,9 +1,8 @@
 
 // store/modules/loginStore.js
-import axiosIns from '@/plugins/axiosflask'
 import axiosflask from '@/plugins/axiosflask'
 import router from '@/router'
-import axios from '@/plugins/axiosflask'
+import axios from '@axios'
 
 /*알림 test용 start*/
 import { API_BASE_URL, config, firebaseConfig, getGoogleKey } from '@/config'
@@ -295,7 +294,7 @@ const loginStore = {
     logout({ commit, dispatch }) {
       return new Promise(async (resolve, reject) => {
         try {
-          const res = await axiosIns.post('/logout', null, { withCredentials: true })
+          const res = await axios.post('/logout', null, { withCredentials: true })
 
 
           await dispatch('userStore/userlogout', null, { root: true }) // 'userStore'의 'logout' 액션 디스패치
