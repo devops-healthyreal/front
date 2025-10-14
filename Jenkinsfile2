@@ -45,7 +45,7 @@ EOF
                     sh """
                         ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} << EOF
                             set -e
-                            cd ${REMOTE_PATH}/${PROJECT_PATH}
+                            cd ${REMOTE_PATH}
 
                             echo "Starting services with Docker Compose..."
                             docker-compose pull
