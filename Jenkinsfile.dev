@@ -9,7 +9,7 @@ pipeline {
     parameters {
         string(
             name: 'DEV_SERVER_HOST',
-            defaultValue: 'http://3.39.158.19',
+            defaultValue: '3.39.158.19',
             description: 'Vue 개발 서버의 SSH 호스트명 또는 IP'
         )
         string(
@@ -32,10 +32,14 @@ pipeline {
             defaultValue: 'http://3.34.155.126:5000',
             description: 'Vue가 호출할 Flask Dev 서버 베이스 URL'
         )
+        string(
+            name: 'TARGET_BRANCH',
+            defaultValue: 'release',
+            description: '배포 대상 Git 브랜치 (dev 또는 release)'
+        )
     }
 
     environment {
-        DEV_BRANCH      = 'dev'
         REMOTE_ROOT     = '/home/ubuntu/healthyreal-vue-dev'
         SSH_CREDENTIALS = 'admin'
         DOCKER_IMAGE    = 'healthyreal-vue:dev'
@@ -43,12 +47,31 @@ pipeline {
     }
 
     stages {
-        stage('Checkout (dev branch)') {
-            when { branch 'dev' }
+        stage('Prepare Branch') {
             steps {
-                echo '=== Checking out dev branch ==='
+                script {
+                    def resolved = env.BRANCH_NAME?.trim()
+                    if (!resolved) {
+                        resolved = params.TARGET_BRANCH?.trim()
+                    }
+                    if (!resolved) {
+                        resolved = 'dev'
+                    }
+                    env.DEPLOY_BRANCH = resolved
+                    if (!(resolved in ['dev', 'release'])) {
+                        error "Branch '${resolved}' is not allowed. Use dev or release."
+                    }
+                    echo "Deploy branch resolved to '${env.DEPLOY_BRANCH}'"
+                }
+            }
+        }
+
+        stage('Checkout target branch') {
+            when { expression { env.DEPLOY_BRANCH in ['dev', 'release'] } }
+            steps {
+                echo "=== Checking out branch ${env.DEPLOY_BRANCH} ==="
                 checkout([$class: 'GitSCM',
-                    branches: [[name: "*/${DEV_BRANCH}"]],
+                    branches: [[name: "*/${env.DEPLOY_BRANCH}"]],
                     userRemoteConfigs: scm.userRemoteConfigs
                 ])
                 sh '''
@@ -60,7 +83,7 @@ pipeline {
         }
 
         stage('Sync repository on remote') {
-            when { branch 'dev' }
+            when { expression { env.DEPLOY_BRANCH in ['dev', 'release'] } }
             steps {
                 echo '=== Syncing repository on remote dev server ==='
                 sshagent(credentials: [SSH_CREDENTIALS]) {
@@ -74,8 +97,8 @@ pipeline {
                             cd ${REMOTE_ROOT}
                             git remote set-url origin '${GIT_URL}'
                             git fetch --all --prune
-                            git checkout ${DEV_BRANCH}
-                            git reset --hard origin/${DEV_BRANCH}
+                            git checkout ${env.DEPLOY_BRANCH}
+                            git reset --hard origin/${env.DEPLOY_BRANCH}
 EOF
                     """
                 }
@@ -83,7 +106,7 @@ EOF
         }
 
         stage('Build & Deploy (docker-compose)') {
-            when { branch 'dev' }
+            when { expression { env.DEPLOY_BRANCH in ['dev', 'release'] } }
             steps {
                 echo '=== Deploying Vue dev stack ==='
                 sshagent(credentials: [SSH_CREDENTIALS]) {
@@ -95,6 +118,7 @@ EOF
                             export LOKI_ENDPOINT='${params.LOKI_ENDPOINT}'
                             export SPRING_API_BASE_URL='${params.SPRING_API_BASE_URL}'
                             export FLASK_API_BASE_URL='${params.FLASK_API_BASE_URL}'
+                            export DEPLOY_BRANCH='${env.DEPLOY_BRANCH}'
 
                             ${DOCKER_COMPOSE_CMD} pull vue-dev vue-metrics vue-promtail || true
                             ${DOCKER_COMPOSE_CMD} build --pull vue-dev
@@ -111,7 +135,7 @@ EOF
         }
 
         stage('Post-deploy Verification') {
-            when { branch 'dev' }
+            when { expression { env.DEPLOY_BRANCH in ['dev', 'release'] } }
             steps {
                 echo '=== Verifying health, metrics, and logs ==='
                 sshagent(credentials: [SSH_CREDENTIALS]) {
@@ -145,7 +169,10 @@ EOF
     post {
         success {
             echo "Vue dev deployment completed for build #${BUILD_NUMBER}"
-            echo "Prometheus scrape endpoint: http://${params.DEV_SERVER_HOST}:9113/metrics"
+            script {
+                def host = params.DEV_SERVER_HOST?.replaceFirst('^https?://', '') ?: params.DEV_SERVER_HOST
+                echo "Prometheus scrape endpoint: http://${host}:9113/metrics"
+            }
         }
         failure {
             echo "Deployment failed. Inspect the logs above."
