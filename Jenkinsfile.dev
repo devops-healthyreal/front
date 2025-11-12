@@ -43,7 +43,7 @@ pipeline {
         REMOTE_ROOT     = '/home/ubuntu/healthyreal-vue-dev'
         SSH_CREDENTIALS = 'admin'
         DOCKER_IMAGE    = 'healthyreal-vue:dev'
-        DOCKER_COMPOSE_CMD = 'docker-compose'
+        DOCKER_COMPOSE_CMD = 'docker compose'
     }
 
     stages {
