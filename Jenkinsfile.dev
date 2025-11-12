@@ -4,16 +4,6 @@ pipeline {
     options {
         disableConcurrentBuilds()
         timestamps()
-        string(
-            name: 'SPRING_API_BASE_URL',
-            defaultValue: 'http://13.124.32.119:7002',
-            description: 'Vue가 호출할 Spring Dev 서버 베이스 URL'
-        )
-        string(
-            name: 'FLASK_API_BASE_URL',
-            defaultValue: 'http://3.34.155.126:5000',
-            description: 'Vue가 호출할 Flask Dev 서버 베이스 URL'
-        )
     }
 
     parameters {
@@ -31,6 +21,16 @@ pipeline {
             name: 'LOKI_ENDPOINT',
             defaultValue: 'http://13.124.109.82/loki/api/v1/push',
             description: '메인 서버 Loki 인스턴스의 HTTP push URL'
+        )
+        string(
+            name: 'SPRING_API_BASE_URL',
+            defaultValue: 'http://13.124.32.119:7002',
+            description: 'Vue가 호출할 Spring Dev 서버 베이스 URL'
+        )
+        string(
+            name: 'FLASK_API_BASE_URL',
+            defaultValue: 'http://3.34.155.126:5000',
+            description: 'Vue가 호출할 Flask Dev 서버 베이스 URL'
         )
     }
 
