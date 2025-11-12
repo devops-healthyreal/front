@@ -1,0 +1,158 @@
+pipeline {
+    agent any
+
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+        string(
+            name: 'SPRING_API_BASE_URL',
+            defaultValue: 'http://13.124.32.119:7002',
+            description: 'Vue가 호출할 Spring Dev 서버 베이스 URL'
+        )
+        string(
+            name: 'FLASK_API_BASE_URL',
+            defaultValue: 'http://3.34.155.126:5000',
+            description: 'Vue가 호출할 Flask Dev 서버 베이스 URL'
+        )
+    }
+
+    parameters {
+        string(
+            name: 'DEV_SERVER_HOST',
+            defaultValue: 'http://3.39.158.19',
+            description: 'Vue 개발 서버의 SSH 호스트명 또는 IP'
+        )
+        string(
+            name: 'DEV_SERVER_USER',
+            defaultValue: 'ubuntu',
+            description: '개발 서버 SSH 사용자'
+        )
+        string(
+            name: 'LOKI_ENDPOINT',
+            defaultValue: 'http://13.124.109.82/loki/api/v1/push',
+            description: '메인 서버 Loki 인스턴스의 HTTP push URL'
+        )
+    }
+
+    environment {
+        DEV_BRANCH      = 'dev'
+        REMOTE_ROOT     = '/home/ubuntu/healthyreal-vue-dev'
+        SSH_CREDENTIALS = 'admin'
+        DOCKER_IMAGE    = 'healthyreal-vue:dev'
+        DOCKER_COMPOSE_CMD = 'docker-compose'
+    }
+
+    stages {
+        stage('Checkout (dev branch)') {
+            when { branch 'dev' }
+            steps {
+                echo '=== Checking out dev branch ==='
+                checkout([$class: 'GitSCM',
+                    branches: [[name: "*/${DEV_BRANCH}"]],
+                    userRemoteConfigs: scm.userRemoteConfigs
+                ])
+                sh '''
+                    echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
+                    echo "Commit: $(git rev-parse --short HEAD)"
+                    echo "Commit message: $(git log -1 --pretty=%B)"
+                '''
+            }
+        }
+
+        stage('Sync repository on remote') {
+            when { branch 'dev' }
+            steps {
+                echo '=== Syncing repository on remote dev server ==='
+                sshagent(credentials: [SSH_CREDENTIALS]) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${params.DEV_SERVER_USER}@${params.DEV_SERVER_HOST} << EOF
+                            set -euo pipefail
+                            mkdir -p ${REMOTE_ROOT}
+                            if [ ! -d "${REMOTE_ROOT}/.git" ]; then
+                                git clone '${GIT_URL}' ${REMOTE_ROOT}
+                            fi
+                            cd ${REMOTE_ROOT}
+                            git remote set-url origin '${GIT_URL}'
+                            git fetch --all --prune
+                            git checkout ${DEV_BRANCH}
+                            git reset --hard origin/${DEV_BRANCH}
+EOF
+                    """
+                }
+            }
+        }
+
+        stage('Build & Deploy (docker-compose)') {
+            when { branch 'dev' }
+            steps {
+                echo '=== Deploying Vue dev stack ==='
+                sshagent(credentials: [SSH_CREDENTIALS]) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${params.DEV_SERVER_USER}@${params.DEV_SERVER_HOST} << EOF
+                            set -euo pipefail
+                            cd ${REMOTE_ROOT}
+
+                            export LOKI_ENDPOINT='${params.LOKI_ENDPOINT}'
+                            export SPRING_API_BASE_URL='${params.SPRING_API_BASE_URL}'
+                            export FLASK_API_BASE_URL='${params.FLASK_API_BASE_URL}'
+
+                            ${DOCKER_COMPOSE_CMD} pull vue-dev vue-metrics vue-promtail || true
+                            ${DOCKER_COMPOSE_CMD} build --pull vue-dev
+                            SPRING_API_BASE_URL='\${SPRING_API_BASE_URL}' \
+                            FLASK_API_BASE_URL='\${FLASK_API_BASE_URL}' \
+                            LOKI_ENDPOINT='\${LOKI_ENDPOINT}' \
+                              ${DOCKER_COMPOSE_CMD} up -d vue-dev vue-metrics vue-promtail
+
+                            ${DOCKER_COMPOSE_CMD} ps
+EOF
+                    """
+                }
+            }
+        }
+
+        stage('Post-deploy Verification') {
+            when { branch 'dev' }
+            steps {
+                echo '=== Verifying health, metrics, and logs ==='
+                sshagent(credentials: [SSH_CREDENTIALS]) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${params.DEV_SERVER_USER}@${params.DEV_SERVER_HOST} << EOF
+                            set -euo pipefail
+                            cd ${REMOTE_ROOT}
+
+                            export SPRING_API_BASE_URL='${params.SPRING_API_BASE_URL}'
+                            export FLASK_API_BASE_URL='${params.FLASK_API_BASE_URL}'
+
+                            echo '[Healthz]'
+                            curl -fsS http://localhost:7001/healthz
+
+                            echo '[Metrics head]'
+                            curl -fsS http://localhost:9113/metrics | head -n 20
+
+                            echo '[Proxy targets]'
+                            echo "SPRING_API_BASE_URL=${SPRING_API_BASE_URL:-unset}"
+                            echo "FLASK_API_BASE_URL=${FLASK_API_BASE_URL:-unset}"
+
+                            echo '[Promtail logs tail]'
+                            docker logs --tail 40 healthyreal-vue-promtail || true
+EOF
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Vue dev deployment completed for build #${BUILD_NUMBER}"
+            echo "Prometheus scrape endpoint: http://${params.DEV_SERVER_HOST}:9113/metrics"
+        }
+        failure {
+            echo "Deployment failed. Inspect the logs above."
+        }
+        always {
+            echo "Pipeline finished at: ${new Date()}"
+        }
+    }
+}
+
