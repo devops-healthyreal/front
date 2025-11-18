@@ -11,7 +11,7 @@ pipeline {
         string(name: 'K8S_NAMESPACE', defaultValue: 'healthyreal', description: '배포 네임스페이스')
         string(name: 'K8S_CONTEXT', defaultValue: 'your-kube-context', description: 'kubectl context')
         string(name: 'SONAR_PROJECT_KEY', defaultValue: 'healthyreal-front', description: 'SonarQube project key')
-        string(name: 'K3S_NODE_IP', defaultValue: '', description: 'k3s 노드의 공인 IP (Prometheus 스크랩용)')
+        string(name: 'K3S_NODE_IP', defaultValue: '', description: 'k3s 설치치 IP (Prometheus 스크랩용)')
     }
 
     environment {
@@ -40,21 +40,19 @@ pipeline {
         stage('Node Build') {
             when { anyOf { branch 'release'; branch 'develop' } }
             steps {
-                dir('front') {
-                    sh '''
-                      corepack enable || true
-                      if command -v pnpm >/dev/null 2>&1; then
-                        pnpm install --frozen-lockfile || pnpm install
-                        pnpm build
-                      elif command -v yarn >/dev/null 2>&1; then
-                        yarn install --frozen-lockfile || yarn install
-                        yarn build
-                      else
-                        npm ci || npm install
-                        npm run build
-                      fi
-                    '''
-                }
+                sh '''
+                  corepack enable || true
+                  if command -v pnpm >/dev/null 2>&1; then
+                    pnpm install --frozen-lockfile || pnpm install
+                    pnpm build
+                  elif command -v yarn >/dev/null 2>&1; then
+                    yarn install --frozen-lockfile || yarn install
+                    yarn build
+                  else
+                    npm ci || npm install
+                    npm run build
+                  fi
+                '''
             }
         }
 
@@ -62,14 +60,12 @@ pipeline {
             when { branch 'release' }
             steps {
                 withSonarQubeEnv("${SONARQUBE_SERVER}") {
-                    dir('front') {
-                        sh '''
-                          npx --yes sonar-scanner \
-                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                            -Dsonar.sources=src \
-                            -Dsonar.sourceEncoding=UTF-8
-                        '''
-                    }
+                    sh '''
+                      npx --yes sonar-scanner \
+                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                        -Dsonar.sources=src \
+                        -Dsonar.sourceEncoding=UTF-8
+                    '''
                 }
             }
         }
@@ -170,14 +166,12 @@ ${sonarUrl ? "- **Report**: ${sonarUrl}" : ""}
             when { branch 'develop' }
             steps {
                 withCredentials([credentials('dockerhub-credentials')]) {
-                    dir('front') {
-                        sh '''
-                          echo "Building ${DOCKERHUB_CREDENTIALS_USR}/${IMAGE_NAME}:${IMAGE_TAG}"
-                          docker build -t ${DOCKERHUB_CREDENTIALS_USR}/${IMAGE_NAME}:${IMAGE_TAG} -f Dockerfile .
-                          echo "${DOCKERHUB_CREDENTIALS_PSW}" | docker login -u "${DOCKERHUB_CREDENTIALS_USR}" --password-stdin
-                          docker push ${DOCKERHUB_CREDENTIALS_USR}/${IMAGE_NAME}:${IMAGE_TAG}
-                        '''
-                    }
+                    sh '''
+                      echo "Building ${DOCKERHUB_CREDENTIALS_USR}/${IMAGE_NAME}:${IMAGE_TAG}"
+                      docker build -t ${DOCKERHUB_CREDENTIALS_USR}/${IMAGE_NAME}:${IMAGE_TAG} -f Dockerfile .
+                      echo "${DOCKERHUB_CREDENTIALS_PSW}" | docker login -u "${DOCKERHUB_CREDENTIALS_USR}" --password-stdin
+                      docker push ${DOCKERHUB_CREDENTIALS_USR}/${IMAGE_NAME}:${IMAGE_TAG}
+                    '''
                 }
             }
         }
