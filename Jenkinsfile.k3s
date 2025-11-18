@@ -11,6 +11,7 @@ pipeline {
         string(name: 'K8S_NAMESPACE', defaultValue: 'healthyreal', description: '배포 네임스페이스')
         string(name: 'K8S_CONTEXT', defaultValue: 'your-kube-context', description: 'kubectl context')
         string(name: 'SONAR_PROJECT_KEY', defaultValue: 'healthyreal-front', description: 'SonarQube project key')
+        string(name: 'SONAR_HOST_URL', defaultValue: 'http://3.39.158.19:9000', description: 'SonarQube Server URL')  // 추가
         string(name: 'K3S_NODE_IP', defaultValue: '', description: 'k3s 설치치 IP (Prometheus 스크랩용)')
     }
 
@@ -20,9 +21,10 @@ pipeline {
         KUBECONFIG_CREDENTIALS = 'kubeconfig-credentials-id'
         GITHUB_CREDENTIALS     = 'jimin-github'
         SONARQUBE_SERVER       = 'SonarScanner'
+        SONARQUBE_CREDENTIALS  = 'sonarqube-token'  // Jenkins에 Secret text credentials로 생성 필요
         K8S_DIR = 'k8s'
         KUBECTL_BIN = 'k3s kubectl'
-        GITHUB_REPO = "${env.GIT_URL?.replaceAll('https://github.com/', '')?.replaceAll('\\.git$', '') ?: 'OWNER/REPO'}"
+        GITHUB_REPO = 'devops-healthyreal/front'
     }
 
     stages {
@@ -37,30 +39,6 @@ pipeline {
             }
         }
 
-        stage('Node Build') {
-            when { 
-                anyOf { 
-                    expression { env.GIT_BRANCH?.contains('release') }
-                    expression { env.GIT_BRANCH?.contains('develop') }
-                } 
-            }
-            steps {
-                sh '''
-                  corepack enable || true
-                  if command -v pnpm >/dev/null 2>&1; then
-                    pnpm install --frozen-lockfile || pnpm install
-                    pnpm build
-                  elif command -v yarn >/dev/null 2>&1; then
-                    yarn install --frozen-lockfile || yarn install
-                    yarn build
-                  else
-                    npm ci || npm install
-                    npm run build
-                  fi
-                '''
-            }
-        }
-
         stage('SonarQube (release)') {
             when { 
                 anyOf {
@@ -69,13 +47,20 @@ pipeline {
                 }
             }
             steps {
-                withSonarQubeEnv("${SONARQUBE_SERVER}") {
-                    sh '''
-                      npx --yes sonar-scanner \
-                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                        -Dsonar.sources=src \
+                withCredentials([
+                    string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')
+                ]) {
+                    sh """
+                      docker run --rm \\
+                        -v \$(pwd):/usr/src \\
+                        -w /usr/src \\
+                        -e SONAR_HOST_URL=${params.SONAR_HOST_URL} \\
+                        -e SONAR_TOKEN=\${SONAR_TOKEN} \\
+                        sonarsource/sonar-scanner-cli:latest \\
+                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \\
+                        -Dsonar.sources=src \\
                         -Dsonar.sourceEncoding=UTF-8
-                    '''
+                    """
                 }
             }
         }
@@ -185,7 +170,7 @@ ${sonarUrl ? "- **Report**: ${sonarUrl}" : ""}
         stage('Build & Push Image (develop)') {
             when { branch 'develop' }
             steps {
-                withCredentials([credentials('dockerhub-credentials')]) {
+                withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
                       echo "Building ${DOCKERHUB_CREDENTIALS_USR}/${IMAGE_NAME}:${IMAGE_TAG}"
                       docker build -t ${DOCKERHUB_CREDENTIALS_USR}/${IMAGE_NAME}:${IMAGE_TAG} -f Dockerfile .
