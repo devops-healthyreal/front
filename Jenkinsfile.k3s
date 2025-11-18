@@ -18,8 +18,8 @@ pipeline {
         IMAGE_TAG = "${env.GIT_COMMIT?.take(7) ?: 'dev'}"
         DOCKERHUB_CREDENTIALS = 'dockerhub-credentials'
         KUBECONFIG_CREDENTIALS = 'kubeconfig-credentials-id'
-        GITHUB_CREDENTIALS     = 'jimin-github'  // GitHub Personal Access Token
-        SONARQUBE_SERVER       = 'SonarScanner'  // Jenkins 설정과 일치
+        GITHUB_CREDENTIALS     = 'jimin-github'
+        SONARQUBE_SERVER       = 'SonarScanner'
         K8S_DIR = 'k8s'
         KUBECTL_BIN = 'k3s kubectl'
         GITHUB_REPO = "${env.GIT_URL?.replaceAll('https://github.com/', '')?.replaceAll('\\.git$', '') ?: 'OWNER/REPO'}"
@@ -38,7 +38,7 @@ pipeline {
         }
 
         stage('Node Build') {
-            when { anyOf { branch 'develop'; branch 'main' } }
+            when { anyOf { branch 'release'; branch 'develop' } }
             steps {
                 dir('front') {
                     sh '''
@@ -58,8 +58,8 @@ pipeline {
             }
         }
 
-        stage('SonarQube (develop)') {
-            when { branch 'develop' }
+        stage('SonarQube (release)') {
+            when { branch 'release' }
             steps {
                 withSonarQubeEnv("${SONARQUBE_SERVER}") {
                     dir('front') {
@@ -74,8 +74,8 @@ pipeline {
             }
         }
 
-        stage('SonarQube Quality Gate (develop)') {
-            when { branch 'develop' }
+        stage('SonarQube Quality Gate (release)') {
+            when { branch 'release' }
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
@@ -83,13 +83,12 @@ pipeline {
             }
         }
 
-        stage('Create PR to main (develop)') {
-            when { branch 'develop' }
+        stage('Create PR to develop (release)') {
+            when { branch 'release' }
             steps {
                 script {
                     def sonarUrl = sh(
                         script: '''
-                          # SonarQube 리포트 URL 추출 (환경변수에서 가져오거나 SonarQube 서버 URL 조합)
                           echo "${SONAR_HOST_URL}/dashboard?id=${SONAR_PROJECT_KEY}" || echo ""
                         ''',
                         returnStdout: true
@@ -111,27 +110,27 @@ pipeline {
                     ).trim()
                     
                     def prBody = """
-##  자동 생성된 배포 PR
+## 📦 자동 생성된 배포 PR
 
-**Develop 브랜치의 변경사항을 Main으로 배포합니다.**
+**Release 브랜치의 변경사항을 Develop으로 배포합니다.**
 
-###  최근 커밋 정보
+### 📝 최근 커밋 정보
 - **Author**: ${commitAuthor}
 - **Message**: ${commitMsg}
 - **Commit**: ${commitSha}
-- **Branch**: develop → main
+- **Branch**: release → develop
 
-###  SonarQube 품질 검사
-- **Status**:  Quality Gate 통과
+### ✅ SonarQube 품질 검사
+- **Status**: ✅ Quality Gate 통과
 ${sonarUrl ? "- **Report**: ${sonarUrl}" : ""}
 
-###  배포 전 체크리스트
+### ✅ 배포 전 체크리스트
 - [x] SonarQube Quality Gate 통과
 - [ ] 코드 리뷰 완료
 - [ ] 테스트 통과 확인
 - [ ] 배포 준비 완료
 
-###  배포 프로세스
+### 🔄 배포 프로세스
 이 PR이 merge되면 Jenkins를 통해 자동으로 운영 서버(k3s)에 배포됩니다.
 
 ---
@@ -140,26 +139,23 @@ ${sonarUrl ? "- **Report**: ${sonarUrl}" : ""}
                     
                     withCredentials([string(credentialsId: "${GITHUB_CREDENTIALS}", variable: 'GITHUB_TOKEN')]) {
                         sh """
-                          # GitHub CLI 또는 curl을 사용하여 PR 생성
                           if command -v gh >/dev/null 2>&1; then
-                            # GitHub CLI 사용
                             export GH_TOKEN="${GITHUB_TOKEN}"
                             gh pr create \\
-                              --base main \\
-                              --head develop \\
-                              --title "🚀 [Auto PR] Deploy develop to main - ${commitSha}" \\
+                              --base develop \\
+                              --head release \\
+                              --title "🚀 [Auto PR] Deploy release to develop - ${commitSha}" \\
                               --body "${prBody}" \\
                               --label "auto-pr,deployment" || echo "PR may already exist"
                           else
-                            # GitHub API 직접 호출
                             curl -X POST \\
                               -H "Authorization: token ${GITHUB_TOKEN}" \\
                               -H "Accept: application/vnd.github.v3+json" \\
                               https://api.github.com/repos/${GITHUB_REPO}/pulls \\
                               -d '{
-                                "title": "🚀 [Auto PR] Deploy develop to main - ${commitSha}",
-                                "head": "develop",
-                                "base": "main",
+                                "title": "🚀 [Auto PR] Deploy release to develop - ${commitSha}",
+                                "head": "release",
+                                "base": "develop",
                                 "body": ${groovy.json.JsonOutput.toJson(prBody)},
                                 "labels": ["auto-pr", "deployment"]
                               }' || echo "PR creation failed or already exists"
@@ -170,8 +166,8 @@ ${sonarUrl ? "- **Report**: ${sonarUrl}" : ""}
             }
         }
 
-        stage('Build & Push Image (main)') {
-            when { branch 'main' }
+        stage('Build & Push Image (develop)') {
+            when { branch 'develop' }
             steps {
                 withCredentials([credentials('dockerhub-credentials')]) {
                     dir('front') {
@@ -186,8 +182,8 @@ ${sonarUrl ? "- **Report**: ${sonarUrl}" : ""}
             }
         }
 
-        stage('Deploy to Kubernetes (main)') {
-            when { branch 'main' }
+        stage('Deploy to Kubernetes (develop)') {
+            when { branch 'develop' }
             steps {
                 withCredentials([string(credentialsId: "${KUBECONFIG_CREDENTIALS}", variable: 'KUBECONFIG_CONTENT'), credentials('dockerhub-credentials')]) {
                     sh '''
