@@ -1,0 +1,235 @@
+pipeline {
+    agent any
+
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+    }
+
+    parameters {
+        string(name: 'IMAGE_NAME', defaultValue: 'healthyreal-vue', description: '이미지 이름')
+        string(name: 'K8S_NAMESPACE', defaultValue: 'healthyreal', description: '배포 네임스페이스')
+        string(name: 'K8S_CONTEXT', defaultValue: 'your-kube-context', description: 'kubectl context')
+        string(name: 'SONAR_PROJECT_KEY', defaultValue: 'healthyreal-front', description: 'SonarQube project key')
+        string(name: 'K3S_NODE_IP', defaultValue: '', description: 'k3s 노드의 공인 IP (Prometheus 스크랩용)')
+    }
+
+    environment {
+        IMAGE_TAG = "${env.GIT_COMMIT?.take(7) ?: 'dev'}"
+        DOCKERHUB_CREDENTIALS = 'dockerhub-credentials'
+        KUBECONFIG_CREDENTIALS = 'kubeconfig-credentials-id'
+        GITHUB_CREDENTIALS     = 'jimin-github'  // GitHub Personal Access Token
+        SONARQUBE_SERVER       = 'SonarScanner'  // Jenkins 설정과 일치
+        K8S_DIR = 'k8s'
+        KUBECTL_BIN = 'k3s kubectl'
+        GITHUB_REPO = "${env.GIT_URL?.replaceAll('https://github.com/', '')?.replaceAll('\\.git$', '') ?: 'OWNER/REPO'}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                sh '''
+                  echo "Branch: $(git rev-parse --abbrev-ref HEAD)"
+                  echo "Commit: $(git rev-parse --short HEAD)"
+                  echo "Commit message: $(git log -1 --pretty=%B)"
+                '''
+            }
+        }
+
+        stage('Node Build') {
+            when { anyOf { branch 'develop'; branch 'main' } }
+            steps {
+                dir('front') {
+                    sh '''
+                      corepack enable || true
+                      if command -v pnpm >/dev/null 2>&1; then
+                        pnpm install --frozen-lockfile || pnpm install
+                        pnpm build
+                      elif command -v yarn >/dev/null 2>&1; then
+                        yarn install --frozen-lockfile || yarn install
+                        yarn build
+                      else
+                        npm ci || npm install
+                        npm run build
+                      fi
+                    '''
+                }
+            }
+        }
+
+        stage('SonarQube (develop)') {
+            when { branch 'develop' }
+            steps {
+                withSonarQubeEnv("${SONARQUBE_SERVER}") {
+                    dir('front') {
+                        sh '''
+                          npx --yes sonar-scanner \
+                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                            -Dsonar.sources=src \
+                            -Dsonar.sourceEncoding=UTF-8
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('SonarQube Quality Gate (develop)') {
+            when { branch 'develop' }
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Create PR to main (develop)') {
+            when { branch 'develop' }
+            steps {
+                script {
+                    def sonarUrl = sh(
+                        script: '''
+                          # SonarQube 리포트 URL 추출 (환경변수에서 가져오거나 SonarQube 서버 URL 조합)
+                          echo "${SONAR_HOST_URL}/dashboard?id=${SONAR_PROJECT_KEY}" || echo ""
+                        ''',
+                        returnStdout: true
+                    ).trim()
+                    
+                    def commitMsg = sh(
+                        script: 'git log -1 --pretty=%B',
+                        returnStdout: true
+                    ).trim()
+                    
+                    def commitAuthor = sh(
+                        script: 'git log -1 --pretty=%an',
+                        returnStdout: true
+                    ).trim()
+                    
+                    def commitSha = sh(
+                        script: 'git rev-parse --short HEAD',
+                        returnStdout: true
+                    ).trim()
+                    
+                    def prBody = """
+## 📦 자동 생성된 배포 PR
+
+**Develop 브랜치의 변경사항을 Main으로 배포합니다.**
+
+### 📝 최근 커밋 정보
+- **Author**: ${commitAuthor}
+- **Message**: ${commitMsg}
+- **Commit**: ${commitSha}
+- **Branch**: develop → main
+
+### ✅ SonarQube 품질 검사
+- **Status**: ✅ Quality Gate 통과
+${sonarUrl ? "- **Report**: ${sonarUrl}" : ""}
+
+### ✅ 배포 전 체크리스트
+- [x] SonarQube Quality Gate 통과
+- [ ] 코드 리뷰 완료
+- [ ] 테스트 통과 확인
+- [ ] 배포 준비 완료
+
+### 🔄 배포 프로세스
+이 PR이 merge되면 Jenkins를 통해 자동으로 운영 서버(k3s)에 배포됩니다.
+
+---
+*이 PR은 SonarQube Quality Gate 통과 후 자동으로 생성되었습니다.*
+"""
+                    
+                    withCredentials([string(credentialsId: "${GITHUB_CREDENTIALS}", variable: 'GITHUB_TOKEN')]) {
+                        sh """
+                          # GitHub CLI 또는 curl을 사용하여 PR 생성
+                          if command -v gh >/dev/null 2>&1; then
+                            # GitHub CLI 사용
+                            export GH_TOKEN="${GITHUB_TOKEN}"
+                            gh pr create \\
+                              --base main \\
+                              --head develop \\
+                              --title "🚀 [Auto PR] Deploy develop to main - ${commitSha}" \\
+                              --body "${prBody}" \\
+                              --label "auto-pr,deployment" || echo "PR may already exist"
+                          else
+                            # GitHub API 직접 호출
+                            curl -X POST \\
+                              -H "Authorization: token ${GITHUB_TOKEN}" \\
+                              -H "Accept: application/vnd.github.v3+json" \\
+                              https://api.github.com/repos/${GITHUB_REPO}/pulls \\
+                              -d '{
+                                "title": "🚀 [Auto PR] Deploy develop to main - ${commitSha}",
+                                "head": "develop",
+                                "base": "main",
+                                "body": ${groovy.json.JsonOutput.toJson(prBody)},
+                                "labels": ["auto-pr", "deployment"]
+                              }' || echo "PR creation failed or already exists"
+                          fi
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Build & Push Image (main)') {
+            when { branch 'main' }
+            steps {
+                withCredentials([credentials('dockerhub-credentials')]) {
+                    dir('front') {
+                        sh '''
+                          echo "Building ${DOCKERHUB_CREDENTIALS_USR}/${IMAGE_NAME}:${IMAGE_TAG}"
+                          docker build -t ${DOCKERHUB_CREDENTIALS_USR}/${IMAGE_NAME}:${IMAGE_TAG} -f Dockerfile .
+                          echo "${DOCKERHUB_CREDENTIALS_PSW}" | docker login -u "${DOCKERHUB_CREDENTIALS_USR}" --password-stdin
+                          docker push ${DOCKERHUB_CREDENTIALS_USR}/${IMAGE_NAME}:${IMAGE_TAG}
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes (main)') {
+            when { branch 'main' }
+            steps {
+                withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS}", variable: 'KUBECONFIG_FILE'), credentials('dockerhub-credentials')]) {
+                    sh '''
+                      export KUBECONFIG="${KUBECONFIG_FILE}"
+                      ${KUBECTL_BIN} config use-context ${K8S_CONTEXT}
+                      
+                      # 네임스페이스 생성 (없으면 생성)
+                      if ! ${KUBECTL_BIN} get ns ${K8S_NAMESPACE} >/dev/null 2>&1; then
+                        echo "Creating namespace: ${K8S_NAMESPACE}"
+                        ${KUBECTL_BIN} create ns ${K8S_NAMESPACE}
+                      else
+                        echo "Namespace ${K8S_NAMESPACE} already exists"
+                      fi
+
+                      # 1. Metrics Service 배포 (nginx-exporter를 외부에서 접근 가능하도록)
+                      ${KUBECTL_BIN} apply -f ${K8S_DIR}/service-metrics-nodeport.yam
+
+                      # 2. Vue 앱 Deployment 배포 (이미지 태그를 교체한 후 적용)
+                      ${KUBECTL_BIN} -n ${K8S_NAMESPACE} apply -f ${K8S_DIR}/deployment.yaml
+                      ${KUBECTL_BIN} -n ${K8S_NAMESPACE} set image deployment/front front=${DOCKERHUB_CREDENTIALS_USR}/${IMAGE_NAME}:${IMAGE_TAG}
+                      ${KUBECTL_BIN} -n ${K8S_NAMESPACE} rollout status deployment/front --timeout=180s
+
+                      # 메트릭/헬스 간단 확인
+                      if [ -n "${K3S_NODE_IP}" ]; then
+                        echo "[Info] Metrics endpoint: http://${K3S_NODE_IP}:9000/metrics"
+                        echo "[Info] Test: curl http://${K3S_NODE_IP}:9000/metrics | head -n 5 || true"
+                      else
+                        echo "[Info] K3S_NODE_IP 파라미터를 설정하면 metrics endpoint 정보가 표시됩니다."
+                        echo "[Info] Metrics endpoint: http://<K3S_NODE_IP>:9000/metrics"
+                      fi
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "OK: ${env.BRANCH_NAME} -> ${params.IMAGE_NAME}:${env.IMAGE_TAG}"
+        }
+        failure {
+            echo "Pipeline failed."
+        }
+    }
+}
