@@ -38,7 +38,12 @@ pipeline {
         }
 
         stage('Node Build') {
-            when { anyOf { branch 'release'; branch 'develop' } }
+            when { 
+                anyOf { 
+                    expression { env.GIT_BRANCH?.contains('release') }
+                    expression { env.GIT_BRANCH?.contains('develop') }
+                } 
+            }
             steps {
                 sh '''
                   corepack enable || true
@@ -57,7 +62,12 @@ pipeline {
         }
 
         stage('SonarQube (release)') {
-            when { branch 'release' }
+            when { 
+                anyOf {
+                    expression { env.BRANCH_NAME == 'release' || env.BRANCH_NAME == 'origin/release' }
+                    expression { env.GIT_BRANCH?.endsWith('/release') }
+                }
+            }
             steps {
                 withSonarQubeEnv("${SONARQUBE_SERVER}") {
                     sh '''
@@ -71,7 +81,12 @@ pipeline {
         }
 
         stage('SonarQube Quality Gate (release)') {
-            when { branch 'release' }
+            when { 
+                anyOf {
+                    expression { env.BRANCH_NAME == 'release' || env.BRANCH_NAME == 'origin/release' }
+                    expression { env.GIT_BRANCH?.endsWith('/release') }
+                }
+            }
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
@@ -80,7 +95,12 @@ pipeline {
         }
 
         stage('Create PR to develop (release)') {
-            when { branch 'release' }
+            when { 
+                anyOf {
+                    expression { env.BRANCH_NAME == 'release' || env.BRANCH_NAME == 'origin/release' }
+                    expression { env.GIT_BRANCH?.endsWith('/release') }
+                }
+            }
             steps {
                 script {
                     def sonarUrl = sh(
