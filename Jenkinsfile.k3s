@@ -47,20 +47,25 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([
-                    string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')
-                ]) {
-                    sh """
-                      docker run --rm \\
-                        -v \$(pwd):/usr/src \\
-                        -w /usr/src \\
-                        -e SONAR_HOST_URL=${params.SONAR_HOST_URL} \\
-                        -e SONAR_TOKEN=\${SONAR_TOKEN} \\
-                        sonarsource/sonar-scanner-cli:latest \\
-                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \\
-                        -Dsonar.sources=src \\
-                        -Dsonar.sourceEncoding=UTF-8
-                    """
+                timeout(time: 10, unit: 'MINUTES') {
+                    withCredentials([
+                        string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')
+                    ]) {
+                        sh """
+                          echo "[INFO] Starting SonarQube scan..."
+                          echo "[INFO] SonarQube Server: ${params.SONAR_HOST_URL}"
+                          echo "[INFO] Using sonar-project.properties file"
+                          
+                          # sonar-project.properties 파일을 사용하도록 명령어 간소화
+                          # 컨테이너는 현재 디렉토리의 sonar-project.properties 파일을 자동으로 읽습니다.
+                          docker run --rm \\
+                            -v \$(pwd):/usr/src \\
+                            -w /usr/src \\
+                            -e SONAR_HOST_URL=${params.SONAR_HOST_URL} \\
+                            -e SONAR_TOKEN=\${SONAR_TOKEN} \\
+                            sonarsource/sonar-scanner-cli:latest
+                        """
+                    }
                 }
             }
         }
