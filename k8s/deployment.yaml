@@ -27,7 +27,7 @@ spec:
       port: 80
       targetPort: http
     - name: metrics
-      port: 9113
+      port: 8113  # 9113 → 8113 (nginx-exporter 포트와 일치)
       targetPort: metrics
 ---
 apiVersion: apps/v1

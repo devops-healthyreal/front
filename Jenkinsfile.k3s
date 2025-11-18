@@ -111,27 +111,27 @@ pipeline {
                     ).trim()
                     
                     def prBody = """
-## 📦 자동 생성된 배포 PR
+##  자동 생성된 배포 PR
 
 **Develop 브랜치의 변경사항을 Main으로 배포합니다.**
 
-### 📝 최근 커밋 정보
+###  최근 커밋 정보
 - **Author**: ${commitAuthor}
 - **Message**: ${commitMsg}
 - **Commit**: ${commitSha}
 - **Branch**: develop → main
 
-### ✅ SonarQube 품질 검사
-- **Status**: ✅ Quality Gate 통과
+###  SonarQube 품질 검사
+- **Status**:  Quality Gate 통과
 ${sonarUrl ? "- **Report**: ${sonarUrl}" : ""}
 
-### ✅ 배포 전 체크리스트
+###  배포 전 체크리스트
 - [x] SonarQube Quality Gate 통과
 - [ ] 코드 리뷰 완료
 - [ ] 테스트 통과 확인
 - [ ] 배포 준비 완료
 
-### 🔄 배포 프로세스
+###  배포 프로세스
 이 PR이 merge되면 Jenkins를 통해 자동으로 운영 서버(k3s)에 배포됩니다.
 
 ---
@@ -189,9 +189,13 @@ ${sonarUrl ? "- **Report**: ${sonarUrl}" : ""}
         stage('Deploy to Kubernetes (main)') {
             when { branch 'main' }
             steps {
-                withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS}", variable: 'KUBECONFIG_FILE'), credentials('dockerhub-credentials')]) {
+                withCredentials([string(credentialsId: "${KUBECONFIG_CREDENTIALS}", variable: 'KUBECONFIG_CONTENT'), credentials('dockerhub-credentials')]) {
                     sh '''
-                      export KUBECONFIG="${KUBECONFIG_FILE}"
+                      # Secret text의 내용을 임시 파일로 저장
+                      echo "${KUBECONFIG_CONTENT}" > /tmp/kubeconfig-${BUILD_NUMBER}
+                      chmod 600 /tmp/kubeconfig-${BUILD_NUMBER}
+                      export KUBECONFIG="/tmp/kubeconfig-${BUILD_NUMBER}"
+                      
                       ${KUBECTL_BIN} config use-context ${K8S_CONTEXT}
                       
                       # 네임스페이스 생성 (없으면 생성)
@@ -203,7 +207,7 @@ ${sonarUrl ? "- **Report**: ${sonarUrl}" : ""}
                       fi
 
                       # 1. Metrics Service 배포 (nginx-exporter를 외부에서 접근 가능하도록)
-                      ${KUBECTL_BIN} apply -f ${K8S_DIR}/service-metrics-nodeport.yam
+                      ${KUBECTL_BIN} apply -f ${K8S_DIR}/service-metrics-nodeport.yaml
 
                       # 2. Vue 앱 Deployment 배포 (이미지 태그를 교체한 후 적용)
                       ${KUBECTL_BIN} -n ${K8S_NAMESPACE} apply -f ${K8S_DIR}/deployment.yaml
@@ -218,6 +222,9 @@ ${sonarUrl ? "- **Report**: ${sonarUrl}" : ""}
                         echo "[Info] K3S_NODE_IP 파라미터를 설정하면 metrics endpoint 정보가 표시됩니다."
                         echo "[Info] Metrics endpoint: http://<K3S_NODE_IP>:9000/metrics"
                       fi
+                      
+                      # 임시 파일 정리 (선택사항)
+                      rm -f /tmp/kubeconfig-${BUILD_NUMBER}
                     '''
                 }
             }
