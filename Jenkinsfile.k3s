@@ -48,25 +48,44 @@ pipeline {
             }
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
-                    
-                    withSonarQubeEnv(installationName: "${SONARQUBE_SERVER}") {
-                        withCredentials([
-                            string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')
-                        ]) {
-                            sh """
-                              echo "[INFO] Starting SonarQube scan..."
-                              echo "[INFO] SonarQube Server: ${params.SONAR_HOST_URL}"
-                              echo "[INFO] Using sonar-project.properties file"
-                              
-                              # sonar-project.properties 파일을 사용하도록 명령어 간소화
-                              # 컨테이너는 현재 디렉토리의 sonar-project.properties 파일을 자동으로 읽습니다.
-                              docker run --rm \\
-                                -v \$(pwd):/usr/src \\
-                                -w /usr/src \\
-                                -e SONAR_HOST_URL=${params.SONAR_HOST_URL} \\
-                                -e SONAR_TOKEN=\${SONAR_TOKEN} \\
-                                sonarsource/sonar-scanner-cli:latest
-                            """
+                    script {
+                        withSonarQubeEnv(installationName: "${SONARQUBE_SERVER}") {
+                            withCredentials([
+                                string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')
+                            ]) {
+                                def scannerOutput = sh(
+                                    script: """
+                                      docker run --rm \\
+                                        -v \$(pwd):/usr/src \\
+                                        -w /usr/src \\
+                                        -e SONAR_HOST_URL=${params.SONAR_HOST_URL} \\
+                                        -e SONAR_TOKEN=\${SONAR_TOKEN} \\
+                                        sonarsource/sonar-scanner-cli:latest 2>&1
+                                    """,
+                                    returnStdout: true
+                                )
+                                
+                                echo scannerOutput
+                                
+                                // 로그에서 task ID 추출
+                                def taskIdMatch = scannerOutput =~ /task\?id=([a-f0-9-]+)/
+                                if (taskIdMatch) {
+                                    def taskId = taskIdMatch[0][1]
+                                    echo "Found task ID: ${taskId}"
+                                    
+                                    // report-task.txt 파일 생성
+                                    sh """
+                                      mkdir -p .scannerwork
+                                      echo "projectKey=${params.SONAR_PROJECT_KEY}" > .scannerwork/report-task.txt
+                                      echo "serverUrl=${params.SONAR_HOST_URL}" >> .scannerwork/report-task.txt
+                                      echo "ceTaskId=${taskId}" >> .scannerwork/report-task.txt
+                                      echo "ceTaskUrl=${params.SONAR_HOST_URL}/api/ce/task?id=${taskId}" >> .scannerwork/report-task.txt
+                                      cp .scannerwork/report-task.txt report-task.txt
+                                    """
+                                } else {
+                                    echo "Warning: Could not extract task ID from scanner output"
+                                }
+                            }
                         }
                     }
                 }
