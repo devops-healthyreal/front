@@ -67,10 +67,15 @@ pipeline {
                                 
                                 echo scannerOutput
                                 
-                                // 로그에서 task ID 추출
-                                def taskIdMatch = scannerOutput =~ /task\?id=([a-f0-9-]+)/
-                                if (taskIdMatch) {
-                                    def taskId = taskIdMatch[0][1]
+                                // sh 스크립트 내에서 task ID 추출 (Matcher 객체를 변수에 저장하지 않음)
+                                def taskId = sh(
+                                    script: """
+                                      echo '${scannerOutput}' | grep -oP 'task\\?id=\\K[a-f0-9-]+' | head -1 || echo ""
+                                    """,
+                                    returnStdout: true
+                                ).trim()
+                                
+                                if (taskId) {
                                     echo "Found task ID: ${taskId}"
                                     
                                     // report-task.txt 파일 생성
